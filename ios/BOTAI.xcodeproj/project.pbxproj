@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0BA07C2D24BB3A96F8A5E7B7 /* LearnSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D2868C30CC3839C47730203 /* LearnSessionView.swift */; };
+		0BA4C5566EB0DADD4CA7BB38 /* SupabaseConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96A21B4CACDEB48A2BDDB671 /* SupabaseConfiguration.swift */; };
 		2A5ED9453153B12640FAC166 /* DailyPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 376F56258F82F144D8E84E66 /* DailyPlan.swift */; };
 		450DB60F8F67AAF37E06543F /* StudyQuestion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20EAB15C2761F0F7B90FEE9B /* StudyQuestion.swift */; };
 		5F2366BDA8100E1010F0E973 /* ProgressDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1CCBBA4074FD61270C407B7 /* ProgressDashboardView.swift */; };
@@ -15,7 +16,9 @@
 		781C678A610502BED9637291 /* LearningStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D16621BFA37243165C0D00C /* LearningStore.swift */; };
 		7DE450C6FB8F95516C99AEBA /* TodayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8FB7B3788DDBCEE725936CF /* TodayView.swift */; };
 		7F7154D72410ECF270F9D30A /* BOTAIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DD151C06E4A2253F428D68B /* BOTAIApp.swift */; };
+		9B2E3945488A53D2E7EBCBBE /* SupabaseProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A36BBC8DF3354B0F598EA75 /* SupabaseProvider.swift */; };
 		9E1900A09594CDC15739B1CF /* LearningState.swift in Sources */ = {isa = PBXBuildFile; fileRef = F32AD5DD98848D92160A2ECE /* LearningState.swift */; };
+		9E96EBD567277C5F058BD013 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 471FE1DBB6AE91F7EE39CD5F /* Supabase */; };
 		A394EDF0F0E05976F65B1546 /* RootTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCE572C04DE8ADC6B6291399 /* RootTabView.swift */; };
 		AD18CE6462F97696BF1F1A49 /* DemoContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EEC0059B7C03D9B17854A1E /* DemoContent.swift */; };
 		CC57CDD0F772F0F8F0D74D2B /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = E8AC53CBAF0DB8EEF0881AA3 /* PrivacyInfo.xcprivacy */; };
@@ -44,9 +47,11 @@
 		596555D1BDE357A8CAFEFD2C /* LearningStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningStateTests.swift; sourceTree = "<group>"; };
 		6EEC0059B7C03D9B17854A1E /* DemoContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoContent.swift; sourceTree = "<group>"; };
 		73BBD4473054760B92F62626 /* DailyPlanTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyPlanTests.swift; sourceTree = "<group>"; };
+		7A36BBC8DF3354B0F598EA75 /* SupabaseProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseProvider.swift; sourceTree = "<group>"; };
 		7DD151C06E4A2253F428D68B /* BOTAIApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BOTAIApp.swift; sourceTree = "<group>"; };
 		817818ACA82B71632FAE9344 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
 		8D2868C30CC3839C47730203 /* LearnSessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearnSessionView.swift; sourceTree = "<group>"; };
+		96A21B4CACDEB48A2BDDB671 /* SupabaseConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseConfiguration.swift; sourceTree = "<group>"; };
 		AFD3EF09AA65DD0860C0C879 /* BOTAITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = BOTAITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B8FB7B3788DDBCEE725936CF /* TodayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayView.swift; sourceTree = "<group>"; };
 		BCE572C04DE8ADC6B6291399 /* RootTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTabView.swift; sourceTree = "<group>"; };
@@ -55,6 +60,17 @@
 		F32AD5DD98848D92160A2ECE /* LearningState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningState.swift; sourceTree = "<group>"; };
 		FF8BC9DB2ED0AAC035D3F156 /* Attempt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Attempt.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		D772A66F29E898F2404C585B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9E96EBD567277C5F058BD013 /* Supabase in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		0D753F5774526CECB91E3A32 = {
@@ -121,6 +137,7 @@
 				C55152D6C05E8AC39B4428DB /* App */,
 				91232322BB566E034FA34638 /* Domain */,
 				E60E6D46661CB047CA78022B /* Features */,
+				A57CEA6781DF3633F1207D0A /* Infrastructure */,
 				290078F6B17BD60CFCD60456 /* Resources */,
 				C42546F3BBD4B3952C328FCC /* Services */,
 			);
@@ -133,6 +150,15 @@
 				B8FB7B3788DDBCEE725936CF /* TodayView.swift */,
 			);
 			path = Today;
+			sourceTree = "<group>";
+		};
+		A57CEA6781DF3633F1207D0A /* Infrastructure */ = {
+			isa = PBXGroup;
+			children = (
+				96A21B4CACDEB48A2BDDB671 /* SupabaseConfiguration.swift */,
+				7A36BBC8DF3354B0F598EA75 /* SupabaseProvider.swift */,
+			);
+			path = Infrastructure;
 			sourceTree = "<group>";
 		};
 		B167F9A06DD96627FD4E40BB /* Models */ = {
@@ -220,6 +246,7 @@
 			buildPhases = (
 				340F3F8D8C62A3174ACA58A2 /* Sources */,
 				49B905D5724B6E9573E4BF3A /* Resources */,
+				D772A66F29E898F2404C585B /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -227,6 +254,7 @@
 			);
 			name = BOTAI;
 			packageProductDependencies = (
+				471FE1DBB6AE91F7EE39CD5F /* Supabase */,
 			);
 			productName = BOTAI;
 			productReference = 0EEB254DC7672F182570BFA5 /* BOTAI.app */;
@@ -252,6 +280,9 @@
 			);
 			mainGroup = 0D753F5774526CECB91E3A32;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				99D1FBD1C4D4BF85AB393CC3 /* XCRemoteSwiftPackageReference "supabase-swift" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = EF45DE58DE077AA068C034A1 /* Products */;
 			projectDirPath = "";
@@ -291,6 +322,8 @@
 				5F2366BDA8100E1010F0E973 /* ProgressDashboardView.swift in Sources */,
 				A394EDF0F0E05976F65B1546 /* RootTabView.swift in Sources */,
 				450DB60F8F67AAF37E06543F /* StudyQuestion.swift in Sources */,
+				0BA4C5566EB0DADD4CA7BB38 /* SupabaseConfiguration.swift in Sources */,
+				9B2E3945488A53D2E7EBCBBE /* SupabaseProvider.swift in Sources */,
 				7DE450C6FB8F95516C99AEBA /* TodayView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -539,6 +572,25 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		99D1FBD1C4D4BF85AB393CC3 /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase/supabase-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		471FE1DBB6AE91F7EE39CD5F /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 99D1FBD1C4D4BF85AB393CC3 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 047C7DFD313006C15FDB561D /* Project object */;
 }
