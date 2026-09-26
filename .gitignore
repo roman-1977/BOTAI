@@ -20,3 +20,5 @@ xcuserdata/
 # Local AI / editor files
 .idea/
 .vscode/
+
+backend/supabase/.temp/
