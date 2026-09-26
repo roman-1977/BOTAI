@@ -42,9 +42,9 @@ struct TodayView: View {
     }
 
     private var streakRow: some View {
-        Label("12 дней занятий подряд", systemImage: "flame.fill")
+        Label("\(store.streak) дней занятий подряд", systemImage: "flame.fill")
             .font(.headline)
-            .accessibilityLabel("Серия занятий: 12 дней подряд")
+            .accessibilityLabel("Серия занятий: \(store.streak) дней подряд")
     }
 
     private var planCard: some View {

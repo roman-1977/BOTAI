@@ -12,7 +12,7 @@ struct LibraryView: View {
                 else { List(store.publications) { item in VStack(alignment: .leading) { Text("Опросник").font(.headline); Text(item.quiz_id.uuidString).font(.caption).foregroundStyle(.secondary); Text(item.published_at, style: .date).font(.caption2) } } }
             }
             .navigationTitle("Библиотека")
-            .toolbar { Button { showingCreate = true } label: { Image(systemName: "plus") } }
+            .toolbar { ToolbarItemGroup(placement: .topBarTrailing) { NavigationLink { MyQuizzesView() } label: { Image(systemName: "person.crop.rectangle.stack") }; Button { showingCreate = true } label: { Image(systemName: "plus") } } }
             .sheet(isPresented: $showingCreate) { CreateQuizView() }
             .refreshable { await store.refresh() }
             .task { await store.refresh() }

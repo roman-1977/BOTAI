@@ -14,11 +14,11 @@ struct LearnSessionView: View {
         VStack(spacing: 24) {
             ProgressView(value: Double(index), total: Double(store.questions.count))
             Text("\(index + 1) из \(store.questions.count)").font(.caption).foregroundStyle(.secondary)
-            Spacer(); Text(question.prompt).font(.title2.bold()).multilineTextAlignment(.center); answerArea; Spacer()
+            Spacer(); VStack(spacing:12) { if let url=question.mediaURL { AsyncImage(url:url) { image in image.resizable().scaledToFit() } placeholder: { ProgressView() }.frame(maxHeight:220) }; Text(question.prompt).font(.title2.bold()).multilineTextAlignment(.center); if let latex=question.promptLaTeX { Text(latex).font(.system(.body,design:.monospaced)).textSelection(.enabled) } }; answerArea; Spacer()
         }.padding().navigationTitle("БОТАТЬ").navigationBarTitleDisplayMode(.inline)
     }
     @ViewBuilder private var answerArea: some View {
-        if question.kind == .reveal {
+        if question.kind == .reveal || question.kind == .pair {
             if revealed { Text(question.answer).font(.title3); ratingButtons }
             else { Button("Показать ответ") { revealed = true }.buttonStyle(.borderedProminent).controlSize(.large) }
         } else {

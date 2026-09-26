@@ -6,7 +6,7 @@ struct ProfileView: View {
     var body: some View {
         NavigationStack {
             List {
-                Section("Обучение") { Label("Цели", systemImage: "target"); Label("Дневной минимум", systemImage: "checkmark.circle") }
+                Section("Обучение") { NavigationLink { GoalsView() } label: { Label("Цели", systemImage: "target") }; Label("Дневной минимум", systemImage: "checkmark.circle") }
                 Section("Аккаунт") {
                     if auth.isAuthenticated {
                         Label("Аккаунт подключён", systemImage: "checkmark.seal.fill")
@@ -18,7 +18,7 @@ struct ProfileView: View {
                         }.signInWithAppleButtonStyle(.black).frame(height: 48)
                         if let message = auth.errorMessage { Text(message).font(.caption).foregroundStyle(.red) }
                     }
-                    Label("Приватность", systemImage: "hand.raised"); Label("Настройки", systemImage: "gearshape")
+                    NavigationLink { SocialView() } label: { Label("Друзья", systemImage: "person.2") }; NavigationLink { PrivacyView() } label: { Label("Приватность", systemImage: "hand.raised") }; Label("Настройки", systemImage: "gearshape")
                 }
             }.navigationTitle("Профиль")
         }

@@ -7,6 +7,7 @@ struct ProgressDashboardView: View {
     }
 
     @State private var period: Period = .week
+    @Environment(LearningStore.self) private var store
 
     var body: some View {
         NavigationStack {
@@ -18,15 +19,15 @@ struct ProgressDashboardView: View {
                     .pickerStyle(.segmented)
                     GroupBox("Эта неделя") {
                         VStack(alignment: .leading, spacing: 10) {
-                            Text("126 вопросов").font(.title2.bold())
-                            Text("5 учебных дней · 84% точность · 2 ч 18 мин")
-                            Text("Сравнение с предыдущим периодом появится после накопления истории.")
+                            Text("\(store.thisWeek) вопросов").font(.title2.bold())
+                            Text("Прошлая неделя: \(store.previousWeek)")
+                            Text(store.previousWeek == 0 ? "Накопим историю для сравнения." : "Изменение: \(store.thisWeek - store.previousWeek >= 0 ? "+" : "")\(store.thisWeek-store.previousWeek) вопросов")
                                 .font(.subheadline).foregroundStyle(.secondary)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                     }
                     GroupBox("Серия и рекорды") {
-                        Label("12 дней подряд", systemImage: "flame.fill")
+                        Label("\(store.streak) дней подряд", systemImage: "flame.fill")
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
                 }
