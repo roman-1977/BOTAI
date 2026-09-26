@@ -9,6 +9,9 @@ struct TableImportView: View {
     @State private var mappings: Set<CardMapping> = []
     @State private var error: String?
     @State private var showingFileImporter = false
+    #if targetEnvironment(simulator)
+    @State private var macPath = "/Users/romanarzumanov/Downloads/BOTAI/acids.tsv"
+    #endif
 
     var body: some View {
         NavigationStack {
@@ -16,6 +19,10 @@ struct TableImportView: View {
                 Section("Вставь таблицу") {
                     Text("Скопируй диапазон вместе с заголовками из Excel, Numbers или Google Sheets.").font(.caption).foregroundStyle(.secondary)
                     TextEditor(text: $source).frame(minHeight: 150).font(.system(.body, design: .monospaced))
+                    #if targetEnvironment(simulator)
+                    TextField("Путь к файлу на Mac", text: $macPath).font(.caption.monospaced())
+                    Button { importMacFile() } label: { Label("Загрузить с Mac", systemImage: "macbook") }
+                    #endif
                     HStack {
                         Button { showingFileImporter = true } label: { Label("Выбрать CSV/TSV", systemImage: "doc.badge.plus") }
                         Spacer()
@@ -59,6 +66,18 @@ struct TableImportView: View {
         let mapping = CardMapping(from: from, to: to)
         return Toggle("\(table.headers[from]) → \(table.headers[to])", isOn: Binding(get: { mappings.contains(mapping) }, set: { on in if on { mappings.insert(mapping) } else { mappings.remove(mapping) } }))
     }
+    #if targetEnvironment(simulator)
+    private func importMacFile() {
+        do {
+            let url = URL(fileURLWithPath: macPath)
+            let data = try Data(contentsOf: url)
+            guard let text = String(data: data, encoding: .utf8) ?? String(data: data, encoding: .windowsCP1251) else { throw CocoaError(.fileReadInapplicableStringEncoding) }
+            source = text
+            parse()
+        } catch { self.error = "Не удалось прочитать файл с Mac: \(error.localizedDescription)" }
+    }
+    #endif
+
     private func importFile(_ result: Result<[URL], Error>) {
         do {
             guard let url = try result.get().first else { return }
