@@ -1,0 +1,492 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		2A5ED9453153B12640FAC166 /* DailyPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 376F56258F82F144D8E84E66 /* DailyPlan.swift */; };
+		5F2366BDA8100E1010F0E973 /* ProgressDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1CCBBA4074FD61270C407B7 /* ProgressDashboardView.swift */; };
+		7DE450C6FB8F95516C99AEBA /* TodayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8FB7B3788DDBCEE725936CF /* TodayView.swift */; };
+		7F7154D72410ECF270F9D30A /* BOTAIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DD151C06E4A2253F428D68B /* BOTAIApp.swift */; };
+		A394EDF0F0E05976F65B1546 /* RootTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCE572C04DE8ADC6B6291399 /* RootTabView.swift */; };
+		CC57CDD0F772F0F8F0D74D2B /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = E8AC53CBAF0DB8EEF0881AA3 /* PrivacyInfo.xcprivacy */; };
+		D539DF947EAD8FF27E037A2B /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F7BD1B53294738809CBB3A2 /* LibraryView.swift */; };
+		EB96DB4352D299493ABB9F85 /* DailyPlanTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73BBD4473054760B92F62626 /* DailyPlanTests.swift */; };
+		EFFBB0C2CF1C8B55C82E9DE3 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 817818ACA82B71632FAE9344 /* ProfileView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		F4FE53C1A8DB0E64DA076CA8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 047C7DFD313006C15FDB561D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8C7E0572F23B9DC3C118CC43;
+			remoteInfo = BOTAI;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		0EEB254DC7672F182570BFA5 /* BOTAI.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = BOTAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		2F7BD1B53294738809CBB3A2 /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
+		376F56258F82F144D8E84E66 /* DailyPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyPlan.swift; sourceTree = "<group>"; };
+		73BBD4473054760B92F62626 /* DailyPlanTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyPlanTests.swift; sourceTree = "<group>"; };
+		7DD151C06E4A2253F428D68B /* BOTAIApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BOTAIApp.swift; sourceTree = "<group>"; };
+		817818ACA82B71632FAE9344 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
+		AFD3EF09AA65DD0860C0C879 /* BOTAITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = BOTAITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B8FB7B3788DDBCEE725936CF /* TodayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayView.swift; sourceTree = "<group>"; };
+		BCE572C04DE8ADC6B6291399 /* RootTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTabView.swift; sourceTree = "<group>"; };
+		D1CCBBA4074FD61270C407B7 /* ProgressDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressDashboardView.swift; sourceTree = "<group>"; };
+		E8AC53CBAF0DB8EEF0881AA3 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		0D753F5774526CECB91E3A32 = {
+			isa = PBXGroup;
+			children = (
+				949EBB6041A1B2479A16BA41 /* BOTAI */,
+				F8515A6E759785553F1AAA7C /* BOTAITests */,
+				EF45DE58DE077AA068C034A1 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		0F18EEF0304C1E1C44DD447B /* Library */ = {
+			isa = PBXGroup;
+			children = (
+				2F7BD1B53294738809CBB3A2 /* LibraryView.swift */,
+			);
+			path = Library;
+			sourceTree = "<group>";
+		};
+		290078F6B17BD60CFCD60456 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				E8AC53CBAF0DB8EEF0881AA3 /* PrivacyInfo.xcprivacy */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		774EC56372244A964D8757B9 /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+				817818ACA82B71632FAE9344 /* ProfileView.swift */,
+			);
+			path = Profile;
+			sourceTree = "<group>";
+		};
+		7FC73312097A2599C85E1BFF /* Progress */ = {
+			isa = PBXGroup;
+			children = (
+				D1CCBBA4074FD61270C407B7 /* ProgressDashboardView.swift */,
+			);
+			path = Progress;
+			sourceTree = "<group>";
+		};
+		91232322BB566E034FA34638 /* Domain */ = {
+			isa = PBXGroup;
+			children = (
+				376F56258F82F144D8E84E66 /* DailyPlan.swift */,
+			);
+			path = Domain;
+			sourceTree = "<group>";
+		};
+		949EBB6041A1B2479A16BA41 /* BOTAI */ = {
+			isa = PBXGroup;
+			children = (
+				C55152D6C05E8AC39B4428DB /* App */,
+				91232322BB566E034FA34638 /* Domain */,
+				E60E6D46661CB047CA78022B /* Features */,
+				290078F6B17BD60CFCD60456 /* Resources */,
+			);
+			path = BOTAI;
+			sourceTree = "<group>";
+		};
+		97910AB16D540B4201342473 /* Today */ = {
+			isa = PBXGroup;
+			children = (
+				B8FB7B3788DDBCEE725936CF /* TodayView.swift */,
+			);
+			path = Today;
+			sourceTree = "<group>";
+		};
+		C55152D6C05E8AC39B4428DB /* App */ = {
+			isa = PBXGroup;
+			children = (
+				7DD151C06E4A2253F428D68B /* BOTAIApp.swift */,
+				BCE572C04DE8ADC6B6291399 /* RootTabView.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		E60E6D46661CB047CA78022B /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				0F18EEF0304C1E1C44DD447B /* Library */,
+				774EC56372244A964D8757B9 /* Profile */,
+				7FC73312097A2599C85E1BFF /* Progress */,
+				97910AB16D540B4201342473 /* Today */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		EF45DE58DE077AA068C034A1 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				0EEB254DC7672F182570BFA5 /* BOTAI.app */,
+				AFD3EF09AA65DD0860C0C879 /* BOTAITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F8515A6E759785553F1AAA7C /* BOTAITests */ = {
+			isa = PBXGroup;
+			children = (
+				73BBD4473054760B92F62626 /* DailyPlanTests.swift */,
+			);
+			path = BOTAITests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		260C368D456DC4CCE4FCF07B /* BOTAITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A3884EEE6D17BBEE3CE396B7 /* Build configuration list for PBXNativeTarget "BOTAITests" */;
+			buildPhases = (
+				35184F72D555A8D63CF00C3D /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D711A7B369F4C72E30C26BBD /* PBXTargetDependency */,
+			);
+			name = BOTAITests;
+			packageProductDependencies = (
+			);
+			productName = BOTAITests;
+			productReference = AFD3EF09AA65DD0860C0C879 /* BOTAITests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		8C7E0572F23B9DC3C118CC43 /* BOTAI */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7AE5F7AFDF3BD382109429D6 /* Build configuration list for PBXNativeTarget "BOTAI" */;
+			buildPhases = (
+				340F3F8D8C62A3174ACA58A2 /* Sources */,
+				49B905D5724B6E9573E4BF3A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = BOTAI;
+			packageProductDependencies = (
+			);
+			productName = BOTAI;
+			productReference = 0EEB254DC7672F182570BFA5 /* BOTAI.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		047C7DFD313006C15FDB561D /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+				};
+			};
+			buildConfigurationList = AFA2421CA54C59E725415979 /* Build configuration list for PBXProject "BOTAI" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 0D753F5774526CECB91E3A32;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = EF45DE58DE077AA068C034A1 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				8C7E0572F23B9DC3C118CC43 /* BOTAI */,
+				260C368D456DC4CCE4FCF07B /* BOTAITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		49B905D5724B6E9573E4BF3A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CC57CDD0F772F0F8F0D74D2B /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		340F3F8D8C62A3174ACA58A2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7F7154D72410ECF270F9D30A /* BOTAIApp.swift in Sources */,
+				2A5ED9453153B12640FAC166 /* DailyPlan.swift in Sources */,
+				D539DF947EAD8FF27E037A2B /* LibraryView.swift in Sources */,
+				EFFBB0C2CF1C8B55C82E9DE3 /* ProfileView.swift in Sources */,
+				5F2366BDA8100E1010F0E973 /* ProgressDashboardView.swift in Sources */,
+				A394EDF0F0E05976F65B1546 /* RootTabView.swift in Sources */,
+				7DE450C6FB8F95516C99AEBA /* TodayView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		35184F72D555A8D63CF00C3D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EB96DB4352D299493ABB9F85 /* DailyPlanTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		D711A7B369F4C72E30C26BBD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8C7E0572F23B9DC3C118CC43 /* BOTAI */;
+			targetProxy = F4FE53C1A8DB0E64DA076CA8 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		3375CB2B891E7147E4557C0A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MARKETING_VERSION = 0.1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		5E24D7FF671A31C9D498F6FE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.botai.BOTAITests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BOTAI.app/BOTAI";
+			};
+			name = Release;
+		};
+		60D6F68C061E3373F2657831 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = BOTAI;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.botai.app;
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		AE05A12E0F841CE12F144C74 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = BOTAI;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.botai.app;
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		C9A49E2707A7E5E0BF1DFB0C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.botai.BOTAITests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BOTAI.app/BOTAI";
+			};
+			name = Debug;
+		};
+		E6CFEA933C8EE7A1DA1D416E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MARKETING_VERSION = 0.1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		7AE5F7AFDF3BD382109429D6 /* Build configuration list for PBXNativeTarget "BOTAI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				60D6F68C061E3373F2657831 /* Debug */,
+				AE05A12E0F841CE12F144C74 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		A3884EEE6D17BBEE3CE396B7 /* Build configuration list for PBXNativeTarget "BOTAITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C9A49E2707A7E5E0BF1DFB0C /* Debug */,
+				5E24D7FF671A31C9D498F6FE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		AFA2421CA54C59E725415979 /* Build configuration list for PBXProject "BOTAI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3375CB2B891E7147E4557C0A /* Debug */,
+				E6CFEA933C8EE7A1DA1D416E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 047C7DFD313006C15FDB561D /* Project object */;
+}
