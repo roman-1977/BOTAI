@@ -12,11 +12,11 @@ struct MyQuizzesView: View {
                 ContentUnavailableView("Нет своих опросников", systemImage: "square.and.pencil", description: Text("Создай первый материал. Он останется личным, пока ты сам не решишь предложить его к публикации."))
             } else {
                 List(store.quizzes) { quiz in
-                    VStack(alignment: .leading, spacing: 6) {
+                    NavigationLink { PersonalQuizView(quiz: quiz) } label: { VStack(alignment: .leading, spacing: 6) {
                         Text(quiz.title).font(.headline)
                         if let description = quiz.description { Text(description).foregroundStyle(.secondary) }
                         Text("Личный опросник").font(.caption).foregroundStyle(.secondary)
-                    }
+                    } }
                 }
             }
         }
