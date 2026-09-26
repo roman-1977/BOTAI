@@ -132,3 +132,20 @@ BOTAI editorial content.
 
 Equivalent educational facts or curriculum may be independently authored,
 subject to applicable intellectual-property rules.
+
+## Social features and minors
+
+BOTAI social functionality should minimize unnecessary exposure of school-age
+users.
+
+MVP social design uses:
+
+- explicit friendship requests;
+- explicit challenge invitations;
+- private-by-default learning data;
+- explicit sharing of result snapshots;
+- blocking;
+- reporting where public UGC is involved.
+
+A global public learner leaderboard is not part of the MVP and would require
+a separate privacy/safety review.

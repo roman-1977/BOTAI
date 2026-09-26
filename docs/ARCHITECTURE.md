@@ -115,3 +115,16 @@ BOLDAI is not part of MVP.
 Future AI communication must go through trusted backend infrastructure.
 
 AI provider credentials must never be stored in the iOS application.
+
+## Social architecture
+
+Social features are separated from core learning.
+
+Friendships, shared result snapshots and challenges must not expose raw
+LearningState or complete Attempt history by default.
+
+Challenge results are server-derived from synchronized Attempts.
+
+Blocking takes precedence over friendship and social visibility.
+
+The MVP does not require a global public leaderboard.

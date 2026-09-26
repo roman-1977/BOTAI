@@ -66,3 +66,13 @@ Do not begin implementation until MVP scope and architecture are explicitly appr
   responsible author's account.
 - Account deletion is a trusted backend workflow, not a client-side cascade.
 - Sign in with Apple deletion must include required credential/token revocation.
+
+## Social model
+
+- Learning data is private by default.
+- Friendship requires explicit acceptance.
+- Blocking overrides friendship/social visibility.
+- Sharing creates explicit snapshots; do not expose raw Attempt history.
+- Challenges use explicit invited participants.
+- Challenge results are calculated server-side from Attempts.
+- No global public learner leaderboard in MVP.
