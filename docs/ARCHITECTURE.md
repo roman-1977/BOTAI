@@ -138,3 +138,7 @@ See `LOCAL_DATABASE.md` and ADR-013.
 Private local state is isolated per authenticated user; see ADR-015.
 
 The local database is not a security boundary; Supabase RLS/trusted server operations remain authoritative for authorization.
+
+## Daily motivation loop
+
+Long-lived Goal and Daily Target are separate product concepts. BOTAI prepares the study mix and proposes a sustainable target; the learner confirms/changes the target. During Learn, personal daily progress is visible without obscuring the question. Self-comparison is primary; social comparison is explicit and secondary. See `GOALS_PROGRESS.md` and `SCREEN_FLOW.md`.

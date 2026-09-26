@@ -29,3 +29,5 @@ Core stack: Swift/SwiftUI, GRDB/SQLite local-first persistence, Supabase/Postgre
 Architecture decisions are recorded in `docs/decisions/`; accepted ADRs take precedence over older working notes.
 
 Next executable milestone: offline Learn vertical slice backed by GRDB with durable idempotent sync outbox.
+
+Product UX drafts: `docs/GOALS_PROGRESS.md` and `docs/SCREEN_FLOW.md`.
