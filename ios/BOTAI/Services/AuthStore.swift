@@ -9,6 +9,15 @@ final class AuthStore {
     private let client = SupabaseProvider.client
 
     func bootstrap() async { isAuthenticated = (try? await client.auth.session) != nil }
+    #if DEBUG
+    func signInForDevelopment() async {
+        do {
+            _ = try await client.auth.signInAnonymously()
+            isAuthenticated = true
+            errorMessage = nil
+        } catch { errorMessage = error.localizedDescription }
+    }
+    #endif
     func signInWithApple(idToken: String, nonce: String? = nil) async {
         do { _ = try await client.auth.signInWithIdToken(credentials: .init(provider: .apple, idToken: idToken, nonce: nonce)); isAuthenticated = true; errorMessage = nil }
         catch { errorMessage = error.localizedDescription }

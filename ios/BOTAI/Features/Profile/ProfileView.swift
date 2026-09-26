@@ -12,6 +12,9 @@ struct ProfileView: View {
                         Label("Аккаунт подключён", systemImage: "checkmark.seal.fill")
                         Button("Выйти", role: .destructive) { Task { await auth.signOut() } }
                     } else {
+                        #if DEBUG
+                        Button("Войти для тестирования") { Task { await auth.signInForDevelopment() } }.buttonStyle(.borderedProminent)
+                        #endif
                         SignInWithAppleButton(.signIn) { request in request.requestedScopes = [.fullName, .email] } onCompletion: { result in
                             guard case let .success(authorization) = result, let credential = authorization.credential as? ASAuthorizationAppleIDCredential, let data = credential.identityToken, let token = String(data: data, encoding: .utf8) else { return }
                             Task { await auth.signInWithApple(idToken: token) }
