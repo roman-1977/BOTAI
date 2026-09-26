@@ -29,3 +29,15 @@ Core concept:
 Product discovery / requirements.
 
 Do not begin implementation until MVP scope and architecture are explicitly approved.
+
+## Accepted architecture
+
+- iOS: Swift + SwiftUI.
+- Architecture: feature-based and local-first.
+- Backend: Supabase / PostgreSQL.
+- Backend access must be isolated behind repository/sync layers.
+- Core study must work offline.
+- Sign in with Apple is planned.
+- Published content has a lifecycle independent from author account deletion.
+- BOLDAI and AI content generation are post-MVP.
+- Product is designed App-Store-first.
