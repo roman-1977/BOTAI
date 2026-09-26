@@ -1,7 +1,9 @@
 import SwiftUI
 
 struct TodayView: View {
-    private let plan = DailyPlan(completed: 7, recommended: 18, habitMinimum: 5, due: 8, weak: 6, new: 4)
+    @Environment(LearningStore.self) private var store
+    @State private var showingLearn = false
+    private var plan: DailyPlan { DailyPlan(completed: store.completedToday, recommended: 18, habitMinimum: 5, due: 8, weak: 6, new: 4) }
 
     var body: some View {
         NavigationStack {
@@ -10,7 +12,7 @@ struct TodayView: View {
                     goalCard
                     streakRow
                     planCard
-                    Button("БОТАТЬ") { }
+                    Button(store.completedToday > 0 ? "ПРОДОЛЖИТЬ" : "БОТАТЬ") { showingLearn = true }
                         .buttonStyle(.borderedProminent)
                         .controlSize(.large)
                         .frame(maxWidth: .infinity)
@@ -20,6 +22,7 @@ struct TodayView: View {
                 .padding()
             }
             .navigationTitle("Сегодня")
+            .sheet(isPresented: $showingLearn) { LearnSessionView() }
         }
     }
 
