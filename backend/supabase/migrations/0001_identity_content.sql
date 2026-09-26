@@ -370,6 +370,9 @@ create table public.question_versions (
         unique (question_id, version_number)
 );
 
+create unique index question_versions_question_id_id_uidx
+    on public.question_versions(question_id, id);
+
 create index question_versions_question_id_idx
     on public.question_versions(question_id);
 
@@ -443,11 +446,14 @@ create table public.quiz_version_items (
     quiz_version_id uuid not null
         references public.quiz_versions(id) on delete cascade,
 
-    question_id uuid not null
-        references public.questions(id) on delete restrict,
+    question_id uuid not null,
 
-    question_version_id uuid not null
-        references public.question_versions(id) on delete restrict,
+    question_version_id uuid not null,
+
+    constraint quiz_version_items_question_version_fk
+        foreign key (question_id, question_version_id)
+        references public.question_versions(question_id, id)
+        on delete restrict,
 
     position integer not null default 0,
 
@@ -465,32 +471,6 @@ create index quiz_version_items_question_idx
 
 create index quiz_version_items_question_version_idx
     on public.quiz_version_items(question_version_id);
-
--- Ensure that the chosen QuestionVersion actually belongs
--- to the specified Question.
-
-create or replace function public.validate_quiz_version_item()
-returns trigger
-language plpgsql
-as $$
-begin
-    if not exists (
-        select 1
-        from public.question_versions qv
-        where qv.id = new.question_version_id
-          and qv.question_id = new.question_id
-    ) then
-        raise exception
-            'question_version_id does not belong to question_id';
-    end if;
-
-    return new;
-end;
-$$;
-
-create trigger quiz_version_items_validate_question_version
-before insert or update on public.quiz_version_items
-for each row execute function public.validate_quiz_version_item();
 
 -- ============================================================
 -- RLS

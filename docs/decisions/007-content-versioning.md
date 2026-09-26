@@ -1,6 +1,6 @@
 # ADR-007: Stable content identity with explicit versions
 
-Status: Proposed for schema review
+Status: Accepted
 
 ## Decision
 
