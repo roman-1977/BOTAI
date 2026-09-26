@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		01C7E1B0EF4F6D6F80C5B24C /* TableImportParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91BCE76407335C9713304F9D /* TableImportParserTests.swift */; };
 		0BA07C2D24BB3A96F8A5E7B7 /* LearnSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D2868C30CC3839C47730203 /* LearnSessionView.swift */; };
 		0BA4C5566EB0DADD4CA7BB38 /* SupabaseConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96A21B4CACDEB48A2BDDB671 /* SupabaseConfiguration.swift */; };
 		0ED1DD8B73BC23FBBB1859A4 /* SocialService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 426462B56FD0EC9AF023D9F2 /* SocialService.swift */; };
@@ -29,6 +30,7 @@
 		781C678A610502BED9637291 /* LearningStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D16621BFA37243165C0D00C /* LearningStore.swift */; };
 		7DE450C6FB8F95516C99AEBA /* TodayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8FB7B3788DDBCEE725936CF /* TodayView.swift */; };
 		7F7154D72410ECF270F9D30A /* BOTAIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DD151C06E4A2253F428D68B /* BOTAIApp.swift */; };
+		90CBE53052CF75BA676EF925 /* TableImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A95EBF1449A8292B3B357F3 /* TableImportView.swift */; };
 		9246243623147B92DD1F2B96 /* PublicLibraryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25FA731CD7EB466A9BF618BE /* PublicLibraryStore.swift */; };
 		9B2E3945488A53D2E7EBCBBE /* SupabaseProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A36BBC8DF3354B0F598EA75 /* SupabaseProvider.swift */; };
 		9E1900A09594CDC15739B1CF /* LearningState.swift in Sources */ = {isa = PBXBuildFile; fileRef = F32AD5DD98848D92160A2ECE /* LearningState.swift */; };
@@ -43,6 +45,7 @@
 		D7F8FBAC026F7E1A993DF7D6 /* AccountSafetyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7626D494DC476ABE5F29F05 /* AccountSafetyService.swift */; };
 		EB96DB4352D299493ABB9F85 /* DailyPlanTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73BBD4473054760B92F62626 /* DailyPlanTests.swift */; };
 		EFFBB0C2CF1C8B55C82E9DE3 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 817818ACA82B71632FAE9344 /* ProfileView.swift */; };
+		FBD3E7D13A08590E439D5590 /* TableImport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1105B18B7AC81192B0685B /* TableImport.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -75,11 +78,14 @@
 		817818ACA82B71632FAE9344 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
 		82BCCA7D3BE740D7C95A5EEE /* CreateQuizView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateQuizView.swift; sourceTree = "<group>"; };
 		85FD06012F0309FFB737DFF6 /* LearningRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningRepository.swift; sourceTree = "<group>"; };
+		8A95EBF1449A8292B3B357F3 /* TableImportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableImportView.swift; sourceTree = "<group>"; };
 		8D2868C30CC3839C47730203 /* LearnSessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearnSessionView.swift; sourceTree = "<group>"; };
 		8D8D9DA46C3B40BE1319A220 /* SocialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocialView.swift; sourceTree = "<group>"; };
+		91BCE76407335C9713304F9D /* TableImportParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableImportParserTests.swift; sourceTree = "<group>"; };
 		93C5C5E035E2E220496009B0 /* GoalsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalsView.swift; sourceTree = "<group>"; };
 		94C51202DD85DC322CB38093 /* AuthStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthStore.swift; sourceTree = "<group>"; };
 		96A21B4CACDEB48A2BDDB671 /* SupabaseConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseConfiguration.swift; sourceTree = "<group>"; };
+		9A1105B18B7AC81192B0685B /* TableImport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableImport.swift; sourceTree = "<group>"; };
 		A7626D494DC476ABE5F29F05 /* AccountSafetyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountSafetyService.swift; sourceTree = "<group>"; };
 		AFD3EF09AA65DD0860C0C879 /* BOTAITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = BOTAITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B8FB7B3788DDBCEE725936CF /* TodayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayView.swift; sourceTree = "<group>"; };
@@ -123,6 +129,7 @@
 				82BCCA7D3BE740D7C95A5EEE /* CreateQuizView.swift */,
 				2F7BD1B53294738809CBB3A2 /* LibraryView.swift */,
 				01557FDC64AB9F3E731E15AA /* MyQuizzesView.swift */,
+				8A95EBF1449A8292B3B357F3 /* TableImportView.swift */,
 			);
 			path = Library;
 			sourceTree = "<group>";
@@ -166,6 +173,7 @@
 			isa = PBXGroup;
 			children = (
 				376F56258F82F144D8E84E66 /* DailyPlan.swift */,
+				9A1105B18B7AC81192B0685B /* TableImport.swift */,
 				B167F9A06DD96627FD4E40BB /* Models */,
 			);
 			path = Domain;
@@ -275,6 +283,7 @@
 				73BBD4473054760B92F62626 /* DailyPlanTests.swift */,
 				DE4287578AC9F45A50FD6A46 /* LearningRepositoryTests.swift */,
 				596555D1BDE357A8CAFEFD2C /* LearningStateTests.swift */,
+				91BCE76407335C9713304F9D /* TableImportParserTests.swift */,
 			);
 			path = BOTAITests;
 			sourceTree = "<group>";
@@ -401,6 +410,8 @@
 				0BA4C5566EB0DADD4CA7BB38 /* SupabaseConfiguration.swift in Sources */,
 				9B2E3945488A53D2E7EBCBBE /* SupabaseProvider.swift in Sources */,
 				71CB7CC267C09951B04112E9 /* SyncService.swift in Sources */,
+				FBD3E7D13A08590E439D5590 /* TableImport.swift in Sources */,
+				90CBE53052CF75BA676EF925 /* TableImportView.swift in Sources */,
 				7DE450C6FB8F95516C99AEBA /* TodayView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -412,6 +423,7 @@
 				EB96DB4352D299493ABB9F85 /* DailyPlanTests.swift in Sources */,
 				BD11BD3F336356AE0475190A /* LearningRepositoryTests.swift in Sources */,
 				D6B02D17988A36E08AD46C18 /* LearningStateTests.swift in Sources */,
+				01C7E1B0EF4F6D6F80C5B24C /* TableImportParserTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

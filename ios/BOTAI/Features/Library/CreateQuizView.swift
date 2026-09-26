@@ -9,13 +9,15 @@ struct CreateQuizView: View {
     @State private var cards: [(String,String)] = []
     @State private var saving = false
     @State private var error: String?
+    @State private var showingImport = false
     var body: some View {
         NavigationStack { Form {
             Section("Опросник") { TextField("Название", text: $title); TextField("Описание", text: $description, axis: .vertical) }
+            Section("Добавление") { Button { showingImport = true } label: { Label("Импортировать таблицу", systemImage: "tablecells") } }
             Section("Новая карточка") { TextField("Вопрос", text: $prompt, axis: .vertical); TextField("Ответ", text: $answer, axis: .vertical); Button("Добавить карточку") { cards.append((prompt,answer)); prompt=""; answer="" }.disabled(prompt.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty || answer.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty) }
             Section("Карточки: \(cards.count)") { ForEach(Array(cards.enumerated()), id: \.offset) { _, card in VStack(alignment:.leading) { Text(card.0).font(.headline); Text(card.1).foregroundStyle(.secondary) } } }
             if let error { Section { Text(error).foregroundStyle(.red) } }
-        }.navigationTitle("Новый опросник").toolbar { ToolbarItem(placement:.cancellationAction){Button("Отмена"){dismiss()}}; ToolbarItem(placement:.confirmationAction){Button(saving ? "Сохраняем…" : "Сохранить"){ save() }.disabled(saving || title.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty || cards.isEmpty)} } }
+        }.navigationTitle("Новый опросник").sheet(isPresented: $showingImport) { TableImportView(cards: $cards) }.toolbar { ToolbarItem(placement:.cancellationAction){Button("Отмена"){dismiss()}}; ToolbarItem(placement:.confirmationAction){Button(saving ? "Сохраняем…" : "Сохранить"){ save() }.disabled(saving || title.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty || cards.isEmpty)} } }
     }
     private func save() { saving=true; Task { do { try await QuizAuthoringService().createQuiz(title:title, description:description.isEmpty ? nil:description, cards:cards); dismiss() } catch { self.error=error.localizedDescription; saving=false } } }
 }
