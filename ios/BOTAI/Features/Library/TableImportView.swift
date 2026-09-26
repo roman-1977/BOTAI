@@ -1,4 +1,5 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct TableImportView: View {
     @Environment(\.dismiss) private var dismiss
@@ -7,6 +8,7 @@ struct TableImportView: View {
     @State private var table: ImportedTable?
     @State private var mappings: Set<CardMapping> = []
     @State private var error: String?
+    @State private var showingFileImporter = false
 
     var body: some View {
         NavigationStack {
@@ -14,12 +16,19 @@ struct TableImportView: View {
                 Section("Вставь таблицу") {
                     Text("Скопируй диапазон вместе с заголовками из Excel, Numbers или Google Sheets.").font(.caption).foregroundStyle(.secondary)
                     TextEditor(text: $source).frame(minHeight: 150).font(.system(.body, design: .monospaced))
-                    Button("Распознать таблицу") { parse() }.disabled(source.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    HStack {
+                        Button { showingFileImporter = true } label: { Label("Выбрать CSV/TSV", systemImage: "doc.badge.plus") }
+                        Spacer()
+                        Button("Распознать таблицу") { parse() }.disabled(source.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    }
                 }
                 if let table { preview(table) }
                 if let error { Section { Text(error).foregroundStyle(.red) } }
             }
             .navigationTitle("Импорт таблицы")
+            .fileImporter(isPresented: $showingFileImporter, allowedContentTypes: [.commaSeparatedText, .tabSeparatedText, .plainText], allowsMultipleSelection: false) { result in
+                importFile(result)
+            }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Отмена") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) { Button("Добавить") { add() }.disabled(table == nil || mappings.isEmpty) }
@@ -50,6 +59,18 @@ struct TableImportView: View {
         let mapping = CardMapping(from: from, to: to)
         return Toggle("\(table.headers[from]) → \(table.headers[to])", isOn: Binding(get: { mappings.contains(mapping) }, set: { on in if on { mappings.insert(mapping) } else { mappings.remove(mapping) } }))
     }
+    private func importFile(_ result: Result<[URL], Error>) {
+        do {
+            guard let url = try result.get().first else { return }
+            let accessed = url.startAccessingSecurityScopedResource()
+            defer { if accessed { url.stopAccessingSecurityScopedResource() } }
+            let data = try Data(contentsOf: url)
+            guard let text = String(data: data, encoding: .utf8) ?? String(data: data, encoding: .windowsCP1251) else { throw CocoaError(.fileReadInapplicableStringEncoding) }
+            source = text
+            parse()
+        } catch { self.error = "Не удалось открыть файл: \(error.localizedDescription)" }
+    }
+
     private func parse() {
         guard let parsed = TableImportParser.parse(source) else { table=nil; mappings=[]; error="Не удалось распознать таблицу. Вставь минимум две строки с одинаковым числом столбцов."; return }
         table=parsed; error=nil; mappings=[]
