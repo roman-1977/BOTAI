@@ -3,6 +3,7 @@ import SwiftUI
 struct TodayView: View {
     @Environment(LearningStore.self) private var store
     @State private var showingLearn = false
+    @State private var showingLibrary = false
     private var plan: DailyPlan { DailyPlan(completed: store.completedToday, recommended: store.dailyRecommended, habitMinimum: 5, due: store.dueCount, weak: store.weakCount, new: store.newCount) }
 
     var body: some View {
@@ -12,7 +13,7 @@ struct TodayView: View {
                     goalCard
                     streakRow
                     planCard
-                    Button(store.completedToday > 0 ? "ПРОДОЛЖИТЬ" : "БОТАТЬ") { showingLearn = true }
+                    Button("ВЫБРАТЬ ОПРОСНИК") { showingLibrary = true }
                         .buttonStyle(.borderedProminent)
                         .controlSize(.large)
                         .frame(maxWidth: .infinity)
@@ -23,6 +24,7 @@ struct TodayView: View {
             }
             .navigationTitle("Сегодня")
             .sheet(isPresented: $showingLearn) { LearnSessionView() }
+            .sheet(isPresented: $showingLibrary) { NavigationStack { MyQuizzesView() } }
         }
     }
 

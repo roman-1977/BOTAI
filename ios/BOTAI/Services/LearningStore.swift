@@ -17,6 +17,11 @@ final class LearningStore {
     func use(questions: [StudyQuestion]) { self.questions = questions }
 
     func attempts(for questionIDs: Set<UUID>) -> [Attempt] { attempts.filter { questionIDs.contains($0.questionID) } }
+    func stats(for questions: [StudyQuestion]) -> QuizLearningStats {
+        let ids=Set(questions.map(\.id)); let a=attempts(for:ids); let learned=questions.filter{states[$0.id] != nil}.count
+        let known=a.filter{$0.rating == .good}.count; let hard=a.filter{$0.rating == .hard}.count; let again=a.filter{$0.rating == .again}.count
+        return QuizLearningStats(total:questions.count,learned:learned,attempts:a.count,known:known,hard:hard,again:again,today:a.filter{Calendar.current.isDateInToday($0.occurredAt)}.count)
+    }
 
     func record(question: StudyQuestion, rating: RecallRating) {
         let attempt = Attempt(id: UUID(), questionID: question.id, occurredAt: .now, rating: rating)

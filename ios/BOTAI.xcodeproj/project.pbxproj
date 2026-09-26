@@ -21,6 +21,7 @@
 		3165E5BDF41AD0CA2B1D05FB /* GoalsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93C5C5E035E2E220496009B0 /* GoalsView.swift */; };
 		3F21EC6E380058072DA0F977 /* GRDB in Frameworks */ = {isa = PBXBuildFile; productRef = FA66617488ED7FA786129E43 /* GRDB */; };
 		450DB60F8F67AAF37E06543F /* StudyQuestion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20EAB15C2761F0F7B90FEE9B /* StudyQuestion.swift */; };
+		4536E93EFE8DAD448151D032 /* QuizProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D192BB63142C7D058BAB1FB /* QuizProgressView.swift */; };
 		4D691B9E8238C076179611F9 /* AuthStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94C51202DD85DC322CB38093 /* AuthStore.swift */; };
 		5A12B1F15D5597BAC0A052FD /* PrivacyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5FD625BAE7505A8ED07C0FF /* PrivacyView.swift */; };
 		5D1A9A0CF7BE6596404B4F45 /* GoalsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 060EA43C9AA1DB9826561BBC /* GoalsStore.swift */; };
@@ -30,6 +31,7 @@
 		6A60369E4A8DB77764573C28 /* MyQuizzesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD3FEB8A29FC431933664685 /* MyQuizzesStore.swift */; };
 		6DD255E31AC7133F90AD3DDE /* PersonalQuizView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 734B831E99BBB11025AFE3A1 /* PersonalQuizView.swift */; };
 		71CB7CC267C09951B04112E9 /* SyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7935931C0B46440EDBC79AAA /* SyncService.swift */; };
+		74E002C861A7DE9F5052FCC6 /* QuizHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F9CB0BB7E9EBAFF8DF32C10 /* QuizHistoryView.swift */; };
 		781C678A610502BED9637291 /* LearningStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D16621BFA37243165C0D00C /* LearningStore.swift */; };
 		7DE450C6FB8F95516C99AEBA /* TodayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8FB7B3788DDBCEE725936CF /* TodayView.swift */; };
 		7F7154D72410ECF270F9D30A /* BOTAIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DD151C06E4A2253F428D68B /* BOTAIApp.swift */; };
@@ -41,6 +43,7 @@
 		A394EDF0F0E05976F65B1546 /* RootTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCE572C04DE8ADC6B6291399 /* RootTabView.swift */; };
 		AD18CE6462F97696BF1F1A49 /* DemoContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EEC0059B7C03D9B17854A1E /* DemoContent.swift */; };
 		B041CC1EA11FFDB1EF541A27 /* QuizQuestionFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3020713EAC0EC5EEF203804 /* QuizQuestionFactory.swift */; };
+		B432884C11B6796A953925C5 /* QuizLearningStats.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96251857123A04ECDF272634 /* QuizLearningStats.swift */; };
 		BD11BD3F336356AE0475190A /* LearningRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE4287578AC9F45A50FD6A46 /* LearningRepositoryTests.swift */; };
 		BDED0A52965C1A1DB3E933F6 /* CreateQuizView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82BCCA7D3BE740D7C95A5EEE /* CreateQuizView.swift */; };
 		CC57CDD0F772F0F8F0D74D2B /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = E8AC53CBAF0DB8EEF0881AA3 /* PrivacyInfo.xcprivacy */; };
@@ -71,6 +74,7 @@
 		0EEB254DC7672F182570BFA5 /* BOTAI.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = BOTAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		20EAB15C2761F0F7B90FEE9B /* StudyQuestion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyQuestion.swift; sourceTree = "<group>"; };
 		25FA731CD7EB466A9BF618BE /* PublicLibraryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublicLibraryStore.swift; sourceTree = "<group>"; };
+		2D192BB63142C7D058BAB1FB /* QuizProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizProgressView.swift; sourceTree = "<group>"; };
 		2F7BD1B53294738809CBB3A2 /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
 		376F56258F82F144D8E84E66 /* DailyPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyPlan.swift; sourceTree = "<group>"; };
 		3FA5BF0C84057B447AE79E32 /* QuizAuthoringService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizAuthoringService.swift; sourceTree = "<group>"; };
@@ -82,6 +86,7 @@
 		7935931C0B46440EDBC79AAA /* SyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncService.swift; sourceTree = "<group>"; };
 		7A36BBC8DF3354B0F598EA75 /* SupabaseProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseProvider.swift; sourceTree = "<group>"; };
 		7DD151C06E4A2253F428D68B /* BOTAIApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BOTAIApp.swift; sourceTree = "<group>"; };
+		7F9CB0BB7E9EBAFF8DF32C10 /* QuizHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizHistoryView.swift; sourceTree = "<group>"; };
 		817818ACA82B71632FAE9344 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
 		82BCCA7D3BE740D7C95A5EEE /* CreateQuizView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateQuizView.swift; sourceTree = "<group>"; };
 		85FD06012F0309FFB737DFF6 /* LearningRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningRepository.swift; sourceTree = "<group>"; };
@@ -93,6 +98,7 @@
 		91BCE76407335C9713304F9D /* TableImportParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableImportParserTests.swift; sourceTree = "<group>"; };
 		93C5C5E035E2E220496009B0 /* GoalsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalsView.swift; sourceTree = "<group>"; };
 		94C51202DD85DC322CB38093 /* AuthStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthStore.swift; sourceTree = "<group>"; };
+		96251857123A04ECDF272634 /* QuizLearningStats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizLearningStats.swift; sourceTree = "<group>"; };
 		96A21B4CACDEB48A2BDDB671 /* SupabaseConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseConfiguration.swift; sourceTree = "<group>"; };
 		986CACA862E1D54CD4DF06CF /* StudySetDraft.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudySetDraft.swift; sourceTree = "<group>"; };
 		9A1105B18B7AC81192B0685B /* TableImport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableImport.swift; sourceTree = "<group>"; };
@@ -144,6 +150,8 @@
 				2F7BD1B53294738809CBB3A2 /* LibraryView.swift */,
 				01557FDC64AB9F3E731E15AA /* MyQuizzesView.swift */,
 				734B831E99BBB11025AFE3A1 /* PersonalQuizView.swift */,
+				7F9CB0BB7E9EBAFF8DF32C10 /* QuizHistoryView.swift */,
+				2D192BB63142C7D058BAB1FB /* QuizProgressView.swift */,
 				8A95EBF1449A8292B3B357F3 /* TableImportView.swift */,
 			);
 			path = Library;
@@ -188,6 +196,7 @@
 			isa = PBXGroup;
 			children = (
 				376F56258F82F144D8E84E66 /* DailyPlan.swift */,
+				96251857123A04ECDF272634 /* QuizLearningStats.swift */,
 				E3020713EAC0EC5EEF203804 /* QuizQuestionFactory.swift */,
 				986CACA862E1D54CD4DF06CF /* StudySetDraft.swift */,
 				9A1105B18B7AC81192B0685B /* TableImport.swift */,
@@ -425,6 +434,9 @@
 				5F2366BDA8100E1010F0E973 /* ProgressDashboardView.swift in Sources */,
 				9246243623147B92DD1F2B96 /* PublicLibraryStore.swift in Sources */,
 				2D697125F33EEC8E69CF44B8 /* QuizAuthoringService.swift in Sources */,
+				74E002C861A7DE9F5052FCC6 /* QuizHistoryView.swift in Sources */,
+				B432884C11B6796A953925C5 /* QuizLearningStats.swift in Sources */,
+				4536E93EFE8DAD448151D032 /* QuizProgressView.swift in Sources */,
 				B041CC1EA11FFDB1EF541A27 /* QuizQuestionFactory.swift in Sources */,
 				A394EDF0F0E05976F65B1546 /* RootTabView.swift in Sources */,
 				0ED1DD8B73BC23FBBB1859A4 /* SocialService.swift in Sources */,

@@ -13,9 +13,8 @@ struct PersonalQuizView: View {
     private var history:[Attempt] { learning.attempts(for:Set(questions.map(\.id))) }
     var body: some View {
         Group { if let detail { List {
-            Section { Button("Начать опрос") { learning.use(questions:questions); showingLearn=true }.buttonStyle(.borderedProminent); Button("Редактировать") { editing=true }; Button("Добавить к цели") { choosingGoal=true } }
-            Section("Прогресс") { LabeledContent("Вопросов",value:"\(questions.count)"); LabeledContent("Ответов за всё время",value:"\(history.count)"); LabeledContent("Сегодня",value:"\(history.filter{Calendar.current.isDateInToday($0.occurredAt)}.count)"); LabeledContent("Изучено",value:"\(questions.filter{learning.states[$0.id] != nil}.count) из \(questions.count)") }
-            if !history.isEmpty { Section("Последние ответы") { ForEach(history.sorted{$0.occurredAt > $1.occurredAt}.prefix(20)) { a in HStack { Text(a.rating.title); Spacer(); Text(a.occurredAt,style:.relative).foregroundStyle(.secondary) } } } }
+            Section { Button("Начать опрос") { learning.use(questions:questions); showingLearn=true }.buttonStyle(.borderedProminent); NavigationLink("Прогресс") { QuizProgressView(questions:questions) }; NavigationLink("История") { QuizHistoryView(questions:questions) }; Button("Добавить к цели") { choosingGoal=true }; Button("Редактировать") { editing=true } }
+            Section("Сейчас") { let s=learning.stats(for:questions); LabeledContent("Изучено",value:"\(s.learned) из \(s.total)"); LabeledContent("Ответов сегодня",value:"\(s.today)"); ProgressView(value:s.coverage) }
             Section("Вопросы") { ForEach(Array(detail.draft.cards.prefix(50).enumerated()),id:\.offset) { _,c in VStack(alignment:.leading){Text(c.0).font(.headline);Text(c.1).foregroundStyle(.secondary)} } }
         } } else if let error { ContentUnavailableView("Не удалось открыть",systemImage:"exclamationmark.triangle",description:Text(error)) } else { ProgressView() } }
         .navigationTitle(quiz.title).task { await load() }
