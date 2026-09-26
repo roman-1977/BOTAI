@@ -5,6 +5,12 @@ struct ImportedTable: Sendable {
     let rows: [[String]]
 }
 
+struct ImportedCard: Sendable, Equatable {
+    let prompt: String
+    let answer: String
+    let context: String?
+}
+
 struct CardMapping: Identifiable, Hashable, Sendable {
     let from: Int
     let to: Int
@@ -24,7 +30,8 @@ enum TableImportParser {
     static func cards(table: ImportedTable, mappings: Set<CardMapping>) -> [(String, String)] {
         table.rows.flatMap { row in mappings.sorted { $0.id < $1.id }.compactMap { map in
             guard map.from < row.count, map.to < row.count, !row[map.from].isEmpty, !row[map.to].isEmpty else { return nil }
-            return (row[map.from], row[map.to])
+            let prompt = "\(table.headers[map.from]): \(row[map.from])\n\(table.headers[map.to])?"
+            return (prompt, row[map.to])
         }}
     }
 }

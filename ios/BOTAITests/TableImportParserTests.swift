@@ -10,6 +10,6 @@ struct TableImportParserTests {
         let maps: Set<CardMapping> = [.init(from:0,to:1), .init(from:1,to:0), .init(from:0,to:2)]
         let cards = TableImportParser.cards(table: table, mappings: maps)
         #expect(cards.count == 6)
-        #expect(cards.contains { $0.0 == "H₂SO₄" && $0.1 == "SO₄²⁻" })
+        #expect(cards.contains { $0.0.contains("H₂SO₄") && $0.0.contains("Остаток?") && $0.1 == "SO₄²⁻" })
     }
 }
