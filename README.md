@@ -1,13 +1,21 @@
 # BOTAI
 
-BOTAI is an adaptive learning and knowledge retention application.
+BOTAI — приложение для запоминания больших объёмов структурированной информации и подготовки к проверке знаний.
 
-Working concept:
+## Концепция
 
 **БОТАЙ → БОЛТАЙ → ЗНАЙ**
 
-- **БОТАЙ** — memorization and spaced repetition of approved learning material.
-- **БОЛТАЙ** — AI exam based on the material already studied.
-- **ЗНАЙ** — the target state: retained and understood knowledge.
+- **БОТАЙ** — запоминание и повторение утверждённого учебного материала.
+- **БОЛТАЙ (BOLDAI)** — AI-экзамен по уже изученному материалу.
+- **ЗНАЙ** — цель: не просто увидеть правильный ответ, а устойчиво помнить и понимать материал.
 
-Status: product design / requirements.
+Первый основной сценарий — подготовка школьника к ЕГЭ по нескольким предметам.
+
+Архитектура продукта не должна быть жёстко привязана к ЕГЭ: тот же механизм должен впоследствии подходить для языков, медицины, профессионального обучения и других областей.
+
+## Status
+
+Product discovery / requirements.
+
+См. документацию в `/docs`.
