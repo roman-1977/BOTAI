@@ -188,3 +188,41 @@ draft
 Deleting the author's account must not automatically cascade-delete accepted published educational material.
 
 Exact legal/licensing behavior will be specified separately.
+
+## Data/Sync v1 decisions
+
+### UUID
+
+All synchronized domain entities use stable UUID identifiers.
+
+### Question versions
+
+Question is the stable learning identity.
+
+QuestionVersion represents a concrete revision of that question.
+
+Attempts retain the QuestionVersion used when the answer occurred.
+
+### Attempts as historical evidence
+
+Attempt is an append-oriented learning event.
+
+Attempts are the durable evidence from which learning state can be reconstructed.
+
+### LearningState as calculated state
+
+LearningState is optimized current state, not the only source of truth.
+
+It may be recalculated from Attempts when algorithms or synchronized history change.
+
+### Multi-device learning
+
+Attempts created on different devices are merged by UUID rather than resolving progress using simple last-write-wins.
+
+### Local storage scope
+
+The device stores subscribed/downloaded content rather than the entire public library.
+
+### Sync support
+
+Local persistence includes durable synchronization state and a pending-operation queue.

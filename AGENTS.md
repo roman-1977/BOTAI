@@ -41,3 +41,15 @@ Do not begin implementation until MVP scope and architecture are explicitly appr
 - Published content has a lifecycle independent from author account deletion.
 - BOLDAI and AI content generation are post-MVP.
 - Product is designed App-Store-first.
+
+## Data and synchronization
+
+- Local persistence: SQLite via GRDB.
+- All synchronized domain objects use stable UUIDs.
+- Attempts are append-oriented learning events.
+- LearningState is derived/cached current state.
+- Never resolve learning progress using naive last-write-wins.
+- Pair directions may have separate LearningState.
+- Published content updates must preserve compatible user learning history.
+- Device stores selected/downloaded content, not the complete public library.
+- Sync operations must be idempotent.
