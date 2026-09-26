@@ -250,6 +250,9 @@ create table public.quiz_versions (
         unique (quiz_id, version_number)
 );
 
+create unique index quiz_versions_quiz_id_id_uidx
+    on public.quiz_versions(quiz_id, id);
+
 create index quiz_versions_quiz_id_idx
     on public.quiz_versions(quiz_id);
 
@@ -390,6 +393,9 @@ create table public.answer_options (
     archived_at timestamptz
 );
 
+create unique index answer_options_question_id_id_uidx
+    on public.answer_options(question_id, id);
+
 create index answer_options_question_id_idx
     on public.answer_options(question_id);
 
@@ -397,8 +403,9 @@ create index answer_options_question_id_idx
 create table public.answer_option_versions (
     id uuid primary key default gen_random_uuid(),
 
-    answer_option_id uuid not null
-        references public.answer_options(id) on delete cascade,
+    question_id uuid not null,
+
+    answer_option_id uuid not null,
 
     question_version_id uuid not null
         references public.question_versions(id) on delete cascade,
@@ -414,6 +421,16 @@ create table public.answer_option_versions (
     is_correct boolean not null default false,
 
     created_at timestamptz not null default now(),
+
+    constraint answer_option_versions_option_question_fk
+        foreign key (question_id, answer_option_id)
+        references public.answer_options(question_id, id)
+        on delete cascade,
+
+    constraint answer_option_versions_question_version_fk
+        foreign key (question_id, question_version_id)
+        references public.question_versions(question_id, id)
+        on delete cascade,
 
     constraint answer_option_versions_has_content
         check (

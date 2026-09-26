@@ -16,6 +16,16 @@ BOTAI — приложение для запоминания больших об
 
 ## Status
 
-Product discovery / requirements.
+Architecture approved; implementation preparation.
 
 См. документацию в `/docs`.
+
+## Current architecture status
+
+MVP scope and the core architecture are approved. The repository currently contains the backend data-model design (`0001`–`0004`) and accepted architecture decisions. iOS implementation has not started yet.
+
+Core stack: Swift/SwiftUI, GRDB/SQLite local-first persistence, Supabase/PostgreSQL/Auth/Storage, and trusted server functions for privileged workflows.
+
+Architecture decisions are recorded in `docs/decisions/`; accepted ADRs take precedence over older working notes.
+
+Next executable milestone: offline Learn vertical slice backed by GRDB with durable idempotent sync outbox.

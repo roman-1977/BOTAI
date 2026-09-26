@@ -128,3 +128,13 @@ Challenge results are server-derived from synchronized Attempts.
 Blocking takes precedence over friendship and social visibility.
 
 The MVP does not require a global public leaderboard.
+
+## Local persistence contract
+
+GRDB/SQLite is the operational source for iOS repository state. Local mutations that require synchronization are committed atomically with durable outbox records. Pull pages are committed atomically with their sync cursors.
+
+See `LOCAL_DATABASE.md` and ADR-013.
+
+Private local state is isolated per authenticated user; see ADR-015.
+
+The local database is not a security boundary; Supabase RLS/trusted server operations remain authoritative for authorization.

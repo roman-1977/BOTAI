@@ -26,9 +26,9 @@ Core concept:
 
 ## Current phase
 
-Product discovery / requirements.
+Architecture approved; implementation preparation.
 
-Do not begin implementation until MVP scope and architecture are explicitly approved.
+Implementation may begin in roadmap order; preserve accepted ADRs.
 
 ## Accepted architecture
 
@@ -38,7 +38,7 @@ Do not begin implementation until MVP scope and architecture are explicitly appr
 - Backend access must be isolated behind repository/sync layers.
 - Core study must work offline.
 - Sign in with Apple is planned.
-- Published content has a lifecycle independent from author account deletion.
+- Published UGC follows ADR-004 account-deletion lifecycle.
 - BOLDAI and AI content generation are post-MVP.
 - Product is designed App-Store-first.
 
@@ -76,3 +76,37 @@ Do not begin implementation until MVP scope and architecture are explicitly appr
 - Challenges use explicit invited participants.
 - Challenge results are calculated server-side from Attempts.
 - No global public learner leaderboard in MVP.
+
+## Decision precedence
+
+- Accepted ADRs are authoritative for architecture decisions.
+- `docs/OPEN_QUESTIONS.md` contains only unresolved decisions.
+- If older prose conflicts with an Accepted ADR, update the prose instead of reviving the old decision.
+
+## Local database contract
+
+- iOS operational persistence is SQLite via GRDB.
+- Repositories use GRDB; SwiftUI does not treat Supabase responses as durable UI state.
+- Domain writes and required outbox operations are one local transaction.
+- Pull cursors advance atomically with application of the corresponding remote page.
+- Local LearningState may be provisional; synchronized Attempts remain durable learning evidence.
+
+## Relational integrity
+
+When a record stores both a stable identity and one of its version IDs, enforce the pairing with a composite foreign key. Do not rely on independent FKs or application validation for this invariant.
+
+## Local account isolation
+
+Prefer a separate private GRDB store per authenticated user. Never allow account switching to expose another user's cached learning or social data. Public cache reuse is allowed only for non-private content with compatible lifecycle rules.
+
+- Never edit a GRDB migration after it has shipped in an App Store build; add a new forward migration.
+
+- Do not log private answer/content payloads by default when instrumenting sync failures.
+
+- Do not use device wall-clock timestamps as a universal conflict resolver across devices.
+
+- Version durable outbox payloads; queued operations may survive an app upgrade.
+
+- Sync correctness must not depend on iOS background execution being granted.
+
+- Authentication secrets belong in Keychain, never SQLite or source-controlled config.

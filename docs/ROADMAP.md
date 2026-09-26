@@ -70,3 +70,16 @@ AI-экзамен остаётся частью продуктовой конц�
 ## Принцип
 
 Архитектура MVP должна позволять добавить BOLDAI без переписывания учебного ядра.
+
+## Current implementation sequence
+
+1. Harden and validate backend schema design.
+2. Define GRDB/local-first sync contract.
+3. Create iOS project skeleton and local database migrations.
+4. Implement authentication/bootstrap.
+5. Implement core Learn loop offline-first.
+6. Connect synchronization and public library.
+7. Add content authoring/publication, goals/statistics, then social features.
+8. Complete App Store privacy/moderation/account-deletion operational checks before release.
+
+The first executable milestone is an offline Learn vertical slice with durable Attempt/outbox behavior, not a full set of empty screens.

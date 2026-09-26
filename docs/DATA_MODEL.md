@@ -175,7 +175,7 @@ Users subscribe to the Quiz and may receive later versions without losing compat
 
 ## Published content lifecycle
 
-Published content has a lifecycle independent from the author's account.
+Public UGC uses the moderated lifecycle defined by ADR-004 and ADR-009.
 
 Typical states:
 
@@ -183,11 +183,9 @@ draft
 → submitted
 → in_review
 → published
-→ suspended / archived
+→ suspended / withdrawn
 
-Deleting the author's account must not automatically cascade-delete accepted published educational material.
-
-Exact legal/licensing behavior will be specified separately.
+Ordinary user-generated publications are withdrawn/removed during responsible account deletion. Collaborative ownership and legally required retention are handled explicitly by the trusted deletion workflow.
 
 ## Data/Sync v1 decisions
 
@@ -226,3 +224,9 @@ The device stores subscribed/downloaded content rather than the entire public li
 ### Sync support
 
 Local persistence includes durable synchronization state and a pending-operation queue.
+
+## Superseding lifecycle note
+
+The earlier statement in this document that accepted published UGC survives author account deletion is superseded by **ADR-004**. Ordinary user-generated publications are withdrawn/removed as part of the responsible account deletion workflow, subject to collaborative ownership, legal retention requirements and the detailed deletion policy.
+
+Accepted ADRs take precedence over older working notes in this document.

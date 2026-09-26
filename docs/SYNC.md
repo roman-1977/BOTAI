@@ -206,3 +206,21 @@ publication becomes unavailable.
 
 Exact removal of cached UGC from devices during account deletion or content
 withdrawal will be defined in the local sync implementation.
+
+## Local transaction contract
+
+The iOS implementation uses GRDB/SQLite. A local domain mutation and its required outbox operation must commit in the same SQLite transaction.
+
+Remote pull streams use independent durable cursors. Applying a remote page and advancing its cursor must also be one SQLite transaction.
+
+See `docs/LOCAL_DATABASE.md` and ADR-013 for the implementation contract.
+
+Private sync state/cursors are scoped to the authenticated user's local database. Account switching must not reuse another user's private cursor state.
+
+The local store is not an authorization boundary; all uploads remain subject to server RLS and trusted-operation validation.
+
+Transient outbox failures use bounded exponential backoff with jitter; permanent authorization/validation failures must not retry in a tight loop.
+
+Do not assume device wall clocks provide a global total order for Attempts; preserve both event time and server receipt metadata.
+
+Background execution is an optimization only; correctness must survive suspension/termination at any point.

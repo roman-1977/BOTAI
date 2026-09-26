@@ -43,8 +43,12 @@ create table public.enrollments (
         references public.quizzes(id) on delete restrict,
 
     -- Version currently adopted by this learner.
-    quiz_version_id uuid not null
-        references public.quiz_versions(id) on delete restrict,
+    quiz_version_id uuid not null,
+
+    constraint enrollments_quiz_version_fk
+        foreign key (quiz_id, quiz_version_id)
+        references public.quiz_versions(quiz_id, id)
+        on delete restrict,
 
     enrolled_at timestamptz not null default now(),
     updated_at timestamptz not null default now(),
@@ -134,8 +138,7 @@ create table public.attempts (
     quiz_id uuid
         references public.quizzes(id) on delete set null,
 
-    quiz_version_id uuid
-        references public.quiz_versions(id) on delete set null,
+    quiz_version_id uuid,
 
     question_id uuid not null
         references public.questions(id) on delete restrict,
@@ -155,6 +158,14 @@ create table public.attempts (
 
     -- Server time: when this event first arrived.
     received_at timestamptz not null default now(),
+
+    constraint attempts_quiz_version_pair
+        check ((quiz_id is null) = (quiz_version_id is null)),
+
+    constraint attempts_quiz_version_fk
+        foreign key (quiz_id, quiz_version_id)
+        references public.quiz_versions(quiz_id, id)
+        on delete set null,
 
     constraint attempts_question_version_fk
         foreign key (question_id, question_version_id)
