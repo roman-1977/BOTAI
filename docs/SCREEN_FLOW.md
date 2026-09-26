@@ -83,3 +83,19 @@ Home/Learn/Progress use local data and remain usable offline for downloaded/enro
 ## Deferred flow
 
 BOLDAI / AI exam is intentionally excluded from this v1 screen flow. The architecture reserves it, but its UX is designed separately before implementation.
+
+## Personal library and publication — MVP correction
+
+The Library tab opens the user's own learning library first, not the public catalog.
+
+`Library → My learning library → Quiz detail → Start quiz`
+
+Owned quiz: `Quiz detail → Start / Edit / More`.
+
+Published quiz added to the user's library: `Quiz detail → Start / Remove from library / Create my copy`. It is not directly editable.
+
+Discovery is secondary: `Library → Shared library → Search/categories → Published quiz detail → Add to my library`.
+
+Creation is private by default: `My learning library → Create/import → Preview generated question-answer pairs → Save → Quiz detail`.
+
+Publication is explicit and separate: `Owned quiz → More → Propose publication → choose catalog placement → Preview submission → Submit for moderation`.

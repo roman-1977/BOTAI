@@ -142,3 +142,14 @@ The local database is not a security boundary; Supabase RLS/trusted server opera
 ## Daily motivation loop
 
 Long-lived Goal and Daily Target are separate product concepts. BOTAI prepares the study mix and proposes a sustainable target; the learner confirms/changes the target. During Learn, personal daily progress is visible without obscuring the question. Self-comparison is primary; social comparison is explicit and secondary. See `GOALS_PROGRESS.md` and `SCREEN_FLOW.md`.
+
+## Content ownership boundary
+
+Personal authoring, personal library membership, shared publication and import provenance are separate concerns.
+
+- Owned quiz: mutable user content and concrete learning items.
+- Shared publication: moderated/versioned content.
+- Library membership: a user's reference/download of shared content; it does not grant edit rights.
+- Import provenance: administrator-facing retained source + generation parameters; it is not a live dependency of the quiz.
+
+The application must expose capabilities from explicit ownership/membership data. It must not infer authorization in SwiftUI. Publication remains an explicit server-validated workflow with catalog placement.

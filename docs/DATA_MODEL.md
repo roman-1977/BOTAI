@@ -230,3 +230,17 @@ Local persistence includes durable synchronization state and a pending-operation
 The earlier statement in this document that accepted published UGC survives author account deletion is superseded by **ADR-004**. Ordinary user-generated publications are withdrawn/removed as part of the responsible account deletion workflow, subject to collaborative ownership, legal retention requirements and the detailed deletion policy.
 
 Accepted ADRs take precedence over older working notes in this document.
+
+## Personal quiz ownership and library membership (MVP clarification)
+
+A user's learning library is the primary content surface. A quiz shown there has an explicit relationship type; the UI must never infer edit rights from titles, publication state, or download state.
+
+- `owned`: created or imported by the current user. Fully editable.
+- `library`: added/downloaded from published shared content. The published original is read-only for the learner.
+- To modify a `library` quiz, the user explicitly creates an independent owned copy.
+
+Import source is administrative provenance, not runtime quiz content. The original uploaded table/file and import-generation parameters may be retained for administrator inspection/export/reuse. It is not used to regenerate an existing quiz.
+
+A saved quiz contains the resulting concrete question-answer items used by learning. Personal creation does not submit anything for moderation.
+
+Publication is a separate explicit workflow. A submission identifies the proposed catalog placement (course/subject/section/topic as applicable) and the quiz/version being proposed. Approval creates/updates shared published content; the author's owned quiz remains their own content.

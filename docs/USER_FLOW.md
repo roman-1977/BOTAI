@@ -83,3 +83,15 @@ BOTAI включает связанные с пробелами элементы
 Цикл:
 
 **БОТАЙ → БОЛТАЙ → ПРОБЕЛЫ → БОТАЙ → БОЛТАЙ → ЗНАЙ**
+
+## Quiz ownership flow
+
+Personal-first: `Library → My quizzes → Open → Start`.
+
+Authoring: `My quizzes → Create/import → Review pairs → Save privately → Open/Start/Edit`.
+
+Shared discovery: `Library → Shared library → Published quiz → Add to my library → Open/Start`.
+
+Shared content is read-only. To change it: `Published quiz → Create my copy → Owned quiz → Edit`.
+
+Publishing: `Owned quiz → Propose publication → Select course/subject/section/topic → Review → Submit`. Saving and publishing are never the same action.
