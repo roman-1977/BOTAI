@@ -28,6 +28,10 @@ final class LearningStore {
         return attempts.filter { $0.occurredAt >= start && $0.occurredAt < end }.count
     }
     var thisWeek: Int { count(daysBack: -1, length: 7) }
+    var dailyRecommended: Int { max(10, min(40, states.values.filter { $0.nextDueAt <= .now }.count + 10)) }
+    var dueCount: Int { states.values.filter { $0.nextDueAt <= .now }.count }
+    var weakCount: Int { states.values.filter { $0.streak == 0 }.count }
+    var newCount: Int { max(0, questions.count - states.count) }
     var previousWeek: Int { count(daysBack: 6, length: 7) }
     var streak: Int {
         let cal=Calendar.current; let days=Set(attempts.map{cal.startOfDay(for:$0.occurredAt)}); var n=0; var d=cal.startOfDay(for:.now)

@@ -28,6 +28,6 @@ actor QuizAuthoringService {
 extension QuizAuthoringService {
     func submitLatest(quizID: UUID, versionID: UUID, note: String? = nil) async throws {
         let user = try await client.auth.session.user
-        try await client.from("publication_submissions").insert(SubmissionInsert(quiz_id: quizID, quiz_version_id: versionID, submitted_by: user.id, author_note: note)).execute()
+        try await client.rpc("submit_quiz_for_publication", params: ["p_quiz_id": quizID.uuidString, "p_version_id": versionID.uuidString, "p_note": note ?? ""]).execute()
     }
 }

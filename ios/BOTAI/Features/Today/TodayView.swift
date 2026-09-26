@@ -3,7 +3,7 @@ import SwiftUI
 struct TodayView: View {
     @Environment(LearningStore.self) private var store
     @State private var showingLearn = false
-    private var plan: DailyPlan { DailyPlan(completed: store.completedToday, recommended: 18, habitMinimum: 5, due: 8, weak: 6, new: 4) }
+    private var plan: DailyPlan { DailyPlan(completed: store.completedToday, recommended: store.dailyRecommended, habitMinimum: 5, due: store.dueCount, weak: store.weakCount, new: store.newCount) }
 
     var body: some View {
         NavigationStack {
@@ -32,7 +32,7 @@ struct TodayView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Активная цель").font(.caption).foregroundStyle(.secondary)
                     Text("Учусь по плану").font(.headline)
-                    Text("Темп будет рассчитан по выбранному материалу и сроку.")
+                    Text("Сегодня: \(store.dailyRecommended) вопросов по текущему прогрессу.")
                         .font(.subheadline).foregroundStyle(.secondary)
                 }
                 Spacer()
@@ -66,7 +66,7 @@ struct TodayView: View {
 
     private var insightCard: some View {
         GroupBox {
-            Label("Здесь появится сравнение с твоей собственной недавней динамикой.", systemImage: "chart.line.uptrend.xyaxis")
+            Label(store.previousWeek == 0 ? "Накопим неделю истории для сравнения." : "Эта неделя: \(store.thisWeek), прошлая: \(store.previousWeek).", systemImage: "chart.line.uptrend.xyaxis")
                 .font(.subheadline)
         }
     }

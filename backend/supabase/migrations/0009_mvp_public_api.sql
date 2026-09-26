@@ -1,0 +1,6 @@
+begin;
+create or replace function public.public_library() returns table(publication_id uuid,quiz_id uuid,quiz_version_id uuid,title text,description text,published_at timestamptz) language sql stable security definer set search_path=public as $$ select p.id,p.quiz_id,p.quiz_version_id,qv.title,qv.description,p.published_at from publications p join quiz_versions qv on qv.id=p.quiz_version_id where p.status='published' order by p.published_at desc $$;
+create or replace function public.my_quizzes() returns table(quiz_id uuid,quiz_version_id uuid,title text,description text,version_number integer,created_at timestamptz,submission_status text) language sql stable security definer set search_path=public as $$ select q.id,qv.id,qv.title,qv.description,qv.version_number,q.created_at,(select ps.status::text from publication_submissions ps where ps.quiz_version_id=qv.id order by ps.submitted_at desc limit 1) from quizzes q join lateral(select * from quiz_versions x where x.quiz_id=q.id order by version_number desc limit 1)qv on true where q.creator_user_id=auth.uid() and q.archived_at is null order by q.updated_at desc $$;
+grant execute on function public.public_library() to anon,authenticated;
+grant execute on function public.my_quizzes() to authenticated;
+commit;
