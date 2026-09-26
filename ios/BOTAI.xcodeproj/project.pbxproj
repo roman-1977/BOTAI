@@ -21,6 +21,7 @@
 		781C678A610502BED9637291 /* LearningStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D16621BFA37243165C0D00C /* LearningStore.swift */; };
 		7DE450C6FB8F95516C99AEBA /* TodayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8FB7B3788DDBCEE725936CF /* TodayView.swift */; };
 		7F7154D72410ECF270F9D30A /* BOTAIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DD151C06E4A2253F428D68B /* BOTAIApp.swift */; };
+		9246243623147B92DD1F2B96 /* PublicLibraryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25FA731CD7EB466A9BF618BE /* PublicLibraryStore.swift */; };
 		9B2E3945488A53D2E7EBCBBE /* SupabaseProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A36BBC8DF3354B0F598EA75 /* SupabaseProvider.swift */; };
 		9E1900A09594CDC15739B1CF /* LearningState.swift in Sources */ = {isa = PBXBuildFile; fileRef = F32AD5DD98848D92160A2ECE /* LearningState.swift */; };
 		9E96EBD567277C5F058BD013 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 471FE1DBB6AE91F7EE39CD5F /* Supabase */; };
@@ -48,6 +49,7 @@
 		0D16621BFA37243165C0D00C /* LearningStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningStore.swift; sourceTree = "<group>"; };
 		0EEB254DC7672F182570BFA5 /* BOTAI.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = BOTAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		20EAB15C2761F0F7B90FEE9B /* StudyQuestion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyQuestion.swift; sourceTree = "<group>"; };
+		25FA731CD7EB466A9BF618BE /* PublicLibraryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublicLibraryStore.swift; sourceTree = "<group>"; };
 		2F7BD1B53294738809CBB3A2 /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
 		376F56258F82F144D8E84E66 /* DailyPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyPlan.swift; sourceTree = "<group>"; };
 		596555D1BDE357A8CAFEFD2C /* LearningStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningStateTests.swift; sourceTree = "<group>"; };
@@ -201,6 +203,7 @@
 				94C51202DD85DC322CB38093 /* AuthStore.swift */,
 				6EEC0059B7C03D9B17854A1E /* DemoContent.swift */,
 				0D16621BFA37243165C0D00C /* LearningStore.swift */,
+				25FA731CD7EB466A9BF618BE /* PublicLibraryStore.swift */,
 				7935931C0B46440EDBC79AAA /* SyncService.swift */,
 			);
 			path = Services;
@@ -352,6 +355,7 @@
 				D539DF947EAD8FF27E037A2B /* LibraryView.swift in Sources */,
 				EFFBB0C2CF1C8B55C82E9DE3 /* ProfileView.swift in Sources */,
 				5F2366BDA8100E1010F0E973 /* ProgressDashboardView.swift in Sources */,
+				9246243623147B92DD1F2B96 /* PublicLibraryStore.swift in Sources */,
 				A394EDF0F0E05976F65B1546 /* RootTabView.swift in Sources */,
 				450DB60F8F67AAF37E06543F /* StudyQuestion.swift in Sources */,
 				0BA4C5566EB0DADD4CA7BB38 /* SupabaseConfiguration.swift in Sources */,
