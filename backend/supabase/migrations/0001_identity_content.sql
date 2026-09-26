@@ -2,9 +2,8 @@
 -- Migration 0001: Identity + Content
 -- PostgreSQL / Supabase
 --
--- IMPORTANT:
--- This migration is currently a design artifact.
--- Do not apply to production until the schema has been reviewed.
+-- DESIGN STATUS:
+-- Reviewed draft. Not yet applied to Supabase.
 
 begin;
 
@@ -29,7 +28,8 @@ $$;
 -- ============================================================
 
 create table public.profiles (
-    user_id uuid primary key references auth.users(id) on delete cascade,
+    user_id uuid primary key
+        references auth.users(id) on delete cascade,
 
     display_name text,
     avatar_path text,
@@ -40,14 +40,13 @@ create table public.profiles (
     constraint profiles_display_name_length
         check (
             display_name is null
-            or char_length(display_name) between 1 and 80
+            or char_length(btrim(display_name)) between 1 and 80
         )
 );
 
 create trigger profiles_set_updated_at
 before update on public.profiles
 for each row execute function public.set_updated_at();
-
 
 -- ============================================================
 -- Catalog
@@ -142,7 +141,6 @@ create trigger topics_set_updated_at
 before update on public.topics
 for each row execute function public.set_updated_at();
 
-
 -- ============================================================
 -- Quiz identity
 -- ============================================================
@@ -150,23 +148,62 @@ for each row execute function public.set_updated_at();
 create table public.quizzes (
     id uuid primary key default gen_random_uuid(),
 
-    creator_user_id uuid references auth.users(id) on delete set null,
+    creator_user_id uuid
+        references auth.users(id) on delete set null,
+
+    -- Set when this quiz was created as an independent copy/fork.
+    source_quiz_id uuid
+        references public.quizzes(id) on delete set null,
 
     created_at timestamptz not null default now(),
     updated_at timestamptz not null default now(),
+    archived_at timestamptz,
 
-    archived_at timestamptz
+    constraint quizzes_not_own_source
+        check (source_quiz_id is null or source_quiz_id <> id)
 );
 
 create index quizzes_creator_user_id_idx
     on public.quizzes(creator_user_id);
 
+create index quizzes_source_quiz_id_idx
+    on public.quizzes(source_quiz_id);
+
 create trigger quizzes_set_updated_at
 before update on public.quizzes
 for each row execute function public.set_updated_at();
 
+-- ============================================================
+-- Quiz collaborators
+-- ============================================================
 
--- A quiz may appear in more than one place in the catalog.
+create type public.quiz_collaborator_role as enum (
+    'owner',
+    'editor'
+);
+
+create table public.quiz_collaborators (
+    quiz_id uuid not null
+        references public.quizzes(id) on delete cascade,
+
+    user_id uuid not null
+        references auth.users(id) on delete cascade,
+
+    role public.quiz_collaborator_role not null,
+
+    created_at timestamptz not null default now(),
+
+    primary key (quiz_id, user_id)
+);
+
+create index quiz_collaborators_user_id_idx
+    on public.quiz_collaborators(user_id);
+
+-- ============================================================
+-- Quiz catalog placement
+-- ============================================================
+
+-- One quiz may appear in several topics.
 
 create table public.quiz_topic_placements (
     quiz_id uuid not null
@@ -183,7 +220,6 @@ create table public.quiz_topic_placements (
 create index quiz_topic_placements_topic_idx
     on public.quiz_topic_placements(topic_id);
 
-
 -- ============================================================
 -- Quiz versions
 -- ============================================================
@@ -199,7 +235,8 @@ create table public.quiz_versions (
     title text not null,
     description text,
 
-    created_by uuid references auth.users(id) on delete set null,
+    created_by uuid
+        references auth.users(id) on delete set null,
 
     created_at timestamptz not null default now(),
 
@@ -216,9 +253,8 @@ create table public.quiz_versions (
 create index quiz_versions_quiz_id_idx
     on public.quiz_versions(quiz_id);
 
-
 -- ============================================================
--- Questions
+-- Question identity
 -- ============================================================
 
 create type public.question_type as enum (
@@ -228,27 +264,28 @@ create type public.question_type as enum (
     'multiple_choice'
 );
 
+-- Question no longer belongs directly to one Quiz.
+-- It is a reusable learning identity.
+
 create table public.questions (
     id uuid primary key default gen_random_uuid(),
 
-    quiz_id uuid not null
-        references public.quizzes(id) on delete cascade,
+    creator_user_id uuid
+        references auth.users(id) on delete set null,
 
     question_type public.question_type not null,
 
     created_at timestamptz not null default now(),
     updated_at timestamptz not null default now(),
-
     archived_at timestamptz
 );
 
-create index questions_quiz_id_idx
-    on public.questions(quiz_id);
+create index questions_creator_user_id_idx
+    on public.questions(creator_user_id);
 
 create trigger questions_set_updated_at
 before update on public.questions
 for each row execute function public.set_updated_at();
-
 
 -- ============================================================
 -- Media
@@ -261,7 +298,8 @@ create type public.media_type as enum (
 create table public.media (
     id uuid primary key default gen_random_uuid(),
 
-    owner_user_id uuid references auth.users(id) on delete set null,
+    owner_user_id uuid
+        references auth.users(id) on delete set null,
 
     media_type public.media_type not null,
     storage_path text not null,
@@ -285,7 +323,6 @@ create table public.media (
 create unique index media_storage_path_uidx
     on public.media(storage_path);
 
-
 -- ============================================================
 -- Question versions
 -- ============================================================
@@ -296,20 +333,15 @@ create table public.question_versions (
     question_id uuid not null
         references public.questions(id) on delete cascade,
 
-    quiz_version_id uuid not null
-        references public.quiz_versions(id) on delete cascade,
-
     version_number integer not null,
 
-    position integer not null default 0,
-
-    -- Prompt
+    -- Prompt / side A
     prompt_text text,
     prompt_latex text,
     prompt_media_id uuid
         references public.media(id) on delete set null,
 
-    -- Answer / second side
+    -- Answer / side B
     answer_text text,
     answer_latex text,
     answer_media_id uuid
@@ -318,6 +350,9 @@ create table public.question_versions (
     -- Pair configuration
     allow_a_to_b boolean not null default true,
     allow_b_to_a boolean not null default false,
+
+    created_by uuid
+        references auth.users(id) on delete set null,
 
     created_at timestamptz not null default now(),
 
@@ -332,25 +367,15 @@ create table public.question_versions (
         ),
 
     constraint question_versions_unique_version
-        unique (question_id, version_number),
-
-    constraint question_version_once_per_quiz_version
-        unique (quiz_version_id, question_id)
+        unique (question_id, version_number)
 );
 
-create index question_versions_question_idx
+create index question_versions_question_id_idx
     on public.question_versions(question_id);
 
-create index question_versions_quiz_version_idx
-    on public.question_versions(quiz_version_id);
-
-
 -- ============================================================
--- Answer options
+-- Stable answer-option identity
 -- ============================================================
-
--- Stable option identity. This allows reordering without changing
--- the identity of the answer option.
 
 create table public.answer_options (
     id uuid primary key default gen_random_uuid(),
@@ -359,11 +384,10 @@ create table public.answer_options (
         references public.questions(id) on delete cascade,
 
     created_at timestamptz not null default now(),
-
     archived_at timestamptz
 );
 
-create index answer_options_question_idx
+create index answer_options_question_id_idx
     on public.answer_options(question_id);
 
 
@@ -402,6 +426,71 @@ create table public.answer_option_versions (
 create index answer_option_versions_question_version_idx
     on public.answer_option_versions(question_version_id);
 
+-- ============================================================
+-- Quiz version contents
+-- ============================================================
+
+-- A QuizVersion freezes exactly which QuestionVersion was used.
+--
+-- This allows:
+-- * one Question to appear in several quizzes;
+-- * different quizzes to use different versions of that Question;
+-- * a new QuizVersion to change ordering independently.
+
+create table public.quiz_version_items (
+    id uuid primary key default gen_random_uuid(),
+
+    quiz_version_id uuid not null
+        references public.quiz_versions(id) on delete cascade,
+
+    question_id uuid not null
+        references public.questions(id) on delete restrict,
+
+    question_version_id uuid not null
+        references public.question_versions(id) on delete restrict,
+
+    position integer not null default 0,
+
+    created_at timestamptz not null default now(),
+
+    constraint quiz_version_question_once
+        unique (quiz_version_id, question_id)
+);
+
+create index quiz_version_items_quiz_version_idx
+    on public.quiz_version_items(quiz_version_id);
+
+create index quiz_version_items_question_idx
+    on public.quiz_version_items(question_id);
+
+create index quiz_version_items_question_version_idx
+    on public.quiz_version_items(question_version_id);
+
+-- Ensure that the chosen QuestionVersion actually belongs
+-- to the specified Question.
+
+create or replace function public.validate_quiz_version_item()
+returns trigger
+language plpgsql
+as $$
+begin
+    if not exists (
+        select 1
+        from public.question_versions qv
+        where qv.id = new.question_version_id
+          and qv.question_id = new.question_id
+    ) then
+        raise exception
+            'question_version_id does not belong to question_id';
+    end if;
+
+    return new;
+end;
+$$;
+
+create trigger quiz_version_items_validate_question_version
+before insert or update on public.quiz_version_items
+for each row execute function public.validate_quiz_version_item();
 
 -- ============================================================
 -- RLS
@@ -413,16 +502,17 @@ alter table public.subjects enable row level security;
 alter table public.sections enable row level security;
 alter table public.topics enable row level security;
 alter table public.quizzes enable row level security;
+alter table public.quiz_collaborators enable row level security;
 alter table public.quiz_topic_placements enable row level security;
 alter table public.quiz_versions enable row level security;
 alter table public.questions enable row level security;
 alter table public.question_versions enable row level security;
 alter table public.answer_options enable row level security;
 alter table public.answer_option_versions enable row level security;
+alter table public.quiz_version_items enable row level security;
 alter table public.media enable row level security;
 
-
--- A user may read and update their own profile.
+-- Own profile.
 
 create policy "profile read own"
 on public.profiles
@@ -440,17 +530,22 @@ for update
 using (auth.uid() = user_id)
 with check (auth.uid() = user_id);
 
+-- Quiz identity can be seen by creator or collaborator.
+-- Full child-table RLS will be finalized together with
+-- publication/moderation so drafts cannot accidentally leak.
 
--- Draft quiz access.
---
--- Public library access is deliberately NOT implemented here.
--- Publication/moderation will introduce the rules that expose
--- accepted versions to other users.
-
-create policy "quiz creator read"
+create policy "quiz creator or collaborator read"
 on public.quizzes
 for select
-using (auth.uid() = creator_user_id);
+using (
+    auth.uid() = creator_user_id
+    or exists (
+        select 1
+        from public.quiz_collaborators qc
+        where qc.quiz_id = quizzes.id
+          and qc.user_id = auth.uid()
+    )
+);
 
 create policy "quiz creator insert"
 on public.quizzes
@@ -460,11 +555,18 @@ with check (auth.uid() = creator_user_id);
 create policy "quiz creator update"
 on public.quizzes
 for update
-using (auth.uid() = creator_user_id)
-with check (auth.uid() = creator_user_id);
+using (
+    auth.uid() = creator_user_id
+    or exists (
+        select 1
+        from public.quiz_collaborators qc
+        where qc.quiz_id = quizzes.id
+          and qc.user_id = auth.uid()
+          and qc.role in ('owner', 'editor')
+    )
+);
 
-
--- Media owner access.
+-- Own media.
 
 create policy "media owner read"
 on public.media
@@ -482,10 +584,7 @@ for update
 using (auth.uid() = owner_user_id)
 with check (auth.uid() = owner_user_id);
 
-
--- IMPORTANT:
--- Child tables intentionally do not yet receive broad client policies.
--- Access paths will be finalized together with Publication and RLS rules
--- rather than accidentally exposing unpublished content.
+-- No public-library policies yet.
+-- Publication/moderation will explicitly expose only accepted content.
 
 commit;
