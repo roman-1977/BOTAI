@@ -190,3 +190,19 @@ Devices synchronize Attempts rather than competing LearningState updates.
 After Attempts from multiple devices are merged, trusted server-side logic calculates canonical LearningState.
 
 This prevents last-write-wins loss when several devices study offline concurrently.
+
+## Publication synchronization
+
+Only published and currently available QuizVersions are exposed through the
+public library.
+
+Drafts and submissions are not public synchronization sources.
+
+If a publication is suspended or withdrawn, future synchronization must stop
+offering it as available public content.
+
+Historical learning events are not automatically deleted merely because a
+publication becomes unavailable.
+
+Exact removal of cached UGC from devices during account deletion or content
+withdrawal will be defined in the local sync implementation.

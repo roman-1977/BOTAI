@@ -53,3 +53,16 @@ Do not begin implementation until MVP scope and architecture are explicitly appr
 - Published content updates must preserve compatible user learning history.
 - Device stores selected/downloaded content, not the complete public library.
 - Sync operations must be idempotent.
+
+## Publication and moderation
+
+- Public user quizzes are UGC and use a moderated publication pipeline.
+- Submission, moderation, publication and reports are separate domains.
+- Normal clients cannot approve or publish their own submissions.
+- Staff/moderator roles are server-controlled.
+- Public access exposes published versions, never mutable drafts.
+- Users must be able to report content and block abusive users.
+- Ordinary published UGC does not automatically survive deletion of its
+  responsible author's account.
+- Account deletion is a trusted backend workflow, not a client-side cascade.
+- Sign in with Apple deletion must include required credential/token revocation.

@@ -89,3 +89,46 @@ Before App Store submission, review at minimum:
 - age rating;
 - permissions;
 - subscription/payment rules if monetization is implemented.
+
+## UGC publication and moderation
+
+Public quizzes are user-generated content.
+
+BOTAI must provide, before App Store submission:
+
+- a method for filtering objectionable material;
+- reporting of offensive/problematic content;
+- timely handling of reports;
+- user blocking;
+- published developer/support contact information;
+- moderation and removal procedures.
+
+BOTAI uses a moderated publication lifecycle rather than automatically making
+submitted user content public.
+
+## Account deletion and UGC
+
+The earlier concept that ordinary published UGC automatically survives author
+account deletion has been rejected.
+
+For ordinary UGC, account deletion must include associated user-created
+content except where applicable law requires retention.
+
+Collaboratively authored content requires separately defined rights and
+deletion behavior.
+
+## Sign in with Apple deletion
+
+When an account using Sign in with Apple is deleted, the backend deletion
+workflow must revoke the associated Apple credentials/tokens as required.
+
+## Intellectual property
+
+BOTAI editorial content and user-generated content must have distinct
+provenance.
+
+Deleting UGC must not be bypassed by silently relabeling a retained copy as
+BOTAI editorial content.
+
+Equivalent educational facts or curriculum may be independently authored,
+subject to applicable intellectual-property rules.
