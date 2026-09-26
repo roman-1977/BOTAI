@@ -5,7 +5,7 @@ import Observation
 final class LearningStore {
     private(set) var attempts: [Attempt] = []
     private(set) var states: [UUID: LearningState] = [:]
-    let questions: [StudyQuestion]
+    private(set) var questions: [StudyQuestion]
     private let repository: LearningRepository?
 
     init(questions: [StudyQuestion] = DemoContent.questions, repository: LearningRepository? = nil) {
@@ -13,6 +13,10 @@ final class LearningStore {
         self.repository = repository
         if let repository, let saved = try? repository.load() { attempts = saved.0; states = saved.1 }
     }
+
+    func use(questions: [StudyQuestion]) { self.questions = questions }
+
+    func attempts(for questionIDs: Set<UUID>) -> [Attempt] { attempts.filter { questionIDs.contains($0.questionID) } }
 
     func record(question: StudyQuestion, rating: RecallRating) {
         let attempt = Attempt(id: UUID(), questionID: question.id, occurredAt: .now, rating: rating)

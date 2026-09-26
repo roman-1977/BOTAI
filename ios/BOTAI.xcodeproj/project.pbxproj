@@ -10,6 +10,7 @@
 		01C7E1B0EF4F6D6F80C5B24C /* TableImportParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91BCE76407335C9713304F9D /* TableImportParserTests.swift */; };
 		0BA07C2D24BB3A96F8A5E7B7 /* LearnSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D2868C30CC3839C47730203 /* LearnSessionView.swift */; };
 		0BA4C5566EB0DADD4CA7BB38 /* SupabaseConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96A21B4CACDEB48A2BDDB671 /* SupabaseConfiguration.swift */; };
+		0E6B13E939C1FE537AB586A0 /* GoalPickerForQuiz.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9808684075AC4632BBC09A5 /* GoalPickerForQuiz.swift */; };
 		0ED1DD8B73BC23FBBB1859A4 /* SocialService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 426462B56FD0EC9AF023D9F2 /* SocialService.swift */; };
 		12178330FEFF03A18AF619CF /* StudySetDraft.swift in Sources */ = {isa = PBXBuildFile; fileRef = 986CACA862E1D54CD4DF06CF /* StudySetDraft.swift */; };
 		12EE9A99ED60EF2C510097B7 /* SocialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D8D9DA46C3B40BE1319A220 /* SocialView.swift */; };
@@ -39,6 +40,7 @@
 		9E96EBD567277C5F058BD013 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 471FE1DBB6AE91F7EE39CD5F /* Supabase */; };
 		A394EDF0F0E05976F65B1546 /* RootTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCE572C04DE8ADC6B6291399 /* RootTabView.swift */; };
 		AD18CE6462F97696BF1F1A49 /* DemoContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EEC0059B7C03D9B17854A1E /* DemoContent.swift */; };
+		B041CC1EA11FFDB1EF541A27 /* QuizQuestionFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3020713EAC0EC5EEF203804 /* QuizQuestionFactory.swift */; };
 		BD11BD3F336356AE0475190A /* LearningRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE4287578AC9F45A50FD6A46 /* LearningRepositoryTests.swift */; };
 		BDED0A52965C1A1DB3E933F6 /* CreateQuizView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82BCCA7D3BE740D7C95A5EEE /* CreateQuizView.swift */; };
 		CC57CDD0F772F0F8F0D74D2B /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = E8AC53CBAF0DB8EEF0881AA3 /* PrivacyInfo.xcprivacy */; };
@@ -100,7 +102,9 @@
 		BCE572C04DE8ADC6B6291399 /* RootTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTabView.swift; sourceTree = "<group>"; };
 		CD3FEB8A29FC431933664685 /* MyQuizzesStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyQuizzesStore.swift; sourceTree = "<group>"; };
 		D1CCBBA4074FD61270C407B7 /* ProgressDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressDashboardView.swift; sourceTree = "<group>"; };
+		D9808684075AC4632BBC09A5 /* GoalPickerForQuiz.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalPickerForQuiz.swift; sourceTree = "<group>"; };
 		DE4287578AC9F45A50FD6A46 /* LearningRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningRepositoryTests.swift; sourceTree = "<group>"; };
+		E3020713EAC0EC5EEF203804 /* QuizQuestionFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizQuestionFactory.swift; sourceTree = "<group>"; };
 		E5FD625BAE7505A8ED07C0FF /* PrivacyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyView.swift; sourceTree = "<group>"; };
 		E8181C5074307453B062460D /* BOTAI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BOTAI.entitlements; sourceTree = "<group>"; };
 		E8AC53CBAF0DB8EEF0881AA3 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -136,6 +140,7 @@
 			children = (
 				82BCCA7D3BE740D7C95A5EEE /* CreateQuizView.swift */,
 				88CE5F7CA97A124A4E93B218 /* EditPersonalQuizView.swift */,
+				D9808684075AC4632BBC09A5 /* GoalPickerForQuiz.swift */,
 				2F7BD1B53294738809CBB3A2 /* LibraryView.swift */,
 				01557FDC64AB9F3E731E15AA /* MyQuizzesView.swift */,
 				734B831E99BBB11025AFE3A1 /* PersonalQuizView.swift */,
@@ -183,6 +188,7 @@
 			isa = PBXGroup;
 			children = (
 				376F56258F82F144D8E84E66 /* DailyPlan.swift */,
+				E3020713EAC0EC5EEF203804 /* QuizQuestionFactory.swift */,
 				986CACA862E1D54CD4DF06CF /* StudySetDraft.swift */,
 				9A1105B18B7AC81192B0685B /* TableImport.swift */,
 				B167F9A06DD96627FD4E40BB /* Models */,
@@ -402,6 +408,7 @@
 				2A5ED9453153B12640FAC166 /* DailyPlan.swift in Sources */,
 				AD18CE6462F97696BF1F1A49 /* DemoContent.swift in Sources */,
 				D012B71FD44F0E023FC6EAB3 /* EditPersonalQuizView.swift in Sources */,
+				0E6B13E939C1FE537AB586A0 /* GoalPickerForQuiz.swift in Sources */,
 				5D1A9A0CF7BE6596404B4F45 /* GoalsStore.swift in Sources */,
 				3165E5BDF41AD0CA2B1D05FB /* GoalsView.swift in Sources */,
 				0BA07C2D24BB3A96F8A5E7B7 /* LearnSessionView.swift in Sources */,
@@ -418,6 +425,7 @@
 				5F2366BDA8100E1010F0E973 /* ProgressDashboardView.swift in Sources */,
 				9246243623147B92DD1F2B96 /* PublicLibraryStore.swift in Sources */,
 				2D697125F33EEC8E69CF44B8 /* QuizAuthoringService.swift in Sources */,
+				B041CC1EA11FFDB1EF541A27 /* QuizQuestionFactory.swift in Sources */,
 				A394EDF0F0E05976F65B1546 /* RootTabView.swift in Sources */,
 				0ED1DD8B73BC23FBBB1859A4 /* SocialService.swift in Sources */,
 				12EE9A99ED60EF2C510097B7 /* SocialView.swift in Sources */,
