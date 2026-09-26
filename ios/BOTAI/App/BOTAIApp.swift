@@ -3,6 +3,7 @@ import SwiftUI
 @main
 struct BOTAIApp: App {
     @State private var learningStore: LearningStore
+    @State private var authStore = AuthStore()
 
     init() {
         let repository: LearningRepository? = {
@@ -15,5 +16,5 @@ struct BOTAIApp: App {
         _learningStore = State(initialValue: LearningStore(repository: repository))
     }
 
-    var body: some Scene { WindowGroup { RootTabView().environment(learningStore) } }
+    var body: some Scene { WindowGroup { RootTabView().environment(learningStore).environment(authStore).task { await authStore.bootstrap() } } }
 }

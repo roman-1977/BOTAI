@@ -26,5 +26,16 @@ final class LearningRepository: @unchecked Sendable {
         }
     }
 
+    func pendingOutbox() throws -> [OutboxRecord] { try database.dbQueue.read { try OutboxRecord.order(Column("createdAt")).fetchAll($0) } }
+    func attempt(id: String) throws -> LocalAttemptRecord? { try database.dbQueue.read { try LocalAttemptRecord.fetchOne($0, key: id) } }
+    func acknowledgeOutbox(id: String) throws { _ = try database.dbQueue.write { db in try OutboxRecord.deleteOne(db, key: id) } }
+    func markOutboxFailure(id: String, error: String) throws {
+        try database.dbQueue.write { db in
+            guard var item = try OutboxRecord.fetchOne(db, key: id) else { return }
+            item.attemptCount += 1; item.lastError = String(error.prefix(240))
+            item.nextRetryAt = Date().addingTimeInterval(min(3600, pow(2, Double(item.attemptCount)) * 5))
+            try item.update(db)
+        }
+    }
     func outboxCount() throws -> Int { try database.dbQueue.read { try OutboxRecord.fetchCount($0) } }
 }

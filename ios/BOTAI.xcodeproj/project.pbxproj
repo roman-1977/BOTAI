@@ -13,9 +13,11 @@
 		2A5ED9453153B12640FAC166 /* DailyPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 376F56258F82F144D8E84E66 /* DailyPlan.swift */; };
 		3F21EC6E380058072DA0F977 /* GRDB in Frameworks */ = {isa = PBXBuildFile; productRef = FA66617488ED7FA786129E43 /* GRDB */; };
 		450DB60F8F67AAF37E06543F /* StudyQuestion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20EAB15C2761F0F7B90FEE9B /* StudyQuestion.swift */; };
+		4D691B9E8238C076179611F9 /* AuthStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94C51202DD85DC322CB38093 /* AuthStore.swift */; };
 		5F2366BDA8100E1010F0E973 /* ProgressDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1CCBBA4074FD61270C407B7 /* ProgressDashboardView.swift */; };
 		65E401B51A0CE1196558F42B /* Attempt.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF8BC9DB2ED0AAC035D3F156 /* Attempt.swift */; };
 		6A3F76054B558651ED10D394 /* LearningRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85FD06012F0309FFB737DFF6 /* LearningRepository.swift */; };
+		71CB7CC267C09951B04112E9 /* SyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7935931C0B46440EDBC79AAA /* SyncService.swift */; };
 		781C678A610502BED9637291 /* LearningStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D16621BFA37243165C0D00C /* LearningStore.swift */; };
 		7DE450C6FB8F95516C99AEBA /* TodayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8FB7B3788DDBCEE725936CF /* TodayView.swift */; };
 		7F7154D72410ECF270F9D30A /* BOTAIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DD151C06E4A2253F428D68B /* BOTAIApp.swift */; };
@@ -51,17 +53,20 @@
 		596555D1BDE357A8CAFEFD2C /* LearningStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningStateTests.swift; sourceTree = "<group>"; };
 		6EEC0059B7C03D9B17854A1E /* DemoContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoContent.swift; sourceTree = "<group>"; };
 		73BBD4473054760B92F62626 /* DailyPlanTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyPlanTests.swift; sourceTree = "<group>"; };
+		7935931C0B46440EDBC79AAA /* SyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncService.swift; sourceTree = "<group>"; };
 		7A36BBC8DF3354B0F598EA75 /* SupabaseProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseProvider.swift; sourceTree = "<group>"; };
 		7DD151C06E4A2253F428D68B /* BOTAIApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BOTAIApp.swift; sourceTree = "<group>"; };
 		817818ACA82B71632FAE9344 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
 		85FD06012F0309FFB737DFF6 /* LearningRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningRepository.swift; sourceTree = "<group>"; };
 		8D2868C30CC3839C47730203 /* LearnSessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearnSessionView.swift; sourceTree = "<group>"; };
+		94C51202DD85DC322CB38093 /* AuthStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthStore.swift; sourceTree = "<group>"; };
 		96A21B4CACDEB48A2BDDB671 /* SupabaseConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseConfiguration.swift; sourceTree = "<group>"; };
 		AFD3EF09AA65DD0860C0C879 /* BOTAITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = BOTAITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B8FB7B3788DDBCEE725936CF /* TodayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayView.swift; sourceTree = "<group>"; };
 		BCE572C04DE8ADC6B6291399 /* RootTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTabView.swift; sourceTree = "<group>"; };
 		D1CCBBA4074FD61270C407B7 /* ProgressDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressDashboardView.swift; sourceTree = "<group>"; };
 		DE4287578AC9F45A50FD6A46 /* LearningRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningRepositoryTests.swift; sourceTree = "<group>"; };
+		E8181C5074307453B062460D /* BOTAI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BOTAI.entitlements; sourceTree = "<group>"; };
 		E8AC53CBAF0DB8EEF0881AA3 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		F32AD5DD98848D92160A2ECE /* LearningState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningState.swift; sourceTree = "<group>"; };
 		F739A6F7F8767D0448503087 /* AppDatabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDatabase.swift; sourceTree = "<group>"; };
@@ -142,6 +147,7 @@
 		949EBB6041A1B2479A16BA41 /* BOTAI */ = {
 			isa = PBXGroup;
 			children = (
+				E8181C5074307453B062460D /* BOTAI.entitlements */,
 				C55152D6C05E8AC39B4428DB /* App */,
 				A9B7840F1F7C2C4DEBA401F0 /* Data */,
 				91232322BB566E034FA34638 /* Domain */,
@@ -192,8 +198,10 @@
 		C42546F3BBD4B3952C328FCC /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				94C51202DD85DC322CB38093 /* AuthStore.swift */,
 				6EEC0059B7C03D9B17854A1E /* DemoContent.swift */,
 				0D16621BFA37243165C0D00C /* LearningStore.swift */,
+				7935931C0B46440EDBC79AAA /* SyncService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -333,6 +341,7 @@
 			files = (
 				2812354A74E594F7AB92C70D /* AppDatabase.swift in Sources */,
 				65E401B51A0CE1196558F42B /* Attempt.swift in Sources */,
+				4D691B9E8238C076179611F9 /* AuthStore.swift in Sources */,
 				7F7154D72410ECF270F9D30A /* BOTAIApp.swift in Sources */,
 				2A5ED9453153B12640FAC166 /* DailyPlan.swift in Sources */,
 				AD18CE6462F97696BF1F1A49 /* DemoContent.swift in Sources */,
@@ -347,6 +356,7 @@
 				450DB60F8F67AAF37E06543F /* StudyQuestion.swift in Sources */,
 				0BA4C5566EB0DADD4CA7BB38 /* SupabaseConfiguration.swift in Sources */,
 				9B2E3945488A53D2E7EBCBBE /* SupabaseProvider.swift in Sources */,
+				71CB7CC267C09951B04112E9 /* SyncService.swift in Sources */,
 				7DE450C6FB8F95516C99AEBA /* TodayView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -457,6 +467,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = BOTAI/BOTAI.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = BOTAI;
@@ -476,6 +487,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = BOTAI/BOTAI.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = BOTAI;
