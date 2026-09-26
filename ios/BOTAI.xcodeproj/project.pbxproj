@@ -18,6 +18,7 @@
 		2812354A74E594F7AB92C70D /* AppDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = F739A6F7F8767D0448503087 /* AppDatabase.swift */; };
 		2A5ED9453153B12640FAC166 /* DailyPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 376F56258F82F144D8E84E66 /* DailyPlan.swift */; };
 		2D697125F33EEC8E69CF44B8 /* QuizAuthoringService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA5BF0C84057B447AE79E32 /* QuizAuthoringService.swift */; };
+		302CC06408F8DB6B1A315683 /* MVPDemoData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8EC75D93437F2936503D0BE /* MVPDemoData.swift */; };
 		3165E5BDF41AD0CA2B1D05FB /* GoalsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93C5C5E035E2E220496009B0 /* GoalsView.swift */; };
 		3F21EC6E380058072DA0F977 /* GRDB in Frameworks */ = {isa = PBXBuildFile; productRef = FA66617488ED7FA786129E43 /* GRDB */; };
 		450DB60F8F67AAF37E06543F /* StudyQuestion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20EAB15C2761F0F7B90FEE9B /* StudyQuestion.swift */; };
@@ -106,6 +107,7 @@
 		AFD3EF09AA65DD0860C0C879 /* BOTAITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = BOTAITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B8FB7B3788DDBCEE725936CF /* TodayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayView.swift; sourceTree = "<group>"; };
 		BCE572C04DE8ADC6B6291399 /* RootTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTabView.swift; sourceTree = "<group>"; };
+		C8EC75D93437F2936503D0BE /* MVPDemoData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MVPDemoData.swift; sourceTree = "<group>"; };
 		CD3FEB8A29FC431933664685 /* MyQuizzesStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyQuizzesStore.swift; sourceTree = "<group>"; };
 		D1CCBBA4074FD61270C407B7 /* ProgressDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressDashboardView.swift; sourceTree = "<group>"; };
 		D9808684075AC4632BBC09A5 /* GoalPickerForQuiz.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalPickerForQuiz.swift; sourceTree = "<group>"; };
@@ -196,6 +198,7 @@
 			isa = PBXGroup;
 			children = (
 				376F56258F82F144D8E84E66 /* DailyPlan.swift */,
+				C8EC75D93437F2936503D0BE /* MVPDemoData.swift */,
 				96251857123A04ECDF272634 /* QuizLearningStats.swift */,
 				E3020713EAC0EC5EEF203804 /* QuizQuestionFactory.swift */,
 				986CACA862E1D54CD4DF06CF /* StudySetDraft.swift */,
@@ -425,6 +428,7 @@
 				9E1900A09594CDC15739B1CF /* LearningState.swift in Sources */,
 				781C678A610502BED9637291 /* LearningStore.swift in Sources */,
 				D539DF947EAD8FF27E037A2B /* LibraryView.swift in Sources */,
+				302CC06408F8DB6B1A315683 /* MVPDemoData.swift in Sources */,
 				6A60369E4A8DB77764573C28 /* MyQuizzesStore.swift in Sources */,
 				218A1B9153A8F7196A7FD175 /* MyQuizzesView.swift in Sources */,
 				CF628F68723D3146A061334E /* PersonalQuizService.swift in Sources */,
