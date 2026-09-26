@@ -3,7 +3,7 @@ import UniformTypeIdentifiers
 
 struct TableImportView: View {
     @Environment(\.dismiss) private var dismiss
-    @Binding var cards: [(String,String)]
+    @Binding var draft: StudySetDraft
     @State private var source = ""
     @State private var table: ImportedTable?
     @State private var mappings: Set<CardMapping> = []
@@ -102,5 +102,5 @@ struct TableImportView: View {
             ])
         }
     }
-    private func add() { guard let table else { return }; cards.append(contentsOf: TableImportParser.cards(table: table, mappings: mappings)); dismiss() }
+    private func add() { guard let table else { return }; draft.headers = table.headers; draft.rows = table.rows; draft.mappings = mappings; dismiss() }
 }

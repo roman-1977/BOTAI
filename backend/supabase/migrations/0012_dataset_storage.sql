@@ -1,0 +1,11 @@
+begin;
+create table if not exists public.study_sets (id uuid primary key default gen_random_uuid(), owner_user_id uuid not null references auth.users(id) on delete cascade, title text not null, description text, headers jsonb not null, rows jsonb not null, mappings jsonb not null default '[]'::jsonb, created_at timestamptz not null default now(), updated_at timestamptz not null default now());
+create index if not exists study_sets_owner_idx on public.study_sets(owner_user_id);
+alter table public.study_sets enable row level security;
+create policy "own study sets read" on public.study_sets for select using(owner_user_id=auth.uid());
+create policy "own study sets insert" on public.study_sets for insert with check(owner_user_id=auth.uid());
+create policy "own study sets update" on public.study_sets for update using(owner_user_id=auth.uid()) with check(owner_user_id=auth.uid());
+create policy "own study sets delete" on public.study_sets for delete using(owner_user_id=auth.uid());
+create or replace function public.create_study_set(p_title text,p_description text,p_headers jsonb,p_rows jsonb,p_mappings jsonb) returns uuid language plpgsql security definer set search_path=public as $$ declare uid uuid:=auth.uid(); sid uuid:=gen_random_uuid(); begin if uid is null then raise exception 'authentication required'; end if; insert into study_sets(id,owner_user_id,title,description,headers,rows,mappings) values(sid,uid,p_title,nullif(p_description,''),p_headers,p_rows,p_mappings); return sid; end; $$;
+grant execute on function public.create_study_set(text,text,jsonb,jsonb,jsonb) to authenticated;
+commit;

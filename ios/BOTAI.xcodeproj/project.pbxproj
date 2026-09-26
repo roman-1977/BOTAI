@@ -11,6 +11,7 @@
 		0BA07C2D24BB3A96F8A5E7B7 /* LearnSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D2868C30CC3839C47730203 /* LearnSessionView.swift */; };
 		0BA4C5566EB0DADD4CA7BB38 /* SupabaseConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96A21B4CACDEB48A2BDDB671 /* SupabaseConfiguration.swift */; };
 		0ED1DD8B73BC23FBBB1859A4 /* SocialService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 426462B56FD0EC9AF023D9F2 /* SocialService.swift */; };
+		12178330FEFF03A18AF619CF /* StudySetDraft.swift in Sources */ = {isa = PBXBuildFile; fileRef = 986CACA862E1D54CD4DF06CF /* StudySetDraft.swift */; };
 		12EE9A99ED60EF2C510097B7 /* SocialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D8D9DA46C3B40BE1319A220 /* SocialView.swift */; };
 		218A1B9153A8F7196A7FD175 /* MyQuizzesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01557FDC64AB9F3E731E15AA /* MyQuizzesView.swift */; };
 		2812354A74E594F7AB92C70D /* AppDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = F739A6F7F8767D0448503087 /* AppDatabase.swift */; };
@@ -85,6 +86,7 @@
 		93C5C5E035E2E220496009B0 /* GoalsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalsView.swift; sourceTree = "<group>"; };
 		94C51202DD85DC322CB38093 /* AuthStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthStore.swift; sourceTree = "<group>"; };
 		96A21B4CACDEB48A2BDDB671 /* SupabaseConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseConfiguration.swift; sourceTree = "<group>"; };
+		986CACA862E1D54CD4DF06CF /* StudySetDraft.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudySetDraft.swift; sourceTree = "<group>"; };
 		9A1105B18B7AC81192B0685B /* TableImport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableImport.swift; sourceTree = "<group>"; };
 		A7626D494DC476ABE5F29F05 /* AccountSafetyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountSafetyService.swift; sourceTree = "<group>"; };
 		AFD3EF09AA65DD0860C0C879 /* BOTAITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = BOTAITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -173,6 +175,7 @@
 			isa = PBXGroup;
 			children = (
 				376F56258F82F144D8E84E66 /* DailyPlan.swift */,
+				986CACA862E1D54CD4DF06CF /* StudySetDraft.swift */,
 				9A1105B18B7AC81192B0685B /* TableImport.swift */,
 				B167F9A06DD96627FD4E40BB /* Models */,
 			);
@@ -407,6 +410,7 @@
 				0ED1DD8B73BC23FBBB1859A4 /* SocialService.swift in Sources */,
 				12EE9A99ED60EF2C510097B7 /* SocialView.swift in Sources */,
 				450DB60F8F67AAF37E06543F /* StudyQuestion.swift in Sources */,
+				12178330FEFF03A18AF619CF /* StudySetDraft.swift in Sources */,
 				0BA4C5566EB0DADD4CA7BB38 /* SupabaseConfiguration.swift in Sources */,
 				9B2E3945488A53D2E7EBCBBE /* SupabaseProvider.swift in Sources */,
 				71CB7CC267C09951B04112E9 /* SyncService.swift in Sources */,
