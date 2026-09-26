@@ -1,0 +1,11 @@
+begin;
+create policy "collaborator versions read" on public.quiz_versions for select using (exists(select 1 from public.quizzes q where q.id=quiz_versions.quiz_id and (q.creator_user_id=auth.uid() or exists(select 1 from public.quiz_collaborators qc where qc.quiz_id=q.id and qc.user_id=auth.uid()))));
+create policy "collaborator versions insert" on public.quiz_versions for insert with check (created_by=auth.uid() and exists(select 1 from public.quizzes q where q.id=quiz_versions.quiz_id and (q.creator_user_id=auth.uid() or exists(select 1 from public.quiz_collaborators qc where qc.quiz_id=q.id and qc.user_id=auth.uid() and qc.role in ('owner','editor')))));
+create policy "own questions read" on public.questions for select using (creator_user_id=auth.uid());
+create policy "own questions insert" on public.questions for insert with check (creator_user_id=auth.uid());
+create policy "own question versions read" on public.question_versions for select using (exists(select 1 from public.questions q where q.id=question_versions.question_id and q.creator_user_id=auth.uid()));
+create policy "own question versions insert" on public.question_versions for insert with check (created_by=auth.uid() and exists(select 1 from public.questions q where q.id=question_versions.question_id and q.creator_user_id=auth.uid()));
+create policy "own quiz items read" on public.quiz_version_items for select using (exists(select 1 from public.quiz_versions qv join public.quizzes q on q.id=qv.quiz_id where qv.id=quiz_version_items.quiz_version_id and q.creator_user_id=auth.uid()));
+create policy "own quiz items insert" on public.quiz_version_items for insert with check (exists(select 1 from public.quiz_versions qv join public.quizzes q on q.id=qv.quiz_id where qv.id=quiz_version_items.quiz_version_id and q.creator_user_id=auth.uid()));
+create policy "creator collaborator self insert" on public.quiz_collaborators for insert with check (user_id=auth.uid() and role='owner' and exists(select 1 from public.quizzes q where q.id=quiz_collaborators.quiz_id and q.creator_user_id=auth.uid()));
+commit;
