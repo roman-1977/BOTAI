@@ -178,3 +178,15 @@ Historical learning events should not disappear merely because published content
 BOLDAI may later create additional learning evidence or knowledge-gap signals.
 
 The existing synchronization model must allow those signals to influence LearningState without changing the identity of existing content.
+
+## Canonical LearningState
+
+Canonical server LearningState is not directly writable by normal clients.
+
+iOS calculates and stores a local LearningState for immediate offline operation.
+
+Devices synchronize Attempts rather than competing LearningState updates.
+
+After Attempts from multiple devices are merged, trusted server-side logic calculates canonical LearningState.
+
+This prevents last-write-wins loss when several devices study offline concurrently.

@@ -3,7 +3,7 @@
 -- PostgreSQL / Supabase
 --
 -- Depends on: 0001_identity_content.sql
--- DESIGN STATUS: Reviewed draft. Not yet applied to Supabase.
+-- DESIGN STATUS: Accepted. Not yet applied to Supabase.
 
 begin;
 
@@ -383,25 +383,19 @@ with check (auth.uid() = user_id);
 
 -- Learning state
 --
--- MVP permits the authenticated user's devices to sync their
--- calculated state. Canonical reconciliation rules remain part
--- of the Sync/Learning Engine design.
+-- Clients may read canonical LearningState but may not directly
+-- insert or update it.
+--
+-- iOS maintains a local calculated LearningState in SQLite for
+-- immediate offline operation.
+--
+-- Canonical server LearningState is calculated by trusted
+-- server-side logic from synchronized Attempts.
 
 create policy "learning states own select"
 on public.learning_states
 for select
 using (auth.uid() = user_id);
-
-create policy "learning states own insert"
-on public.learning_states
-for insert
-with check (auth.uid() = user_id);
-
-create policy "learning states own update"
-on public.learning_states
-for update
-using (auth.uid() = user_id)
-with check (auth.uid() = user_id);
 
 -- Goals
 
