@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		008EDF9B9E17EF5BB166C301 /* PlansView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15166D3EA79E07DAFF65043F /* PlansView.swift */; };
 		01C7E1B0EF4F6D6F80C5B24C /* TableImportParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91BCE76407335C9713304F9D /* TableImportParserTests.swift */; };
 		0BA07C2D24BB3A96F8A5E7B7 /* LearnSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D2868C30CC3839C47730203 /* LearnSessionView.swift */; };
 		0BA4C5566EB0DADD4CA7BB38 /* SupabaseConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96A21B4CACDEB48A2BDDB671 /* SupabaseConfiguration.swift */; };
@@ -73,6 +74,7 @@
 		060EA43C9AA1DB9826561BBC /* GoalsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalsStore.swift; sourceTree = "<group>"; };
 		0D16621BFA37243165C0D00C /* LearningStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningStore.swift; sourceTree = "<group>"; };
 		0EEB254DC7672F182570BFA5 /* BOTAI.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = BOTAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		15166D3EA79E07DAFF65043F /* PlansView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlansView.swift; sourceTree = "<group>"; };
 		20EAB15C2761F0F7B90FEE9B /* StudyQuestion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyQuestion.swift; sourceTree = "<group>"; };
 		25FA731CD7EB466A9BF618BE /* PublicLibraryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublicLibraryStore.swift; sourceTree = "<group>"; };
 		2D192BB63142C7D058BAB1FB /* QuizProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizProgressView.swift; sourceTree = "<group>"; };
@@ -226,6 +228,7 @@
 		97910AB16D540B4201342473 /* Today */ = {
 			isa = PBXGroup;
 			children = (
+				15166D3EA79E07DAFF65043F /* PlansView.swift */,
 				B8FB7B3788DDBCEE725936CF /* TodayView.swift */,
 			);
 			path = Today;
@@ -433,6 +436,7 @@
 				218A1B9153A8F7196A7FD175 /* MyQuizzesView.swift in Sources */,
 				CF628F68723D3146A061334E /* PersonalQuizService.swift in Sources */,
 				6DD255E31AC7133F90AD3DDE /* PersonalQuizView.swift in Sources */,
+				008EDF9B9E17EF5BB166C301 /* PlansView.swift in Sources */,
 				5A12B1F15D5597BAC0A052FD /* PrivacyView.swift in Sources */,
 				EFFBB0C2CF1C8B55C82E9DE3 /* ProfileView.swift in Sources */,
 				5F2366BDA8100E1010F0E973 /* ProgressDashboardView.swift in Sources */,
