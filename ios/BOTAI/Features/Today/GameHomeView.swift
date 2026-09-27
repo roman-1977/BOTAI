@@ -1,0 +1,20 @@
+import SwiftUI
+
+struct GameHomeView: View {
+ @Environment(LearningStore.self) private var store
+ @State private var learn=false; @State private var profile=false; @State private var plans=false
+ private let main=MVPDemoData.plans[0]
+ var body:some View { NavigationStack { ZStack {
+   LinearGradient(colors:[Color.indigo.opacity(0.22),Color.cyan.opacity(0.12),Color(.systemBackground)],startPoint:.topLeading,endPoint:.bottomTrailing).ignoresSafeArea()
+   ScrollView { VStack(spacing:20) { header; levelOrb; missionMap; goals; achievements }.padding(.horizontal,18).padding(.bottom,28) }
+ }.toolbar { ToolbarItem(placement:.topBarTrailing){Button{profile=true}label:{Image(systemName:"gearshape.fill").font(.title3)}} }.sheet(isPresented:$learn){LearnSessionView()}.sheet(isPresented:$profile){NavigationStack{ProfileView()}}.sheet(isPresented:$plans){NavigationStack{PlansView()}} } }
+ private var header:some View { HStack { VStack(alignment:.leading){Text("BOTAI").font(.largeTitle).fontWeight(.black);Text("Твой учебный мир").foregroundStyle(.secondary)};Spacer();VStack(alignment:.trailing){Label("\(GameDemo.streak)",systemImage:"flame.fill").foregroundStyle(.orange);Label("\(GameDemo.coins)",systemImage:"star.circle.fill").foregroundStyle(.yellow)}}.padding(.top,8) }
+ private var levelOrb:some View { ZStack { Circle().stroke(.white.opacity(0.5),lineWidth:16);Circle().trim(from:0,to:Double(GameDemo.xp)/Double(GameDemo.nextLevelXP)).stroke(AngularGradient(colors:[.cyan,.blue,.purple],center:.center),style:StrokeStyle(lineWidth:16,lineCap:.round)).rotationEffect(.degrees(-90));VStack{Image(systemName:"brain.head.profile").font(.system(size:44)).foregroundStyle(.indigo);Text("УРОВЕНЬ \(GameDemo.level)").font(.headline.bold());Text("\(GameDemo.xp) XP").font(.caption)}}.frame(width:180,height:180).shadow(radius:8) }
+ private var missionMap:some View { VStack(spacing:12){Text("СЕГОДНЯШНИЙ МАРШРУТ").font(.caption.bold()).foregroundStyle(.secondary);HStack(spacing:0){node("arrow.clockwise",done:true);line(true);node("flask.fill",done:false);line(false);node("trophy.fill",done:false)};Text("Лаборатория кислот").font(.title2.bold());Text("7 повторений + 11 новых · ~7 минут").foregroundStyle(.secondary);Button("НАЧАТЬ ИСПЫТАНИЕ  +120 XP"){store.use(questions:MVPDemoData.questions(for:main));learn=true}.buttonStyle(.borderedProminent).controlSize(.large)}.padding(20).frame(maxWidth:.infinity).background(.ultraThinMaterial,in:RoundedRectangle(cornerRadius:28)) }
+ private var goals:some View { VStack(alignment:.leading,spacing:12){HStack{Text("Цели").font(.title2.bold());Spacer();Button("Все"){plans=true}};ForEach(MVPDemoData.plans){p in goal(p)}} }
+ private func goal(_ p:MVPDemoData.Plan)->some View { HStack(spacing:14){ZStack{Circle().stroke(.secondary.opacity(0.12),lineWidth:7);Circle().trim(from:0,to:p.progress).stroke(.blue,style:StrokeStyle(lineWidth:7,lineCap:.round)).rotationEffect(.degrees(-90));Text("\(Int(p.progress*100))").font(.caption.bold())}.frame(width:58,height:58);VStack(alignment:.leading){Text(p.title).font(.headline);Text(p.subtitle).font(.caption).foregroundStyle(.secondary)};Spacer();Image(systemName:"chevron.right")}.padding(12).background(.thinMaterial,in:RoundedRectangle(cornerRadius:20)) }
+ private var achievements:some View { VStack(alignment:.leading,spacing:12){Text("Последние победы").font(.title2.bold());HStack{award("bolt.fill","7 подряд");award("flame.fill","4 дня");award("flask.fill","Химик I")}} }
+ private func award(_ icon:String,_ title:String)->some View { VStack(spacing:8){Image(systemName:icon).font(.title).frame(width:58,height:58).background(.yellow.opacity(0.15),in:Circle());Text(title).font(.caption.bold())}.frame(maxWidth:.infinity) }
+ private func node(_ icon:String,done:Bool)->some View { ZStack{Circle().fill(done ? Color.green : Color.indigo).frame(width:52,height:52);Image(systemName:done ? "checkmark" : icon).foregroundStyle(.white).font(.title3.bold())} }
+ private func line(_ done:Bool)->some View { Capsule().fill(done ? Color.green : Color.secondary.opacity(0.2)).frame(height:6).frame(maxWidth:.infinity) }
+}

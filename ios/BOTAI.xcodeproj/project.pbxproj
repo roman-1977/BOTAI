@@ -55,6 +55,7 @@
 		D539DF947EAD8FF27E037A2B /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F7BD1B53294738809CBB3A2 /* LibraryView.swift */; };
 		D6B02D17988A36E08AD46C18 /* LearningStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 596555D1BDE357A8CAFEFD2C /* LearningStateTests.swift */; };
 		D7F8FBAC026F7E1A993DF7D6 /* AccountSafetyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7626D494DC476ABE5F29F05 /* AccountSafetyService.swift */; };
+		E0572C93CC5DC7349320117A /* GameHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B4DFDA30A4EDA83192CBE1 /* GameHomeView.swift */; };
 		EB96DB4352D299493ABB9F85 /* DailyPlanTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73BBD4473054760B92F62626 /* DailyPlanTests.swift */; };
 		EFFBB0C2CF1C8B55C82E9DE3 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 817818ACA82B71632FAE9344 /* ProfileView.swift */; };
 		FBD3E7D13A08590E439D5590 /* TableImport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1105B18B7AC81192B0685B /* TableImport.swift */; };
@@ -82,6 +83,7 @@
 		2F7BD1B53294738809CBB3A2 /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
 		376F56258F82F144D8E84E66 /* DailyPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyPlan.swift; sourceTree = "<group>"; };
 		3FA5BF0C84057B447AE79E32 /* QuizAuthoringService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizAuthoringService.swift; sourceTree = "<group>"; };
+		41B4DFDA30A4EDA83192CBE1 /* GameHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameHomeView.swift; sourceTree = "<group>"; };
 		426462B56FD0EC9AF023D9F2 /* SocialService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocialService.swift; sourceTree = "<group>"; };
 		596555D1BDE357A8CAFEFD2C /* LearningStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningStateTests.swift; sourceTree = "<group>"; };
 		60DD59EEE1D1FF5044C85337 /* GameDemo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameDemo.swift; sourceTree = "<group>"; };
@@ -231,6 +233,7 @@
 		97910AB16D540B4201342473 /* Today */ = {
 			isa = PBXGroup;
 			children = (
+				41B4DFDA30A4EDA83192CBE1 /* GameHomeView.swift */,
 				15166D3EA79E07DAFF65043F /* PlansView.swift */,
 				B8FB7B3788DDBCEE725936CF /* TodayView.swift */,
 			);
@@ -427,6 +430,7 @@
 				AD18CE6462F97696BF1F1A49 /* DemoContent.swift in Sources */,
 				D012B71FD44F0E023FC6EAB3 /* EditPersonalQuizView.swift in Sources */,
 				3C8AB3F9C39387749D11C629 /* GameDemo.swift in Sources */,
+				E0572C93CC5DC7349320117A /* GameHomeView.swift in Sources */,
 				0E6B13E939C1FE537AB586A0 /* GoalPickerForQuiz.swift in Sources */,
 				5D1A9A0CF7BE6596404B4F45 /* GoalsStore.swift in Sources */,
 				3165E5BDF41AD0CA2B1D05FB /* GoalsView.swift in Sources */,
