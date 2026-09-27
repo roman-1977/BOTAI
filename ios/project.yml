@@ -24,6 +24,7 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.botai.app
         CODE_SIGN_ENTITLEMENTS: BOTAI/BOTAI.entitlements
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_CFBundleDisplayName: BOTAI
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
