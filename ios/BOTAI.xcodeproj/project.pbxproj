@@ -21,6 +21,7 @@
 		2D697125F33EEC8E69CF44B8 /* QuizAuthoringService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA5BF0C84057B447AE79E32 /* QuizAuthoringService.swift */; };
 		302CC06408F8DB6B1A315683 /* MVPDemoData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8EC75D93437F2936503D0BE /* MVPDemoData.swift */; };
 		3165E5BDF41AD0CA2B1D05FB /* GoalsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93C5C5E035E2E220496009B0 /* GoalsView.swift */; };
+		3C8AB3F9C39387749D11C629 /* GameDemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60DD59EEE1D1FF5044C85337 /* GameDemo.swift */; };
 		3F21EC6E380058072DA0F977 /* GRDB in Frameworks */ = {isa = PBXBuildFile; productRef = FA66617488ED7FA786129E43 /* GRDB */; };
 		450DB60F8F67AAF37E06543F /* StudyQuestion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20EAB15C2761F0F7B90FEE9B /* StudyQuestion.swift */; };
 		4536E93EFE8DAD448151D032 /* QuizProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D192BB63142C7D058BAB1FB /* QuizProgressView.swift */; };
@@ -83,6 +84,7 @@
 		3FA5BF0C84057B447AE79E32 /* QuizAuthoringService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizAuthoringService.swift; sourceTree = "<group>"; };
 		426462B56FD0EC9AF023D9F2 /* SocialService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocialService.swift; sourceTree = "<group>"; };
 		596555D1BDE357A8CAFEFD2C /* LearningStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningStateTests.swift; sourceTree = "<group>"; };
+		60DD59EEE1D1FF5044C85337 /* GameDemo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameDemo.swift; sourceTree = "<group>"; };
 		6EEC0059B7C03D9B17854A1E /* DemoContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoContent.swift; sourceTree = "<group>"; };
 		734B831E99BBB11025AFE3A1 /* PersonalQuizView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalQuizView.swift; sourceTree = "<group>"; };
 		73BBD4473054760B92F62626 /* DailyPlanTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyPlanTests.swift; sourceTree = "<group>"; };
@@ -200,6 +202,7 @@
 			isa = PBXGroup;
 			children = (
 				376F56258F82F144D8E84E66 /* DailyPlan.swift */,
+				60DD59EEE1D1FF5044C85337 /* GameDemo.swift */,
 				C8EC75D93437F2936503D0BE /* MVPDemoData.swift */,
 				96251857123A04ECDF272634 /* QuizLearningStats.swift */,
 				E3020713EAC0EC5EEF203804 /* QuizQuestionFactory.swift */,
@@ -423,6 +426,7 @@
 				2A5ED9453153B12640FAC166 /* DailyPlan.swift in Sources */,
 				AD18CE6462F97696BF1F1A49 /* DemoContent.swift in Sources */,
 				D012B71FD44F0E023FC6EAB3 /* EditPersonalQuizView.swift in Sources */,
+				3C8AB3F9C39387749D11C629 /* GameDemo.swift in Sources */,
 				0E6B13E939C1FE537AB586A0 /* GoalPickerForQuiz.swift in Sources */,
 				5D1A9A0CF7BE6596404B4F45 /* GoalsStore.swift in Sources */,
 				3165E5BDF41AD0CA2B1D05FB /* GoalsView.swift in Sources */,

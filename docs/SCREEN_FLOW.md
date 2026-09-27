@@ -99,3 +99,11 @@ Discovery is secondary: `Library → Shared library → Search/categories → Pu
 Creation is private by default: `My learning library → Create/import → Preview generated question-answer pairs → Save → Quiz detail`.
 
 Publication is explicit and separate: `Owned quiz → More → Propose publication → choose catalog placement → Preview submission → Submit for moderation`.
+
+## Student game loop
+
+`Сегодня → Миссия дня → Испытания → Награда/XP → Мой путь → следующая миссия`.
+
+Главный экран ученика показывает уровень, XP, серию и доступные миссии. Экран прохождения концентрируется на одном испытании. После завершения показывается игровая награда. Ученический прогресс представлен уровнями, достижениями и освоенными мирами; подробная аналитика вынесена из этого flow.
+
+Служебные экраны (`Профиль`, настройки, управление собственными материалами) могут использовать стандартный системный UI без игровой оболочки.

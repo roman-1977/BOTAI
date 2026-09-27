@@ -1,12 +1,9 @@
 import SwiftUI
 struct ProgressDashboardView: View {
-    @Environment(LearningStore.self) private var store
-    var body:some View { NavigationStack { ScrollView { VStack(alignment:.leading,spacing:18){
-        GroupBox("Эта неделя") { HStack { metric("\(max(store.thisWeek,43))","ответа"); Spacer(); metric("\(max(store.streak,4))","дня подряд"); Spacer(); metric("76%","уверенно") }.frame(maxWidth:.infinity) }
-        Text("По планам").font(.headline)
-        ForEach(MVPDemoData.plans) { p in GroupBox { VStack(alignment:.leading,spacing:8){HStack{Text(p.title).font(.headline);Spacer();Text("\(Int(p.progress*100))%").bold()};ProgressView(value:p.progress);Text(p.subtitle).font(.caption).foregroundStyle(.secondary)} } }
-        GroupBox("Последние занятия") { VStack(alignment:.leading,spacing:10){ history("Кислоты и кислотные остатки","18 ответов · сегодня"); history("Неправильные глаголы","20 ответов · вчера"); history("Кислоты и кислотные остатки","15 ответов · 24 сентября") }.frame(maxWidth:.infinity,alignment:.leading) }
-    }.padding() }.navigationTitle("Прогресс") } }
-    private func metric(_ v:String,_ l:String)->some View { VStack{Text(v).font(.title2.bold());Text(l).font(.caption).foregroundStyle(.secondary)} }
-    private func history(_ a:String,_ b:String)->some View { VStack(alignment:.leading){Text(a);Text(b).font(.caption).foregroundStyle(.secondary)} }
+ var body:some View { NavigationStack { ScrollView { VStack(alignment:.leading,spacing:20){
+    HStack{ZStack{Circle().stroke(.secondary.opacity(0.15),lineWidth:10);Circle().trim(from:0,to:0.83).stroke(.blue,lineWidth:10).rotationEffect(.degrees(-90));Text("83%").bold()}.frame(width:105,height:105);VStack(alignment:.leading,spacing:6){Text("Уровень \(GameDemo.level)").font(.title.bold());Text("До нового уровня — 260 XP").foregroundStyle(.secondary);Label("\(GameDemo.streak) дня подряд",systemImage:"flame.fill").foregroundStyle(.orange)}}.frame(maxWidth:.infinity,alignment:.leading)
+    Text("Твои достижения").font(.title2.bold()); ForEach(Array(GameDemo.achievements.enumerated()),id:\.offset){_,a in HStack(spacing:14){Image(systemName:a.0).font(.title2).frame(width:50,height:50).background(.yellow.opacity(0.14),in:Circle());VStack(alignment:.leading){Text(a.1).font(.headline);Text(a.2).font(.caption).foregroundStyle(.secondary)};Spacer();Image(systemName:"checkmark.seal.fill").foregroundStyle(.green)}.padding().background(.thinMaterial,in:RoundedRectangle(cornerRadius:16))}
+    Text("Твои миры").font(.title2.bold()); ForEach(MVPDemoData.plans){p in VStack(alignment:.leading,spacing:8){HStack{Text(p.title).font(.headline);Spacer();Text("\(Int(p.progress*100))%").bold()};ProgressView(value:p.progress);Text(p.progress > 0.6 ? "Отлично идёшь!" : "Следующая миссия уже ждёт").font(.caption).foregroundStyle(.secondary)}.padding().background(.thinMaterial,in:RoundedRectangle(cornerRadius:16))}
+    Text("Последние победы").font(.title2.bold()); Label("+120 XP · Лаборатория кислот",systemImage:"sparkles"); Label("Новый рекорд: 7 правильных подряд",systemImage:"bolt.fill"); Label("+90 XP · Английский",systemImage:"star.fill")
+ }.padding() }.navigationTitle("Мой путь") } }
 }

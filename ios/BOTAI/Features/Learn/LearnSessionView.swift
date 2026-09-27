@@ -1,38 +1,11 @@
 import SwiftUI
-
 struct LearnSessionView: View {
-    @Environment(LearningStore.self) private var store
-    @Environment(\.dismiss) private var dismiss
-    @State private var index = 0
-    @State private var revealed = false
-    @State private var selection: Set<Int> = []
-    @State private var finished = false
-
-    var body: some View { NavigationStack { finished ? AnyView(resultView) : AnyView(questionView) } }
-    private var question: StudyQuestion { store.questions[index] }
-    private var questionView: some View {
-        VStack(spacing: 24) {
-            ProgressView(value: Double(index), total: Double(store.questions.count))
-            Text("\(index + 1) из \(store.questions.count)").font(.caption).foregroundStyle(.secondary)
-            Spacer(); VStack(spacing:12) { if let url=question.mediaURL { AsyncImage(url:url) { image in image.resizable().scaledToFit() } placeholder: { ProgressView() }.frame(maxHeight:220) }; Text(question.prompt).font(.title2.bold()).multilineTextAlignment(.center); if let latex=question.promptLaTeX { Text(latex).font(.system(.body,design:.monospaced)).textSelection(.enabled) } }; answerArea; Spacer()
-        }.padding().navigationTitle("БОТАТЬ").navigationBarTitleDisplayMode(.inline)
-    }
-    @ViewBuilder private var answerArea: some View {
-        if question.kind == .reveal || question.kind == .pair {
-            if revealed { Text(question.answer).font(.title3); ratingButtons }
-            else { Button("Показать ответ") { revealed = true }.buttonStyle(.borderedProminent).controlSize(.large) }
-        } else {
-            VStack(spacing: 10) {
-                ForEach(Array(question.choices.enumerated()), id: \.offset) { i, choice in
-                    Button { toggle(i) } label: { HStack { Text(choice); Spacer(); if selection.contains(i) { Image(systemName: "checkmark.circle.fill") } }.padding().frame(maxWidth: .infinity) }.buttonStyle(.bordered)
-                }
-                if revealed { Text(selection == question.correctChoiceIndexes ? "Верно" : "Правильный ответ: \(question.answer)").font(.headline); ratingButtons }
-                else { Button("Ответить") { revealed = true }.buttonStyle(.borderedProminent).disabled(selection.isEmpty) }
-            }
-        }
-    }
-    private var ratingButtons: some View { HStack { ForEach(RecallRating.allCases, id: \.self) { r in Button(r.title) { submit(r) }.buttonStyle(.bordered) } } }
-    private var resultView: some View { VStack(spacing: 20) { Spacer(); Image(systemName: "checkmark.circle.fill").font(.system(size: 60)); Text("Занятие завершено").font(.title.bold()); Text("\(store.questions.count) вопросов"); Button("Готово") { dismiss() }.buttonStyle(.borderedProminent).controlSize(.large); Spacer() }.padding() }
-    private func toggle(_ i: Int) { if question.kind == .singleChoice { selection = [i] } else if selection.contains(i) { selection.remove(i) } else { selection.insert(i) } }
-    private func submit(_ r: RecallRating) { store.record(question: question, rating: r); if index + 1 < store.questions.count { index += 1; revealed = false; selection = [] } else { finished = true } }
+ @Environment(LearningStore.self) private var store; @Environment(\.dismiss) private var dismiss
+ @State private var index=0; @State private var revealed=false; @State private var selection:Set<Int>=[]; @State private var finished=false; @State private var combo=0; @State private var earnedXP=0
+ var body:some View{NavigationStack{if finished{resultView}else{questionView}}}; private var question:StudyQuestion{store.questions[index]}
+ private var questionView:some View{VStack(spacing:22){HStack{Button{dismiss()}label:{Image(systemName:"xmark")};ProgressView(value:Double(index),total:Double(max(store.questions.count,1)));Label("\(combo)",systemImage:"bolt.fill").foregroundStyle(.orange)};Text("ИСПЫТАНИЕ \(index+1) / \(store.questions.count)").font(.caption.bold()).foregroundStyle(.secondary);Spacer();Image(systemName:"flask.fill").font(.system(size:42)).foregroundStyle(.blue);Text(question.prompt).font(.title.bold()).multilineTextAlignment(.center);answerArea;Spacer();Text("+\(earnedXP) XP за миссию").font(.caption).foregroundStyle(.secondary)}.padding().toolbar(.hidden,for:.navigationBar)}
+ @ViewBuilder private var answerArea:some View{if question.kind == .reveal || question.kind == .pair {if revealed{VStack(spacing:16){Text(question.answer).font(.title2.bold()).padding().frame(maxWidth:.infinity).background(.green.opacity(0.1),in:RoundedRectangle(cornerRadius:18));Text("Как получилось?").font(.headline);ratingButtons}}else{Button("ОТКРЫТЬ ОТВЕТ"){revealed=true}.buttonStyle(.borderedProminent).controlSize(.large)}}else{VStack{ForEach(Array(question.choices.enumerated()),id:\.offset){i,c in Button{toggle(i)}label:{HStack{Text(c);Spacer();if selection.contains(i){Image(systemName:"checkmark.circle.fill")}}.padding().frame(maxWidth:.infinity)}.buttonStyle(.bordered)};if revealed{ratingButtons}else{Button("ПРОВЕРИТЬ"){revealed=true}.buttonStyle(.borderedProminent).disabled(selection.isEmpty)}}}}
+ private var ratingButtons:some View{HStack{Button("Ещё раз"){submit(.again)}.buttonStyle(.bordered);Button("С трудом"){submit(.hard)}.buttonStyle(.bordered);Button("ЗНАЮ!"){submit(.good)}.buttonStyle(.borderedProminent)}}
+ private var resultView:some View{VStack(spacing:22){Spacer();Image(systemName:"trophy.fill").font(.system(size:72)).foregroundStyle(.yellow);Text("МИССИЯ ВЫПОЛНЕНА!").font(.largeTitle.bold()).multilineTextAlignment(.center);Text("+\(earnedXP) XP").font(.title.bold()).foregroundStyle(.blue);Label("Лучшая серия: \(combo)",systemImage:"bolt.fill").foregroundStyle(.orange);Text("Пройдено \(store.questions.count) испытаний").foregroundStyle(.secondary);Button("ЗАБРАТЬ НАГРАДУ"){dismiss()}.buttonStyle(.borderedProminent).controlSize(.large);Spacer()}.padding()}
+ private func toggle(_ i:Int){if question.kind == .singleChoice{selection=[i]}else if selection.contains(i){selection.remove(i)}else{selection.insert(i)}}; private func submit(_ r:RecallRating){store.record(question:question,rating:r);if r == .good{combo+=1;earnedXP+=10}else if r == .hard{earnedXP+=6}else{combo=0;earnedXP+=3};if index+1<store.questions.count{index+=1;revealed=false;selection=[]}else{finished=true}}
 }
