@@ -38,6 +38,7 @@
 		781C678A610502BED9637291 /* LearningStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D16621BFA37243165C0D00C /* LearningStore.swift */; };
 		7DE450C6FB8F95516C99AEBA /* TodayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8FB7B3788DDBCEE725936CF /* TodayView.swift */; };
 		7F7154D72410ECF270F9D30A /* BOTAIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DD151C06E4A2253F428D68B /* BOTAIApp.swift */; };
+		8C1D71C430E4B129A1CBFCA9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 22B87193836385214F5B9C21 /* Assets.xcassets */; };
 		90CBE53052CF75BA676EF925 /* TableImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A95EBF1449A8292B3B357F3 /* TableImportView.swift */; };
 		9246243623147B92DD1F2B96 /* PublicLibraryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25FA731CD7EB466A9BF618BE /* PublicLibraryStore.swift */; };
 		9B2E3945488A53D2E7EBCBBE /* SupabaseProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A36BBC8DF3354B0F598EA75 /* SupabaseProvider.swift */; };
@@ -78,6 +79,7 @@
 		0EEB254DC7672F182570BFA5 /* BOTAI.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = BOTAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		15166D3EA79E07DAFF65043F /* PlansView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlansView.swift; sourceTree = "<group>"; };
 		20EAB15C2761F0F7B90FEE9B /* StudyQuestion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyQuestion.swift; sourceTree = "<group>"; };
+		22B87193836385214F5B9C21 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		25FA731CD7EB466A9BF618BE /* PublicLibraryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublicLibraryStore.swift; sourceTree = "<group>"; };
 		2D192BB63142C7D058BAB1FB /* QuizProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizProgressView.swift; sourceTree = "<group>"; };
 		2F7BD1B53294738809CBB3A2 /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
@@ -218,6 +220,7 @@
 		949EBB6041A1B2479A16BA41 /* BOTAI */ = {
 			isa = PBXGroup;
 			children = (
+				22B87193836385214F5B9C21 /* Assets.xcassets */,
 				E8181C5074307453B062460D /* BOTAI.entitlements */,
 				C55152D6C05E8AC39B4428DB /* App */,
 				A9B7840F1F7C2C4DEBA401F0 /* Data */,
@@ -409,6 +412,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8C1D71C430E4B129A1CBFCA9 /* Assets.xcassets in Resources */,
 				CC57CDD0F772F0F8F0D74D2B /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
