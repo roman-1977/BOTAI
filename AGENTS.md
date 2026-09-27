@@ -26,9 +26,9 @@ Core concept:
 
 ## Current phase
 
-Architecture approved; implementation preparation.
+Architecture approved; iOS implementation and UX prototyping are in progress.
 
-Implementation may begin in roadmap order; preserve accepted ADRs.
+Continue in roadmap order where practical; preserve accepted ADRs and keep accepted UX documentation synchronized with implementation.
 
 ## Accepted architecture
 
@@ -110,3 +110,11 @@ Prefer a separate private GRDB store per authenticated user. Never allow account
 - Sync correctness must not depend on iOS background execution being granted.
 
 - Authentication secrets belong in Keychain, never SQLite or source-controlled config.
+
+## Current implementation status
+
+The repository now contains an active iOS prototype, not only implementation preparation. Before changing learner UX, read ADR-019 plus `docs/UI_SPEC.md`, `docs/SCREEN_FLOW.md`, and `docs/GOALS_PROGRESS.md`.
+
+`LearnSessionView` currently mixes production interaction decisions with demo/view-local state. Treat its accepted interaction invariants as product requirements, but do not extend view-local counters into a persistence architecture. Move durable session/day timing, goals, mode preferences and scheduling into domain/repository services as those features are implemented.
+
+When an accepted UX decision changes, update the relevant docs/ADR in the same commit as the code. Do not leave product behavior documented only in chat history.

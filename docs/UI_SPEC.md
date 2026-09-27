@@ -22,11 +22,17 @@ One contextual insight may appear below the action, e.g. accuracy vs recent pers
 
 ## Learn
 
-Question content has priority. Header contains exit, compact daily progress and only essential session state. Feedback explains why an answer is correct/incorrect and may offer expandable detail. Motivation messages occur at checkpoints, not after every tap.
+The learner-facing Learn screen uses the project's dark digital/game language. The top HUD contains four equally weighted daily rings — Questions, Minutes, Answers and Coverage — plus a narrow full-height Mode control visually separated from the rings.
 
-## Session result
+The section/topic label is left aligned and reserves two lines. Below it, the question/answer remains a physical card with a fixed height for the current device layout. The bottom of the screen always reserves the maximum six vertically stacked answer choices and a persistent Pause button; fewer answers must not make the card jump.
 
-Show questions completed, accuracy/result mix, time, plan completion and one meaningful comparison. Offer Finish and Continue (+5) without implying that extra work is required.
+The Mode console is part of the game surface, not a system settings sheet. Its centered groups are Strategy (Learn / Review / AI), Format (Card / Test / AI), and Pace (Calm / Speed / AI). Selecting Speed on an already-selected tile cycles the configured seconds. Runtime direction reversal is intentionally absent because pair/table direction belongs to content creation.
+
+Question content has visual priority. Correctness uses semantic feedback, but advancement remains spatially forgiving: after a test is checked, the card, answer buttons and empty answer region all advance. Accessibility must preserve the same actions without relying on color alone.
+
+## Pause and completion
+
+Pause is the persistent bottom action and must read as resumable, not as failure or final completion. Meeting or exceeding a daily goal changes progress/motivation state but does not force navigation. If the selected material is exhausted, a compact completion state may summarize today's questions and active minutes and offer a clear return action.
 
 ## Progress
 

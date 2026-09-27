@@ -28,19 +28,19 @@ If there is an unfinished local StudySession, primary action becomes **ПРОД�
 
 ## Study session
 
-`Session start → Question → Answer/reveal → self/result input → next question → ... → checkpoint → completion`
+`Session start/resume → Question card → answer/reveal → result/self-rating → next card → ... → Pause`
 
-Persistent compact header: today's adaptive-plan progress (`18/27`) and session exit. Question content has visual priority.
+The learning surface is continuous rather than round-based. Daily goals span multiple launches. The persistent header shows four compact daily indicators: questions vs goal, active study minutes vs goal, correct/incorrect mix, and unique-question coverage of the active material. The section title reserves up to two lines; the card keeps a stable maximum height; space for up to six answers and the Pause action is reserved below it.
 
-At selected checkpoints BOTAI may show a small progress message; not after every answer. At BOTAI-plan completion: `Target reached → Finish | Continue`.
+Recall cards flip and then ask for self-rating. Single-choice tests reveal correctness on selection; multiple-choice tests reveal it after **Answer**. After correctness is shown, tapping the card or any part of the answer region advances with the card transition.
 
-Exiting early saves the local session and today's completed work. There is no failure state for stopping before the target.
+Pause preserves progress. Active study time is accumulated only while the app is active and a question is being worked on, and the displayed total updates at question boundaries. See ADR-019 for session lifecycle and mode behavior.
 
-## Session result
+## Pause and day boundary
 
-Shows completed questions, result mix/accuracy, time, target status, change vs own recent baseline when statistically meaningful, and weak/due material discovered.
+**Pause** leaves the learning surface and preserves the current day's progress; it is not a destructive Finish action. Reopening learning can resume the last selection/session without rebuilding it. A logical StudySession is finalized when a new session is explicitly started or when a later launch determines that the previous study day has ended.
 
-Actions: **Готово**, **Ещё 5**, or continue a relevant challenge when applicable.
+Exhausting the currently selected question pool may show a lightweight completion state, but reaching a daily goal does not end learning automatically. Daily summaries and longer-term comparisons belong to Home/Progress rather than forcing a result screen after every pause.
 
 ## Goals
 

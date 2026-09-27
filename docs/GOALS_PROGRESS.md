@@ -24,11 +24,11 @@ The learner controls the long-term Goal and preferred intensity/minimum. BOTAI c
 
 ## During a study session
 
-The Learn screen continuously shows compact progress against today’s BOTAI plan, for example `18 / 27 today`. The minimum/streak state may be acknowledged once when crossed. It must not cover the question or turn every answer into a celebration.
+The Learn HUD keeps daily progress visible without a live ticking clock. Four indicators answer different questions: **Questions** = completed answers against the user's daily question goal; **Minutes** = accumulated active study time against the daily time goal; **Answers** = correct vs incorrect result mix; **Coverage** = unique questions encountered today as a percentage of the active material.
 
-After meaningful checkpoints BOTAI may show one contextual comparison: `3 left today`, `accuracy 82%`, `+6 pp vs your recent baseline`, or `new personal best`. Comparisons use enough observations to avoid noisy claims.
+Question and minute goals may exceed 100%; over-performance remains visible instead of being capped away. Coverage counts unique question IDs so repetition cannot inflate it. Accuracy/result mix and coverage are descriptive statistics, not substitutes for long-term mastery.
 
-The main comparison is with the learner's own history. Social comparison is opt-in and secondary.
+Daily progress survives pausing and resuming during the same study day. Only active work between question presentation and completion contributes to study time. Background/inactive time does not. The displayed minute value updates when moving to a new question rather than every second.
 
 ## Completing the target
 
