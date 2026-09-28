@@ -32,13 +32,14 @@ struct OutboxRecord: Codable, FetchableRecord, PersistableRecord {
 
 
 struct MaterialDBRecord: Codable, FetchableRecord, PersistableRecord {
- static let databaseTableName="materials"; let id:String; var title:String; var subject:String?; var topic:String?; var kind:String; var source:String; var createdAt:Date; var updatedAt:Date
- init(_ x:StudyMaterialRecord){id=x.id.uuidString;title=x.title;subject=x.subject;topic=x.topic;kind=x.kind.rawValue;source=x.source.rawValue;createdAt=x.createdAt;updatedAt=x.updatedAt}
- var domain:StudyMaterialRecord?{guard let id=UUID(uuidString:id),let kind=MaterialKind(rawValue:kind),let source=MaterialSource(rawValue:source) else{return nil};return .init(id:id,title:title,subject:subject,topic:topic,kind:kind,source:source,createdAt:createdAt,updatedAt:updatedAt)}
+ static let databaseTableName="materials"; let id:String; var title:String; var subject:String?; var topic:String?; var description:String?; var kind:String; var source:String; var createdAt:Date; var updatedAt:Date
+ init(_ x:StudyMaterialRecord){id=x.id.uuidString;title=x.title;subject=x.subject;topic=x.topic;description=x.description;kind=x.kind.rawValue;source=x.source.rawValue;createdAt=x.createdAt;updatedAt=x.updatedAt}
+ var domain:StudyMaterialRecord?{guard let id=UUID(uuidString:id),let kind=MaterialKind(rawValue:kind),let source=MaterialSource(rawValue:source) else{return nil};return .init(id:id,title:title,subject:subject,topic:topic,description:description,kind:kind,source:source,createdAt:createdAt,updatedAt:updatedAt)}
 }
 struct MaterialFieldDBRecord: Codable, FetchableRecord, PersistableRecord { static let databaseTableName="materialFields"; let id:String;let materialID:String;var key:String;var title:String;var position:Int;init(_ x:MaterialField){id=x.id.uuidString;materialID=x.materialID.uuidString;key=x.key;title=x.title;position=x.position} }
 struct KnowledgeRowDBRecord: Codable, FetchableRecord, PersistableRecord { static let databaseTableName="knowledgeRows";let id:String;let materialID:String;var position:Int;var valuesJSON:String;init(_ x:KnowledgeRow){id=x.id.uuidString;materialID=x.materialID.uuidString;position=x.position;valuesJSON=(try? String(data:JSONEncoder().encode(x.values),encoding:.utf8)) ?? "{}"} }
-struct QuestionRuleDBRecord: Codable, FetchableRecord, PersistableRecord { static let databaseTableName="questionRules";let id:String;let materialID:String;var kind:String;var promptFieldKey:String;var answerFieldKey:String;var enabled:Bool;init(_ x:QuestionRule){id=x.id.uuidString;materialID=x.materialID.uuidString;kind=x.kind.rawValue;promptFieldKey=x.promptFieldKey;answerFieldKey=x.answerFieldKey;enabled=x.enabled} }
+struct QuestionRuleDBRecord: Codable, FetchableRecord, PersistableRecord { static let databaseTableName="questionRules";let id:String;let materialID:String;var kind:String;var promptFieldKey:String;var answerFieldKey:String;var promptTemplate:String?;var promptFieldKeysJSON:String?;var answersJSON:String?;var showCorrectCount:Bool?;var enabled:Bool;init(_ x:QuestionRule){id=x.id.uuidString;materialID=x.materialID.uuidString;kind=x.kind.rawValue;promptFieldKey=x.promptFieldKey;answerFieldKey=x.answerFieldKey;promptTemplate=x.promptTemplate;promptFieldKeysJSON=(try? String(data:JSONEncoder().encode(x.promptFieldKeys),encoding:.utf8));answersJSON=(try? String(data:JSONEncoder().encode(x.answers),encoding:.utf8));showCorrectCount=x.showCorrectCount;enabled=x.enabled}
+ var domain:QuestionRule?{guard let id=UUID(uuidString:id),let mid=UUID(uuidString:materialID),let k=QuestionRuleKind(rawValue:kind) else{return nil};let keys=(try? JSONDecoder().decode([String].self,from:Data((promptFieldKeysJSON ?? "[]").utf8))) ?? [promptFieldKey];let ans=(try? JSONDecoder().decode([QuestionAnswerRule].self,from:Data((answersJSON ?? "[]").utf8))) ?? [QuestionAnswerRule(template:"{1}",fieldKeys:[answerFieldKey],correct:true)];return .init(id:id,materialID:mid,kind:k,promptFieldKey:promptFieldKey,answerFieldKey:answerFieldKey,promptTemplate:promptTemplate ?? "{1}",promptFieldKeys:keys,answers:ans,showCorrectCount:showCorrectCount ?? false,enabled:enabled)} }
 
 final class AppDatabase: @unchecked Sendable {
     let dbQueue: DatabaseQueue
@@ -67,6 +68,10 @@ final class AppDatabase: @unchecked Sendable {
             try db.create(table:"knowledgeRows"){t in t.column("id",.text).primaryKey();t.column("materialID",.text).notNull().references("materials",onDelete:.cascade);t.column("position",.integer).notNull();t.column("valuesJSON",.text).notNull()}
             try db.create(table:"questionRules"){t in t.column("id",.text).primaryKey();t.column("materialID",.text).notNull().references("materials",onDelete:.cascade);t.column("kind",.text).notNull();t.column("promptFieldKey",.text).notNull();t.column("answerFieldKey",.text).notNull();t.column("enabled",.boolean).notNull()}
             try db.create(index:"idx_rows_material",on:"knowledgeRows",columns:["materialID"]);try db.create(index:"idx_rules_material",on:"questionRules",columns:["materialID"])
+        }
+        migrator.registerMigration("v3_material_builder") { db in
+            try db.alter(table:"materials") { $0.add(column:"description",.text) }
+            try db.alter(table:"questionRules") { t in t.add(column:"promptTemplate",.text);t.add(column:"promptFieldKeysJSON",.text);t.add(column:"answersJSON",.text);t.add(column:"showCorrectCount",.boolean) }
         }; return migrator
     }
 }

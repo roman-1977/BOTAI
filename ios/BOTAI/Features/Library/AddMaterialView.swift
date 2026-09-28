@@ -80,7 +80,7 @@ struct AddMaterialView: View {
     private func removeRule(id: UUID) { withAnimation { rules.removeAll { $0.id == id } } }
 
     private func importFile(_ result: Result<[URL], Error>) { do { guard let url = try result.get().first else { return }; let access = url.startAccessingSecurityScopedResource(); defer { if access { url.stopAccessingSecurityScopedResource() } }; let data = try Data(contentsOf: url); guard let text = String(data: data, encoding: .utf8) ?? String(data: data, encoding: .windowsCP1251), let parsed = TableImportParser.parse(text) else { throw CocoaError(.fileReadCorruptFile) }; table = parsed; rules = []; error = nil; if title.isEmpty { title = url.deletingPathExtension().lastPathComponent } } catch { self.error = "Не удалось прочитать файл: \(error.localizedDescription)" } }
-    private func save() { guard let table, let first = rules.first(where: { $0.valid }), let answer = first.answers.first(where: { $0.correct }), let q = first.fields.first, let a = answer.fields.first else { return }; do { try store.saveCSV(title: title, subject: "", topic: tags, table: table, mappings: [CardMapping(from: q, to: a)]); if let onSaved { onSaved() } else { dismiss() } } catch { self.error = "Не удалось сохранить: \(error.localizedDescription)" } }
+    private func save() { guard let table, rules.contains(where: { $0.valid }) else { return }; do { try store.saveCSV(title: title, description: description, tags: tags, table: table, ruleDrafts: rules); if let onSaved { onSaved() } else { dismiss() } } catch { self.error = "Не удалось сохранить: \(error.localizedDescription)" } }
 }
 
 private struct QuestionRuleCard: View {
