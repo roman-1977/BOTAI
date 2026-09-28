@@ -34,12 +34,16 @@ final class MaterialStore {
 
     func content(id: UUID) -> MaterialContent? { try? repository?.content(id: id) }
 
-    func importPackage(_ url: URL) throws {
-        guard let repository else { return };let p=try BOTAIPackageService.read(url);let id=UUID(),now=Date();let mediaDir=FileManager.default.urls(for:.applicationSupportDirectory,in:.userDomainMask).first!.appendingPathComponent("BOTAI/Media/\(id.uuidString)",isDirectory:true);try FileManager.default.createDirectory(at:mediaDir,withIntermediateDirectories:true)
+    func importPackage(_ url: URL, title overrideTitle: String? = nil) throws {
+        let p=try BOTAIPackageService.read(url);try importPackagePayload(p,title:overrideTitle)
+    }
+
+    func importPackagePayload(_ p: BOTAIPackagePayload, title overrideTitle: String? = nil) throws {
+        guard let repository else { return };let id=UUID(),now=Date();let mediaDir=FileManager.default.urls(for:.applicationSupportDirectory,in:.userDomainMask).first!.appendingPathComponent("BOTAI/Media/\(id.uuidString)",isDirectory:true);try FileManager.default.createDirectory(at:mediaDir,withIntermediateDirectories:true)
         let fields=p.manifest.fields.map{MaterialField(id:UUID(),materialID:id,key:$0.key,title:$0.title,position:$0.position)};let imageKeys=Set(p.manifest.fields.filter{$0.type=="image"}.map(\.key))
         let rows=try p.manifest.rows.enumerated().map{pos,row in var v=row;for key in imageKeys {if let rel=v[key]{let src=p.root.appendingPathComponent(rel);if FileManager.default.fileExists(atPath:src.path){let dst=mediaDir.appendingPathComponent(src.lastPathComponent);try FileManager.default.copyItem(at:src,to:dst);v[key]=dst.path}}};return KnowledgeRow(id:UUID(),materialID:id,position:pos,values:v)}
         let rules=p.manifest.questionSets.map{q in let kind=q.kind;return QuestionRule(id:UUID(),materialID:id,kind:kind,promptFieldKey:q.promptFieldKeys.first ?? "",answerFieldKey:q.answers.first?.fieldKeys.first ?? "",promptTemplate:q.promptTemplate,promptFieldKeys:q.promptFieldKeys,answers:q.answers,showCorrectCount:q.showCorrectCount,enabled:q.enabled)}
-        let m=StudyMaterialRecord(id:id,title:p.manifest.title,subject:nil,topic:p.manifest.tags,description:p.manifest.description,kind:p.manifest.kind,source:.importedPackage,createdAt:now,updatedAt:now);try repository.save(material:m,fields:fields,rows:rows,rules:rules);refresh()
+        let m=StudyMaterialRecord(id:id,title:overrideTitle ?? p.manifest.title,subject:nil,topic:p.manifest.tags,description:p.manifest.description,kind:p.manifest.kind,source:.importedPackage,createdAt:now,updatedAt:now);try repository.save(material:m,fields:fields,rows:rows,rules:rules);refresh()
     }
 
     func exportPackage(id: UUID) throws -> URL { guard let repository,let c=try repository.content(id:id) else { throw CocoaError(.fileNoSuchFile) };return try BOTAIPackageService.write(c) }

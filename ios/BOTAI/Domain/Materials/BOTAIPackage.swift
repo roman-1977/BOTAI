@@ -5,6 +5,7 @@ struct BOTAIPackageManifest: Codable, Equatable, Sendable {
     let formatVersion: Int
     let title: String
     let description: String?
+    let author: String?
     let tags: String?
     let kind: MaterialKind
     let fields: [PackageField]
