@@ -1,5 +1,6 @@
 import SwiftUI
 import UniformTypeIdentifiers
+import ZIPFoundation
 
 struct DraftAnswer: Identifiable, Hashable {
     let id = UUID(); var fields: [Int] = []; var template = ""; var correct = true
@@ -38,7 +39,7 @@ struct AddMaterialView: View {
                 ToolbarItem(placement: .cancellationAction) { Button("Отмена") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) { Button("Сохранить") { save() }.disabled(!canSave) }
             }
-            .fileImporter(isPresented: $importer, allowedContentTypes: [.commaSeparatedText, .tabSeparatedText, .plainText], allowsMultipleSelection: false, onCompletion: importFile)
+            .fileImporter(isPresented: $importer, allowedContentTypes: [.commaSeparatedText, .tabSeparatedText, .plainText, .zip], allowsMultipleSelection: false, onCompletion: importFile)
         }
     }
 
@@ -63,7 +64,7 @@ struct AddMaterialView: View {
     }
 
     private func preview(_ t: ImportedTable) -> some View {
-        ScrollView(.horizontal) { Grid(alignment: .leading, horizontalSpacing: 18) { GridRow { ForEach(t.headers, id: \.self) { Text($0).bold().foregroundStyle(.cyan) } }; ForEach(Array(t.rows.prefix(3).enumerated()), id: \.offset) { _, row in GridRow { ForEach(Array(row.enumerated()), id: \.offset) { _, value in Text(value).lineLimit(1).frame(maxWidth: 230, alignment: .leading) } } } }.font(.caption).foregroundStyle(.white.opacity(0.75)) }
+        ScrollView(.horizontal) { Grid(alignment: .leading, horizontalSpacing: 18) { GridRow { ForEach(t.headers, id: \.self) { Text($0).bold().foregroundStyle(.cyan) } }; ForEach(Array(t.rows.prefix(3).enumerated()), id: \.offset) { _, row in GridRow { ForEach(Array(row.enumerated()), id: \.offset) { col, value in if t.mediaColumns.contains(col), let root=t.mediaRoot { HStack { Image(systemName:"photo").foregroundStyle(.cyan); Text(value) }.frame(maxWidth:230,alignment:.leading) } else { Text(value).lineLimit(1).frame(maxWidth:230,alignment:.leading) } } } } }.font(.caption).foregroundStyle(.white.opacity(0.75)) }
     }
 
     private func rulesView(_ table: ImportedTable) -> some View {
@@ -74,12 +75,17 @@ struct AddMaterialView: View {
         }
     }
 
+    private func importZIP(_ url: URL) throws -> ImportedTable {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent("botai-import-\(UUID().uuidString)", isDirectory:true);try FileManager.default.createDirectory(at:root,withIntermediateDirectories:true);try FileManager.default.unzipItem(at:url,to:root)
+        let files=(FileManager.default.enumerator(at:root,includingPropertiesForKeys:nil)?.allObjects as? [URL]) ?? [];guard let csv=files.first(where:{["csv","tsv"].contains($0.pathExtension.lowercased())}) else { throw CocoaError(.fileReadCorruptFile) };let data=try Data(contentsOf:csv);guard let text=String(data:data,encoding:.utf8) ?? String(data:data,encoding:.windowsCP1251),var parsed=TableImportParser.parse(text) else {throw CocoaError(.fileReadCorruptFile)};parsed.mediaRoot=root;let exts:Set<String>=["png","jpg","jpeg","webp","heic"];parsed.mediaColumns=Set(parsed.headers.indices.filter { col in parsed.rows.contains { row in col < row.count && exts.contains(URL(fileURLWithPath:row[col]).pathExtension.lowercased()) } });return parsed
+    }
+
     private func binding(for id: UUID) -> Binding<DraftQuestionRule> {
         Binding(get: { rules.first(where: { $0.id == id }) ?? DraftQuestionRule() }, set: { value in if let i = rules.firstIndex(where: { $0.id == id }) { rules[i] = value } })
     }
     private func removeRule(id: UUID) { withAnimation { rules.removeAll { $0.id == id } } }
 
-    private func importFile(_ result: Result<[URL], Error>) { do { guard let url = try result.get().first else { return }; let access = url.startAccessingSecurityScopedResource(); defer { if access { url.stopAccessingSecurityScopedResource() } }; let data = try Data(contentsOf: url); guard let text = String(data: data, encoding: .utf8) ?? String(data: data, encoding: .windowsCP1251), let parsed = TableImportParser.parse(text) else { throw CocoaError(.fileReadCorruptFile) }; table = parsed; rules = []; error = nil; if title.isEmpty { title = url.deletingPathExtension().lastPathComponent } } catch { self.error = "Не удалось прочитать файл: \(error.localizedDescription)" } }
+    private func importFile(_ result: Result<[URL], Error>) { do { guard let url = try result.get().first else { return }; let access = url.startAccessingSecurityScopedResource(); defer { if access { url.stopAccessingSecurityScopedResource() } }; if url.pathExtension.lowercased() == "zip" { table = try importZIP(url); rules=[]; error=nil; if title.isEmpty { title=url.deletingPathExtension().lastPathComponent } } else { let data = try Data(contentsOf: url); guard let text = String(data: data, encoding: .utf8) ?? String(data: data, encoding: .windowsCP1251), let parsed = TableImportParser.parse(text) else { throw CocoaError(.fileReadCorruptFile) }; table = parsed; rules = []; error = nil; if title.isEmpty { title = url.deletingPathExtension().lastPathComponent } } } catch { self.error = "Не удалось прочитать файл: \(error.localizedDescription)" } }
     private func save() { guard let table, rules.contains(where: { $0.valid }) else { return }; do { try store.saveCSV(title: title, description: description, tags: tags, table: table, ruleDrafts: rules); if let onSaved { onSaved() } else { dismiss() } } catch { self.error = "Не удалось сохранить: \(error.localizedDescription)" } }
 }
 
@@ -118,9 +124,10 @@ private struct TemplateEditor: View {
     var body: some View { VStack(alignment: .leading, spacing: 9) {
         if let label { Text(label).font(.caption.bold()).foregroundStyle(.cyan) }
         TextField("Шаблон", text: $template, axis: .vertical).lineLimit(2...4).padding(12).background(.black.opacity(0.28), in: RoundedRectangle(cornerRadius: 13)).foregroundStyle(.white)
-        ScrollView(.horizontal, showsIndicators: false) { HStack(spacing: 7) { ForEach(headers.indices, id: \.self) { i in Button { addField(i) } label: { Text("+ \(headers[i])").font(.caption.bold()).padding(.horizontal, 10).padding(.vertical, 7).background(.cyan.opacity(0.13), in: Capsule()).overlay(Capsule().stroke(.cyan.opacity(0.35))) }.foregroundStyle(.cyan) } } }
+        ScrollView(.horizontal, showsIndicators: false) { HStack(spacing: 7) { ForEach(headers.indices, id: \.self) { i in Button { addField(i) } label: { Label(headers[i], systemImage: isMedia(i) ? "photo" : "plus").font(.caption.bold()).padding(.horizontal, 10).padding(.vertical, 7).background(.cyan.opacity(0.13), in: Capsule()).overlay(Capsule().stroke(.cyan.opacity(0.35))) }.foregroundStyle(.cyan) } } }
         if !fields.isEmpty { VStack(alignment: .leading, spacing: 3) { Text("ПРИМЕР").font(.caption2.bold()).foregroundStyle(.white.opacity(0.4)); Text(rendered).foregroundStyle(.white.opacity(0.8)).font(.subheadline) } }
     } }
+    private func isMedia(_ i:Int) -> Bool { guard i < sample.count else{return false};return ["png","jpg","jpeg","webp","heic"].contains(URL(fileURLWithPath:sample[i]).pathExtension.lowercased()) }
     private func addField(_ i: Int) { if let pos = fields.firstIndex(of: i) { template += "{\(pos + 1)}" } else { fields.append(i); template += "{\(fields.count)}" } }
     private var rendered: String { var result = template; for (position, field) in fields.enumerated() where field < sample.count { result = result.replacingOccurrences(of: "{\(position + 1)}", with: sample[field]) }; return result }
 }

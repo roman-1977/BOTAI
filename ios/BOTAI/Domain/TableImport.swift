@@ -3,6 +3,8 @@ import Foundation
 struct ImportedTable: Sendable {
     let headers: [String]
     let rows: [[String]]
+    var mediaRoot: URL? = nil
+    var mediaColumns: Set<Int> = []
 }
 
 struct ImportedCard: Sendable, Equatable {

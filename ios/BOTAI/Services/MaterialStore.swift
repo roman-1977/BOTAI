@@ -17,7 +17,13 @@ final class MaterialStore {
         guard let repository else { return }
         let materialID = UUID(); let now = Date()
         let fields = table.headers.enumerated().map { index, title in MaterialField(id: UUID(), materialID: materialID, key: "f\(index)", title: title, position: index) }
-        let rows = table.rows.enumerated().map { position, row in KnowledgeRow(id: UUID(), materialID: materialID, position: position, values: Dictionary(uniqueKeysWithValues: row.enumerated().map { ("f\($0.offset)", $0.element) })) }
+        let mediaDir = FileManager.default.urls(for:.applicationSupportDirectory,in:.userDomainMask).first!.appendingPathComponent("BOTAI/Media/\(materialID.uuidString)",isDirectory:true)
+        if table.mediaRoot != nil { try FileManager.default.createDirectory(at:mediaDir,withIntermediateDirectories:true) }
+        let rows = try table.rows.enumerated().map { position, row in
+            var values:[String:String]=[:]
+            for (index,value) in row.enumerated() { if table.mediaColumns.contains(index),let root=table.mediaRoot { let src=root.appendingPathComponent(value);if FileManager.default.fileExists(atPath:src.path){let dst=mediaDir.appendingPathComponent(URL(fileURLWithPath:value).lastPathComponent);if !FileManager.default.fileExists(atPath:dst.path){try FileManager.default.copyItem(at:src,to:dst)};values["f\(index)"]=dst.path}else{values["f\(index)"]=value} } else { values["f\(index)"]=value } }
+            return KnowledgeRow(id:UUID(),materialID:materialID,position:position,values:values)
+        }
         let rules: [QuestionRule] = ruleDrafts?.filter(\.valid).map { d in
             let answers=d.answers.map { QuestionAnswerRule(template:$0.template,fieldKeys:$0.fields.map{"f\($0)"},correct:$0.correct) };let pk=d.fields.first.map{"f\($0)"} ?? "f0";let ak=d.answers.first?.fields.first.map{"f\($0)"} ?? "f0"
             return QuestionRule(id:UUID(),materialID:materialID,kind:d.answers.count > 1 ? (d.answers.filter(\.correct).count > 1 ? .multipleChoice:.singleChoice):.card,promptFieldKey:pk,answerFieldKey:ak,promptTemplate:d.template,promptFieldKeys:d.fields.map{"f\($0)"},answers:answers,showCorrectCount:d.showCorrectCount,enabled:true)

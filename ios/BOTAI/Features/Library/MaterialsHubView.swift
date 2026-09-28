@@ -95,6 +95,8 @@ private struct MaterialDetailView: View {
 }
 
 
+private struct RenderedMaterialValue: View { let template:String;let keys:[String];let row:KnowledgeRow?;var body:some View { VStack(alignment:.leading,spacing:8){ ForEach(Array(keys.enumerated()),id:\.offset){i,k in if let value=row?.values[k],isImage(value){ if let image=UIImage(contentsOfFile:value){Image(uiImage:image).resizable().scaledToFit().frame(maxHeight:220).clipShape(RoundedRectangle(cornerRadius:12))} } };Text(rendered).font(.headline).foregroundStyle(.white) } };private func isImage(_ s:String)->Bool{["png","jpg","jpeg","webp","heic"].contains(URL(fileURLWithPath:s).pathExtension.lowercased())};private var rendered:String{var x=template;for(i,k)in keys.enumerated(){let v=row?.values[k] ?? "—";x=x.replacingOccurrences(of:"{\(i+1)}",with:isImage(v) ? "":v)};return x.trimmingCharacters(in:.whitespacesAndNewlines)} }
+
 private struct SavedMaterialDetailView: View {
     let material: StudyMaterialRecord
     @Environment(MaterialStore.self) private var store
@@ -124,8 +126,8 @@ private struct SavedMaterialDetailView: View {
         let i = min(indices[rule.id] ?? 0, max(c.rows.count - 1, 0)); let row = c.rows.isEmpty ? nil : c.rows[i]
         return VStack(alignment: .leading, spacing: 11) {
             HStack { Text("НАБОР ВОПРОСОВ").font(.caption.bold()).foregroundStyle(.cyan); Spacer(); Text("\(c.rows.count) вопросов").font(.caption).foregroundStyle(.white.opacity(0.5)) }
-            Text(render(rule.promptTemplate, rule.promptFieldKeys, row)).font(.headline).foregroundStyle(.white).padding(12).frame(maxWidth: .infinity, alignment: .leading).background(.black.opacity(0.25), in: RoundedRectangle(cornerRadius: 14))
-            ForEach(Array(rule.answers.enumerated()), id: \.offset) { _, a in HStack { Image(systemName: a.correct ? "checkmark.circle.fill" : "circle").foregroundStyle(a.correct ? Color.green : Color.white.opacity(0.35)); Text(render(a.template, a.fieldKeys, row)).foregroundStyle(.white) }.padding(.horizontal, 8) }
+            RenderedMaterialValue(template: rule.promptTemplate, keys: rule.promptFieldKeys, row: row).padding(12).frame(maxWidth: .infinity, alignment: .leading).background(.black.opacity(0.25), in: RoundedRectangle(cornerRadius: 14))
+            ForEach(Array(rule.answers.enumerated()), id: \.offset) { _, a in HStack { Image(systemName: a.correct ? "checkmark.circle.fill" : "circle").foregroundStyle(a.correct ? Color.green : Color.white.opacity(0.35)); RenderedMaterialValue(template:a.template,keys:a.fieldKeys,row:row) }.padding(.horizontal, 8) }
             if c.rows.count > 1 { HStack { Button { indices[rule.id] = max(0, i-1) } label: { Image(systemName: "chevron.left") }.disabled(i == 0); Spacer(); Text("\(i+1) / \(c.rows.count)").font(.caption).foregroundStyle(.white.opacity(0.6)); Spacer(); Button { indices[rule.id] = min(c.rows.count-1, i+1) } label: { Image(systemName: "chevron.right") }.disabled(i == c.rows.count-1) }.foregroundStyle(.cyan) }
         }.padding(15).background(.white.opacity(0.055), in: RoundedRectangle(cornerRadius: 18)).overlay(RoundedRectangle(cornerRadius: 18).stroke(.cyan.opacity(0.2)))
     }
