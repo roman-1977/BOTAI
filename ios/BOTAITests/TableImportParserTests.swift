@@ -13,3 +13,11 @@ struct TableImportParserTests {
         #expect(cards.contains { $0.0.contains("H₂SO₄") && $0.0.contains("Остаток?") && $0.1 == "SO₄²⁻" })
     }
 }
+
+@Test func parsesQuotedCSVWithCommas() throws {
+    let source = "Вопрос,Ответ\n\"В коробке 20 шаров, из них 5 белых. Какова вероятность?\",0.25\n"
+    let table = try #require(TableImportParser.parse(source))
+    #expect(table.rows.count == 1)
+    #expect(table.rows[0][0].contains("20 шаров, из них 5"))
+    #expect(table.rows[0][1] == "0.25")
+}

@@ -19,12 +19,33 @@ struct CardMapping: Identifiable, Hashable, Sendable {
 
 enum TableImportParser {
     static func parse(_ source: String) -> ImportedTable? {
-        let lines = source.split(whereSeparator: \.isNewline).map(String.init).filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
-        guard lines.count >= 2 else { return nil }
-        let delimiter: Character = lines[0].contains("\t") ? "\t" : (lines[0].contains(";") ? ";" : ",")
-        let matrix = lines.map { line in line.split(separator: delimiter, omittingEmptySubsequences: false).map { $0.trimmingCharacters(in: .whitespacesAndNewlines) } }
-        guard let width = matrix.first?.count, width >= 2, matrix.dropFirst().allSatisfy({ $0.count == width }) else { return nil }
-        return ImportedTable(headers: matrix[0], rows: Array(matrix.dropFirst()))
+        let normalized = source.replacingOccurrences(of: "\r\n", with: "\n").replacingOccurrences(of: "\r", with: "\n")
+        let firstLine = normalized.split(separator: "\n", maxSplits: 1, omittingEmptySubsequences: true).first.map(String.init) ?? ""
+        let delimiter: Character = firstLine.contains("\t") ? "\t" : (firstLine.contains(";") ? ";" : ",")
+        guard let matrix = parseDelimited(normalized, delimiter: delimiter), matrix.count >= 2 else { return nil }
+        let cleaned = matrix.filter { !$0.allSatisfy { $0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty } }
+            .map { $0.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) } }
+        guard let width = cleaned.first?.count, width >= 2, cleaned.dropFirst().allSatisfy({ $0.count == width }) else { return nil }
+        return ImportedTable(headers: cleaned[0], rows: Array(cleaned.dropFirst()))
+    }
+
+    private static func parseDelimited(_ text: String, delimiter: Character) -> [[String]]? {
+        var rows = [[String]](), row = [String](), field = "", quoted = false
+        var index = text.startIndex
+        while index < text.endIndex {
+            let c = text[index]
+            if c == "\"" {
+                let next = text.index(after: index)
+                if quoted, next < text.endIndex, text[next] == "\"" { field.append("\""); index = next }
+                else { quoted.toggle() }
+            } else if c == delimiter && !quoted { row.append(field); field = "" }
+            else if c == "\n" && !quoted { row.append(field); rows.append(row); row = []; field = "" }
+            else { field.append(c) }
+            index = text.index(after: index)
+        }
+        guard !quoted else { return nil }
+        if !field.isEmpty || !row.isEmpty { row.append(field); rows.append(row) }
+        return rows
     }
 
     static func cards(table: ImportedTable, mappings: Set<CardMapping>) -> [(String, String)] {
