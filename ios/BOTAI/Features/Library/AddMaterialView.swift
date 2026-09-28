@@ -91,9 +91,9 @@ private struct QuestionRuleCard: View {
             TemplateEditor(label: "ВОПРОС", template: $rule.template, fields: $rule.fields, headers: headers, sample: sample)
             Divider().overlay(.white.opacity(0.12))
             HStack { Text("ОТВЕТЫ").font(.caption.bold()).foregroundStyle(.cyan); Spacer() }
-            Toggle("Показывать количество правильных ответов", isOn: $rule.showCorrectCount).font(.subheadline).tint(.cyan)
             ForEach(rule.answers) { item in AnswerCard(answer: answerBinding(for: item.id), headers: headers, sample: sample, canDelete: true) { removeAnswer(id: item.id) } }
             if rule.answers.count < 6 { Button { withAnimation { rule.answers.append(DraftAnswer(correct: false)) } } label: { Label("Добавить ответ", systemImage: "plus").frame(maxWidth: .infinity) }.buttonStyle(.bordered).tint(.cyan) }
+            if rule.answers.count > 1 { Toggle(isOn: $rule.showCorrectCount) { VStack(alignment: .leading, spacing: 2) { Text("Показывать количество правильных ответов").font(.subheadline.weight(.semibold)).foregroundStyle(.white); Text("Например: «Выберите 2 правильных ответа»").font(.caption).foregroundStyle(.white.opacity(0.65)) } }.tint(.cyan) }
             if !rule.valid { Text("Нужен минимум один заполненный правильный ответ.").font(.caption).foregroundStyle(.orange) }
         }
     }
