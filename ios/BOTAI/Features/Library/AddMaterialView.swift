@@ -67,11 +67,16 @@ struct AddMaterialView: View {
 
     private func rulesView(_ table: ImportedTable) -> some View {
         VStack(spacing: 14) {
-            HStack { Text("ПРАВИЛА ВОПРОСОВ").font(.caption.bold()).foregroundStyle(.cyan); Spacer(); Text("\(rules.count)").foregroundStyle(.white.opacity(0.45)) }
-            ForEach(rules.indices, id: \.self) { index in QuestionRuleCard(rule: $rules[index], headers: table.headers, sample: table.rows.first ?? [], number: index + 1, canDelete: true) { rules.remove(at: index) } }
-            Button { withAnimation { rules.append(DraftQuestionRule()) } } label: { Label("Добавить правило вопроса", systemImage: "plus.circle.fill").frame(maxWidth: .infinity).padding(.vertical, 8) }.buttonStyle(.bordered).tint(.cyan)
+            HStack { Text("НАБОРЫ ВОПРОСОВ").font(.caption.bold()).foregroundStyle(.cyan); Spacer(); Text("\(rules.count)").foregroundStyle(.white.opacity(0.45)) }
+            ForEach(Array(rules.enumerated()), id: \.element.id) { index, item in QuestionRuleCard(rule: binding(for: item.id), headers: table.headers, sample: table.rows.first ?? [], number: index + 1, canDelete: true) { removeRule(id: item.id) } }
+            Button { withAnimation { rules.append(DraftQuestionRule()) } } label: { Label("Добавить набор вопросов", systemImage: "plus.circle.fill").frame(maxWidth: .infinity).padding(.vertical, 8) }.buttonStyle(.bordered).tint(.cyan)
         }
     }
+
+    private func binding(for id: UUID) -> Binding<DraftQuestionRule> {
+        Binding(get: { rules.first(where: { $0.id == id }) ?? DraftQuestionRule() }, set: { value in if let i = rules.firstIndex(where: { $0.id == id }) { rules[i] = value } })
+    }
+    private func removeRule(id: UUID) { withAnimation { rules.removeAll { $0.id == id } } }
 
     private func importFile(_ result: Result<[URL], Error>) { do { guard let url = try result.get().first else { return }; let access = url.startAccessingSecurityScopedResource(); defer { if access { url.stopAccessingSecurityScopedResource() } }; let data = try Data(contentsOf: url); guard let text = String(data: data, encoding: .utf8) ?? String(data: data, encoding: .windowsCP1251), let parsed = TableImportParser.parse(text) else { throw CocoaError(.fileReadCorruptFile) }; table = parsed; rules = []; error = nil; if title.isEmpty { title = url.deletingPathExtension().lastPathComponent } } catch { self.error = "Не удалось прочитать файл: \(error.localizedDescription)" } }
     private func save() { guard let table, let first = rules.first(where: { $0.valid }), let answer = first.answers.first(where: { $0.correct }), let q = first.fields.first, let a = answer.fields.first else { return }; do { try store.saveCSV(title: title, subject: "", topic: tags, table: table, mappings: [CardMapping(from: q, to: a)]); dismiss() } catch { self.error = "Не удалось сохранить: \(error.localizedDescription)" } }
@@ -87,11 +92,13 @@ private struct QuestionRuleCard: View {
             Divider().overlay(.white.opacity(0.12))
             HStack { Text("ОТВЕТЫ").font(.caption.bold()).foregroundStyle(.cyan); Spacer() }
             Toggle("Показывать количество правильных ответов", isOn: $rule.showCorrectCount).font(.subheadline).tint(.cyan)
-            ForEach(rule.answers.indices, id: \.self) { index in AnswerCard(answer: $rule.answers[index], headers: headers, sample: sample, canDelete: true) { rule.answers.remove(at: index) } }
+            ForEach(rule.answers) { item in AnswerCard(answer: answerBinding(for: item.id), headers: headers, sample: sample, canDelete: true) { removeAnswer(id: item.id) } }
             if rule.answers.count < 6 { Button { withAnimation { rule.answers.append(DraftAnswer(correct: false)) } } label: { Label("Добавить ответ", systemImage: "plus").frame(maxWidth: .infinity) }.buttonStyle(.bordered).tint(.cyan) }
             if !rule.valid { Text("Нужен минимум один заполненный правильный ответ.").font(.caption).foregroundStyle(.orange) }
         }
     }
+    private func answerBinding(for id: UUID) -> Binding<DraftAnswer> { Binding(get: { rule.answers.first(where: { $0.id == id }) ?? DraftAnswer() }, set: { value in if let i = rule.answers.firstIndex(where: { $0.id == id }) { rule.answers[i] = value } }) }
+    private func removeAnswer(id: UUID) { withAnimation { rule.answers.removeAll { $0.id == id } } }
 }
 
 private struct AnswerCard: View {
