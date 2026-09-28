@@ -21,7 +21,7 @@ final class MaterialStore {
         if table.mediaRoot != nil { try FileManager.default.createDirectory(at:mediaDir,withIntermediateDirectories:true) }
         let rows = try table.rows.enumerated().map { position, row in
             var values:[String:String]=[:]
-            for (index,value) in row.enumerated() { if table.mediaColumns.contains(index),let root=table.mediaRoot { let src=root.appendingPathComponent(value);if FileManager.default.fileExists(atPath:src.path){let dst=mediaDir.appendingPathComponent(URL(fileURLWithPath:value).lastPathComponent);if !FileManager.default.fileExists(atPath:dst.path){try FileManager.default.copyItem(at:src,to:dst)};values["f\(index)"]=dst.path}else{values["f\(index)"]=value} } else { values["f\(index)"]=value } }
+            for (index,value) in row.enumerated() { if table.mediaColumns.contains(index),let root=table.mediaRoot { let direct=root.appendingPathComponent(value);let name=URL(fileURLWithPath:value).lastPathComponent;let files=(FileManager.default.enumerator(at:root,includingPropertiesForKeys:nil)?.allObjects as? [URL]) ?? [];let src=FileManager.default.fileExists(atPath:direct.path) ? direct : files.first{$0.lastPathComponent==name};if let src{let dst=mediaDir.appendingPathComponent(name);if !FileManager.default.fileExists(atPath:dst.path){try FileManager.default.copyItem(at:src,to:dst)};values["f\(index)"]=dst.path}else{values["f\(index)"]=value} } else { values["f\(index)"]=value } }
             return KnowledgeRow(id:UUID(),materialID:materialID,position:position,values:values)
         }
         let rules: [QuestionRule] = ruleDrafts?.filter(\.valid).map { d in
