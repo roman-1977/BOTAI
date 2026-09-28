@@ -104,13 +104,8 @@ private struct RenderedMaterialValue: View {
         }
         Text(rendered).font(.headline).foregroundStyle(.white)
     } }
-    private func isImage(_ s:String)->Bool { ["png","jpg","jpeg","webp","heic"].contains(URL(fileURLWithPath:s).pathExtension.lowercased()) }
-    private func resolvedImageURL(_ value:String)->URL? {
-        let original=URL(fileURLWithPath:value); if FileManager.default.fileExists(atPath:original.path){return original}
-        guard let support=FileManager.default.urls(for:.applicationSupportDirectory,in:.userDomainMask).first else{return nil}
-        let media=support.appendingPathComponent("BOTAI/Media",isDirectory:true); let name=original.lastPathComponent
-        return (FileManager.default.enumerator(at:media,includingPropertiesForKeys:nil)?.allObjects as? [URL])?.first{$0.lastPathComponent==name}
-    }
+    private func isImage(_ s:String)->Bool { MaterialMediaStore.isImageReference(s) }
+    private func resolvedImageURL(_ value:String)->URL? { MaterialMediaStore.resolvedURL(for:value) }
     private var rendered:String { var x=template;for(i,k)in keys.enumerated(){let v=row?.values[k] ?? "—";x=x.replacingOccurrences(of:"{\(i+1)}",with:isImage(v) ? "":v)};return x.trimmingCharacters(in:.whitespacesAndNewlines) }
 }
 

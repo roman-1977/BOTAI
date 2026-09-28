@@ -33,3 +33,6 @@ See `samples/acids.csv` and `samples/acids.botai` for test fixtures. Do not sile
 
 ## BOTAI Package v1
 `.botai` is a ZIP container whose root contains `manifest.json` and optional `media/` files. Version 1 stores material metadata, typed fields (`text`/`image`), knowledge rows, complete question-set templates, answers, correctness and display settings. Image values are relative paths such as `media/diagram.png`. Import validates `formatVersion`; export writes the same portable model, so a material can be exported, deleted locally and imported again without rebuilding its question sets. A minimal working example is `samples/chemistry-demo.botai`.
+
+## Local media references
+BOTAI never stores an iOS sandbox absolute path as a durable media reference. Persisted knowledge rows use `media://<material-uuid>/<filename>`. The current Application Support URL is resolved only at runtime. Existing absolute-path records are migrated on startup; package import creates local media references, and package export resolves them back into portable `media/...` entries. Deleting a material also deletes its material-scoped media directory.

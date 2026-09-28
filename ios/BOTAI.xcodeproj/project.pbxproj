@@ -67,6 +67,7 @@
 		E0572C93CC5DC7349320117A /* GameHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B4DFDA30A4EDA83192CBE1 /* GameHomeView.swift */; };
 		E30E549896ED854EE99DAB01 /* MaterialStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC24BF33022F9D17757276F3 /* MaterialStore.swift */; };
 		EB96DB4352D299493ABB9F85 /* DailyPlanTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73BBD4473054760B92F62626 /* DailyPlanTests.swift */; };
+		ECF1E237CD03936D05825551 /* MaterialMediaStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 671EA90D234B22B143086115 /* MaterialMediaStore.swift */; };
 		EFFBB0C2CF1C8B55C82E9DE3 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 817818ACA82B71632FAE9344 /* ProfileView.swift */; };
 		F02C3636FD90010C812BEAFB /* BOTAIPackageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8256E8A0B1222090F38434B6 /* BOTAIPackageService.swift */; };
 		FBD3E7D13A08590E439D5590 /* TableImport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1105B18B7AC81192B0685B /* TableImport.swift */; };
@@ -101,6 +102,7 @@
 		426462B56FD0EC9AF023D9F2 /* SocialService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocialService.swift; sourceTree = "<group>"; };
 		596555D1BDE357A8CAFEFD2C /* LearningStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningStateTests.swift; sourceTree = "<group>"; };
 		60DD59EEE1D1FF5044C85337 /* GameDemo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameDemo.swift; sourceTree = "<group>"; };
+		671EA90D234B22B143086115 /* MaterialMediaStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaterialMediaStore.swift; sourceTree = "<group>"; };
 		6EEC0059B7C03D9B17854A1E /* DemoContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoContent.swift; sourceTree = "<group>"; };
 		734B831E99BBB11025AFE3A1 /* PersonalQuizView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalQuizView.swift; sourceTree = "<group>"; };
 		73BBD4473054760B92F62626 /* DailyPlanTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyPlanTests.swift; sourceTree = "<group>"; };
@@ -322,6 +324,7 @@
 				6EEC0059B7C03D9B17854A1E /* DemoContent.swift */,
 				060EA43C9AA1DB9826561BBC /* GoalsStore.swift */,
 				0D16621BFA37243165C0D00C /* LearningStore.swift */,
+				671EA90D234B22B143086115 /* MaterialMediaStore.swift */,
 				BC24BF33022F9D17757276F3 /* MaterialStore.swift */,
 				CD3FEB8A29FC431933664685 /* MyQuizzesStore.swift */,
 				8BDBEB068052A2E0BAAE393C /* PersonalQuizService.swift */,
@@ -495,6 +498,7 @@
 				781C678A610502BED9637291 /* LearningStore.swift in Sources */,
 				D539DF947EAD8FF27E037A2B /* LibraryView.swift in Sources */,
 				302CC06408F8DB6B1A315683 /* MVPDemoData.swift in Sources */,
+				ECF1E237CD03936D05825551 /* MaterialMediaStore.swift in Sources */,
 				D7BD2E0356F4A241288F62DB /* MaterialRepository.swift in Sources */,
 				E30E549896ED854EE99DAB01 /* MaterialStore.swift in Sources */,
 				7801AED2F7B9BE81B0826E9D /* MaterialsHubView.swift in Sources */,

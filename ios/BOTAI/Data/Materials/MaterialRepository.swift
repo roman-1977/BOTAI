@@ -33,5 +33,19 @@ final class MaterialRepository: @unchecked Sendable {
         }
     }
 
+    func migrateLegacyMediaReferences() throws {
+        try database.dbQueue.write { db in
+            let records = try KnowledgeRowDBRecord.fetchAll(db)
+            for record in records {
+                guard let mid=UUID(uuidString:record.materialID),let data=record.valuesJSON.data(using:.utf8),var values=try? JSONDecoder().decode([String:String].self,from:data) else { continue }
+                var changed=false
+                for (key,value) in values where MaterialMediaStore.isImageReference(value) && !value.hasPrefix(MaterialMediaStore.prefix) {
+                    if let url=MaterialMediaStore.resolvedURL(for:value) { values[key]=MaterialMediaStore.reference(materialID:mid,fileName:url.lastPathComponent);changed=true }
+                }
+                if changed { var updated=record;updated.valuesJSON=String(data:try JSONEncoder().encode(values),encoding:.utf8)!;try updated.update(db) }
+            }
+        }
+    }
+
     func delete(id: UUID) throws { _ = try database.dbQueue.write { db in try MaterialDBRecord.deleteOne(db, key: id.uuidString) } }
 }
