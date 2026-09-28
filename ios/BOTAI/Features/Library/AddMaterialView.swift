@@ -2,10 +2,10 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct DraftAnswer: Identifiable, Hashable {
-    let id = UUID(); var fields: [Int] = []; var template = "{1}"; var correct = true
+    let id = UUID(); var fields: [Int] = []; var template = ""; var correct = true
 }
 struct DraftQuestionRule: Identifiable, Hashable {
-    let id = UUID(); var fields: [Int] = []; var template = "{1}"; var showCorrectCount = false
+    let id = UUID(); var fields: [Int] = []; var template = ""; var showCorrectCount = false
     var answers: [DraftAnswer] = [DraftAnswer()]
     var valid: Bool { !fields.isEmpty && !template.isEmpty && (1...6).contains(answers.count) && answers.contains(where: { $0.correct }) && answers.allSatisfy { !$0.fields.isEmpty && !$0.template.isEmpty } }
 }
@@ -68,7 +68,7 @@ struct AddMaterialView: View {
     private func rulesView(_ table: ImportedTable) -> some View {
         VStack(spacing: 14) {
             HStack { Text("ПРАВИЛА ВОПРОСОВ").font(.caption.bold()).foregroundStyle(.cyan); Spacer(); Text("\(rules.count)").foregroundStyle(.white.opacity(0.45)) }
-            ForEach(rules.indices, id: \.self) { index in QuestionRuleCard(rule: $rules[index], headers: table.headers, sample: table.rows.first ?? [], number: index + 1) }
+            ForEach(rules.indices, id: \.self) { index in QuestionRuleCard(rule: $rules[index], headers: table.headers, sample: table.rows.first ?? [], number: index + 1, canDelete: true) { rules.remove(at: index) } }
             Button { withAnimation { rules.append(DraftQuestionRule()) } } label: { Label("Добавить правило вопроса", systemImage: "plus.circle.fill").frame(maxWidth: .infinity).padding(.vertical, 8) }.buttonStyle(.bordered).tint(.cyan)
         }
     }
@@ -79,13 +79,15 @@ struct AddMaterialView: View {
 
 private struct QuestionRuleCard: View {
     @Binding var rule: DraftQuestionRule
-    let headers: [String]; let sample: [String]; let number: Int
+    let headers: [String]; let sample: [String]; let number: Int; let canDelete: Bool; let delete: () -> Void
     var body: some View {
         BuilderCard(title: "ВОПРОС \(number)", icon: "questionmark.bubble.fill") {
+            HStack { Spacer(); if canDelete { Button(role: .destructive, action: delete) { Label("Удалить вопрос", systemImage: "trash") }.font(.caption) } }
             TemplateEditor(label: "ВОПРОС", template: $rule.template, fields: $rule.fields, headers: headers, sample: sample)
             Divider().overlay(.white.opacity(0.12))
-            HStack { Text("ОТВЕТЫ").font(.caption.bold()).foregroundStyle(.cyan); Spacer(); Menu { Toggle("Показывать количество правильных", isOn: $rule.showCorrectCount) } label: { Image(systemName: "ellipsis.circle").font(.title3) } }
-            ForEach(rule.answers.indices, id: \.self) { index in AnswerCard(answer: $rule.answers[index], headers: headers, sample: sample, canDelete: rule.answers.count > 1) { rule.answers.remove(at: index) } }
+            HStack { Text("ОТВЕТЫ").font(.caption.bold()).foregroundStyle(.cyan); Spacer() }
+            Toggle("Показывать количество правильных ответов", isOn: $rule.showCorrectCount).font(.subheadline).tint(.cyan)
+            ForEach(rule.answers.indices, id: \.self) { index in AnswerCard(answer: $rule.answers[index], headers: headers, sample: sample, canDelete: true) { rule.answers.remove(at: index) } }
             if rule.answers.count < 6 { Button { withAnimation { rule.answers.append(DraftAnswer(correct: false)) } } label: { Label("Добавить ответ", systemImage: "plus").frame(maxWidth: .infinity) }.buttonStyle(.bordered).tint(.cyan) }
             if !rule.valid { Text("Нужен минимум один заполненный правильный ответ.").font(.caption).foregroundStyle(.orange) }
         }
