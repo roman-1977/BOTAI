@@ -96,7 +96,23 @@ private struct MaterialDetailView: View {
 }
 
 
-private struct RenderedMaterialValue: View { let template:String;let keys:[String];let row:KnowledgeRow?;var body:some View { VStack(alignment:.leading,spacing:8){ ForEach(Array(keys.enumerated()),id:\.offset){i,k in if let value=row?.values[k],isImage(value){ if let image=UIImage(contentsOfFile:value){Image(uiImage:image).resizable().scaledToFit().frame(maxHeight:220).clipShape(RoundedRectangle(cornerRadius:12))} } };Text(rendered).font(.headline).foregroundStyle(.white) } };private func isImage(_ s:String)->Bool{["png","jpg","jpeg","webp","heic"].contains(URL(fileURLWithPath:s).pathExtension.lowercased())};private var rendered:String{var x=template;for(i,k)in keys.enumerated(){let v=row?.values[k] ?? "—";x=x.replacingOccurrences(of:"{\(i+1)}",with:isImage(v) ? "":v)};return x.trimmingCharacters(in:.whitespacesAndNewlines)} }
+private struct RenderedMaterialValue: View {
+    let template:String; let keys:[String]; let row:KnowledgeRow?
+    var body:some View { VStack(alignment:.leading,spacing:8){
+        ForEach(Array(keys.enumerated()),id:\.offset){_,k in
+            if let value=row?.values[k],isImage(value),let url=resolvedImageURL(value),let image=UIImage(contentsOfFile:url.path){ Image(uiImage:image).resizable().scaledToFit().frame(maxHeight:220).clipShape(RoundedRectangle(cornerRadius:12)) }
+        }
+        Text(rendered).font(.headline).foregroundStyle(.white)
+    } }
+    private func isImage(_ s:String)->Bool { ["png","jpg","jpeg","webp","heic"].contains(URL(fileURLWithPath:s).pathExtension.lowercased()) }
+    private func resolvedImageURL(_ value:String)->URL? {
+        let original=URL(fileURLWithPath:value); if FileManager.default.fileExists(atPath:original.path){return original}
+        guard let support=FileManager.default.urls(for:.applicationSupportDirectory,in:.userDomainMask).first else{return nil}
+        let media=support.appendingPathComponent("BOTAI/Media",isDirectory:true); let name=original.lastPathComponent
+        return (FileManager.default.enumerator(at:media,includingPropertiesForKeys:nil)?.allObjects as? [URL])?.first{$0.lastPathComponent==name}
+    }
+    private var rendered:String { var x=template;for(i,k)in keys.enumerated(){let v=row?.values[k] ?? "—";x=x.replacingOccurrences(of:"{\(i+1)}",with:isImage(v) ? "":v)};return x.trimmingCharacters(in:.whitespacesAndNewlines) }
+}
 
 private struct SavedMaterialDetailView: View {
     let material: StudyMaterialRecord
