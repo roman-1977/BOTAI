@@ -6,6 +6,7 @@ struct MaterialsHubView: View {
     @State private var scope = 0
     @State private var filter = "Все"
     @State private var addMaterial = false
+    @State private var selectedMaterial: DemoMaterial?
 
     private let demo = DemoLibraryData()
 
@@ -21,6 +22,7 @@ struct MaterialsHubView: View {
                 ToolbarItem(placement: .primaryAction) { Button { addMaterial = true } label: { Image(systemName: "plus.circle.fill").font(.title2) } }
             }
             .sheet(isPresented: $addMaterial) { AddMaterialSourceView() }
+            .sheet(item: $selectedMaterial) { MaterialDetailView(material: $0) }
         }
     }
 
@@ -56,11 +58,37 @@ struct MaterialsHubView: View {
     private func materialCard(_ m: DemoMaterial) -> some View {
         HStack(spacing:12) { Image(systemName:m.kind == "Опросник" ? "questionmark.bubble.fill":"tablecells.fill").font(.title2).foregroundStyle(.mint); VStack(alignment:.leading,spacing:4) { Text(m.title).font(.headline); Text(m.description).font(.caption).foregroundStyle(.white.opacity(0.62)).lineLimit(2); Text("\(m.kind) · \(m.count) · \(m.source)").font(.caption2).foregroundStyle(.cyan.opacity(0.85)) }; Spacer(); Menu { Button("Добавить в курс"){}; Button("Создать задание"){}; Button("Удалить из библиотеки",role:.destructive){} } label:{Image(systemName:"ellipsis").padding(8)} }
             .padding(13).background(.black.opacity(0.22),in:RoundedRectangle(cornerRadius:16)).foregroundStyle(.white)
+            .contentShape(Rectangle()).onTapGesture { selectedMaterial = m }
     }
 
     private func recordCard(_ m: StudyMaterialRecord) -> some View { HStack { Image(systemName:"tablecells").foregroundStyle(.mint); VStack(alignment:.leading){Text(m.title).font(.headline);Text([m.subject,m.topic].compactMap{$0}.joined(separator:" · ")).font(.caption).foregroundStyle(.white.opacity(0.6))};Spacer();Image(systemName:"ellipsis") }.padding(13).background(.black.opacity(0.22),in:RoundedRectangle(cornerRadius:16)).foregroundStyle(.white) }
 
     private var groups: some View { VStack(spacing:14) { Text("Назначено преподавателем или родителем").font(.caption).foregroundStyle(.white.opacity(0.55)).frame(maxWidth:.infinity,alignment:.leading); ForEach(demo.groups) { g in VStack(alignment:.leading,spacing:10) { HStack { Image(systemName:"person.3.fill").foregroundStyle(.purple); VStack(alignment:.leading){Text(g.title).font(.headline);Text(g.owner).font(.caption).foregroundStyle(.white.opacity(0.55))};Spacer();Image(systemName:"lock.fill").foregroundStyle(.white.opacity(0.4)) }; Divider().overlay(.white.opacity(0.1)); Label(g.task,systemImage:"target").foregroundStyle(.mint); Text("\(g.materials) материалов · цель задаёт руководитель").font(.caption).foregroundStyle(.white.opacity(0.6)) }.padding(15).background(.white.opacity(0.05),in:RoundedRectangle(cornerRadius:18)).foregroundStyle(.white) } } }
+}
+
+
+private struct MaterialDetailView: View {
+    let material: DemoMaterial
+    @Environment(\.dismiss) private var dismiss
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                DigitalHubBackground()
+                ScrollView { VStack(alignment: .leading, spacing: 18) {
+                    HStack { Label(material.kind.uppercased(), systemImage: material.kind == "Опросник" ? "questionmark.bubble.fill" : "tablecells.fill"); Spacer(); Text(material.source) }.font(.caption.bold()).foregroundStyle(.cyan)
+                    Text(material.title).font(.title2.bold()).foregroundStyle(.white)
+                    Text(material.description).foregroundStyle(.white.opacity(0.68))
+                    HStack { stat(material.count, "Содержимое"); stat(material.subject, "Предмет") }
+                    detailBlock
+                    sampleBlock
+                    Button("Начать заниматься") {}.buttonStyle(.borderedProminent).tint(.cyan).frame(maxWidth: .infinity)
+                }.padding(18) }
+            }.navigationTitle("Материал").navigationBarTitleDisplayMode(.inline).toolbar { Button("Готово") { dismiss() } }
+        }
+    }
+    private func stat(_ value:String,_ label:String)->some View { VStack(alignment:.leading,spacing:3){Text(value).font(.headline).foregroundStyle(.white);Text(label).font(.caption2).foregroundStyle(.white.opacity(0.5))}.frame(maxWidth:.infinity,alignment:.leading).padding(12).background(.white.opacity(0.05),in:RoundedRectangle(cornerRadius:14)) }
+    private var detailBlock: some View { VStack(alignment:.leading,spacing:10){Text(material.kind == "Справочник" ? "КАК ФОРМИРУЮТСЯ ВОПРОСЫ" : "ТИПЫ ВОПРОСОВ").font(.caption.bold()).foregroundStyle(.cyan);ForEach(material.details,id:\.self){Label($0,systemImage:"checkmark.circle.fill").foregroundStyle(.white)}} }
+    private var sampleBlock: some View { VStack(alignment:.leading,spacing:10){Text("ПРИМЕР СОДЕРЖИМОГО").font(.caption.bold()).foregroundStyle(.cyan);ForEach(material.sample,id:\.self){Text($0).frame(maxWidth:.infinity,alignment:.leading).padding(12).background(.black.opacity(0.22),in:RoundedRectangle(cornerRadius:14)).foregroundStyle(.white)}} }
 }
 
 private struct AddMaterialSourceView: View {
