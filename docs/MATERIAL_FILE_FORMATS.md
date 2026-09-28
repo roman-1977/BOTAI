@@ -27,3 +27,6 @@ images/          # optional
 `manifest.json` contains `formatVersion`, title, optional subject/topic, material kind, data filename and question rules. Paths must remain inside the archive. Unknown future format versions must be rejected rather than guessed. Images are optional and will be referenced by data fields in a later implementation step.
 
 See `samples/acids.csv` and `samples/acids.botai` for test fixtures. Do not silently change this format: update the manifest version, ADR and compatibility tests together.
+
+## User-facing guide
+Практическая инструкция по подготовке CSV/TSV и ZIP с изображениями находится в `docs/USER_IMPORT_GUIDE.md`. Текущая реализация поддерживает несколько media-колонок и сохраняет media локально вместе с материалом.

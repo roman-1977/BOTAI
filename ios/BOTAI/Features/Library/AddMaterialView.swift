@@ -53,7 +53,7 @@ struct AddMaterialView: View {
 
     private var dataCard: some View {
         BuilderCard(title: "ИСХОДНЫЕ ДАННЫЕ", icon: "tablecells.fill") {
-            Button { importer = true } label: { Label(table == nil ? "Выбрать CSV / TSV" : "Заменить файл", systemImage: "doc.badge.plus") }.buttonStyle(.borderedProminent).tint(.cyan)
+            Button { importer = true } label: { Label(table == nil ? "Выбрать CSV / TSV / ZIP" : "Заменить файл", systemImage: "doc.badge.plus").frame(maxWidth: .infinity).padding(.vertical, 7) }.buttonStyle(.borderedProminent).tint(.cyan)
             if let table {
                 Button { withAnimation { dataExpanded.toggle() } } label: {
                     HStack { Text("\(table.rows.count) строк · \(table.headers.count) атрибута"); Spacer(); Image(systemName: dataExpanded ? "chevron.up" : "chevron.down") }
@@ -131,7 +131,8 @@ private struct TemplateEditor: View {
     let label: String?; @Binding var template: String; @Binding var fields: [Int]; let headers: [String]; let sample: [String]; let mediaRoot: URL?; let mediaColumns: Set<Int>
     var body: some View { VStack(alignment: .leading, spacing: 9) {
         if let label { Text(label).font(.caption.bold()).foregroundStyle(.cyan) }
-        TextField("Шаблон", text: $template, axis: .vertical).lineLimit(2...4).padding(12).background(.black.opacity(0.28), in: RoundedRectangle(cornerRadius: 13)).foregroundStyle(.white)
+        TextField("Шаблон", text: $template, axis: .vertical).lineLimit(3...8).textInputAutocapitalization(.sentences).padding(12).background(.black.opacity(0.28), in: RoundedRectangle(cornerRadius: 13)).foregroundStyle(.white)
+        ScrollView(.horizontal, showsIndicators: false) { HStack(spacing:6) { ForEach(["×","÷","±","≈","≠","≤","≥","√","π","∞","°","→","⇄","Δ","Σ","²","³","₁","₂","₃","₄","₅","₆","₇","₈","₉","₀"], id: \.self) { symbol in Button(symbol) { template += symbol }.font(.subheadline.bold()).foregroundStyle(.white).frame(minWidth:30,minHeight:30).background(.white.opacity(0.08),in:RoundedRectangle(cornerRadius:8)) } } }
         ScrollView(.horizontal, showsIndicators: false) { HStack(spacing: 7) { ForEach(headers.indices, id: \.self) { i in Button { addField(i) } label: { Label(headers[i], systemImage: isMedia(i) ? "photo" : "plus").font(.caption.bold()).padding(.horizontal, 10).padding(.vertical, 7).background(.cyan.opacity(0.13), in: Capsule()).overlay(Capsule().stroke(.cyan.opacity(0.35))) }.foregroundStyle(.cyan) } } }
         if !fields.isEmpty { VStack(alignment: .leading, spacing: 7) { Text("ПРИМЕР").font(.caption2.bold()).foregroundStyle(.white.opacity(0.4)); Text(renderedText).foregroundStyle(.white.opacity(0.8)).font(.subheadline); ForEach(fields.filter { mediaColumns.contains($0) }, id: \.self) { i in if i < sample.count, let root=mediaRoot { MediaPreview(title: headers[i], root: root, value: sample[i]) } } } }
     } }

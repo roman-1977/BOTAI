@@ -31,3 +31,7 @@ Architecture decisions are recorded in `docs/decisions/`; accepted ADRs take pre
 Next executable milestone: offline Learn vertical slice backed by GRDB with durable idempotent sync outbox.
 
 Product UX drafts: `docs/GOALS_PROGRESS.md` and `docs/SCREEN_FLOW.md`.
+
+### Для пользователей
+- [Подготовка CSV/TSV и ZIP с изображениями](docs/USER_IMPORT_GUIDE.md)
+- В инструкции также есть готовые промпты для подготовки материалов с помощью ИИ.
