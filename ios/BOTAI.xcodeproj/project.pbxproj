@@ -18,6 +18,7 @@
 		218A1B9153A8F7196A7FD175 /* MyQuizzesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01557FDC64AB9F3E731E15AA /* MyQuizzesView.swift */; };
 		2812354A74E594F7AB92C70D /* AppDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = F739A6F7F8767D0448503087 /* AppDatabase.swift */; };
 		2A5ED9453153B12640FAC166 /* DailyPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 376F56258F82F144D8E84E66 /* DailyPlan.swift */; };
+		2CA8AE9A8B0E5F9057BD54DB /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = DB1185682DE012A34F4B8726 /* ZIPFoundation */; };
 		2D697125F33EEC8E69CF44B8 /* QuizAuthoringService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA5BF0C84057B447AE79E32 /* QuizAuthoringService.swift */; };
 		302CC06408F8DB6B1A315683 /* MVPDemoData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8EC75D93437F2936503D0BE /* MVPDemoData.swift */; };
 		3165E5BDF41AD0CA2B1D05FB /* GoalsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93C5C5E035E2E220496009B0 /* GoalsView.swift */; };
@@ -152,6 +153,7 @@
 			files = (
 				9E96EBD567277C5F058BD013 /* Supabase in Frameworks */,
 				3F21EC6E380058072DA0F977 /* GRDB in Frameworks */,
+				2CA8AE9A8B0E5F9057BD54DB /* ZIPFoundation in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -407,6 +409,7 @@
 			packageProductDependencies = (
 				471FE1DBB6AE91F7EE39CD5F /* Supabase */,
 				FA66617488ED7FA786129E43 /* GRDB */,
+				DB1185682DE012A34F4B8726 /* ZIPFoundation */,
 			);
 			productName = BOTAI;
 			productReference = 0EEB254DC7672F182570BFA5 /* BOTAI.app */;
@@ -435,6 +438,7 @@
 			packageReferences = (
 				D11B9759B5638B6C56A1B7C6 /* XCRemoteSwiftPackageReference "GRDB.swift" */,
 				99D1FBD1C4D4BF85AB393CC3 /* XCRemoteSwiftPackageReference "supabase-swift" */,
+				B990745B635EF59AB15C0C9C /* XCRemoteSwiftPackageReference "ZIPFoundation" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = EF45DE58DE077AA068C034A1 /* Products */;
@@ -778,6 +782,14 @@
 				minimumVersion = 2.0.0;
 			};
 		};
+		B990745B635EF59AB15C0C9C /* XCRemoteSwiftPackageReference "ZIPFoundation" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/weichsel/ZIPFoundation";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.9.0;
+			};
+		};
 		D11B9759B5638B6C56A1B7C6 /* XCRemoteSwiftPackageReference "GRDB.swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/groue/GRDB.swift";
@@ -793,6 +805,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 99D1FBD1C4D4BF85AB393CC3 /* XCRemoteSwiftPackageReference "supabase-swift" */;
 			productName = Supabase;
+		};
+		DB1185682DE012A34F4B8726 /* ZIPFoundation */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B990745B635EF59AB15C0C9C /* XCRemoteSwiftPackageReference "ZIPFoundation" */;
+			productName = ZIPFoundation;
 		};
 		FA66617488ED7FA786129E43 /* GRDB */ = {
 			isa = XCSwiftPackageProductDependency;
