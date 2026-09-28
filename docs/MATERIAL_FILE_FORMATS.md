@@ -36,3 +36,7 @@ See `samples/acids.csv` and `samples/acids.botai` for test fixtures. Do not sile
 
 ## Local media references
 BOTAI never stores an iOS sandbox absolute path as a durable media reference. Persisted knowledge rows use `media://<material-uuid>/<filename>`. The current Application Support URL is resolved only at runtime. Existing absolute-path records are migrated on startup; package import creates local media references, and package export resolves them back into portable `media/...` entries. Deleting a material also deletes its material-scoped media directory.
+
+
+## Status of legacy BOTAI Package v1
+The implemented v1 single-material `.botai` round-trip is a validated prototype and compatibility fixture, not the target product boundary. New product work must not extend v1 as a second Material-import UX. The next package version is Course-oriented: multiple materials + course/section relationships + methodology. Keep v1 readable while v2 is designed; do not silently reinterpret a v1 manifest as a course.

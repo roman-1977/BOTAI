@@ -4,7 +4,7 @@
 
 BOTAI Client is the complete learner application. A future BOTAI Studio may make authoring faster, but the client must remain able to import and create study material without Studio.
 
-Material can enter the client through exactly four first-class sources: a prepared `.botai` package, local CSV creation, a class/group assignment, or the public library. Once installed, all four sources use the same local material model; provenance is metadata, not a different runtime type.
+Material enters the client from table import (CSV/TSV/ZIP), class/group assignment, or the public library. `.botai` is no longer defined as another Material source: it is being promoted to a Course transport package that can carry multiple materials plus course structure and methodology.
 
 ## Offline-first storage
 
