@@ -64,7 +64,7 @@ struct AddMaterialView: View {
     }
 
     private func preview(_ t: ImportedTable) -> some View {
-        ScrollView(.horizontal) { Grid(alignment: .leading, horizontalSpacing: 18) { GridRow { ForEach(t.headers, id: \.self) { Text($0).bold().foregroundStyle(.cyan) } }; ForEach(Array(t.rows.prefix(3).enumerated()), id: \.offset) { _, row in GridRow { ForEach(Array(row.enumerated()), id: \.offset) { col, value in if t.mediaColumns.contains(col), let root=t.mediaRoot { VStack(alignment:.leading,spacing:4) { MediaPreview(title:t.headers[col],url:root.appendingPathComponent(value)); Text(value).font(.caption2).foregroundStyle(.white.opacity(0.45)).lineLimit(1) }.frame(width:170,alignment:.leading) } else { Text(value).lineLimit(1).frame(maxWidth:230,alignment:.leading) } } } } }.font(.caption).foregroundStyle(.white.opacity(0.75)) }
+        ScrollView(.horizontal) { Grid(alignment: .leading, horizontalSpacing: 18) { GridRow { ForEach(t.headers, id: \.self) { Text($0).bold().foregroundStyle(.cyan) } }; ForEach(Array(t.rows.prefix(3).enumerated()), id: \.offset) { _, row in GridRow { ForEach(Array(row.enumerated()), id: \.offset) { col, value in if t.mediaColumns.contains(col), let root=t.mediaRoot { VStack(alignment:.leading,spacing:4) { MediaPreview(title:t.headers[col],root:root,value:value); Text(value).font(.caption2).foregroundStyle(.white.opacity(0.45)).lineLimit(1) }.frame(width:170,alignment:.leading) } else { Text(value).lineLimit(1).frame(maxWidth:230,alignment:.leading) } } } } }.font(.caption).foregroundStyle(.white.opacity(0.75)) }
     }
 
     private func rulesView(_ table: ImportedTable) -> some View {
@@ -78,6 +78,14 @@ struct AddMaterialView: View {
     private func importZIP(_ url: URL) throws -> ImportedTable {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent("botai-import-\(UUID().uuidString)", isDirectory:true);try FileManager.default.createDirectory(at:root,withIntermediateDirectories:true);try FileManager.default.unzipItem(at:url,to:root)
         let files=(FileManager.default.enumerator(at:root,includingPropertiesForKeys:nil)?.allObjects as? [URL]) ?? [];guard let csv=files.first(where:{["csv","tsv"].contains($0.pathExtension.lowercased())}) else { throw CocoaError(.fileReadCorruptFile) };let data=try Data(contentsOf:csv);guard let text=String(data:data,encoding:.utf8) ?? String(data:data,encoding:.windowsCP1251),var parsed=TableImportParser.parse(text) else {throw CocoaError(.fileReadCorruptFile)};parsed.mediaRoot=root;let exts:Set<String>=["png","jpg","jpeg","webp","heic"];parsed.mediaColumns=Set(parsed.headers.indices.filter { col in parsed.rows.contains { row in col < row.count && exts.contains(URL(fileURLWithPath:row[col]).pathExtension.lowercased()) } });return parsed
+    }
+
+    private func resolveMediaURL(root: URL, value: String) -> URL? {
+        let direct = root.appendingPathComponent(value)
+        if FileManager.default.fileExists(atPath: direct.path) { return direct }
+        let name = URL(fileURLWithPath: value).lastPathComponent
+        let files = (FileManager.default.enumerator(at: root, includingPropertiesForKeys: nil)?.allObjects as? [URL]) ?? []
+        return files.first { $0.lastPathComponent == name }
     }
 
     private func binding(for id: UUID) -> Binding<DraftQuestionRule> {
@@ -125,14 +133,19 @@ private struct TemplateEditor: View {
         if let label { Text(label).font(.caption.bold()).foregroundStyle(.cyan) }
         TextField("Шаблон", text: $template, axis: .vertical).lineLimit(2...4).padding(12).background(.black.opacity(0.28), in: RoundedRectangle(cornerRadius: 13)).foregroundStyle(.white)
         ScrollView(.horizontal, showsIndicators: false) { HStack(spacing: 7) { ForEach(headers.indices, id: \.self) { i in Button { addField(i) } label: { Label(headers[i], systemImage: isMedia(i) ? "photo" : "plus").font(.caption.bold()).padding(.horizontal, 10).padding(.vertical, 7).background(.cyan.opacity(0.13), in: Capsule()).overlay(Capsule().stroke(.cyan.opacity(0.35))) }.foregroundStyle(.cyan) } } }
-        if !fields.isEmpty { VStack(alignment: .leading, spacing: 7) { Text("ПРИМЕР").font(.caption2.bold()).foregroundStyle(.white.opacity(0.4)); Text(renderedText).foregroundStyle(.white.opacity(0.8)).font(.subheadline); ForEach(fields.filter { mediaColumns.contains($0) }, id: \.self) { i in if i < sample.count, let root=mediaRoot { MediaPreview(title: headers[i], url: root.appendingPathComponent(sample[i])) } } } }
+        if !fields.isEmpty { VStack(alignment: .leading, spacing: 7) { Text("ПРИМЕР").font(.caption2.bold()).foregroundStyle(.white.opacity(0.4)); Text(renderedText).foregroundStyle(.white.opacity(0.8)).font(.subheadline); ForEach(fields.filter { mediaColumns.contains($0) }, id: \.self) { i in if i < sample.count, let root=mediaRoot { MediaPreview(title: headers[i], root: root, value: sample[i]) } } } }
     } }
     private func isMedia(_ i:Int) -> Bool { mediaColumns.contains(i) }
     private func addField(_ i: Int) { if let pos = fields.firstIndex(of: i) { template += "{\(pos + 1)}" } else { fields.append(i); template += "{\(fields.count)}" } }
     private var renderedText: String { var result = template; for (position, field) in fields.enumerated() where field < sample.count { result = result.replacingOccurrences(of: "{\(position + 1)}", with: mediaColumns.contains(field) ? "[\(headers[field])]" : sample[field]) }; return result }
 }
 
-private struct MediaPreview: View { let title:String; let url:URL; var body: some View { VStack(alignment:.leading,spacing:5){ Text(title).font(.caption2.bold()).foregroundStyle(.cyan); if let ui=UIImage(contentsOfFile:url.path){ Image(uiImage:ui).resizable().scaledToFit().frame(maxHeight:150).clipShape(RoundedRectangle(cornerRadius:10)) } else { Label("Изображение недоступно",systemImage:"photo.badge.exclamationmark").font(.caption).foregroundStyle(.orange) } }.padding(7).background(.black.opacity(0.2),in:RoundedRectangle(cornerRadius:12)) } }
+private struct MediaPreview: View {
+    let title: String; let root: URL; let value: String
+    private var url: URL? { let direct=root.appendingPathComponent(value);if FileManager.default.fileExists(atPath:direct.path){return direct};let name=URL(fileURLWithPath:value).lastPathComponent;let files=(FileManager.default.enumerator(at:root,includingPropertiesForKeys:nil)?.allObjects as? [URL]) ?? [];return files.first{$0.lastPathComponent==name} }
+    var body: some View { VStack(alignment:.leading,spacing:5){ Text(title).font(.caption2.bold()).foregroundStyle(.cyan);if let url,let ui=UIImage(contentsOfFile:url.path){Image(uiImage:ui).resizable().scaledToFit().frame(maxHeight:150).clipShape(RoundedRectangle(cornerRadius:10))}else{Label("Изображение недоступно",systemImage:"photo.badge.exclamationmark").font(.caption).foregroundStyle(.orange)} }.padding(7).background(.black.opacity(0.2),in:RoundedRectangle(cornerRadius:12)) }
+}
+
 private struct BuilderTextField: View { let title: String; @Binding var text: String; var hint: String? = nil; var body: some View { VStack(alignment: .leading, spacing: 5) { Text(title.uppercased()).font(.caption2.bold()).foregroundStyle(.white.opacity(0.45)); TextField(hint ?? title, text: $text, axis: .vertical).padding(11).background(.black.opacity(0.25), in: RoundedRectangle(cornerRadius: 12)).foregroundStyle(.white) } } }
 private struct BuilderCard<Content: View>: View { let title: String; let icon: String; @ViewBuilder let content: Content; init(title: String, icon: String, @ViewBuilder content: () -> Content) { self.title=title; self.icon=icon; self.content=content() }; var body: some View { VStack(alignment: .leading, spacing: 12) { Label(title, systemImage: icon).font(.caption.bold()).foregroundStyle(.cyan); content }.padding(15).background(.white.opacity(0.055), in: RoundedRectangle(cornerRadius: 19)).overlay(RoundedRectangle(cornerRadius: 19).stroke(.cyan.opacity(0.22))) } }
 private struct BuilderBackground: View { var body: some View { ZStack { LinearGradient(colors:[Color(red:0.015,green:0.035,blue:0.12),Color(red:0.03,green:0.08,blue:0.18),.black],startPoint:.top,endPoint:.bottom).ignoresSafeArea(); Canvas { c,s in for x in stride(from:0.0,through:s.width,by:32){var p=Path();p.move(to:.init(x:x,y:0));p.addLine(to:.init(x:x,y:s.height));c.stroke(p,with:.color(.cyan.opacity(0.035)))};for y in stride(from:0.0,through:s.height,by:32){var p=Path();p.move(to:.init(x:0,y:y));p.addLine(to:.init(x:s.width,y:y));c.stroke(p,with:.color(.cyan.opacity(0.035)))}}.ignoresSafeArea() } } }
