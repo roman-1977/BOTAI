@@ -18,9 +18,9 @@ struct MaterialStorageTests {
     }
 
     @Test func packageManifestDecodes() throws {
-        let data = #"{"formatVersion":1,"title":"Test","subject":"Химия","topic":"Кислоты","kind":"reference","dataFile":"content.csv","rules":[{"kind":"card","from":"A","to":"B"}]}"#.data(using:.utf8)!
+        let data = #"{"formatVersion":1,"title":"Test","description":"Demo","tags":"Химия","kind":"reference","fields":[{"key":"f0","title":"Название","position":0,"type":"text"}],"rows":[{"f0":"Вода"}],"questionSets":[{"kind":"card","promptTemplate":"{1}","promptFieldKeys":["f0"],"answers":[{"template":"{1}","fieldKeys":["f0"],"correct":true}],"showCorrectCount":false,"enabled":true}]}"#.data(using:.utf8)!
         let manifest = try JSONDecoder().decode(BOTAIPackageManifest.self, from: data)
         #expect(manifest.formatVersion == 1)
-        #expect(manifest.rules.first?.from == "A")
+        #expect(manifest.questionSets.first?.promptFieldKeys == ["f0"])
     }
 }

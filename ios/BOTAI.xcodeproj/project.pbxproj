@@ -68,6 +68,7 @@
 		E30E549896ED854EE99DAB01 /* MaterialStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC24BF33022F9D17757276F3 /* MaterialStore.swift */; };
 		EB96DB4352D299493ABB9F85 /* DailyPlanTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73BBD4473054760B92F62626 /* DailyPlanTests.swift */; };
 		EFFBB0C2CF1C8B55C82E9DE3 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 817818ACA82B71632FAE9344 /* ProfileView.swift */; };
+		F02C3636FD90010C812BEAFB /* BOTAIPackageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8256E8A0B1222090F38434B6 /* BOTAIPackageService.swift */; };
 		FBD3E7D13A08590E439D5590 /* TableImport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1105B18B7AC81192B0685B /* TableImport.swift */; };
 /* End PBXBuildFile section */
 
@@ -108,6 +109,7 @@
 		7DD151C06E4A2253F428D68B /* BOTAIApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BOTAIApp.swift; sourceTree = "<group>"; };
 		7F9CB0BB7E9EBAFF8DF32C10 /* QuizHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizHistoryView.swift; sourceTree = "<group>"; };
 		817818ACA82B71632FAE9344 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
+		8256E8A0B1222090F38434B6 /* BOTAIPackageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BOTAIPackageService.swift; sourceTree = "<group>"; };
 		82BCCA7D3BE740D7C95A5EEE /* CreateQuizView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateQuizView.swift; sourceTree = "<group>"; };
 		85FD06012F0309FFB737DFF6 /* LearningRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningRepository.swift; sourceTree = "<group>"; };
 		88CE5F7CA97A124A4E93B218 /* EditPersonalQuizView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPersonalQuizView.swift; sourceTree = "<group>"; };
@@ -316,6 +318,7 @@
 			children = (
 				A7626D494DC476ABE5F29F05 /* AccountSafetyService.swift */,
 				94C51202DD85DC322CB38093 /* AuthStore.swift */,
+				8256E8A0B1222090F38434B6 /* BOTAIPackageService.swift */,
 				6EEC0059B7C03D9B17854A1E /* DemoContent.swift */,
 				060EA43C9AA1DB9826561BBC /* GoalsStore.swift */,
 				0D16621BFA37243165C0D00C /* LearningStore.swift */,
@@ -475,6 +478,7 @@
 				4D691B9E8238C076179611F9 /* AuthStore.swift in Sources */,
 				7F7154D72410ECF270F9D30A /* BOTAIApp.swift in Sources */,
 				95D7BF4D3E7C13DDFADE580B /* BOTAIPackage.swift in Sources */,
+				F02C3636FD90010C812BEAFB /* BOTAIPackageService.swift in Sources */,
 				BDED0A52965C1A1DB3E933F6 /* CreateQuizView.swift in Sources */,
 				2A5ED9453153B12640FAC166 /* DailyPlan.swift in Sources */,
 				AD18CE6462F97696BF1F1A49 /* DemoContent.swift in Sources */,

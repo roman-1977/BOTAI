@@ -1,4 +1,5 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct MaterialsHubView: View {
     @Environment(MaterialStore.self) private var store
@@ -104,6 +105,7 @@ private struct SavedMaterialDetailView: View {
     @State private var indices: [UUID: Int] = [:]
     @State private var confirmDelete = false
     @State private var deleteError: String?
+    @State private var exportURL: URL?
     private var content: MaterialContent? { store.content(id: material.id) }
     var body: some View {
         NavigationStack { ZStack { DigitalHubBackground()
@@ -116,8 +118,10 @@ private struct SavedMaterialDetailView: View {
             }.padding(18) } } else { ContentUnavailableView("Материал не найден", systemImage: "exclamationmark.triangle") }
         }.navigationTitle("Просмотр").navigationBarTitleDisplayMode(.inline).toolbar {
             ToolbarItem(placement: .cancellationAction) { Button("Готово") { dismiss() } }
+            ToolbarItem(placement: .primaryAction) { Button { exportMaterial() } label: { Image(systemName: "square.and.arrow.up") } }
             ToolbarItem(placement: .primaryAction) { Button(role: .destructive) { confirmDelete = true } label: { Image(systemName: "trash") }.tint(.red) }
         }
+        .sheet(item: $exportURL) { url in ShareSheet(items:[url]) }
         .sheet(isPresented: $confirmDelete) { DeleteMaterialSheet(title: material.title) { deleteMaterial() } }
         .alert("Не удалось удалить материал", isPresented: Binding(get: { deleteError != nil }, set: { if !$0 { deleteError = nil } })) { Button("OK", role: .cancel) {} } message: { Text(deleteError ?? "Неизвестная ошибка") }
         }
@@ -131,10 +135,14 @@ private struct SavedMaterialDetailView: View {
             if c.rows.count > 1 { HStack { Button { indices[rule.id] = max(0, i-1) } label: { Image(systemName: "chevron.left") }.disabled(i == 0); Spacer(); Text("\(i+1) / \(c.rows.count)").font(.caption).foregroundStyle(.white.opacity(0.6)); Spacer(); Button { indices[rule.id] = min(c.rows.count-1, i+1) } label: { Image(systemName: "chevron.right") }.disabled(i == c.rows.count-1) }.foregroundStyle(.cyan) }
         }.padding(15).background(.white.opacity(0.055), in: RoundedRectangle(cornerRadius: 18)).overlay(RoundedRectangle(cornerRadius: 18).stroke(.cyan.opacity(0.2)))
     }
+    private func exportMaterial() { do { exportURL=try store.exportPackage(id:material.id) } catch { deleteError=error.localizedDescription } }
     private func deleteMaterial() { do { try store.delete(id: material.id); dismiss() } catch { deleteError = error.localizedDescription } }
     private func render(_ template: String, _ keys: [String], _ row: KnowledgeRow?) -> String { var x = template; for (i,k) in keys.enumerated() { x = x.replacingOccurrences(of: "{\(i+1)}", with: row?.values[k] ?? "—") }; return x }
 }
 
+
+private struct ShareSheet: UIViewControllerRepresentable { let items:[Any];func makeUIViewController(context:Context)->UIActivityViewController{UIActivityViewController(activityItems:items,applicationActivities:nil)};func updateUIViewController(_ uiViewController:UIActivityViewController,context:Context){} }
+extension URL: @retroactive Identifiable { public var id:String { absoluteString } }
 
 private struct DeleteMaterialSheet: View {
     let title: String
@@ -156,7 +164,11 @@ private struct AddMaterialSourceView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var create = false
     @State private var savedMaterial = false
-    var body: some View { NavigationStack { ZStack { DigitalHubBackground(); ScrollView { VStack(spacing:14) { sourceCard("Импортировать файл","CSV / TSV · создать материал из таблицы","square.and.arrow.down") { create=true }; NavigationLink { PlaceholderSource(title:"Общая библиотека") } label:{ sourceLabel("Общая библиотека","Найти готовые материалы","books.vertical") }; NavigationLink { PlaceholderSource(title:"Создать вручную") } label:{ sourceLabel("Создать вручную","Новый материал без файла","square.and.pencil") }; NavigationLink { PlaceholderSource(title:"Подключиться к классу или группе") } label:{ sourceLabel("Класс или группа","Материалы преподавателя или родителя","person.3") } }.padding(16) } }.navigationTitle("Добавить").toolbar{Button("Готово"){dismiss()}}.sheet(isPresented:$create,onDismiss:{ if savedMaterial { dismiss() } }){AddMaterialView(onSaved:{ savedMaterial=true; create=false })} } }
+    @State private var packageImporter = false
+    @State private var packageError: String?
+    @Environment(MaterialStore.self) private var store
+    var body: some View { NavigationStack { ZStack { DigitalHubBackground(); ScrollView { VStack(spacing:14) { sourceCard("Импортировать таблицу","CSV / TSV / ZIP · настроить наборы вопросов","tablecells") { create=true }; sourceCard("Импортировать BOTAI","Готовый материал .botai","shippingbox.fill") { packageImporter=true }; NavigationLink { PlaceholderSource(title:"Общая библиотека") } label:{ sourceLabel("Общая библиотека","Найти готовые материалы","books.vertical") }; NavigationLink { PlaceholderSource(title:"Создать вручную") } label:{ sourceLabel("Создать вручную","Новый материал без файла","square.and.pencil") }; NavigationLink { PlaceholderSource(title:"Подключиться к классу или группе") } label:{ sourceLabel("Класс или группа","Материалы преподавателя или родителя","person.3") } }.padding(16) } }.navigationTitle("Добавить").toolbar{Button("Готово"){dismiss()}}.sheet(isPresented:$create,onDismiss:{ if savedMaterial { dismiss() } }){AddMaterialView(onSaved:{ savedMaterial=true; create=false })}.fileImporter(isPresented:$packageImporter,allowedContentTypes:[UTType(filenameExtension:"botai") ?? .data],allowsMultipleSelection:false){ result in importPackage(result) }.alert("Не удалось импортировать BOTAI",isPresented:Binding(get:{packageError != nil},set:{if !$0{packageError=nil}})){Button("OK",role:.cancel){}} message:{Text(packageError ?? "Неизвестная ошибка")} } }
+    private func importPackage(_ result:Result<[URL],Error>) { do { guard let url=try result.get().first else{return};let access=url.startAccessingSecurityScopedResource();defer{if access{url.stopAccessingSecurityScopedResource()}};try store.importPackage(url);dismiss() } catch { packageError=error.localizedDescription } }
     private func sourceCard(_ title:String,_ subtitle:String,_ icon:String,action:@escaping()->Void)->some View { Button(action:action){sourceLabel(title,subtitle,icon)} }
     private func sourceLabel(_ title:String,_ subtitle:String,_ icon:String)->some View { HStack(spacing:14){Image(systemName:icon).font(.title2).foregroundStyle(.cyan).frame(width:34);VStack(alignment:.leading,spacing:4){Text(title).font(.headline).foregroundStyle(.white);Text(subtitle).font(.caption).foregroundStyle(.white.opacity(0.55))};Spacer();Image(systemName:"chevron.right").foregroundStyle(.white.opacity(0.3))}.padding(16).background(.white.opacity(0.055),in:RoundedRectangle(cornerRadius:18)).overlay(RoundedRectangle(cornerRadius:18).stroke(.cyan.opacity(0.18))) }
 }

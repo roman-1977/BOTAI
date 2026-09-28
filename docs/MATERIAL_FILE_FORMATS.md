@@ -30,3 +30,6 @@ See `samples/acids.csv` and `samples/acids.botai` for test fixtures. Do not sile
 
 ## User-facing guide
 Практическая инструкция по подготовке CSV/TSV и ZIP с изображениями находится в `docs/USER_IMPORT_GUIDE.md`. Текущая реализация поддерживает несколько media-колонок и сохраняет media локально вместе с материалом.
+
+## BOTAI Package v1
+`.botai` is a ZIP container whose root contains `manifest.json` and optional `media/` files. Version 1 stores material metadata, typed fields (`text`/`image`), knowledge rows, complete question-set templates, answers, correctness and display settings. Image values are relative paths such as `media/diagram.png`. Import validates `formatVersion`; export writes the same portable model, so a material can be exported, deleted locally and imported again without rebuilding its question sets. A minimal working example is `samples/chemistry-demo.botai`.

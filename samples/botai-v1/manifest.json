@@ -1,0 +1,73 @@
+{
+  "formatVersion": 1,
+  "title": "Химия — демо BOTAI",
+  "description": "Пример готового переносимого материала BOTAI.",
+  "tags": "химия, 8 класс, демо",
+  "kind": "reference",
+  "fields": [
+    {
+      "key": "name",
+      "title": "Название",
+      "position": 0,
+      "type": "text"
+    },
+    {
+      "key": "formula",
+      "title": "Формула",
+      "position": 1,
+      "type": "text"
+    }
+  ],
+  "rows": [
+    {
+      "name": "Вода",
+      "formula": "H₂O"
+    },
+    {
+      "name": "Углекислый газ",
+      "formula": "CO₂"
+    },
+    {
+      "name": "Аммиак",
+      "formula": "NH₃"
+    }
+  ],
+  "questionSets": [
+    {
+      "kind": "card",
+      "promptTemplate": "Какая формула у вещества {1}?",
+      "promptFieldKeys": [
+        "name"
+      ],
+      "answers": [
+        {
+          "template": "{1}",
+          "fieldKeys": [
+            "formula"
+          ],
+          "correct": true
+        }
+      ],
+      "showCorrectCount": false,
+      "enabled": true
+    },
+    {
+      "kind": "card",
+      "promptTemplate": "Как называется вещество с формулой {1}?",
+      "promptFieldKeys": [
+        "formula"
+      ],
+      "answers": [
+        {
+          "template": "{1}",
+          "fieldKeys": [
+            "name"
+          ],
+          "correct": true
+        }
+      ],
+      "showCorrectCount": false,
+      "enabled": true
+    }
+  ]
+}
