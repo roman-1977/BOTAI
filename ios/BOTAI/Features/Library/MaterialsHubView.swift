@@ -8,8 +8,6 @@ struct MaterialsHubView: View {
     @State private var addMaterial = false
     @State private var selectedMaterial: DemoMaterial?
     @State private var selectedRecord: StudyMaterialRecord?
-    @State private var pendingDelete: StudyMaterialRecord?
-    @State private var deleteError: String?
 
     private let demo = DemoLibraryData()
 
@@ -27,11 +25,7 @@ struct MaterialsHubView: View {
             .sheet(isPresented: $addMaterial) { AddMaterialSourceView() }
             .sheet(item: $selectedMaterial) { MaterialDetailView(material: $0) }
             .sheet(item: $selectedRecord) { SavedMaterialDetailView(material: $0) }
-            .confirmationDialog("Удалить материал?", isPresented: Binding(get: { pendingDelete != nil }, set: { if !$0 { pendingDelete = nil } }), titleVisibility: .visible) {
-                Button("Удалить", role: .destructive) { deletePendingMaterial() }
-                Button("Отмена", role: .cancel) { pendingDelete = nil }
-            } message: { Text("Материал и все его вопросы будут удалены без возможности восстановления.") }
-            .alert("Не удалось удалить материал", isPresented: Binding(get: { deleteError != nil }, set: { if !$0 { deleteError = nil } })) { Button("OK", role: .cancel) {} } message: { Text(deleteError ?? "Неизвестная ошибка") }
+
         }
     }
 
@@ -70,9 +64,7 @@ struct MaterialsHubView: View {
             .contentShape(Rectangle()).onTapGesture { selectedMaterial = m }
     }
 
-    private func recordCard(_ m: StudyMaterialRecord) -> some View { HStack { Image(systemName:"tablecells").foregroundStyle(.mint); VStack(alignment:.leading,spacing:4){Text(m.title).font(.headline);if let d=m.description {Text(d).font(.caption).foregroundStyle(.white.opacity(0.62)).lineLimit(2)};if let tags=m.topic {Text(tags).font(.caption2).foregroundStyle(.cyan)}};Spacer();Menu { Button("Удалить материал", systemImage:"trash", role:.destructive) { pendingDelete=m } } label:{Image(systemName:"ellipsis").padding(8)} }.padding(13).background(.black.opacity(0.22),in:RoundedRectangle(cornerRadius:16)).foregroundStyle(.white).contentShape(Rectangle()).onTapGesture{selectedRecord=m} }
-
-    private func deletePendingMaterial() { guard let m=pendingDelete else{return};pendingDelete=nil;do{try store.delete(id:m.id)}catch{deleteError=error.localizedDescription} }
+    private func recordCard(_ m: StudyMaterialRecord) -> some View { HStack { Image(systemName:"tablecells").foregroundStyle(.mint); VStack(alignment:.leading,spacing:4){Text(m.title).font(.headline);if let d=m.description {Text(d).font(.caption).foregroundStyle(.white.opacity(0.62)).lineLimit(2)};if let tags=m.topic {Text(tags).font(.caption2).foregroundStyle(.cyan)}};Spacer();Image(systemName:"chevron.right").foregroundStyle(.white.opacity(0.3)) }.padding(13).background(.black.opacity(0.22),in:RoundedRectangle(cornerRadius:16)).foregroundStyle(.white).contentShape(Rectangle()).onTapGesture{selectedRecord=m} }
 
     private var groups: some View { VStack(spacing:14) { Text("Назначено преподавателем или родителем").font(.caption).foregroundStyle(.white.opacity(0.55)).frame(maxWidth:.infinity,alignment:.leading); ForEach(demo.groups) { g in VStack(alignment:.leading,spacing:10) { HStack { Image(systemName:"person.3.fill").foregroundStyle(.purple); VStack(alignment:.leading){Text(g.title).font(.headline);Text(g.owner).font(.caption).foregroundStyle(.white.opacity(0.55))};Spacer();Image(systemName:"lock.fill").foregroundStyle(.white.opacity(0.4)) }; Divider().overlay(.white.opacity(0.1)); Label(g.task,systemImage:"target").foregroundStyle(.mint); Text("\(g.materials) материалов · цель задаёт руководитель").font(.caption).foregroundStyle(.white.opacity(0.6)) }.padding(15).background(.white.opacity(0.05),in:RoundedRectangle(cornerRadius:18)).foregroundStyle(.white) } } }
 }
