@@ -116,10 +116,7 @@ private struct SavedMaterialDetailView: View {
             ToolbarItem(placement: .cancellationAction) { Button("Готово") { dismiss() } }
             ToolbarItem(placement: .primaryAction) { Button(role: .destructive) { confirmDelete = true } label: { Image(systemName: "trash") }.tint(.red) }
         }
-        .confirmationDialog("Удалить материал?", isPresented: $confirmDelete, titleVisibility: .visible) {
-            Button("Удалить", role: .destructive) { deleteMaterial() }
-            Button("Отмена", role: .cancel) {}
-        } message: { Text("Материал и все его вопросы будут удалены без возможности восстановления.") }
+        .sheet(isPresented: $confirmDelete) { DeleteMaterialSheet(title: material.title) { deleteMaterial() } }
         .alert("Не удалось удалить материал", isPresented: Binding(get: { deleteError != nil }, set: { if !$0 { deleteError = nil } })) { Button("OK", role: .cancel) {} } message: { Text(deleteError ?? "Неизвестная ошибка") }
         }
     }
@@ -134,6 +131,23 @@ private struct SavedMaterialDetailView: View {
     }
     private func deleteMaterial() { do { try store.delete(id: material.id); dismiss() } catch { deleteError = error.localizedDescription } }
     private func render(_ template: String, _ keys: [String], _ row: KnowledgeRow?) -> String { var x = template; for (i,k) in keys.enumerated() { x = x.replacingOccurrences(of: "{\(i+1)}", with: row?.values[k] ?? "—") }; return x }
+}
+
+
+private struct DeleteMaterialSheet: View {
+    let title: String
+    let onDelete: () -> Void
+    @Environment(\.dismiss) private var dismiss
+    var body: some View {
+        ZStack { DigitalHubBackground(); VStack(spacing: 18) {
+            ZStack { Circle().fill(.red.opacity(0.14)).frame(width: 70, height: 70); Image(systemName: "trash.fill").font(.system(size: 28)).foregroundStyle(.red) }
+            Text("Удалить материал?").font(.title2.bold()).foregroundStyle(.white)
+            Text(title).font(.headline).foregroundStyle(.cyan).multilineTextAlignment(.center)
+            Text("Материал и все его вопросы будут удалены без возможности восстановления.").font(.subheadline).foregroundStyle(.white.opacity(0.65)).multilineTextAlignment(.center)
+            Button(role: .destructive) { dismiss(); onDelete() } label: { Label("Удалить", systemImage: "trash").font(.headline).frame(maxWidth: .infinity).padding(.vertical, 10) }.buttonStyle(.borderedProminent).tint(.red)
+            Button("Отмена") { dismiss() }.font(.headline).foregroundStyle(.cyan).frame(maxWidth: .infinity).padding(.vertical, 8)
+        }.padding(24) }.presentationDetents([.height(390)]).presentationDragIndicator(.visible).presentationCornerRadius(28)
+    }
 }
 
 private struct AddMaterialSourceView: View {
