@@ -27,6 +27,12 @@ final class MaterialStore {
     }
 
     func content(id: UUID) -> MaterialContent? { try? repository?.content(id: id) }
+
+    func delete(id: UUID) throws {
+        guard let repository else { return }
+        try repository.delete(id: id)
+        refresh()
+    }
 }
 
 private extension String { var nilIfBlank: String? { trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : self } }
