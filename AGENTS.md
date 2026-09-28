@@ -118,3 +118,7 @@ The repository now contains an active iOS prototype, not only implementation pre
 `LearnSessionView` currently mixes production interaction decisions with demo/view-local state. Treat its accepted interaction invariants as product requirements, but do not extend view-local counters into a persistence architecture. Move durable session/day timing, goals, mode preferences and scheduling into domain/repository services as those features are implemented.
 
 When an accepted UX decision changes, update the relevant docs/ADR in the same commit as the code. Do not leave product behavior documented only in chat history.
+
+## Client v1 execution plan
+
+`docs/IMPLEMENTATION_PLAN.md` is the current definition of done and delivery order for the fully working client. `docs/CLIENT_ARCHITECTURE.md`, ADR-019 and ADR-020 define the learner/session and offline material boundaries. New implementation work must preserve offline study and avoid per-user paid API dependencies.
