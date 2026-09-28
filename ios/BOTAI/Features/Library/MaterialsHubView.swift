@@ -112,7 +112,7 @@ private struct SavedMaterialDetailView: View {
             if let c = content { ScrollView { VStack(alignment: .leading, spacing: 16) {
                 Text(c.material.title).font(.title2.bold()).foregroundStyle(.white)
                 if let d = c.material.description { Text(d).foregroundStyle(.white.opacity(0.7)) }
-                HStack { Label("Вы", systemImage: "person.crop.circle"); Spacer(); Text("\(c.rows.count) знаний · \(c.rules.count) наборов · \(c.rows.count * c.rules.count) вопросов") }.font(.caption).foregroundStyle(.cyan)
+                HStack { Label(c.material.author ?? (c.material.source == .created ? "Вы" : "Автор не указан"), systemImage: "person.crop.circle"); Spacer(); Text("\(c.rows.count) знаний · \(c.rules.count) наборов · \(c.rows.count * c.rules.count) вопросов") }.font(.caption).foregroundStyle(.cyan)
                 if let tags = c.material.topic { Text(tags).font(.caption.bold()).foregroundStyle(.cyan).padding(.horizontal, 10).padding(.vertical, 6).background(.cyan.opacity(0.12), in: Capsule()) }
                 ForEach(c.rules) { rule in ruleCard(rule, c) }
             }.padding(18) } } else { ContentUnavailableView("Материал не найден", systemImage: "exclamationmark.triangle") }

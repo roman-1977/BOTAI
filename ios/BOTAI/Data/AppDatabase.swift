@@ -32,9 +32,9 @@ struct OutboxRecord: Codable, FetchableRecord, PersistableRecord {
 
 
 struct MaterialDBRecord: Codable, FetchableRecord, PersistableRecord {
- static let databaseTableName="materials"; let id:String; var title:String; var subject:String?; var topic:String?; var description:String?; var kind:String; var source:String; var createdAt:Date; var updatedAt:Date
- init(_ x:StudyMaterialRecord){id=x.id.uuidString;title=x.title;subject=x.subject;topic=x.topic;description=x.description;kind=x.kind.rawValue;source=x.source.rawValue;createdAt=x.createdAt;updatedAt=x.updatedAt}
- var domain:StudyMaterialRecord?{guard let id=UUID(uuidString:id),let kind=MaterialKind(rawValue:kind),let source=MaterialSource(rawValue:source) else{return nil};return .init(id:id,title:title,subject:subject,topic:topic,description:description,kind:kind,source:source,createdAt:createdAt,updatedAt:updatedAt)}
+ static let databaseTableName="materials"; let id:String; var title:String; var subject:String?; var topic:String?; var description:String?; var author:String?; var kind:String; var source:String; var createdAt:Date; var updatedAt:Date
+ init(_ x:StudyMaterialRecord){id=x.id.uuidString;title=x.title;subject=x.subject;topic=x.topic;description=x.description;author=x.author;kind=x.kind.rawValue;source=x.source.rawValue;createdAt=x.createdAt;updatedAt=x.updatedAt}
+ var domain:StudyMaterialRecord?{guard let id=UUID(uuidString:id),let kind=MaterialKind(rawValue:kind),let source=MaterialSource(rawValue:source) else{return nil};return .init(id:id,title:title,subject:subject,topic:topic,description:description,author:author,kind:kind,source:source,createdAt:createdAt,updatedAt:updatedAt)}
 }
 struct MaterialFieldDBRecord: Codable, FetchableRecord, PersistableRecord { static let databaseTableName="materialFields"; let id:String;let materialID:String;var key:String;var title:String;var position:Int;init(_ x:MaterialField){id=x.id.uuidString;materialID=x.materialID.uuidString;key=x.key;title=x.title;position=x.position} }
 struct KnowledgeRowDBRecord: Codable, FetchableRecord, PersistableRecord { static let databaseTableName="knowledgeRows";let id:String;let materialID:String;var position:Int;var valuesJSON:String;init(_ x:KnowledgeRow){id=x.id.uuidString;materialID=x.materialID.uuidString;position=x.position;valuesJSON=(try? String(data:JSONEncoder().encode(x.values),encoding:.utf8)) ?? "{}"} }
@@ -72,6 +72,8 @@ final class AppDatabase: @unchecked Sendable {
         migrator.registerMigration("v3_material_builder") { db in
             try db.alter(table:"materials") { $0.add(column:"description",.text) }
             try db.alter(table:"questionRules") { t in t.add(column:"promptTemplate",.text);t.add(column:"promptFieldKeysJSON",.text);t.add(column:"answersJSON",.text);t.add(column:"showCorrectCount",.boolean) }
-        }; return migrator
+        }
+        migrator.registerMigration("v4_material_author") { db in try db.alter(table:"materials") { $0.add(column:"author",.text) } }
+        return migrator
     }
 }

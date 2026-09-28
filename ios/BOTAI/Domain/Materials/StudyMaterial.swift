@@ -10,6 +10,7 @@ struct StudyMaterialRecord: Identifiable, Codable, Equatable, Sendable {
     var subject: String?
     var topic: String?
     var description: String? = nil
+    var author: String? = nil
     var kind: MaterialKind
     var source: MaterialSource
     var createdAt: Date
