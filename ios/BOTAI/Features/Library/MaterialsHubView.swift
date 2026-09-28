@@ -108,6 +108,8 @@ private struct SavedMaterialDetailView: View {
     @Environment(MaterialStore.self) private var store
     @Environment(\.dismiss) private var dismiss
     @State private var indices: [UUID: Int] = [:]
+    @State private var confirmDelete = false
+    @State private var deleteError: String?
     private var content: MaterialContent? { store.content(id: material.id) }
     var body: some View {
         NavigationStack { ZStack { DigitalHubBackground()
@@ -118,7 +120,16 @@ private struct SavedMaterialDetailView: View {
                 if let tags = c.material.topic { Text(tags).font(.caption.bold()).foregroundStyle(.cyan).padding(.horizontal, 10).padding(.vertical, 6).background(.cyan.opacity(0.12), in: Capsule()) }
                 ForEach(c.rules) { rule in ruleCard(rule, c) }
             }.padding(18) } } else { ContentUnavailableView("Материал не найден", systemImage: "exclamationmark.triangle") }
-        }.navigationTitle("Просмотр").navigationBarTitleDisplayMode(.inline).toolbar { Button("Готово") { dismiss() } } }
+        }.navigationTitle("Просмотр").navigationBarTitleDisplayMode(.inline).toolbar {
+            ToolbarItem(placement: .cancellationAction) { Button("Готово") { dismiss() } }
+            ToolbarItem(placement: .primaryAction) { Button(role: .destructive) { confirmDelete = true } label: { Image(systemName: "trash") }.tint(.red) }
+        }
+        .confirmationDialog("Удалить материал?", isPresented: $confirmDelete, titleVisibility: .visible) {
+            Button("Удалить", role: .destructive) { deleteMaterial() }
+            Button("Отмена", role: .cancel) {}
+        } message: { Text("Материал и все его вопросы будут удалены без возможности восстановления.") }
+        .alert("Не удалось удалить материал", isPresented: Binding(get: { deleteError != nil }, set: { if !$0 { deleteError = nil } })) { Button("OK", role: .cancel) {} } message: { Text(deleteError ?? "Неизвестная ошибка") }
+        }
     }
     private func ruleCard(_ rule: QuestionRule, _ c: MaterialContent) -> some View {
         let i = min(indices[rule.id] ?? 0, max(c.rows.count - 1, 0)); let row = c.rows.isEmpty ? nil : c.rows[i]
@@ -129,6 +140,7 @@ private struct SavedMaterialDetailView: View {
             if c.rows.count > 1 { HStack { Button { indices[rule.id] = max(0, i-1) } label: { Image(systemName: "chevron.left") }.disabled(i == 0); Spacer(); Text("\(i+1) / \(c.rows.count)").font(.caption).foregroundStyle(.white.opacity(0.6)); Spacer(); Button { indices[rule.id] = min(c.rows.count-1, i+1) } label: { Image(systemName: "chevron.right") }.disabled(i == c.rows.count-1) }.foregroundStyle(.cyan) }
         }.padding(15).background(.white.opacity(0.055), in: RoundedRectangle(cornerRadius: 18)).overlay(RoundedRectangle(cornerRadius: 18).stroke(.cyan.opacity(0.2)))
     }
+    private func deleteMaterial() { do { try store.delete(id: material.id); dismiss() } catch { deleteError = error.localizedDescription } }
     private func render(_ template: String, _ keys: [String], _ row: KnowledgeRow?) -> String { var x = template; for (i,k) in keys.enumerated() { x = x.replacingOccurrences(of: "{\(i+1)}", with: row?.values[k] ?? "—") }; return x }
 }
 
