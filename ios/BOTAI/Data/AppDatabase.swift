@@ -74,6 +74,15 @@ final class AppDatabase: @unchecked Sendable {
             try db.alter(table:"questionRules") { t in t.add(column:"promptTemplate",.text);t.add(column:"promptFieldKeysJSON",.text);t.add(column:"answersJSON",.text);t.add(column:"showCorrectCount",.boolean) }
         }
         migrator.registerMigration("v4_material_author") { db in try db.alter(table:"materials") { $0.add(column:"author",.text) } }
+        migrator.registerMigration("v5_courses") { db in
+            try db.create(table:"courses") { t in t.column("id",.text).primaryKey();t.column("payloadJSON",.text).notNull();t.column("updatedAt",.datetime).notNull() }
+        }
         return migrator
     }
+}
+
+struct CourseDBRecord: Codable, FetchableRecord, PersistableRecord {
+ static let databaseTableName="courses"; let id:String; var payloadJSON:String; var updatedAt:Date
+ init(_ x:StudyCourse) throws { id=x.id.uuidString;payloadJSON=String(data:try JSONEncoder().encode(x),encoding:.utf8)!;updatedAt=x.updatedAt }
+ var domain:StudyCourse? { try? JSONDecoder().decode(StudyCourse.self,from:Data(payloadJSON.utf8)) }
 }

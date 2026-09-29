@@ -28,3 +28,6 @@ The learner owns sequencing. Personal goals can be paused and resumed independen
 
 ## Personal course authoring UX
 The first authoring workflow is learner-owned: `MyCourse → Section → Topic → existing QuestionSets`, plus an independent ordered list of Goals. Course structure organizes knowledge; goals organize the learner's intended progression. Question sets remain reusable library objects and are referenced, not copied. Goal order is a plan for self-study and does not lock navigation. The first editor supports course creation, reorderable sections/topics, linking existing personal quizzes, and reorderable goals with a mastery threshold.
+
+## Course content v1 (implemented)
+Course authoring is now persisted locally and deliberately precedes Goals. The content hierarchy is fixed to `Course → Section → Topic → QuestionSet reference`. Course metadata includes title, description, subject/category, audience, author, language, cover symbol, and optional estimated duration. Sections have title, description, optional estimated duration, and topics. Topics remain lightweight and reference stable material/question-rule UUID pairs. The same model drives authoring and read-only preview so imported/library `.botai v2` courses can use the same presentation later.
