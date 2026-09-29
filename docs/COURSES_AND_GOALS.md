@@ -25,3 +25,6 @@ The learner owns sequencing. Personal goals can be paused and resumed independen
 
 ## Course package
 `.botai` Course Package v2 will carry course metadata, reusable materials, ordered auto-course goals, completion criteria, and portable media. Teacher assignments and learner progress are user-specific state and do not belong in a distributable course package.
+
+## Personal course authoring UX
+The first authoring workflow is learner-owned: `MyCourse → Section → Topic → existing QuestionSets`, plus an independent ordered list of Goals. Course structure organizes knowledge; goals organize the learner's intended progression. Question sets remain reusable library objects and are referenced, not copied. Goal order is a plan for self-study and does not lock navigation. The first editor supports course creation, reorderable sections/topics, linking existing personal quizzes, and reorderable goals with a mastery threshold.

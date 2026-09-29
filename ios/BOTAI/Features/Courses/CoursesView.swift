@@ -1,69 +1,26 @@
 import SwiftUI
 
-struct LearningGoalItem: Identifiable {
-    enum Source { case autoCourse, teacher, personal }
-    enum State { case active, paused, waiting, completed }
-    let id = UUID(); let title: String; let subtitle: String; let source: Source
-    var state: State; var progress: Double; let detail: String
-}
-
-struct AutoCourseStep: Identifiable {
-    let id = UUID(); let number: Int; let title: String; let material: String
-    var progress: Double; var unlocked: Bool; var completed: Bool
-}
+private struct PersonalCourse: Identifiable { let id=UUID(); var title:String; var description:String; var sections:[CourseSection]=[]; var goals:[CourseGoal]=[] }
+private struct CourseSection: Identifiable { let id=UUID(); var title:String; var topics:[CourseTopic]=[] }
+private struct CourseTopic: Identifiable { let id=UUID(); var title:String; var quizIDs:Set<UUID>=[] }
+private struct CourseGoal: Identifiable { let id=UUID(); var title:String; var quizIDs:Set<UUID>; var mastery:Int; var state:GoalState = .planned }
+private enum GoalState { case planned, active, paused, completed }
 
 struct CoursesView: View {
-    @Environment(\.dismiss) private var dismiss
-    @State private var goals: [LearningGoalItem] = [
-        .init(title:"Оксиды", subtitle:"ЕГЭ Химия · автокурс", source:.autoCourse, state:.active, progress:0.61, detail:"Освоить материал не менее чем на 85%"),
-        .init(title:"Кислоты и кислотные остатки", subtitle:"11Б · Анна Сергеевна", source:.teacher, state:.active, progress:0.40, detail:"Задание преподавателя · до 3 октября"),
-        .init(title:"Таблица растворимости", subtitle:"Моя цель", source:.personal, state:.paused, progress:0.28, detail:"Без срока · продолжить когда удобно")
-    ]
-    @State private var showCourse = false
-    @State private var showNewGoal = false
-
-    var body: some View {
-        NavigationStack {
-            ZStack { CourseBackground(); ScrollView { VStack(spacing:16) { summary; activeGoals; courseCard; personalCard }.padding(16) } }
-                .navigationTitle("Обучение")
-                .toolbar { ToolbarItem(placement:.topBarTrailing) { Button("Готово") { dismiss() } } }
-                .sheet(isPresented:$showCourse) { AutoCourseView() }
-                .sheet(isPresented:$showNewGoal) { NewPersonalGoalView { title in goals.append(.init(title:title,subtitle:"Моя цель",source:.personal,state:.active,progress:0,detail:"Самостоятельная цель")) } }
-        }
-    }
-
-    private var summary: some View { VStack(alignment:.leading,spacing:8) { Text("ТВОЙ МАРШРУТ").font(.caption.bold()).foregroundStyle(.cyan); Text("Цели из разных источников — в одном месте").font(.title3.bold()).foregroundStyle(.white); Text("Автокурс ведёт по готовой последовательности, преподаватель назначает цели лично, свои цели ты управляешь сам.").font(.subheadline).foregroundStyle(.white.opacity(0.7)) }.frame(maxWidth:.infinity,alignment:.leading).padding(16).background(.black.opacity(0.28),in:RoundedRectangle(cornerRadius:22)).overlay(RoundedRectangle(cornerRadius:22).stroke(.cyan.opacity(0.3))) }
-
-    private var activeGoals: some View { VStack(alignment:.leading,spacing:10) { Text("ЦЕЛИ").font(.caption.bold()).foregroundStyle(.cyan); ForEach($goals) { $goal in GoalSourceCard(goal:$goal) } }.frame(maxWidth:.infinity,alignment:.leading) }
-
-    private var courseCard: some View { Button { showCourse=true } label: { HStack(spacing:12) { Image(systemName:"point.topleft.down.to.point.bottomright.curvepath.fill").font(.title2).foregroundStyle(.cyan); VStack(alignment:.leading,spacing:4) { Text("ЕГЭ Химия 2027").font(.headline); Text("Автокурс · 2 из 8 целей · следующая открывается автоматически").font(.caption).foregroundStyle(.white.opacity(0.65)) }; Spacer(); Image(systemName:"chevron.right") }.foregroundStyle(.white).padding(15).background(.blue.opacity(0.12),in:RoundedRectangle(cornerRadius:18)).overlay(RoundedRectangle(cornerRadius:18).stroke(.blue.opacity(0.35))) }.buttonStyle(.plain) }
-
-    private var personalCard: some View { Button { showNewGoal=true } label: { Label("ПОСТАВИТЬ СВОЮ ЦЕЛЬ",systemImage:"plus.circle.fill").font(.headline).frame(maxWidth:.infinity).frame(height:48).foregroundStyle(.white).background(.white.opacity(0.06),in:RoundedRectangle(cornerRadius:16)).overlay(RoundedRectangle(cornerRadius:16).stroke(.cyan.opacity(0.35))) }.buttonStyle(.plain) }
+ @Environment(\.dismiss) private var dismiss; @State private var courses:[PersonalCourse]=[]; @State private var create=false
+ var body:some View { NavigationStack { ZStack { CourseBackground(); Group { if courses.isEmpty { ContentUnavailableView("Создай свой курс",systemImage:"square.stack.3d.up",description:Text("Собери структуру из разделов и тем, привяжи свои опросники и составь последовательность целей.")) } else { ScrollView { VStack(spacing:12) { ForEach($courses) { $course in NavigationLink { CourseEditorView(course:$course) } label:{ CourseCard(course:course) }.buttonStyle(.plain) } }.padding(16) } } } }.navigationTitle("Мои курсы").toolbar { ToolbarItem(placement:.topBarLeading){Button("Готово"){dismiss()}};ToolbarItem(placement:.topBarTrailing){Button{create=true}label:{Image(systemName:"plus")}} }.sheet(isPresented:$create){NewCourseView{title,desc in courses.append(.init(title:title,description:desc))}} } }
 }
+private struct CourseCard:View { let course:PersonalCourse; var body:some View { HStack { VStack(alignment:.leading,spacing:5){Text(course.title).font(.headline);if !course.description.isEmpty{Text(course.description).font(.caption).foregroundStyle(.white.opacity(0.6))};Text("\(course.sections.count) разделов · \(course.goals.count) целей").font(.caption2).foregroundStyle(.cyan)};Spacer();Image(systemName:"chevron.right")}.foregroundStyle(.white).padding(16).background(.black.opacity(0.3),in:RoundedRectangle(cornerRadius:20)).overlay(RoundedRectangle(cornerRadius:20).stroke(.cyan.opacity(0.3))) } }
+private struct NewCourseView:View { @Environment(\.dismiss) var dismiss;@State var title="";@State var desc="";let save:(String,String)->Void;var body:some View{NavigationStack{Form{Section("Новый курс"){TextField("Название",text:$title);TextField("Описание (необязательно)",text:$desc,axis:.vertical)}}.navigationTitle("Создать курс").toolbar{ToolbarItem(placement:.cancellationAction){Button("Отмена"){dismiss()}};ToolbarItem(placement:.confirmationAction){Button("Создать"){save(title.trimmingCharacters(in:.whitespacesAndNewlines),desc);dismiss()}.disabled(title.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty)}}}}}
 
-private struct GoalSourceCard: View {
-    @Binding var goal: LearningGoalItem
-    private var source: (String,String,Color) { switch goal.source { case .autoCourse:return("АВТОКУРС","arrow.triangle.branch",.cyan);case .teacher:return("ПРЕПОДАВАТЕЛЬ","person.fill.checkmark",.orange);case .personal:return("МОЯ ЦЕЛЬ","person.crop.circle",.mint) } }
-    var body: some View { VStack(alignment:.leading,spacing:9) { HStack { Label(source.0,systemImage:source.1).font(.caption.bold()).foregroundStyle(source.2); Spacer(); Text(stateText).font(.caption.bold()).foregroundStyle(goal.state == .paused ? .yellow : .white.opacity(0.65)) }; Text(goal.title).font(.headline).foregroundStyle(.white); Text(goal.subtitle).font(.caption).foregroundStyle(.white.opacity(0.65)); ProgressView(value:goal.progress).tint(source.2); HStack { Text("\(Int(goal.progress*100))%").font(.caption.bold()).foregroundStyle(source.2); Text(goal.detail).font(.caption2).foregroundStyle(.white.opacity(0.58)).lineLimit(1); Spacer(); if goal.source == .personal { Button(goal.state == .paused ? "Продолжить":"Пауза") { goal.state = goal.state == .paused ? .active:.paused }.buttonStyle(.bordered).controlSize(.small) } } }.padding(14).background(.black.opacity(0.27),in:RoundedRectangle(cornerRadius:18)).overlay(RoundedRectangle(cornerRadius:18).stroke(source.2.opacity(0.28))) }
-    private var stateText:String { switch goal.state {case .active:"АКТИВНА";case .paused:"ПАУЗА";case .waiting:"ОЖИДАЕТ";case .completed:"ВЫПОЛНЕНА"} }
+private struct CourseEditorView:View {
+ @Binding var course:PersonalCourse;@State private var tab=0;@State private var newSection=false;@State private var newGoal=false
+ var body:some View{ZStack{CourseBackground();VStack(spacing:10){Picker("",selection:$tab){Text("Содержание").tag(0);Text("Цели").tag(1)}.pickerStyle(.segmented).padding(.horizontal);if tab==0{content}else{goals}}}.navigationTitle(course.title).navigationBarTitleDisplayMode(.inline).sheet(isPresented:$newSection){NameSheet(title:"Новый раздел",placeholder:"Например: Неорганическая химия"){course.sections.append(.init(title:$0))}}.sheet(isPresented:$newGoal){GoalEditorSheet(course:course){course.goals.append($0)}}}
+ private var content:some View{List{ForEach($course.sections){$section in Section{ForEach($section.topics){$topic in NavigationLink{TopicEditorView(topic:$topic)}label:{VStack(alignment:.leading){Text(topic.title);Text("\(topic.quizIDs.count) опросников").font(.caption).foregroundStyle(.secondary)}}}.onMove{section.topics.move(fromOffsets:$0,toOffset:$1)};Button{section.topics.append(.init(title:"Новая тема"))}label:{Label("Добавить тему",systemImage:"plus")}}header:{HStack{TextField("Раздел",text:$section.title);Spacer()}}}.onMove{course.sections.move(fromOffsets:$0,toOffset:$1)};Button{newSection=true}label:{Label("Добавить раздел",systemImage:"plus.circle.fill")}}.scrollContentBackground(.hidden).environment(\.editMode,.constant(.active))}
+ private var goals:some View{List{if course.goals.isEmpty{Text("Добавь цели и расставь их в желаемой последовательности.").foregroundStyle(.secondary)};ForEach(Array(course.goals.enumerated()),id:\.element.id){index,g in HStack(spacing:12){Text("\(index+1)").font(.headline).foregroundStyle(.cyan).frame(width:28);VStack(alignment:.leading){Text(g.title);Text("\(g.quizIDs.count) опросников · освоить \(g.mastery)%").font(.caption).foregroundStyle(.secondary)}}}.onMove{course.goals.move(fromOffsets:$0,toOffset:$1)};Button{newGoal=true}label:{Label("Добавить цель",systemImage:"plus.circle.fill")}}.scrollContentBackground(.hidden).environment(\.editMode,.constant(.active))}
 }
-
-private struct AutoCourseView: View {
-    @Environment(\.dismiss) private var dismiss
-    @State private var steps:[AutoCourseStep] = [
-        .init(number:1,title:"Химические элементы",material:"Символы и названия · ≥ 90%",progress:1,unlocked:true,completed:true),
-        .init(number:2,title:"Оксиды",material:"Формулы и классы · ≥ 85%",progress:0.61,unlocked:true,completed:false),
-        .init(number:3,title:"Кислоты",material:"Названия ↔ формулы · ≥ 85%",progress:0,unlocked:false,completed:false),
-        .init(number:4,title:"Основания",material:"Формулы и свойства · ≥ 85%",progress:0,unlocked:false,completed:false),
-        .init(number:5,title:"Соли",material:"Названия ↔ формулы · ≥ 85%",progress:0,unlocked:false,completed:false),
-        .init(number:6,title:"Смешанное повторение",material:"Цели 1–5 · ≥ 90%",progress:0,unlocked:false,completed:false)
-    ]
-    var body:some View { NavigationStack { ZStack { CourseBackground(); ScrollView { VStack(alignment:.leading,spacing:14) { Text("ЕГЭ Химия 2027").font(.title2.bold()).foregroundStyle(.white); Text("Автокурс").font(.caption.bold()).foregroundStyle(.cyan); Text("Последовательность рассчитана на среднего ученика. Следующая цель открывается после выполнения критерия текущей.").font(.subheadline).foregroundStyle(.white.opacity(0.7)); ForEach(steps) { step in HStack(spacing:12) { ZStack { Circle().fill(step.completed ? .mint.opacity(0.22) : step.unlocked ? .cyan.opacity(0.18):.white.opacity(0.04)); Text(step.completed ? "✓":"\(step.number)").font(.headline.bold()).foregroundStyle(step.unlocked ? .white:.white.opacity(0.35)) }.frame(width:42,height:42); VStack(alignment:.leading,spacing:4) { Text(step.title).font(.headline).foregroundStyle(step.unlocked ? .white:.white.opacity(0.4)); Text(step.material).font(.caption).foregroundStyle(.white.opacity(step.unlocked ? 0.62:0.3)); if step.unlocked && !step.completed { ProgressView(value:step.progress).tint(.cyan) } }; Spacer(); Image(systemName:step.completed ? "checkmark.seal.fill":step.unlocked ? "play.circle.fill":"lock.fill").foregroundStyle(step.completed ? .mint:step.unlocked ? .cyan:.white.opacity(0.25)) }.padding(13).background(.black.opacity(0.25),in:RoundedRectangle(cornerRadius:17)) } }.padding(16) } }.navigationTitle("Курс").navigationBarTitleDisplayMode(.inline).toolbar { Button("Готово") { dismiss() } } } }
-}
-
-private struct NewPersonalGoalView: View {
-    @Environment(\.dismiss) private var dismiss; @State private var title=""; let onCreate:(String)->Void
-    var body:some View { NavigationStack { Form { Section("Своя цель") { TextField("Например: выучить таблицу растворимости",text:$title); Text("Материалы и критерий выполнения подключим следующим шагом. Сейчас создаётся оболочка самостоятельной цели.").font(.caption).foregroundStyle(.secondary) } } .navigationTitle("Новая цель").toolbar { ToolbarItem(placement:.cancellationAction){Button("Отмена"){dismiss()}};ToolbarItem(placement:.confirmationAction){Button("Создать"){let t=title.trimmingCharacters(in:.whitespacesAndNewlines);onCreate(t);dismiss()}.disabled(title.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty)} } } }
-}
-
-private struct CourseBackground: View { var body: some View { LinearGradient(colors:[Color(red:0.015,green:0.035,blue:0.12),Color(red:0.03,green:0.08,blue:0.18),.black],startPoint:.top,endPoint:.bottom).ignoresSafeArea() } }
+private struct TopicEditorView:View { @Binding var topic:CourseTopic;@State private var choose=false;var body:some View{Form{Section("Тема"){TextField("Название",text:$topic.title)};Section("Опросники"){if topic.quizIDs.isEmpty{Text("Опросники ещё не привязаны").foregroundStyle(.secondary)}else{Text("Выбрано: \(topic.quizIDs.count)")};Button("Выбрать опросники"){choose=true}}}.navigationTitle("Тема").sheet(isPresented:$choose){QuizPicker(selected:$topic.quizIDs)}} }
+private struct QuizPicker:View { @Environment(\.dismiss) var dismiss;@Binding var selected:Set<UUID>;@State private var store=MyQuizzesStore();var body:some View{NavigationStack{Group{if store.quizzes.isEmpty{ContentUnavailableView("Нет доступных опросников",systemImage:"rectangle.stack",description:Text("Сначала создай опросник в библиотеке."))}else{List(store.quizzes){q in Button{if selected.contains(q.id){selected.remove(q.id)}else{selected.insert(q.id)}}label:{HStack{Image(systemName:selected.contains(q.id) ? "checkmark.circle.fill":"circle");Text(q.title);Spacer()}}}}}.navigationTitle("Опросники").toolbar{Button("Готово"){dismiss()}}.task{await store.refresh()}}} }
+private struct GoalEditorSheet:View { @Environment(\.dismiss) var dismiss;let course:PersonalCourse;let save:(CourseGoal)->Void;@State var title="";@State var mastery=85;@State var quizzes:Set<UUID>=[];@State var choose=false;var body:some View{NavigationStack{Form{Section("Цель"){TextField("Например: выучить основные кислоты",text:$title)};Section("Что учить"){Text("Выбрано опросников: \(quizzes.count)");Button("Выбрать опросники"){choose=true}};Section("Когда считать выполненной"){Stepper("Освоить \(mastery)%",value:$mastery,in:50...100,step:5)}}.navigationTitle("Новая цель").toolbar{ToolbarItem(placement:.cancellationAction){Button("Отмена"){dismiss()}};ToolbarItem(placement:.confirmationAction){Button("Добавить"){save(.init(title:title.trimmingCharacters(in:.whitespacesAndNewlines),quizIDs:quizzes,mastery:mastery));dismiss()}.disabled(title.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty || quizzes.isEmpty)}}.sheet(isPresented:$choose){QuizPicker(selected:$quizzes)}}} }
+private struct NameSheet:View{@Environment(\.dismiss)var dismiss;let title:String;let placeholder:String;let save:(String)->Void;@State var value="";var body:some View{NavigationStack{Form{TextField(placeholder,text:$value)}.navigationTitle(title).toolbar{ToolbarItem(placement:.cancellationAction){Button("Отмена"){dismiss()}};ToolbarItem(placement:.confirmationAction){Button("Добавить"){save(value.trimmingCharacters(in:.whitespacesAndNewlines));dismiss()}.disabled(value.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty)}}}}}
+private struct CourseBackground:View{var body:some View{LinearGradient(colors:[Color(red:0.015,green:0.035,blue:0.12),Color(red:0.03,green:0.08,blue:0.18),.black],startPoint:.top,endPoint:.bottom).ignoresSafeArea()}}
