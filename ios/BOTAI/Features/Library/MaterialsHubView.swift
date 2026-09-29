@@ -37,8 +37,6 @@ struct MaterialsHubView: View {
 
     private var personal: some View {
         VStack(spacing: 18) {
-            HStack { Label("Курсы", systemImage: "square.stack.3d.up.fill").font(.headline); Spacer(); Button("Создать") {} }.foregroundStyle(.white)
-            ScrollView(.horizontal, showsIndicators: false) { HStack { ForEach(demo.courses) { courseCard($0) } } }
             HStack { Text("ВСЕ МАТЕРИАЛЫ").font(.caption.bold()).foregroundStyle(.cyan); Spacer(); Text("\(demo.materials.count + store.materials.count)").foregroundStyle(.white.opacity(0.55)) }
             filterBar
             ForEach(filteredDemo) { materialCard($0) }
@@ -54,13 +52,8 @@ struct MaterialsHubView: View {
         demo.materials.filter { filter == "Все" || (filter == "Созданные" && $0.source == "Мой") || (filter == "Импорт" && $0.source == "Файл") || (filter == "Библиотека" && $0.source == "Библиотека") }
     }
 
-    private func courseCard(_ c: DemoCourse) -> some View {
-        VStack(alignment:.leading,spacing:7) { Image(systemName:c.icon).foregroundStyle(.cyan).font(.title2); Text(c.title).font(.headline); Text("\(c.sections) разделов · \(c.materials) материалов").font(.caption).foregroundStyle(.white.opacity(0.6)); if let task=c.task { Label(task,systemImage:"target").font(.caption2).foregroundStyle(.mint) } }
-            .frame(width:210,height:105,alignment:.leading).padding(14).background(.white.opacity(0.055),in:RoundedRectangle(cornerRadius:18)).overlay(RoundedRectangle(cornerRadius:18).stroke(.cyan.opacity(0.3))).foregroundStyle(.white)
-    }
-
     private func materialCard(_ m: DemoMaterial) -> some View {
-        HStack(spacing:12) { Image(systemName:m.kind == "Опросник" ? "questionmark.bubble.fill":"tablecells.fill").font(.title2).foregroundStyle(.mint); VStack(alignment:.leading,spacing:4) { Text(m.title).font(.headline); Text(m.description).font(.caption).foregroundStyle(.white.opacity(0.62)).lineLimit(2); Text("\(m.kind) · \(m.count) · \(m.source)").font(.caption2).foregroundStyle(.cyan.opacity(0.85)) }; Spacer(); Menu { Button("Добавить в курс"){}; Button("Создать задание"){}; Button("Удалить из библиотеки",role:.destructive){} } label:{Image(systemName:"ellipsis").padding(8)} }
+        HStack(spacing:12) { Image(systemName:m.kind == "Опросник" ? "questionmark.bubble.fill":"tablecells.fill").font(.title2).foregroundStyle(.mint); VStack(alignment:.leading,spacing:4) { Text(m.title).font(.headline); Text(m.description).font(.caption).foregroundStyle(.white.opacity(0.62)).lineLimit(2); Text("\(m.kind) · \(m.count) · \(m.source)").font(.caption2).foregroundStyle(.cyan.opacity(0.85)) }; Spacer(); Menu { Button("Создать задание"){}; Button("Удалить из библиотеки",role:.destructive){} } label:{Image(systemName:"ellipsis").padding(8)} }
             .padding(13).background(.black.opacity(0.22),in:RoundedRectangle(cornerRadius:16)).foregroundStyle(.white)
             .contentShape(Rectangle()).onTapGesture { selectedMaterial = m }
     }

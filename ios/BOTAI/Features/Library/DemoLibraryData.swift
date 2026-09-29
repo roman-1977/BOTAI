@@ -1,15 +1,9 @@
 import Foundation
 
-struct DemoCourse: Identifiable { let id=UUID(); let title:String; let sections:Int; let materials:Int; let icon:String; let task:String? }
 struct DemoMaterial: Identifiable { let id=UUID(); let title:String; let description:String; let kind:String; let count:String; let source:String; let subject:String; let details:[String]; let sample:[String] }
 struct DemoGroup: Identifiable { let id=UUID(); let title:String; let owner:String; let task:String; let materials:Int }
 
 struct DemoLibraryData {
-    let courses = [
-        DemoCourse(title:"ЕГЭ · Химия 2027",sections:5,materials:12,icon:"atom",task:"40 мин · 20 вопросов в день"),
-        DemoCourse(title:"Повторить к октябрю",sections:3,materials:6,icon:"calendar",task:"Освоить 85% до 15 октября"),
-        DemoCourse(title:"Сложные темы",sections:4,materials:8,icon:"bolt.fill",task:nil)
-    ]
     let materials = [
         DemoMaterial(title:"Кислоты и кислотные остатки",description:"Формулы, названия, кислотные остатки и заряды",kind:"Справочник",count:"48 знаний · 144 вопроса",source:"Мой",subject:"Химия",details:["Название → формула","Формула → название","Название → остаток"],sample:["Серная кислота — H₂SO₄ — SO₄²⁻","Азотная кислота — HNO₃ — NO₃⁻"]),
         DemoMaterial(title:"Свойства кислот",description:"Основные реакции и химические свойства кислот",kind:"Опросник",count:"36 вопросов",source:"Библиотека",subject:"Химия",details:["Карточки","Один правильный ответ","Несколько правильных"],sample:["С чем реагируют кислоты?","Выберите свойства серной кислоты"]),
