@@ -31,3 +31,11 @@ The first authoring workflow is learner-owned: `MyCourse → Section → Topic �
 
 ## Course content v1 (implemented)
 Course authoring is now persisted locally and deliberately precedes Goals. The content hierarchy is fixed to `Course → Section → Topic → QuestionSet reference`. Course metadata includes title, description, subject/category, audience, author, language, cover symbol, and optional estimated duration. Sections have title, description, optional estimated duration, and topics. Topics remain lightweight and reference stable material/question-rule UUID pairs. The same model drives authoring and read-only preview so imported/library `.botai v2` courses can use the same presentation later.
+
+## Learning goals v1
+
+A learning goal describes a result, not a daily workload. It references question sets already present in the course, has a mastery target and an optional deadline. Goals are ordered/planned independently from course content.
+
+Daily study time is a user-level study budget shared by all active goals. It must not be stored as a per-goal setting. A future planner will distribute that budget between goals and recalculate required pace when a day is missed or progress differs from forecast.
+
+Current goal lifecycle: planned, active, paused, completed. Mastery measurement and the global study-budget planner are separate follow-up layers; the current UI intentionally does not fake progress values before the Learning Engine provides them.
