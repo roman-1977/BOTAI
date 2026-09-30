@@ -3,12 +3,15 @@ import UniformTypeIdentifiers
 
 struct MaterialsHubView: View {
     @Environment(MaterialStore.self) private var store
+    @Environment(CourseStore.self) private var courses
     @Environment(\.dismiss) private var dismiss
     @State private var scope = 0
     @State private var filter = "Все"
     @State private var addMaterial = false
     @State private var selectedMaterial: DemoMaterial?
     @State private var selectedRecord: StudyMaterialRecord?
+    @State private var deleteRecord: StudyMaterialRecord?
+    @State private var deleteError: String?
 
     private let demo = DemoLibraryData()
 
@@ -26,6 +29,8 @@ struct MaterialsHubView: View {
             .sheet(isPresented: $addMaterial) { AddMaterialSourceView() }
             .sheet(item: $selectedMaterial) { MaterialDetailView(material: $0) }
             .sheet(item: $selectedRecord) { SavedMaterialDetailView(material: $0) }
+            .confirmationDialog("Удалить материал?",isPresented:Binding(get:{deleteRecord != nil},set:{if !$0{deleteRecord=nil}}),titleVisibility:.visible,presenting:deleteRecord){m in Button("Удалить материал",role:.destructive){deleteSavedMaterial(m)};Button("Отмена",role:.cancel){deleteRecord=nil}}message:{m in Text("«\(m.title)» и его вопросы будут удалены из библиотеки и текущих курсов. История занятий и статистика сохранятся.")}
+            .alert("Не удалось удалить материал",isPresented:Binding(get:{deleteError != nil},set:{if !$0{deleteError=nil}})){Button("OK",role:.cancel){}}message:{Text(deleteError ?? "Неизвестная ошибка")}
 
         }
     }
@@ -58,7 +63,8 @@ struct MaterialsHubView: View {
             .contentShape(Rectangle()).onTapGesture { selectedMaterial = m }
     }
 
-    private func recordCard(_ m: StudyMaterialRecord) -> some View { HStack { Image(systemName:"tablecells").foregroundStyle(.mint); VStack(alignment:.leading,spacing:4){Text(m.title).font(.headline);if let d=m.description {Text(d).font(.caption).foregroundStyle(.white.opacity(0.62)).lineLimit(2)};if let tags=m.topic {Text(tags).font(.caption2).foregroundStyle(.cyan)}};Spacer();Image(systemName:"chevron.right").foregroundStyle(.white.opacity(0.3)) }.padding(13).background(.black.opacity(0.22),in:RoundedRectangle(cornerRadius:16)).foregroundStyle(.white).contentShape(Rectangle()).onTapGesture{selectedRecord=m} }
+    private func recordCard(_ m: StudyMaterialRecord) -> some View { HStack { Image(systemName:"tablecells").foregroundStyle(.mint); VStack(alignment:.leading,spacing:4){Text(m.title).font(.headline);if let d=m.description {Text(d).font(.caption).foregroundStyle(.white.opacity(0.62)).lineLimit(2)};if let tags=m.topic {Text(tags).font(.caption2).foregroundStyle(.cyan)}};Spacer();Menu{Button("Удалить из библиотеки",role:.destructive){deleteRecord=m}}label:{Image(systemName:"ellipsis").padding(8)} }.padding(13).background(.black.opacity(0.22),in:RoundedRectangle(cornerRadius:16)).foregroundStyle(.white).contentShape(Rectangle()).onTapGesture{selectedRecord=m} }
+    private func deleteSavedMaterial(_ m:StudyMaterialRecord){do{courses.removeReferences(to:m.id);try store.delete(id:m.id);deleteRecord=nil}catch{deleteError=error.localizedDescription}}
 
     private var groups: some View { VStack(spacing:14) { Text("Назначено преподавателем или родителем").font(.caption).foregroundStyle(.white.opacity(0.55)).frame(maxWidth:.infinity,alignment:.leading); ForEach(demo.groups) { g in VStack(alignment:.leading,spacing:10) { HStack { Image(systemName:"person.3.fill").foregroundStyle(.purple); VStack(alignment:.leading){Text(g.title).font(.headline);Text(g.owner).font(.caption).foregroundStyle(.white.opacity(0.55))};Spacer();Image(systemName:"lock.fill").foregroundStyle(.white.opacity(0.4)) }; Divider().overlay(.white.opacity(0.1)); Label(g.task,systemImage:"target").foregroundStyle(.mint); Text("\(g.materials) материалов · цель задаёт руководитель").font(.caption).foregroundStyle(.white.opacity(0.6)) }.padding(15).background(.white.opacity(0.05),in:RoundedRectangle(cornerRadius:18)).foregroundStyle(.white) } } }
 }
@@ -105,6 +111,7 @@ private struct RenderedMaterialValue: View {
 private struct SavedMaterialDetailView: View {
     let material: StudyMaterialRecord
     @Environment(MaterialStore.self) private var store
+    @Environment(CourseStore.self) private var courses
     @Environment(\.dismiss) private var dismiss
     @State private var indices: [UUID: Int] = [:]
     @State private var confirmDelete = false
@@ -140,7 +147,7 @@ private struct SavedMaterialDetailView: View {
         }.padding(15).background(.white.opacity(0.055), in: RoundedRectangle(cornerRadius: 18)).overlay(RoundedRectangle(cornerRadius: 18).stroke(.cyan.opacity(0.2)))
     }
     private func exportMaterial() { do { exportURL=try store.exportPackage(id:material.id) } catch { deleteError=error.localizedDescription } }
-    private func deleteMaterial() { do { try store.delete(id: material.id); dismiss() } catch { deleteError = error.localizedDescription } }
+    private func deleteMaterial() { do { courses.removeReferences(to:material.id);try store.delete(id: material.id); dismiss() } catch { deleteError = error.localizedDescription } }
     private func render(_ template: String, _ keys: [String], _ row: KnowledgeRow?) -> String { var x = template; for (i,k) in keys.enumerated() { x = x.replacingOccurrences(of: "{\(i+1)}", with: row?.values[k] ?? "—") }; return x }
 }
 
@@ -157,7 +164,7 @@ private struct DeleteMaterialSheet: View {
             ZStack { Circle().fill(.red.opacity(0.14)).frame(width: 70, height: 70); Image(systemName: "trash.fill").font(.system(size: 28)).foregroundStyle(.red) }
             Text("Удалить материал?").font(.title2.bold()).foregroundStyle(.white)
             Text(title).font(.headline).foregroundStyle(.cyan).multilineTextAlignment(.center)
-            Text("Материал и все его вопросы будут удалены без возможности восстановления.").font(.subheadline).foregroundStyle(.white.opacity(0.65)).multilineTextAlignment(.center)
+            Text("Материал и его вопросы будут удалены из библиотеки и текущих курсов. История занятий и статистика сохранятся.").font(.subheadline).foregroundStyle(.white.opacity(0.65)).multilineTextAlignment(.center)
             Button(role: .destructive) { dismiss(); onDelete() } label: { Label("Удалить", systemImage: "trash").font(.headline).frame(maxWidth: .infinity).padding(.vertical, 10) }.buttonStyle(.borderedProminent).tint(.red)
             Button("Отмена") { dismiss() }.font(.headline).foregroundStyle(.cyan).frame(maxWidth: .infinity).padding(.vertical, 8)
         }.padding(24) }.presentationDetents([.height(390)]).presentationDragIndicator(.visible).presentationCornerRadius(28)
