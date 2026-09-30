@@ -19,6 +19,7 @@ struct LearnSessionView: View {
   @State private var answerMode = 0
   @State private var paceMode = 0
   @State private var speedSeconds = 20
+  @State private var questionStartedAt = Date()
   @State private var correctToday = 0
   @State private var sessionID = UUID()
   @State private var sessionStartedAt = Date()
@@ -44,7 +45,7 @@ struct LearnSessionView: View {
       let cardH = max(220, geo.size.height - fixedTop - fixedBottom)
       VStack(spacing: 10) {
         sessionHeader
-        topicBadge.padding(.horizontal, 18).padding(.top, 8).frame(height: 50, alignment: .top)
+        HStack { topicBadge; Button { showModes = true } label: { Image(systemName: "slider.horizontal.3").font(.title3).foregroundStyle(.cyan).frame(width: 42, height: 42).background(.cyan.opacity(0.10), in: Circle()) }.accessibilityLabel("Настройки занятия") }.padding(.horizontal, 18).padding(.top, 8).frame(height: 50, alignment: .top)
         questionCard.frame(height: cardH)
         answerArea.frame(height: 356, alignment: .top)
         Button {
@@ -80,8 +81,6 @@ struct LearnSessionView: View {
       Color.black.opacity(0.48).ignoresSafeArea().onTapGesture { showModes = false }
       VStack(spacing: 18) {
         Capsule().fill(.white.opacity(0.18)).frame(width: 42, height: 4)
-        modeRow(title: "СТРАТЕГИЯ", items: modes, selection: questionMode) { questionMode = $0 }
-        modeRow(title: "ФОРМАТ", items: answerModes, selection: answerMode) { answerMode = $0 }
         paceRow
         Button {
           withAnimation { showModes = false }
@@ -195,7 +194,7 @@ struct LearnSessionView: View {
       Text(revealed ? question.answer : question.prompt).font(
         .system(size: 27, weight: .bold, design: .rounded)
       ).foregroundStyle(.white).multilineTextAlignment(.center).minimumScaleFactor(0.75)
-      Text(revealed ? "Нажми оценку ниже" : "Нажми на карточку, чтобы перевернуть").font(.caption)
+      Text(revealed ? "Нажми оценку ниже" : paceMode == 1 ? "Темп: до \(speedSeconds) сек · нажми, чтобы перевернуть" : "Нажми на карточку, чтобы перевернуть").font(.caption)
         .foregroundStyle(.white.opacity(0.48))
     }.padding(.horizontal, 18).padding(.vertical, 22).frame(
       maxWidth: .infinity, maxHeight: .infinity

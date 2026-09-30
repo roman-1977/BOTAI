@@ -7,8 +7,9 @@ enum StudyQuestionBuilder {
         return content.rows.map { row in
             let prompt=render(rule.promptTemplate,keys:rule.promptFieldKeys,row:row)
             let rendered=rule.answers.map{(text:render($0.template,keys:$0.fieldKeys,row:row),correct:$0.correct)}.filter{!$0.text.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty}
-            let answers=rendered.map(\.text)
-            let correct=Set(rendered.enumerated().compactMap{$0.element.correct ? $0.offset:nil})
+            let shuffled = rendered.shuffled()
+            let answers=shuffled.map(\.text)
+            let correct=Set(shuffled.enumerated().compactMap{$0.element.correct ? $0.offset:nil})
             let answer=rendered.filter(\.correct).map(\.text).joined(separator:", ")
             let kind:StudyQuestion.Kind = rule.kind == .singleChoice ? .singleChoice : rule.kind == .multipleChoice ? .multipleChoice : .reveal
             let fallback=render("{1}",keys:[rule.answerFieldKey],row:row)
