@@ -40,14 +40,13 @@ struct LearnSessionView: View {
   // The card receives every remaining point so its height never changes between question types.
   private var questionView: some View {
     GeometryReader { geo in
-      let fixedTop: CGFloat = 68 + 42 + 28
-      let fixedBottom: CGFloat = 356 + 54 + 28
-      let cardH = max(220, geo.size.height - fixedTop - fixedBottom)
+      let compact = geo.size.height < 780
+      let cardH = max(compact ? 170 : 220, geo.size.height * (compact ? 0.28 : 0.34))
       VStack(spacing: 10) {
         sessionHeader
         HStack { topicBadge; Button { showModes = true } label: { Image(systemName: "slider.horizontal.3").font(.title3).foregroundStyle(.cyan).frame(width: 42, height: 42).background(.cyan.opacity(0.10), in: Circle()) }.accessibilityLabel("Настройки занятия") }.padding(.horizontal, 18).padding(.top, 8).frame(height: 50, alignment: .top)
         questionCard.frame(height: cardH)
-        answerArea.frame(height: 356, alignment: .top)
+        ScrollView(showsIndicators: false) { answerArea.padding(.bottom, 8) }.frame(maxHeight: .infinity)
         Button {
           pauseSession()
         } label: {
@@ -81,7 +80,13 @@ struct LearnSessionView: View {
       Color.black.opacity(0.48).ignoresSafeArea().onTapGesture { showModes = false }
       VStack(spacing: 18) {
         Capsule().fill(.white.opacity(0.18)).frame(width: 42, height: 4)
-        paceRow
+        ScrollView(showsIndicators: false) {
+          VStack(spacing: 18) {
+            modeRow(title: "СТРАТЕГИЯ", items: modes, selection: questionMode) { questionMode = $0 }
+            modeRow(title: "ФОРМАТ", items: answerModes, selection: answerMode) { answerMode = $0 }
+            paceRow
+          }
+        }.frame(maxHeight: 390)
         Button {
           withAnimation { showModes = false }
         } label: {
@@ -257,7 +262,7 @@ struct LearnSessionView: View {
   }
   private var choiceAnswer: some View {
     VStack(spacing: 10) {
-      ForEach(Array(question.choices.prefix(6).enumerated()), id: \.offset) { i, c in
+      ForEach(Array(question.choices.enumerated()), id: \.offset) { i, c in
         Button {
           if (question.kind == .singleChoice || question.kind == .multipleChoice) && checked {
             animateAdvanceAfterChoice()
@@ -266,7 +271,7 @@ struct LearnSessionView: View {
           }
         } label: {
           HStack(spacing: 12) {
-            Text(["A", "B", "C", "D"][min(i, 3)]).font(.caption.bold()).frame(width: 30, height: 30)
+            Text(String(i + 1)).font(.caption.bold()).frame(width: 30, height: 30)
               .background(choiceColor(i).opacity(0.18), in: Circle())
             Text(c).font(.body.weight(.semibold))
             Spacer()
