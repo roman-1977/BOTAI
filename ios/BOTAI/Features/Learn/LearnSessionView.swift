@@ -48,7 +48,7 @@ struct LearnSessionView: View {
         questionCard.frame(height: cardH)
         answerArea.frame(height: 356, alignment: .top)
         Button {
-          dismiss()
+          pauseSession()
         } label: {
           HStack {
             Image(systemName: "pause.fill")
@@ -62,29 +62,14 @@ struct LearnSessionView: View {
   }
   private var sessionHeader: some View {
     HStack(spacing: 0) {
-      HStack(spacing: 0) {
-        GoalRing(value: answeredToday, target: max(1, store.questions.count), label: "ВОПРОСЫ", tint: .mint)
-        Spacer(minLength: 0)
-        GoalRing(value: studySecondsToday / 60, target: max(1, store.sessionTargetMinutes), label: "МИНУТЫ", tint: .cyan)
-        Spacer(minLength: 0)
-        AnswerSplitRing(correct: correctToday, wrong: wrongToday)
-        Spacer(minLength: 0)
-        CoverageRing(seen: seenToday.count, total: store.questions.count)
-      }.frame(maxWidth: .infinity)
-      Spacer().frame(width: 10)
-      Button {
-        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) { showModes = true }
-      } label: {
-        ZStack {
-          RoundedRectangle(cornerRadius: 13).fill(.cyan.opacity(0.07))
-          RoundedRectangle(cornerRadius: 13).stroke(.cyan.opacity(0.55), lineWidth: 1.3)
-          VStack(spacing: 5) {
-            Image(systemName: "slider.vertical.3").font(.headline)
-            Text("РЕЖИМ").font(.system(size: 6, weight: .bold)).tracking(0.5)
-          }.foregroundStyle(.cyan).shadow(color: .cyan.opacity(0.7), radius: 4)
-        }.frame(width: 34, height: 68)
-      }
-    }.padding(.horizontal, 10).padding(.top, 10).padding(.bottom, 8)
+      GoalRing(value: answeredToday, target: max(1, store.questions.count), label: "ВОПРОСЫ", tint: .mint)
+      Spacer(minLength: 0)
+      GoalRing(value: studySecondsToday / 60, target: max(1, store.sessionTargetMinutes), label: "МИНУТЫ", tint: .cyan)
+      Spacer(minLength: 0)
+      AnswerSplitRing(correct: correctToday, wrong: wrongToday)
+      Spacer(minLength: 0)
+      CoverageRing(seen: seenToday.count, total: store.questions.count)
+    }.padding(.horizontal, 14).padding(.top, 10).padding(.bottom, 8)
   }
   private let modes = [("УЧИМ", "book.fill"), ("ПОВТОРЯЕМ", "arrow.clockwise"), ("AI", "sparkles")]
   private let answerModes = [
@@ -406,8 +391,8 @@ struct LearnSessionView: View {
     answeredToday += 1
     sessionAnswered += 1
     if r == .good { correctToday += 1; sessionCorrect += 1 } else { wrongToday += 1 }
-    persistSession()
     store.record(question: question, rating: r)
+    persistSession()
     if r == .good {
     } else if r == .hard {
     } else {
@@ -434,13 +419,14 @@ struct LearnSessionView: View {
   }
 
   private func persistSession() { store.saveSession(.init(id:sessionID,startedAt:sessionStartedAt,endedAt:.now,activeSeconds:sessionActiveSeconds,answered:sessionAnswered,correct:sessionCorrect)) }
+  private func pauseSession() { countQuestionTime(); persistSession(); dismiss() }
   private func handleScenePhase(_ phase: ScenePhase) {
     switch phase {
     case .active: if activeStartedAt == nil { activeStartedAt = Date() }
     case .inactive, .background:
       if let start = activeStartedAt {
-        activeQuestionSeconds += Date().timeIntervalSince(start)
-        activeStartedAt = nil
+        let seconds=max(0,Int(Date().timeIntervalSince(start)));studySecondsToday += seconds;sessionActiveSeconds += seconds
+        activeQuestionSeconds = 0;activeStartedAt = nil;persistSession()
       }
     @unknown default: break
     }
