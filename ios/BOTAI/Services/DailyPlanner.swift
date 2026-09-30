@@ -13,8 +13,15 @@ enum DailyPlanner {
    }}
    guard !cs.isEmpty,budget>0 else{return .init(date:date,budgetMinutes:budget,goals:[])}
    let total=max(0.0001,cs.reduce(0){$0+$1.urgency});var remaining=budget;var plans:[DailyStudyPlan.GoalPlan]=[]
-   for (i,x) in cs.sorted(by:{$0.urgency>$1.urgency}).enumerated(){let mins=i==cs.count-1 ? remaining:max(5,Int((Double(budget)*x.urgency/total).rounded()));let allocated=min(remaining,mins);remaining-=allocated;let ordered=x.questions.sorted{priority($0,learning)>priority($1,learning)};let count=min(ordered.count,max(1,allocated*2));plans.append(.init(id:x.goal.id,courseID:x.course.id,goalID:x.goal.id,title:x.goal.title,minutes:allocated,questions:Array(ordered.prefix(count)),mastery:x.mastery,target:x.goal.masteryTarget,deadline:x.goal.deadline));if remaining<=0{break}}
+   for (i,x) in cs.sorted(by:{$0.urgency>$1.urgency}).enumerated(){let mins=i==cs.count-1 ? remaining:max(5,Int((Double(budget)*x.urgency/total).rounded()));let allocated=min(remaining,mins);remaining-=allocated;let count=min(x.questions.count,max(1,allocated*2));let selected=adaptiveQuestions(goal:x.goal,materials:materials,learning:learning,count:count);plans.append(.init(id:x.goal.id,courseID:x.course.id,goalID:x.goal.id,title:x.goal.title,minutes:allocated,questions:selected,mastery:x.mastery,target:x.goal.masteryTarget,deadline:x.goal.deadline));if remaining<=0{break}}
    return .init(date:date,budgetMinutes:budget,goals:plans)
+ }
+
+ @MainActor private static func adaptiveQuestions(goal:LearningGoal,materials:MaterialStore,learning:LearningStore,count:Int)->[StudyQuestion] {
+   var groups=goal.questionSets.compactMap{ref -> [StudyQuestion]? in guard let c=materials.content(id:ref.materialID) else{return nil};let qs=StudyQuestionBuilder.questions(for:ref,content:c).shuffled().sorted{priority($0,learning)>priority($1,learning)};return qs.isEmpty ? nil:qs}
+   groups.shuffle();var result:[StudyQuestion]=[];var cursor=0
+   while result.count<count && groups.contains(where:{!$0.isEmpty}) { let i=cursor % groups.count;if !groups[i].isEmpty { result.append(groups[i].removeFirst()) };cursor += 1 }
+   return result
  }
  @MainActor private static func priority(_ q:StudyQuestion,_ l:LearningStore)->Int { guard let s=l.states[q.id] else{return 100};if s.nextDueAt <= .now{return 80-s.streak*5};return 20-s.streak }
 }

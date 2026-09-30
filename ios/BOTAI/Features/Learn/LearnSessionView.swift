@@ -48,11 +48,11 @@ struct LearnSessionView: View {
         questionCard.frame(height: cardH)
         ScrollView(showsIndicators: false) { answerArea.padding(.bottom, 8) }.frame(maxHeight: .infinity)
         Button {
-          pauseSession()
+          finishSession()
         } label: {
           HStack {
-            Image(systemName: "pause.fill")
-            Text("ПРИОСТАНОВИТЬ ЗАНЯТИЕ").font(.headline)
+            Image(systemName: "stop.fill")
+            Text("ЗАВЕРШИТЬ ЗАНЯТИЕ").font(.headline)
           }.foregroundStyle(.white.opacity(0.9)).frame(maxWidth: .infinity).frame(height: 54)
             .background(.white.opacity(0.055), in: RoundedRectangle(cornerRadius: 18)).overlay(
               RoundedRectangle(cornerRadius: 18).stroke(.white.opacity(0.15)))
@@ -423,7 +423,7 @@ struct LearnSessionView: View {
   }
 
   private func persistSession() { store.saveSession(.init(id:sessionID,startedAt:sessionStartedAt,endedAt:.now,activeSeconds:sessionActiveSeconds,answered:sessionAnswered,correct:sessionCorrect)) }
-  private func pauseSession() { countQuestionTime(); persistSession(); dismiss() }
+  private func finishSession() { countQuestionTime(); persistSession(); dismiss() }
   private func handleScenePhase(_ phase: ScenePhase) {
     switch phase {
     case .active: if activeStartedAt == nil { activeStartedAt = Date() }
