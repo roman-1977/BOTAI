@@ -77,6 +77,9 @@ final class AppDatabase: @unchecked Sendable {
         migrator.registerMigration("v5_courses") { db in
             try db.create(table:"courses") { t in t.column("id",.text).primaryKey();t.column("payloadJSON",.text).notNull();t.column("updatedAt",.datetime).notNull() }
         }
+        migrator.registerMigration("v6_study_profile") { db in
+            try db.create(table:"studyProfile") { t in t.column("id",.integer).primaryKey();t.column("payloadJSON",.text).notNull();t.column("updatedAt",.datetime).notNull() }
+        }
         return migrator
     }
 }
@@ -85,4 +88,10 @@ struct CourseDBRecord: Codable, FetchableRecord, PersistableRecord {
  static let databaseTableName="courses"; let id:String; var payloadJSON:String; var updatedAt:Date
  init(_ x:StudyCourse) throws { id=x.id.uuidString;payloadJSON=String(data:try JSONEncoder().encode(x),encoding:.utf8)!;updatedAt=x.updatedAt }
  var domain:StudyCourse? { try? JSONDecoder().decode(StudyCourse.self,from:Data(payloadJSON.utf8)) }
+}
+
+struct StudyProfileDBRecord: Codable, FetchableRecord, PersistableRecord {
+ static let databaseTableName="studyProfile"; let id:Int; var payloadJSON:String; var updatedAt:Date
+ init(_ x:StudyProfile) throws { id=1;payloadJSON=String(data:try JSONEncoder().encode(x),encoding:.utf8)!;updatedAt=x.updatedAt }
+ var domain:StudyProfile? { try? JSONDecoder().decode(StudyProfile.self,from:Data(payloadJSON.utf8)) }
 }

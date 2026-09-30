@@ -39,3 +39,7 @@ A learning goal describes a result, not a daily workload. It references question
 Daily study time is a user-level study budget shared by all active goals. It must not be stored as a per-goal setting. A future planner will distribute that budget between goals and recalculate required pace when a day is missed or progress differs from forecast.
 
 Current goal lifecycle: planned, active, paused, completed. Mastery measurement and the global study-budget planner are separate follow-up layers; the current UI intentionally does not fake progress values before the Learning Engine provides them.
+
+## User study budget
+
+Study time belongs to the user profile, not to an individual course or goal. `StudyProfile` stores a default daily budget and optional per-weekday overrides (including zero-minute rest days). The budget is shared by all active goals. A future daily planner will allocate this time according to deadlines, mastery, due repetitions and schedule deviation.

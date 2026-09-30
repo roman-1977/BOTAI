@@ -3,10 +3,11 @@ import SwiftUI
 
 struct ProfileView: View {
     @Environment(AuthStore.self) private var auth
+    @Environment(StudyProfileStore.self) private var studyProfile
     var body: some View {
         NavigationStack {
             List {
-                Section("Обучение") { NavigationLink { GoalsView() } label: { Label("Цели", systemImage: "target") }; Label("Дневной минимум", systemImage: "checkmark.circle") }
+                Section("Обучение") { NavigationLink { StudyScheduleView() } label: { HStack { Label("Режим обучения", systemImage: "timer"); Spacer(); Text("\(studyProfile.profile.defaultDailyMinutes) мин/день").foregroundStyle(.secondary) } }; NavigationLink { GoalsView() } label: { Label("Цели", systemImage: "target") } }
                 Section("Аккаунт") {
                     if auth.isAuthenticated {
                         Label("Аккаунт подключён", systemImage: "checkmark.seal.fill")
