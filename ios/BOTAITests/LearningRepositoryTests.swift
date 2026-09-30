@@ -19,3 +19,12 @@ struct LearningRepositoryTests {
         #expect(try repository.outboxCount() == 1)
     }
 }
+
+struct StudySessionRepositoryTests {
+    @Test func studySessionIsDurable() throws {
+        let database=try AppDatabase();let repository=LearningRepository(database:database)
+        let session=StudySession(id:UUID(),startedAt:Date(timeIntervalSince1970:100),endedAt:Date(timeIntervalSince1970:160),activeSeconds:60,answered:4,correct:3)
+        try repository.saveSession(session)
+        #expect(try repository.sessions() == [session])
+    }
+}

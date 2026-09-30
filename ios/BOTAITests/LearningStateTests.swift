@@ -20,3 +20,11 @@ struct LearningStateTests {
         #expect(state.streak == 2)
     }
 }
+
+struct MasteryLevelTests {
+    @Test func masteryUsesRepetitionEvidence() {
+        #expect(LearningState(intervalDays:0,streak:0,nextDueAt:.now).masteryLevel == .learning)
+        #expect(LearningState(intervalDays:2,streak:2,nextDueAt:.now).masteryLevel == .reinforcing)
+        #expect(LearningState(intervalDays:4,streak:3,nextDueAt:.now).masteryLevel == .known)
+    }
+}
