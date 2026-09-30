@@ -25,7 +25,7 @@ targets:
     sources: [BOTAI]
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.botai.app
+        PRODUCT_BUNDLE_IDENTIFIER: com.roman1977.botai
         CODE_SIGN_ENTITLEMENTS: BOTAI/BOTAI.entitlements
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         GENERATE_INFOPLIST_FILE: YES
