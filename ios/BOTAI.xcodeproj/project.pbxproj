@@ -30,6 +30,7 @@
 		40DD9B9113A7CD00DD88952D /* Courses.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FD1DB3787A94308A54118B0 /* Courses.swift */; };
 		450DB60F8F67AAF37E06543F /* StudyQuestion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20EAB15C2761F0F7B90FEE9B /* StudyQuestion.swift */; };
 		4536E93EFE8DAD448151D032 /* QuizProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D192BB63142C7D058BAB1FB /* QuizProgressView.swift */; };
+		45E8C1DD9B9148C5DFD60E6B /* StudyProfileTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0B3752F018E17CBA225EE81 /* StudyProfileTests.swift */; };
 		4AF408F4A7671975ECF3F6D7 /* StudyQuestionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE635A128E1C555D4D845A47 /* StudyQuestionBuilder.swift */; };
 		4D691B9E8238C076179611F9 /* AuthStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94C51202DD85DC322CB38093 /* AuthStore.swift */; };
 		5A12B1F15D5597BAC0A052FD /* PrivacyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5FD625BAE7505A8ED07C0FF /* PrivacyView.swift */; };
@@ -141,6 +142,7 @@
 		96A21B4CACDEB48A2BDDB671 /* SupabaseConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseConfiguration.swift; sourceTree = "<group>"; };
 		986CACA862E1D54CD4DF06CF /* StudySetDraft.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudySetDraft.swift; sourceTree = "<group>"; };
 		9A1105B18B7AC81192B0685B /* TableImport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableImport.swift; sourceTree = "<group>"; };
+		A0B3752F018E17CBA225EE81 /* StudyProfileTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyProfileTests.swift; sourceTree = "<group>"; };
 		A6B4D58ABDC92D332BE9F071 /* StudyScheduleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyScheduleView.swift; sourceTree = "<group>"; };
 		A7626D494DC476ABE5F29F05 /* AccountSafetyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountSafetyService.swift; sourceTree = "<group>"; };
 		AFD3EF09AA65DD0860C0C879 /* BOTAITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = BOTAITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -408,6 +410,7 @@
 				DE4287578AC9F45A50FD6A46 /* LearningRepositoryTests.swift */,
 				596555D1BDE357A8CAFEFD2C /* LearningStateTests.swift */,
 				FE42EE2CA2719BF2A733B642 /* MaterialStorageTests.swift */,
+				A0B3752F018E17CBA225EE81 /* StudyProfileTests.swift */,
 				91BCE76407335C9713304F9D /* TableImportParserTests.swift */,
 			);
 			path = BOTAITests;
@@ -583,6 +586,7 @@
 				BD11BD3F336356AE0475190A /* LearningRepositoryTests.swift in Sources */,
 				D6B02D17988A36E08AD46C18 /* LearningStateTests.swift in Sources */,
 				DC0B3848E2E81A962A942613 /* MaterialStorageTests.swift in Sources */,
+				45E8C1DD9B9148C5DFD60E6B /* StudyProfileTests.swift in Sources */,
 				01C7E1B0EF4F6D6F80C5B24C /* TableImportParserTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -18,3 +18,16 @@ enum DailyPlanner {
  }
  @MainActor private static func priority(_ q:StudyQuestion,_ l:LearningStore)->Int { guard let s=l.states[q.id] else{return 100};if s.nextDueAt <= .now{return 80-s.streak*5};return 20-s.streak }
 }
+
+@MainActor enum GoalProgressService {
+ static func reconcile(courses store:CourseStore,materials:MaterialStore,learning:LearningStore) {
+  for original in store.courses { var course=original;var changed=false
+   for i in course.goals.indices where course.goals[i].state == .active {
+    let g=course.goals[i];let qs=g.questionSets.flatMap{ref -> [StudyQuestion] in guard let c=materials.content(id:ref.materialID) else{return []};return StudyQuestionBuilder.questions(for:ref,content:c)}
+    guard !qs.isEmpty else{continue};let known=qs.filter{learning.states[$0.id]?.masteryLevel == .known}.count;let mastery=Int((Double(known)/Double(qs.count)*100).rounded())
+    if mastery >= g.masteryTarget { course.goals[i].state = .completed;changed=true }
+   }
+   if changed { store.save(course) }
+  }
+ }
+}
