@@ -10,8 +10,8 @@ struct LearnSessionView: View {
   @State private var checked = false
   @State private var selection: Set<Int> = []
   @State private var finished = false
-  @State private var answeredToday = 14
-  @State private var studySecondsToday = 27 * 60
+  @State private var answeredToday = 0
+  @State private var studySecondsToday = 0
   @State private var activeStartedAt: Date? = Date()
   @State private var activeQuestionSeconds: TimeInterval = 0
   @State private var showModes = false
@@ -19,8 +19,13 @@ struct LearnSessionView: View {
   @State private var answerMode = 0
   @State private var paceMode = 0
   @State private var speedSeconds = 20
-  @State private var correctToday = 11
-  @State private var wrongToday = 3
+  @State private var correctToday = 0
+  @State private var sessionID = UUID()
+  @State private var sessionStartedAt = Date()
+  @State private var sessionAnswered = 0
+  @State private var sessionCorrect = 0
+  @State private var sessionActiveSeconds = 0
+  @State private var wrongToday = 0
   @State private var seenToday: Set<UUID> = []
   var body: some View {
     ZStack {
@@ -399,7 +404,9 @@ struct LearnSessionView: View {
   private func submit(_ r: RecallRating) {
     countQuestionTime()
     answeredToday += 1
-    if r == .good { correctToday += 1 } else { wrongToday += 1 }
+    sessionAnswered += 1
+    if r == .good { correctToday += 1; sessionCorrect += 1 } else { wrongToday += 1 }
+    persistSession()
     store.record(question: question, rating: r)
     if r == .good {
     } else if r == .hard {
@@ -421,10 +428,12 @@ struct LearnSessionView: View {
     seenToday.insert(question.id)
     var total = activeQuestionSeconds
     if let start = activeStartedAt { total += Date().timeIntervalSince(start) }
-    studySecondsToday += max(0, Int(total))
+    let seconds=max(0,Int(total));studySecondsToday += seconds;sessionActiveSeconds += seconds
     activeStartedAt = nil
     activeQuestionSeconds = 0
   }
+
+  private func persistSession() { store.saveSession(.init(id:sessionID,startedAt:sessionStartedAt,endedAt:.now,activeSeconds:sessionActiveSeconds,answered:sessionAnswered,correct:sessionCorrect)) }
   private func handleScenePhase(_ phase: ScenePhase) {
     switch phase {
     case .active: if activeStartedAt == nil { activeStartedAt = Date() }

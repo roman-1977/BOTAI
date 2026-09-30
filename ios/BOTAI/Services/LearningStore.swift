@@ -5,13 +5,14 @@ import Observation
 final class LearningStore {
     private(set) var attempts: [Attempt] = []
     private(set) var states: [UUID: LearningState] = [:]
+    private(set) var sessions: [StudySession] = []
     private(set) var questions: [StudyQuestion]
     private let repository: LearningRepository?
 
     init(questions: [StudyQuestion] = DemoContent.questions, repository: LearningRepository? = nil) {
         self.questions = questions
         self.repository = repository
-        if let repository, let saved = try? repository.load() { attempts = saved.0; states = saved.1 }
+        if let repository, let saved = try? repository.load() { attempts = saved.0; states = saved.1; sessions = (try? repository.sessions()) ?? [] }
     }
 
     func use(questions: [StudyQuestion]) { self.questions = questions }
@@ -22,6 +23,15 @@ final class LearningStore {
         let known=a.filter{$0.rating == .good}.count; let hard=a.filter{$0.rating == .hard}.count; let again=a.filter{$0.rating == .again}.count
         return QuizLearningStats(total:questions.count,learned:learned,attempts:a.count,known:known,hard:hard,again:again,today:a.filter{Calendar.current.isDateInToday($0.occurredAt)}.count)
     }
+
+    func saveSession(_ session: StudySession) {
+        guard session.answered > 0 || session.activeSeconds > 0 else { return }
+        if let repository { try? repository.saveSession(session) }
+        if let i=sessions.firstIndex(where:{$0.id == session.id}) { sessions[i]=session } else { sessions.append(session) }
+    }
+    var analytics: LearningAnalytics { LearningAnalytics(sessions:sessions,attempts:attempts,states:states) }
+    var knownCount:Int { states.values.filter{$0.masteryLevel == .known}.count }
+    var masteryPercent:Int { states.isEmpty ? 0 : Int((Double(knownCount)/Double(states.count)*100).rounded()) }
 
     func record(question: StudyQuestion, rating: RecallRating) {
         let attempt = Attempt(id: UUID(), questionID: question.id, occurredAt: .now, rating: rating)

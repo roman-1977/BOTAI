@@ -18,6 +18,7 @@
 		12EE9A99ED60EF2C510097B7 /* SocialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D8D9DA46C3B40BE1319A220 /* SocialView.swift */; };
 		218A1B9153A8F7196A7FD175 /* MyQuizzesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01557FDC64AB9F3E731E15AA /* MyQuizzesView.swift */; };
 		2812354A74E594F7AB92C70D /* AppDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = F739A6F7F8767D0448503087 /* AppDatabase.swift */; };
+		282271177C1A3E3A1D8221D0 /* LearningAnalytics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D312B4678FB966BE05DDAD8 /* LearningAnalytics.swift */; };
 		291AD9F1E0D412D2A7AA57BC /* StudyScheduleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6B4D58ABDC92D332BE9F071 /* StudyScheduleView.swift */; };
 		2A5ED9453153B12640FAC166 /* DailyPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 376F56258F82F144D8E84E66 /* DailyPlan.swift */; };
 		2CA8AE9A8B0E5F9057BD54DB /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = DB1185682DE012A34F4B8726 /* ZIPFoundation */; };
@@ -132,6 +133,7 @@
 		8A95EBF1449A8292B3B357F3 /* TableImportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableImportView.swift; sourceTree = "<group>"; };
 		8BDBEB068052A2E0BAAE393C /* PersonalQuizService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalQuizService.swift; sourceTree = "<group>"; };
 		8D2868C30CC3839C47730203 /* LearnSessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearnSessionView.swift; sourceTree = "<group>"; };
+		8D312B4678FB966BE05DDAD8 /* LearningAnalytics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningAnalytics.swift; sourceTree = "<group>"; };
 		8D8D9DA46C3B40BE1319A220 /* SocialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocialView.swift; sourceTree = "<group>"; };
 		8E47355C7F9F5F56B3634F04 /* StudyMaterial.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyMaterial.swift; sourceTree = "<group>"; };
 		90C83F711BA2C11596D3788D /* MaterialRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaterialRepository.swift; sourceTree = "<group>"; };
@@ -253,6 +255,7 @@
 				3FD1DB3787A94308A54118B0 /* Courses.swift */,
 				376F56258F82F144D8E84E66 /* DailyPlan.swift */,
 				60DD59EEE1D1FF5044C85337 /* GameDemo.swift */,
+				8D312B4678FB966BE05DDAD8 /* LearningAnalytics.swift */,
 				C8EC75D93437F2936503D0BE /* MVPDemoData.swift */,
 				96251857123A04ECDF272634 /* QuizLearningStats.swift */,
 				E3020713EAC0EC5EEF203804 /* QuizQuestionFactory.swift */,
@@ -532,6 +535,7 @@
 				5D1A9A0CF7BE6596404B4F45 /* GoalsStore.swift in Sources */,
 				3165E5BDF41AD0CA2B1D05FB /* GoalsView.swift in Sources */,
 				0BA07C2D24BB3A96F8A5E7B7 /* LearnSessionView.swift in Sources */,
+				282271177C1A3E3A1D8221D0 /* LearningAnalytics.swift in Sources */,
 				6A3F76054B558651ED10D394 /* LearningRepository.swift in Sources */,
 				9E1900A09594CDC15739B1CF /* LearningState.swift in Sources */,
 				781C678A610502BED9637291 /* LearningStore.swift in Sources */,

@@ -80,6 +80,12 @@ final class AppDatabase: @unchecked Sendable {
         migrator.registerMigration("v6_study_profile") { db in
             try db.create(table:"studyProfile") { t in t.column("id",.integer).primaryKey();t.column("payloadJSON",.text).notNull();t.column("updatedAt",.datetime).notNull() }
         }
+        migrator.registerMigration("v7_study_sessions") { db in
+            try db.create(table:"studySessions") { t in
+                t.column("id",.text).primaryKey();t.column("startedAt",.datetime).notNull();t.column("endedAt",.datetime).notNull();t.column("activeSeconds",.integer).notNull();t.column("answered",.integer).notNull();t.column("correct",.integer).notNull()
+            }
+            try db.create(index:"idx_sessions_started",on:"studySessions",columns:["startedAt"])
+        }
         return migrator
     }
 }
@@ -94,4 +100,10 @@ struct StudyProfileDBRecord: Codable, FetchableRecord, PersistableRecord {
  static let databaseTableName="studyProfile"; let id:Int; var payloadJSON:String; var updatedAt:Date
  init(_ x:StudyProfile) throws { id=1;payloadJSON=String(data:try JSONEncoder().encode(x),encoding:.utf8)!;updatedAt=x.updatedAt }
  var domain:StudyProfile? { try? JSONDecoder().decode(StudyProfile.self,from:Data(payloadJSON.utf8)) }
+}
+
+struct StudySessionDBRecord: Codable, FetchableRecord, PersistableRecord {
+ static let databaseTableName="studySessions";let id:String;let startedAt:Date;var endedAt:Date;var activeSeconds:Int;var answered:Int;var correct:Int
+ init(_ x:StudySession){id=x.id.uuidString;startedAt=x.startedAt;endedAt=x.endedAt;activeSeconds=x.activeSeconds;answered=x.answered;correct=x.correct}
+ var domain:StudySession?{guard let id=UUID(uuidString:id)else{return nil};return .init(id:id,startedAt:startedAt,endedAt:endedAt,activeSeconds:activeSeconds,answered:answered,correct:correct)}
 }
