@@ -7,6 +7,8 @@ final class LearningStore {
     private(set) var states: [UUID: LearningState] = [:]
     private(set) var sessions: [StudySession] = []
     private(set) var questions: [StudyQuestion]
+    private(set) var sessionTitle: String = "Обучение"
+    private(set) var sessionTargetMinutes: Int = 0
     private let repository: LearningRepository?
 
     init(questions: [StudyQuestion] = DemoContent.questions, repository: LearningRepository? = nil) {
@@ -15,7 +17,7 @@ final class LearningStore {
         if let repository, let saved = try? repository.load() { attempts = saved.0; states = saved.1; sessions = (try? repository.sessions()) ?? [] }
     }
 
-    func use(questions: [StudyQuestion]) { self.questions = questions }
+    func use(questions: [StudyQuestion], title: String = "Обучение", targetMinutes: Int = 0) { self.questions = questions; sessionTitle = title; sessionTargetMinutes = targetMinutes }
 
     func attempts(for questionIDs: Set<UUID>) -> [Attempt] { attempts.filter { questionIDs.contains($0.questionID) } }
     func stats(for questions: [StudyQuestion]) -> QuizLearningStats {

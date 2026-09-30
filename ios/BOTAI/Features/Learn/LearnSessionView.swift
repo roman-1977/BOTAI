@@ -63,9 +63,9 @@ struct LearnSessionView: View {
   private var sessionHeader: some View {
     HStack(spacing: 0) {
       HStack(spacing: 0) {
-        GoalRing(value: answeredToday, target: 20, label: "ВОПРОСЫ", tint: .mint)
+        GoalRing(value: answeredToday, target: max(1, store.questions.count), label: "ВОПРОСЫ", tint: .mint)
         Spacer(minLength: 0)
-        GoalRing(value: studySecondsToday / 60, target: 40, label: "МИНУТЫ", tint: .cyan)
+        GoalRing(value: studySecondsToday / 60, target: max(1, store.sessionTargetMinutes), label: "МИНУТЫ", tint: .cyan)
         Spacer(minLength: 0)
         AnswerSplitRing(correct: correctToday, wrong: wrongToday)
         Spacer(minLength: 0)
@@ -193,7 +193,7 @@ struct LearnSessionView: View {
   private var topicBadge: some View {
     HStack(alignment: .top, spacing: 8) {
       Image(systemName: "atom").frame(width: 18).padding(.top, 2)
-      Text("ХИМИЯ · КИСЛОТЫ И КИСЛОТНЫЕ ОСТАТКИ").font(.subheadline.bold()).tracking(0.2).lineLimit(
+      Text(store.sessionTitle.uppercased()).font(.subheadline.bold()).tracking(0.2).lineLimit(
         2
       ).fixedSize(horizontal: false, vertical: true).multilineTextAlignment(.leading)
         .layoutPriority(1)

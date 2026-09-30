@@ -5,7 +5,7 @@ enum DailyPlanner {
    let weekday=Calendar.current.component(.weekday,from:date),budget=profile.minutes(for:weekday)
    struct Candidate { let course:StudyCourse;let goal:LearningGoal;let questions:[StudyQuestion];let mastery:Int;let urgency:Double }
    var cs:[Candidate]=[]
-   for c in courses { for g in c.goals where g.state == .active || g.state == .planned {
+   for c in courses { for g in c.goals where g.state == .active {
      let qs=g.questionSets.flatMap{ref -> [StudyQuestion] in guard let content=materials.content(id:ref.materialID) else{return []};return StudyQuestionBuilder.questions(for:ref,content:content)}
      guard !qs.isEmpty else{continue};let known=qs.filter{learning.states[$0.id]?.masteryLevel == .known}.count;let mastery=Int((Double(known)/Double(qs.count)*100).rounded());guard mastery < g.masteryTarget else{continue}
      let days=max(1,g.deadline.map{Calendar.current.dateComponents([.day],from:date,to:$0).day ?? 1} ?? 30);let deficit=Double(g.masteryTarget-mastery)/100.0;let urgency=deficit/Double(days)
