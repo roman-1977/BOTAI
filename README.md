@@ -20,17 +20,13 @@ Active iOS MVP development. Offline learning and material import are implemented
 
 См. документацию в `/docs`.
 
-## Current architecture status
+## Current implementation status
 
-MVP scope and core architecture are approved. The repository contains a working SwiftUI/GRDB iOS client: learning flow, local material library, CSV/TSV/ZIP import, media handling, question-set authoring and material preview. Course/package architecture is the next design milestone.
+Working SwiftUI/GRDB local-first iOS client. Implemented now: persistent Materials and Courses/Goals, CSV/TSV and BOTAI Package v1 material import/export, generated card/choice questions, stable question IDs, Attempts/LearningState/StudySessions, local daily planning, and deletion that retains learning history.
 
-Core stack: Swift/SwiftUI, GRDB/SQLite local-first persistence, Supabase/PostgreSQL/Auth/Storage, and trusted server functions for privileged workflows.
+Supabase auth/publication/social and Attempt-upload scaffolding exist, but full multi-device sync, account-scoped local stores, public-library/class acquisition and Course Package v2 are not complete.
 
-Architecture decisions are recorded in `docs/decisions/`; accepted ADRs take precedence over older working notes.
-
-Next milestone: separate Material from Course. Table import remains a Material workflow; the `.botai` transport evolves into a Course package containing materials, structure and methodology. Account/class/public-library surfaces remain intentionally shallow until that model is fixed.
-
-Product UX drafts: `docs/GOALS_PROGRESS.md` and `docs/SCREEN_FLOW.md`.
+See docs/IMPLEMENTATION_STATUS.md for the implementation-vs-target snapshot. Accepted ADRs remain authoritative for target architecture.
 
 ### Для пользователей
 - [Подготовка CSV/TSV и ZIP с изображениями](docs/USER_IMPORT_GUIDE.md)

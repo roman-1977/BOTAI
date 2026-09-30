@@ -1,6 +1,8 @@
 # BOTAI Local Database (GRDB / SQLite)
 
-Status: Accepted architecture, implementation pending.
+Status: Accepted target architecture; first local implementation active.
+
+Implementation snapshot (2026-10-01): AppDatabase migrations v1-v7 implement Attempts, LearningState, sync outbox, Materials/Fields/Rows/Rules, Courses, StudyProfile and StudySessions. Attempt + LearningState + outbox writes are transactional. Not yet implemented from the target contract below: pull cursors/tombstones, full reconciliation, per-account database isolation, social cache tables, explicit file-protection policy and migration-upgrade fixtures.
 
 ## Purpose
 

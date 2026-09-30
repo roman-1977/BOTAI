@@ -1,4 +1,4 @@
-# ADR-022: Library, courses and assignments
+# ADR-023: Library, courses and assignments
 
 Status: Accepted
 
