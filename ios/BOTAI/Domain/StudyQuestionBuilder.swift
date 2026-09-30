@@ -18,7 +18,19 @@ enum StudyQuestionBuilder {
             let fallback = fieldsPresent([rule.answerFieldKey], in: row) ? render("{1}",keys:[rule.answerFieldKey],row:row).trimmingCharacters(in:.whitespacesAndNewlines) : ""
             let correctTexts=rendered.filter(\.correct).map(\.text)
             guard !correctTexts.isEmpty || !fallback.isEmpty else { return nil }
-            let shuffled = rendered.shuffled()
+            var options = rendered
+            if rule.kind != .card && options.count < 4 {
+                let correctTemplates = rule.answers.filter(\.correct)
+                var pool = content.rows.filter { $0.id != row.id }.flatMap { other in
+                    correctTemplates.compactMap { a -> String? in
+                        guard fieldsPresent(a.fieldKeys, in: other) else { return nil }
+                        let text=render(a.template,keys:a.fieldKeys,row:other).trimmingCharacters(in:.whitespacesAndNewlines)
+                        return text.isEmpty ? nil:text
+                    }
+                }.filter { candidate in !options.contains(where:{$0.text == candidate}) }.shuffled()
+                while options.count < 4, !pool.isEmpty { let x=pool.removeFirst();if !options.contains(where:{$0.text == x}) { options.append((x,false)) } }
+            }
+            let shuffled = options.shuffled()
             let answers=shuffled.map(\.text)
             let correct=Set(shuffled.enumerated().compactMap{$0.element.correct ? $0.offset:nil})
             let answer=correctTexts.joined(separator:", ")
