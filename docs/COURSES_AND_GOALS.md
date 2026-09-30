@@ -43,3 +43,7 @@ Current goal lifecycle: planned, active, paused, completed. Mastery measurement 
 ## User study budget
 
 Study time belongs to the user profile, not to an individual course or goal. `StudyProfile` stores a default daily budget and optional per-weekday overrides (including zero-minute rest days). The budget is shared by all active goals. A future daily planner will allocate this time according to deadlines, mastery, due repetitions and schedule deviation.
+
+## Daily planning and real question execution
+
+The home screen no longer presents demo forecasts. `DailyPlanner` derives today's work from the user's study budget, course learning goals, deadlines, current mastery and due repetition state. Material question rules are converted into stable, direction-specific `StudyQuestion` IDs using `(ruleID,rowID)`, so spaced-repetition/mastery state survives future sessions. Goals can be activated or paused in the course editor; the home action launches the questions selected by the real plan.
