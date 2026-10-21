@@ -27,7 +27,7 @@ import Observation
       coverSymbol: "graduationcap.fill", source: .created, sections: [], goals: [], createdAt: now,
       updatedAt: now)
     persist { try repository?.save(x) }
-    refresh()
+    if lastPersistenceError == nil { refresh() }
     return x
   }
   func save(_ course: StudyCourse) {

@@ -5,6 +5,7 @@ struct StudyScheduleView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var defaultMinutes = 30
     @State private var advanced = false
+    @State private var saveError: String?
     @State private var days = Array(repeating: 30, count: 7)
     private let names = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"]
     private let calendarWeekdays = [2,3,4,5,6,7,1]
@@ -28,7 +29,7 @@ struct StudyScheduleView: View {
                 let weekly = advanced ? days.reduce(0,+) : defaultMinutes*7
                 HStack { Label("\(weekly/60) ч \(weekly%60) мин в неделю",systemImage:"calendar");Spacer() }.font(.caption.bold()).foregroundStyle(.cyan).padding(14).scheduleCard()
             }.padding(16) }
-        }.navigationTitle("Режим обучения").navigationBarTitleDisplayMode(.inline).toolbar { Button("Сохранить") { let custom = advanced ? zip(calendarWeekdays,days).map{StudyDayPlan(weekday:$0.0,minutes:$0.1)} : [];store.save(defaultMinutes:defaultMinutes,customDays:custom);dismiss() } }.onAppear { defaultMinutes=store.profile.defaultDailyMinutes;advanced = !store.profile.customDays.isEmpty;days=calendarWeekdays.map{store.profile.minutes(for:$0)} }
+        }.navigationTitle("Режим обучения").navigationBarTitleDisplayMode(.inline).toolbar { Button("Сохранить") { let custom = advanced ? zip(calendarWeekdays,days).map{StudyDayPlan(weekday:$0.0,minutes:$0.1)} : [];if store.save(defaultMinutes:defaultMinutes,customDays:custom){dismiss()}else{saveError=store.lastPersistenceError ?? "Не удалось сохранить расписание"} } }.alert("Не удалось сохранить",isPresented:Binding(get:{saveError != nil},set:{if !$0{saveError=nil}})){Button("OK",role:.cancel){saveError=nil}}message:{Text(saveError ?? "Повторите попытку")}.onAppear { defaultMinutes=store.profile.defaultDailyMinutes;advanced = !store.profile.customDays.isEmpty;days=calendarWeekdays.map{store.profile.minutes(for:$0)} }
     }
 }
 private extension View { func scheduleCard()->some View { background(.white.opacity(0.055),in:RoundedRectangle(cornerRadius:18)).overlay(RoundedRectangle(cornerRadius:18).stroke(.cyan.opacity(0.18))) } }

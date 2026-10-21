@@ -9,15 +9,18 @@ import Observation
     self.repository = repository
     profile = (try? repository?.load()) ?? .standard
   }
-  func save(defaultMinutes: Int, customDays: [StudyDayPlan]) {
+  @discardableResult
+  func save(defaultMinutes: Int, customDays: [StudyDayPlan]) -> Bool {
     let updated = StudyProfile(
       defaultDailyMinutes: defaultMinutes, customDays: customDays, updatedAt: .now)
     do {
       try repository?.save(updated)
       profile = updated
       lastPersistenceError = nil
+      return true
     } catch {
       lastPersistenceError = error.localizedDescription
+      return false
     }
   }
 }
