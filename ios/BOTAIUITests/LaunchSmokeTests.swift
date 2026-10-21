@@ -167,6 +167,18 @@ final class LaunchSmokeTests: XCTestCase {
         app.buttons["Цели"].tap()
         XCTAssertTrue(app.staticTexts["Освоить проверку"].waitForExistence(timeout: 10))
         XCTAssertTrue(app.staticTexts["Активная"].waitForExistence(timeout: 10))
+        app.navigationBars["Курс с разделом"].buttons.firstMatch.tap()
+        app.navigationBars["Мои курсы"].buttons.firstMatch.tap()
+        let launch = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "УЧИТЬСЯ СЕГОДНЯ")).firstMatch
+        XCTAssertTrue(launch.waitForExistence(timeout: 10))
+        launch.tap()
+        XCTAssertTrue(app.staticTexts["Кислота"].waitForExistence(timeout: 10))
+        app.staticTexts["Кислота"].tap()
+        let answer = app.buttons["ОТВЕТИЛ ЛЕГКО"]
+        XCTAssertTrue(answer.waitForExistence(timeout: 10))
+        answer.tap()
+        XCTAssertTrue(app.staticTexts["ВОПРОСЫ ЗАКОНЧИЛИСЬ"].waitForExistence(timeout: 10))
+        app.buttons["ГОТОВО"].tap()
     }
 
     func testSelectBOTAIFileAndImportIntoLibrary() throws {

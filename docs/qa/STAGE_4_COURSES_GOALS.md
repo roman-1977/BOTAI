@@ -22,6 +22,9 @@ Status: IN PROGRESS (2026-10-21).
 
 - Extended end-to-end goal test: activate → pause → resume → terminate app → relaunch without reset → reopen course and verify active goal persisted. **Passed** on iPhone 16 Pro Max (`Test-BOTAI-2026.10.21_17-07-12-+0300.xcresult`).
 
+- Fixed session statistics for multiple/single-choice answers: `advanceAfterChoice` now increments `sessionAnswered`, `sessionCorrect` when appropriate and persists session immediately, matching reveal-mode recording.
+- Extended UI E2E: after relaunch and reopening active goal, navigate home, start daily plan, reveal the seeded card, mark correct, verify end-of-questions result, and dismiss. **Passed** (`Test-BOTAI-2026.10.21_17-10-35-+0300.xcresult`).
+
 ## Remaining
 - Validate creation/editing of courses and goals via UI.
 - Validate course-to-material references and deletion behavior.

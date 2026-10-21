@@ -334,9 +334,11 @@ struct LearnSessionView: View {
   private func advanceAfterChoice() {
     countQuestionTime()
     answeredToday += 1
+    sessionAnswered += 1
     let ok = selection == question.correctChoiceIndexes
-    if ok { correctToday += 1 } else { wrongToday += 1 }
+    if ok { correctToday += 1; sessionCorrect += 1 } else { wrongToday += 1 }
     store.record(question: question, rating: ok ? .good : .again)
+    persistSession()
     if index + 1 < store.questions.count {
       index += 1
       activeStartedAt = scenePhase == .active ? Date() : nil
