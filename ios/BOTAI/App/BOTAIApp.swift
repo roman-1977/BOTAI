@@ -38,7 +38,12 @@ struct BOTAIApp: App {
             Self.seedImportFixture()
         }
         _learningStore = State(initialValue: LearningStore(repository: repository))
-        _materialStore = State(initialValue: MaterialStore(repository: materialRepository))
+        let materials = MaterialStore(repository: materialRepository)
+        if ProcessInfo.processInfo.arguments.contains("-botai-seed-course-material") {
+            let table = ImportedTable(headers: ["Термин", "Значение"], rows: [["Кислота", "Acid"]])
+            try? materials.saveCSV(title: "Учебный материал UI", table: table, mappings: [CardMapping(from: 0, to: 1)])
+        }
+        _materialStore = State(initialValue: materials)
         _courseStore = State(initialValue: CourseStore(repository: courseRepository))
         _studyProfileStore = State(initialValue: StudyProfileStore(repository: studyProfileRepository))
     }

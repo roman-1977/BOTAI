@@ -18,6 +18,8 @@ Status: IN PROGRESS (2026-10-21).
 
 - Added simulator UI regression `testCreateCourseSectionAndTopic`: create course, add section, open section, add topic, verify visible. **Passed** on iPhone 16 Pro Max simulator (`Test-BOTAI-2026.10.21_16-58-07-+0300.xcresult`).
 
+- Added test-only seeded CSV question set and stable rule accessibility identifiers. Simulator UI regression `testCreateCourseSectionTopicAndGoal` verifies course → section → topic → select material rule → goal → select course content → activate goal. **Passed** (`Test-BOTAI-2026.10.21_17-02-18-+0300.xcresult`).
+
 ## Remaining
 - Validate creation/editing of courses and goals via UI.
 - Validate course-to-material references and deletion behavior.

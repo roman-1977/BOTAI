@@ -98,9 +98,9 @@ final class LaunchSmokeTests: XCTestCase {
         XCTAssertFalse(app.staticTexts["Курс для проверки новый"].exists)
     }
 
-    func testCreateCourseSectionAndTopic() throws {
+    func testCreateCourseSectionTopicAndGoal() throws {
         let app = XCUIApplication()
-        app.launchArguments = ["-botai-ui-testing", "-botai-reset-ui-test-data"]
+        app.launchArguments = ["-botai-ui-testing", "-botai-reset-ui-test-data", "-botai-seed-course-material"]
         app.launch()
         let courses = app.buttons["Мои курсы"]
         XCTAssertTrue(courses.waitForExistence(timeout: 20))
@@ -129,7 +129,28 @@ final class LaunchSmokeTests: XCTestCase {
         topic.tap()
         topic.typeText("Тема проверки")
         app.buttons["Сохранить"].tap()
-        XCTAssertTrue(app.staticTexts["Тема проверки"].waitForExistence(timeout: 10))
+        let topicRow = app.staticTexts["Тема проверки"]
+        XCTAssertTrue(topicRow.waitForExistence(timeout: 10))
+        topicRow.tap()
+        app.buttons["Выбрать опросники"].tap()
+        XCTAssertTrue(app.staticTexts["Учебный материал UI"].waitForExistence(timeout: 10))
+        app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "course-rule-")).firstMatch.tap()
+        app.buttons["Готово"].tap()
+        app.navigationBars["Тема проверки"].buttons.firstMatch.tap()
+        app.navigationBars["Раздел"].buttons.firstMatch.tap()
+        app.buttons["Цели"].tap()
+        app.buttons["Добавить цель"].tap()
+        let goal = app.textFields["Например: Выучить кислоты"]
+        XCTAssertTrue(goal.waitForExistence(timeout: 10))
+        goal.tap()
+        goal.typeText("Освоить проверку")
+        app.buttons["Выбрать из курса"].tap()
+        app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Раздел проверки")).firstMatch.tap()
+        app.buttons["Готово"].tap()
+        app.buttons["Создать"].tap()
+        XCTAssertTrue(app.staticTexts["Освоить проверку"].waitForExistence(timeout: 10))
+        app.buttons["Начать"].tap()
+        XCTAssertTrue(app.staticTexts["Активная"].waitForExistence(timeout: 10))
     }
 
     func testSelectBOTAIFileAndImportIntoLibrary() throws {
