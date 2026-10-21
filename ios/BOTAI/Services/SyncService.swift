@@ -26,9 +26,7 @@ actor SyncService {
                 guard let currentID = try? await client.auth.session.user.id else { return false }
                 return currentID == originalUserID
             })
-        // The backend intentionally rejects nonempty uploads until authoritative server
-        // mapping and server-side ownership validation are implemented.
-        _ = try? await coordinator.flush()
+            _ = try? await coordinator.flush()
     }
 
     static func remoteResult(for rating: RecallRating) -> String {
