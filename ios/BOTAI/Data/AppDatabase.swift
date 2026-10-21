@@ -86,6 +86,14 @@ final class AppDatabase: @unchecked Sendable {
             }
             try db.create(index:"idx_sessions_started",on:"studySessions",columns:["startedAt"])
         }
+        migrator.registerMigration("v8_remote_question_mapping") { db in
+            try db.create(table: "remoteQuestionMappings") { t in
+                t.column("localQuestionID", .text).primaryKey()
+                t.column("remoteQuestionID", .text).notNull()
+                t.column("remoteQuestionVersionID", .text).notNull()
+                t.column("verifiedAt", .datetime).notNull()
+            }
+        }
         return migrator
     }
 }

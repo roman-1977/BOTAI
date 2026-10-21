@@ -70,6 +70,11 @@ Status: active. Server integration and account isolation are not accepted.
 - Added a bootstrap-in-progress guard so SwiftUI does not show the root view or rebind an identity while auth session resolution is in flight.
 - Full simulator suite after the bootstrap guard **53/53 passed** (`Test-BOTAI-2026.10.21_19-01-53-+0300.xcresult`); API contract compile succeeded and focused API test **1/1 passed** (`Test-BOTAI-2026.10.21_19-05-37-+0300.xcresult`). Full suite including the new API test remains to run.
 
+## Remote question mapping persistence
+- SQLite migration `v8_remote_question_mapping` stores local question UUID -> server question UUID + version UUID and a verification timestamp. The mapping is isolated within each account's SQLite database.
+- Added `RemoteQuestionMappingRepository`; it never derives remote IDs from local IDs. The caller must validate remote IDs against authoritative server content before storing them. No automatic sync is enabled.
+- Full serial regression for the API adapter baseline **55/55 passed, 0 failed, 0 skipped** (`Test-BOTAI-2026.10.21_19-11-35-+0300.xcresult`). Focused new mapping persistence test **1/1 passed** (`Test-BOTAI-2026.10.21_19-15-58-+0300.xcresult`). Full suite including the mapping test is still pending.
+
 ## Remaining
 1. Map local question IDs to real server Question and QuestionVersion IDs; then implement idempotent uploads, bounded retries and a durable cursor.
 2. Partition private local state by user identity and define guest-to-account migration.
