@@ -27,6 +27,40 @@ struct RemoteQuestionMappingTests {
         #expect(try mappings.mapping(for: localID) == nil)
     }
 
+    @Test func pendingAttemptKeepsOriginalVersionAfterMaterialEdit() throws {
+        let database = try AppDatabase()
+        let materials = MaterialRepository(database: database)
+        let learning = LearningRepository(database: database)
+        let mappings = RemoteQuestionMappingRepository(database: database)
+        let materialID = UUID(), ruleID = UUID(), rowID = UUID()
+        let material = StudyMaterialRecord(id: materialID, title: "История", kind: .quiz,
+                                           source: .created, createdAt: .now, updatedAt: .now)
+        let rule = QuestionRule(id: ruleID, materialID: materialID, kind: .card,
+                                promptFieldKey: "name", answerFieldKey: "answer", enabled: true)
+        let row = KnowledgeRow(id: rowID, materialID: materialID, position: 0,
+                               values: ["name": "Старый", "answer": "Ответ"])
+        let localID = StudyQuestionBuilder.stableID(ruleID: ruleID, rowID: rowID)
+        let oldQuestion = UUID(), oldVersion = UUID()
+        try materials.save(material: material, fields: [], rows: [row], rules: [rule])
+        try mappings.saveVerified(localQuestionID: localID,
+                                  remoteQuestionID: oldQuestion, remoteVersionID: oldVersion)
+        let attempt = Attempt(id: UUID(), questionID: localID, occurredAt: .now, rating: .good)
+        try learning.record(attempt, state: LearningState())
+        var changed = row
+        changed.values["name"] = "Новый"
+        try materials.save(material: material, fields: [], rows: [changed], rules: [rule])
+        #expect(try mappings.mapping(for: localID) == nil)
+        let pending = try #require(try learning.mappedUploadBatch().attempts.first)
+        #expect(pending.id == attempt.id)
+        #expect(pending.questionID == oldQuestion)
+        #expect(pending.questionVersionID == oldVersion)
+        try mappings.saveVerified(localQuestionID: localID,
+                                  remoteQuestionID: UUID(), remoteVersionID: UUID())
+        let stillOld = try #require(try learning.mappedUploadBatch().attempts.first)
+        #expect(stillOld.questionID == oldQuestion)
+        #expect(stillOld.questionVersionID == oldVersion)
+    }
+
     @Test func mappingDoesNotAlterExistingLearningAttempts() throws {
         let database = try AppDatabase()
         let learning = LearningRepository(database: database)

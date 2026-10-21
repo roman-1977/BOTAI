@@ -20,7 +20,11 @@ final class LearningRepository: @unchecked Sendable {
 
     func record(_ attempt: Attempt, state: LearningState) throws {
         try database.dbQueue.write { db in
-            try LocalAttemptRecord(id: attempt.id.uuidString, questionID: attempt.questionID.uuidString, occurredAt: attempt.occurredAt, rating: attempt.rating.rawValue).insert(db)
+            let mapping = try RemoteQuestionMapping.fetchOne(db, key: attempt.questionID.uuidString)
+            try LocalAttemptRecord(id: attempt.id.uuidString, questionID: attempt.questionID.uuidString,
+                occurredAt: attempt.occurredAt, rating: attempt.rating.rawValue,
+                remoteQuestionID: mapping?.remoteQuestionID,
+                remoteVersionID: mapping?.remoteQuestionVersionID).insert(db)
             try LocalLearningStateRecord(questionID: attempt.questionID.uuidString, intervalDays: state.intervalDays, streak: state.streak, nextDueAt: state.nextDueAt).save(db)
             try OutboxRecord(id: UUID().uuidString, entityType: "attempt", entityID: attempt.id.uuidString, operation: "upsert", payloadVersion: 1, createdAt: .now, attemptCount: 0, nextRetryAt: nil, lastError: nil).insert(db)
         }
@@ -43,9 +47,9 @@ final class LearningRepository: @unchecked Sendable {
                 guard item.nextRetryAt == nil || item.nextRetryAt! <= now else { continue }
                 guard let attempt = try LocalAttemptRecord.fetchOne(db, key: item.entityID),
                       let id = UUID(uuidString: attempt.id),
-                      let mapping = try RemoteQuestionMapping.fetchOne(db, key: attempt.questionID),
-                      let remoteID = UUID(uuidString: mapping.remoteQuestionID),
-                      let remoteVersionID = UUID(uuidString: mapping.remoteQuestionVersionID),
+                      let remoteIDs = try resolvedRemoteIDs(for: attempt, in: db),
+                      let remoteID = UUID(uuidString: remoteIDs.0),
+                      let remoteVersionID = UUID(uuidString: remoteIDs.1),
                       let rating = RecallRating(rawValue: attempt.rating) else { continue }
                 uploads.append(BOTAIUploadAttempt(id: id, questionID: remoteID,
                     questionVersionID: remoteVersionID, occurredAt: attempt.occurredAt,
@@ -54,6 +58,14 @@ final class LearningRepository: @unchecked Sendable {
             return BOTAIUploadAttemptsRequest(attempts: uploads)
         }
     }
+    private func resolvedRemoteIDs(for attempt: LocalAttemptRecord, in db: Database) throws -> (String, String)? {
+        if let question = attempt.remoteQuestionID, let version = attempt.remoteVersionID {
+            return (question, version)
+        }
+        guard let mapping = try RemoteQuestionMapping.fetchOne(db, key: attempt.questionID) else { return nil }
+        return (mapping.remoteQuestionID, mapping.remoteQuestionVersionID)
+    }
+
     func acknowledgeOutbox(id: String) throws { _ = try database.dbQueue.write { db in try OutboxRecord.deleteOne(db, key: id) } }
 
     /// Delete only attempt outbox events explicitly acknowledged by the server.

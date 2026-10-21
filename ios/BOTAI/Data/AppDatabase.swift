@@ -7,6 +7,8 @@ struct LocalAttemptRecord: Codable, FetchableRecord, PersistableRecord {
     let questionID: String
     let occurredAt: Date
     let rating: String
+    var remoteQuestionID: String? = nil
+    var remoteVersionID: String? = nil
 }
 
 struct LocalLearningStateRecord: Codable, FetchableRecord, PersistableRecord {
@@ -92,6 +94,12 @@ final class AppDatabase: @unchecked Sendable {
                 t.column("remoteQuestionID", .text).notNull()
                 t.column("remoteQuestionVersionID", .text).notNull()
                 t.column("verifiedAt", .datetime).notNull()
+            }
+        }
+        migrator.registerMigration("v9_attempt_remote_snapshot") { db in
+            try db.alter(table: "attempts") { t in
+                t.add(column: "remoteQuestionID", .text)
+                t.add(column: "remoteVersionID", .text)
             }
         }
         return migrator

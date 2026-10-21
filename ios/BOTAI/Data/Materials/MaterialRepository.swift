@@ -23,6 +23,7 @@ final class MaterialRepository: @unchecked Sendable {
             for ruleID in allRuleIDs {
                 for rowID in allRowIDs {
                     let localID = StudyQuestionBuilder.stableID(ruleID: ruleID, rowID: rowID)
+                    try freezePendingAttemptMappings(db, localID: localID)
                     _ = try RemoteQuestionMapping.deleteOne(db, key: localID.uuidString)
                 }
             }
@@ -60,6 +61,16 @@ final class MaterialRepository: @unchecked Sendable {
         }
     }
 
+    private func freezePendingAttemptMappings(_ db: Database, localID: UUID) throws {
+        guard let mapping = try RemoteQuestionMapping.fetchOne(db, key: localID.uuidString) else { return }
+        // Preserve the exact server version used by historical attempts before
+        // invalidating the current card mapping on edit or deletion.
+        try db.execute(sql: """
+            UPDATE attempts SET remoteQuestionID = ?, remoteVersionID = ?
+            WHERE questionID = ? AND remoteQuestionID IS NULL
+            """, arguments: [mapping.remoteQuestionID, mapping.remoteQuestionVersionID, localID.uuidString])
+    }
+
     func delete(id: UUID) throws {
         try database.dbQueue.write { db in
             let rules = try QuestionRuleDBRecord.filter(Column("materialID") == id.uuidString).fetchAll(db)
@@ -67,7 +78,9 @@ final class MaterialRepository: @unchecked Sendable {
             for rule in rules {
                 for row in rows {
                     guard let ruleID = UUID(uuidString: rule.id), let rowID = UUID(uuidString: row.id) else { continue }
-                    _ = try RemoteQuestionMapping.deleteOne(db, key: StudyQuestionBuilder.stableID(ruleID: ruleID, rowID: rowID).uuidString)
+                    let localID = StudyQuestionBuilder.stableID(ruleID: ruleID, rowID: rowID)
+                    try freezePendingAttemptMappings(db, localID: localID)
+                    _ = try RemoteQuestionMapping.deleteOne(db, key: localID.uuidString)
                 }
             }
             _ = try MaterialDBRecord.deleteOne(db, key: id.uuidString)
