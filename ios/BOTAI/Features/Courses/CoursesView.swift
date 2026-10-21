@@ -38,9 +38,77 @@ private struct CourseRulePicker:View{
  private func materialLabel(_ ref:CourseRuleReference)->String{ruleInfo(ref,materials)?.0 ?? "Материал"}
 }
 private extension CourseSection{var questionSets:[CourseRuleReference]{topics.flatMap(\.questionSets)}}
-private struct CourseInfoSheet:View{@Environment(\.dismiss)var dismiss;@Binding var course:StudyCourse;let onSave:()->Void;@State var hours="";var body:some View{NavigationStack{ZStack{CourseBG();ScrollView{VStack(spacing:14){field("НАЗВАНИЕ *","Название",$course.title);field("ОПИСАНИЕ","О курсе",$course.description);field("ПРЕДМЕТ / КАТЕГОРИЯ","Химия",$course.subject);field("ДЛЯ КОГО","10–11 класс · ЕГЭ",$course.audience);field("ПРИМЕРНОЕ ВРЕМЯ, ЧАСОВ","20",$hours,.decimalPad);field("ЯЗЫК","Русский",$course.language)}.padding(18)}}.navigationTitle("О курсе").onAppear{if let m=course.estimatedMinutes{hours=String(format:"%.1f",Double(m)/60)}}.toolbar{ToolbarItem(placement:.cancellationAction){Button("Отмена"){dismiss()}};ToolbarItem(placement:.confirmationAction){Button("Сохранить"){course.estimatedMinutes=Double(hours.replacingOccurrences(of:",",with:".")).map{Int($0*60)};onSave();dismiss()}.disabled(course.title.trim.isEmpty)}}}}}
+private struct CourseInfoSheet:View{
+ @Environment(\.dismiss) private var dismiss
+ @Binding var course:StudyCourse
+ let onSave:()->Void
+ @State private var draft:StudyCourse
+ @State private var hours:String
+ init(course:Binding<StudyCourse>,onSave:@escaping ()->Void){
+  _course=course
+  self.onSave=onSave
+  _draft=State(initialValue:course.wrappedValue)
+  _hours=State(initialValue:course.wrappedValue.estimatedMinutes.map{String(format:"%.1f",Double($0)/60)} ?? "")
+ }
+ var body:some View{
+  NavigationStack{
+   ZStack{CourseBG();ScrollView{
+    VStack(spacing:14){
+     field("НАЗВАНИЕ *","Название",$draft.title)
+     field("ОПИСАНИЕ","О курсе",$draft.description)
+     field("ПРЕДМЕТ / КАТЕГОРИЯ","Химия",$draft.subject)
+     field("ДЛЯ КОГО","10–11 класс · ЕГЭ",$draft.audience)
+     field("ПРИМЕРНОЕ ВРЕМЯ, ЧАСОВ","20",$hours,.decimalPad)
+     field("ЯЗЫК","Русский",$draft.language)
+    }.padding(18)
+   }}
+   .navigationTitle("О курсе")
+   .toolbar{
+    ToolbarItem(placement:.cancellationAction){Button("Отмена"){dismiss()}}
+    ToolbarItem(placement:.confirmationAction){Button("Сохранить"){
+     draft.estimatedMinutes=Double(hours.replacingOccurrences(of:",",with:".")).map{Int($0*60)}
+     course=draft
+     onSave()
+     dismiss()
+    }.disabled(draft.title.trim.isEmpty)}
+   }
+  }
+ }
+}
 private struct SectionSheet:View{@Environment(\.dismiss)var dismiss;let save:(CourseSection)->Void;@State var title="";@State var description="";@State var hours="";var body:some View{NavigationStack{ZStack{CourseBG();VStack(spacing:14){field("НАЗВАНИЕ РАЗДЕЛА *","Неорганическая химия",$title);field("ОПИСАНИЕ","Что входит в раздел",$description);field("ПРИМЕРНОЕ ВРЕМЯ, ЧАСОВ","5",$hours,.decimalPad);Spacer()}.padding(18)}.navigationTitle("Новый раздел").toolbar{ToolbarItem(placement:.cancellationAction){Button("Отмена"){dismiss()}};ToolbarItem(placement:.confirmationAction){Button("Добавить"){save(.init(id:UUID(),title:title.trim,description:description.trim,estimatedMinutes:Double(hours.replacingOccurrences(of:",",with:".")).map{Int($0*60)},topics:[]));dismiss()}.disabled(title.trim.isEmpty)}}}}}
-private struct SectionEditSheet:View{@Environment(\.dismiss)var dismiss;@Binding var section:CourseSection;let onSave:()->Void;@State var hours="";var body:some View{NavigationStack{ZStack{CourseBG();VStack(spacing:14){field("НАЗВАНИЕ *","Название",$section.title);field("ОПИСАНИЕ","Что входит в раздел",$section.description);field("ПРИМЕРНОЕ ВРЕМЯ, ЧАСОВ","5",$hours,.decimalPad);Spacer()}.padding(18)}.navigationTitle("Раздел").onAppear{if let m=section.estimatedMinutes{hours=String(format:"%.1f",Double(m)/60)}}.toolbar{ToolbarItem(placement:.cancellationAction){Button("Отмена"){dismiss()}};ToolbarItem(placement:.confirmationAction){Button("Сохранить"){section.estimatedMinutes=Double(hours.replacingOccurrences(of:",",with:".")).map{Int($0*60)};onSave();dismiss()}.disabled(section.title.trim.isEmpty)}}}}}
+private struct SectionEditSheet:View{
+ @Environment(\.dismiss) private var dismiss
+ @Binding var section:CourseSection
+ let onSave:()->Void
+ @State private var draft:CourseSection
+ @State private var hours:String
+ init(section:Binding<CourseSection>,onSave:@escaping ()->Void){
+  _section=section
+  self.onSave=onSave
+  _draft=State(initialValue:section.wrappedValue)
+  _hours=State(initialValue:section.wrappedValue.estimatedMinutes.map{String(format:"%.1f",Double($0)/60)} ?? "")
+ }
+ var body:some View{
+  NavigationStack{
+   ZStack{CourseBG();VStack(spacing:14){
+    field("НАЗВАНИЕ *","Название",$draft.title)
+    field("ОПИСАНИЕ","Что входит в раздел",$draft.description)
+    field("ПРИМЕРНОЕ ВРЕМЯ, ЧАСОВ","5",$hours,.decimalPad)
+    Spacer()
+   }.padding(18)}
+   .navigationTitle("Раздел")
+   .toolbar{
+    ToolbarItem(placement:.cancellationAction){Button("Отмена"){dismiss()}}
+    ToolbarItem(placement:.confirmationAction){Button("Сохранить"){
+     draft.estimatedMinutes=Double(hours.replacingOccurrences(of:",",with:".")).map{Int($0*60)}
+     section=draft
+     onSave()
+     dismiss()
+    }.disabled(draft.title.trim.isEmpty)}
+   }
+  }
+ }
+}
 private struct CoursePreview:View{@Environment(\.dismiss)var dismiss;let course:StudyCourse;var body:some View{NavigationStack{ZStack{CourseBG();ScrollView{VStack(alignment:.leading,spacing:18){ZStack{RoundedRectangle(cornerRadius:24).fill(.cyan.opacity(0.12)).frame(height:160);Image(systemName:course.coverSymbol).font(.system(size:60)).foregroundStyle(.cyan)};Text(course.title).font(.largeTitle.bold()).foregroundStyle(.white);if !course.description.isEmpty{Text(course.description).foregroundStyle(.white.opacity(0.72))};Text([course.subject,course.audience].filter{!$0.isEmpty}.joined(separator:" · ")).font(.subheadline.bold()).foregroundStyle(.cyan);HStack{Label(course.author ?? "Автор не указан",systemImage:"person.crop.circle");if let m=course.estimatedMinutes{Label("примерно \(time(m))",systemImage:"clock")}}.font(.caption).foregroundStyle(.white.opacity(0.6));Text("\(course.sections.count) разделов · \(course.topicCount) тем · \(course.questionSetCount) опросников").font(.caption).foregroundStyle(.white.opacity(0.55));Text("СОДЕРЖАНИЕ").font(.caption.bold()).foregroundStyle(.cyan);ForEach(Array(course.sections.enumerated()),id:\.element.id){i,s in VStack(alignment:.leading,spacing:6){Text("\(i+1). \(s.title)").font(.headline);if !s.description.isEmpty{Text(s.description).font(.caption).foregroundStyle(.white.opacity(0.6))};HStack{Text("\(s.topics.count) тем");if let m=s.estimatedMinutes{Text("· ~\(time(m))")}}.font(.caption2).foregroundStyle(.cyan);ForEach(s.topics){t in Text("• \(t.title) · \(t.questionSets.count) опросников").font(.subheadline).foregroundStyle(.white.opacity(0.8))}}.foregroundStyle(.white).padding(14).card()}}.padding(18)}}.navigationTitle("Предпросмотр").toolbar{Button("Готово"){dismiss()}}}}}
 private struct NameSheet:View{@Environment(\.dismiss)var dismiss;let title:String,placeholder:String;let save:(String)->Void;@State var value="";var body:some View{NavigationStack{ZStack{CourseBG();VStack{field("НАЗВАНИЕ *",placeholder,$value);Spacer()}.padding(18)}.navigationTitle(title).toolbar{ToolbarItem(placement:.cancellationAction){Button("Отмена"){dismiss()}};ToolbarItem(placement:.confirmationAction){Button("Сохранить"){save(value.trim);dismiss()}.disabled(value.trim.isEmpty)}}}}}
 private func field(_ label:String,_ placeholder:String,_ value:Binding<String>,_ keyboard:UIKeyboardType = .default)->some View{VStack(alignment:.leading,spacing:6){Text(label).font(.caption.bold()).foregroundStyle(.cyan);TextField(placeholder,text:value,axis:.vertical).keyboardType(keyboard).foregroundStyle(.white).padding(13).background(.black.opacity(0.28),in:RoundedRectangle(cornerRadius:13)).overlay(RoundedRectangle(cornerRadius:13).stroke(.cyan.opacity(0.18)))}.frame(maxWidth:.infinity,alignment:.leading)}

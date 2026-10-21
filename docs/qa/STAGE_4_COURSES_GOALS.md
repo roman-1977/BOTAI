@@ -12,6 +12,8 @@ Status: IN PROGRESS (2026-10-21).
 - Added backward-compatibility test for decoding legacy courses without a `goals` key.
 - iPhone 16 Pro Max simulator: **31/31 unit tests passed**, result `Test-BOTAI-2026.10.21_16-38-09-+0300.xcresult`.
 
+- Fixed cancel behavior in course and section edit sheets: fields now edit isolated `@State` drafts and only update bound models on explicit Save. Cancel discards drafts. Simulator build and **32/32 unit tests passed** (`Test-BOTAI-2026.10.21_16-46-37-+0300.xcresult`). UI-level cancel regression still to be added.
+
 ## Remaining
 - Validate creation/editing of courses and goals via UI.
 - Validate course-to-material references and deletion behavior.
