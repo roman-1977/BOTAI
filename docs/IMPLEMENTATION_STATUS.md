@@ -29,11 +29,16 @@ Snapshot: 2026-10-21. This describes the `refactor/v0.2.0` branch, not a release
 - Full regression on `290fe1f` passed **88 tests, 0 failures** on iPhone 16 Pro Max / iOS 18.6, including the new `testPrimaryScreensVisualBaseline` UI test. The test captured home, courses, materials and profile screens; exported screenshots were manually reviewed and confirmed the formerly black navigation titles are now legible in white on dark backgrounds. Screenshots cover the default font size on this device, not every accessibility configuration.
 - On iPhone 16e with Accessibility Medium text, `testPrimaryScreensVisualBaseline` passed (1 test, 0 failures) and exported four screenshots. Manual inspection confirmed the courses empty state and profile metrics reflow without text clipping; materials remain vertically scrollable and the horizontally scrolling filter row does not display all choices simultaneously. The profile lower sections also require vertical scrolling. These are accessibility usability follow-ups, not test failures.
 - Full regression on code commit `d8152bd` passed **91 tests, 0 failures** on iPhone 16 Pro Max / iOS 18.6, including UI tests. Added failure-path coverage for corrupt SQLite files, missing storage parent directories and absent `.botai` imports. This is the latest full-suite result; the subsequent documentation-only commit does not change app code.
+- Full regression after the Reduce Motion change on code commit `7cfd92f` passed **91 tests, 0 failures** on iPhone 16 Pro Max / iOS 18.6, including UI tests. This is the validated release-candidate code revision.
 - Debug simulator builds and installs succeeded. The home screen was visually reviewed at standard and Accessibility Medium text sizes.
 - A large-text layout issue was reproduced (truncated study button and crowded metric labels), fixed in `c4d07b0`, and the corrected screen was captured and reviewed at Accessibility Medium.
 - The home screen was also inspected on the smaller iPhone 16e at default and Accessibility Medium sizes. A clipped daily-plan heading was found and fixed in `0e867a3`; the updated compact-device screenshot confirmed the complete heading and repositioned progress ring. At accessibility sizes, the goal selection control is below the fold but remains reachable by scrolling.
 - VoiceOver descriptions were added for session progress rings, but a full screen-reader walkthrough has not been performed.
 - UI review is **partial**, not final: other sections, compact devices, further accessibility sizes and contrast/reduced-motion settings remain to be examined.
+
+## Release candidate scope and known limitations
+
+`v0.2.0-rc1` is a tested refactor candidate, **not** an App Store release or production-complete backend. The full VoiceOver screen-reader walkthrough and manual physical-device validation have not been completed. Live network failure/recovery and end-to-end cross-device synchronization are not certified; a mocked backend retry test verifies that failed uploads preserve the local outbox. Demo/placeholder content remains visible, and the four-tab navigation specified in `UI_SPEC.md` is not implemented. These items require separate acceptance before public distribution.
 
 ## Remaining acceptance gates
 
