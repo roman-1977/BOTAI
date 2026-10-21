@@ -3,6 +3,33 @@ import Testing
 @testable import BOTAI
 
 struct LocalAccountStorageTests {
+    @Test func guestAndTwoAccountsPersistSeparateLearningDatabases() throws {
+        let fm = FileManager.default
+        let support = fm.temporaryDirectory.appendingPathComponent("botai-account-isolation-" + UUID().uuidString)
+        defer { try? fm.removeItem(at: support) }
+        let guest = LocalAccountStorage.Identity.guest
+        let first = LocalAccountStorage.Identity.authenticated(UUID())
+        let second = LocalAccountStorage.Identity.authenticated(UUID())
+        let identities = [guest, first, second]
+        for (index, identity) in identities.enumerated() {
+            let folder = LocalAccountStorage.directory(for: identity, support: support)
+            try fm.createDirectory(at: folder, withIntermediateDirectories: true)
+            let db = try AppDatabase(path: folder.appendingPathComponent("learning.sqlite").path)
+            let repository = LearningRepository(database: db)
+            #expect(try repository.outboxCount() == 0)
+            for _ in 0...index {
+                let attempt = Attempt(id: UUID(), questionID: UUID(), occurredAt: .now, rating: .good)
+                try repository.record(attempt, state: LearningState())
+            }
+            #expect(try repository.outboxCount() == index + 1)
+        }
+        for (index, identity) in identities.enumerated() {
+            let path = LocalAccountStorage.directory(for: identity, support: support).appendingPathComponent("learning.sqlite").path
+            let reopened = LearningRepository(database: try AppDatabase(path: path))
+            #expect(try reopened.outboxCount() == index + 1)
+        }
+    }
+
     @Test func namespacesAreDistinctAndDeterministic() {
         let first = UUID(), second = UUID()
         let guest = LocalAccountStorage.directoryName(for: .guest)

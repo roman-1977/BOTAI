@@ -60,6 +60,10 @@ Status: active. Server integration and account isolation are not accepted.
 - Bootstrap distinguishes `AuthError.sessionMissing` (confirmed guest) from other auth errors (network/refresh/storage). Unexpected errors keep private content hidden and display a retry action rather than silently opening the guest library.
 - The app compiles with this handling (`/tmp/botai_stage6_auth_error_build.log`). Added a unit regression asserting that only explicit `AuthError.sessionMissing` allows guest bootstrap; network/storage errors do not. Full simulator regression for the fail-closed bootstrap **51/51 passed, 0 failed, 0 skipped** (`Test-BOTAI-2026.10.21_18-36-36-+0300.xcresult`). The focused auth/sync suite **3/3 passed** (`Test-BOTAI-2026.10.21_18-40-24-+0300.xcresult`); live Supabase error-injection tests remain required.
 
+## Guest and multi-account persistence isolation
+- Added a disk-backed test with guest, account A and account B, each recording a different number of attempts. Reopening every SQLite database preserves its own outbox count without mixing data across identities.
+- Focused `LocalAccountStorageTests` suite **5/5 passed** (`Test-BOTAI-2026.10.21_18-44-02-+0300.xcresult`). This is local persistence verification; it does not establish Supabase RLS or end-to-end sign-in correctness.
+
 ## Remaining
 1. Map local question IDs to real server Question and QuestionVersion IDs; then implement idempotent uploads, bounded retries and a durable cursor.
 2. Partition private local state by user identity and define guest-to-account migration.
