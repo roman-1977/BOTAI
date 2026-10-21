@@ -40,6 +40,10 @@ Status: active. Server integration and account isolation are not accepted.
 - Repository selection now reports success; root content stays hidden if an account-specific database fails to open, and identity changes hide the previous UI before rebinding.
 - Full simulator suite **50/50 passed, 0 failed, 0 skipped** (`Test-BOTAI-2026.10.21_18-07-12-+0300.xcresult`) on the bootstrap gate revision. Subsequent fail-closed handling builds successfully (`/tmp/botai_stage6_failclosed_build.log`); full regression on that latest handling and live account transitions remain required.
 
+## Guest continuity
+- Returning to guest after sign-out now reopens the original legacy `BOTAI/learning.sqlite` (or `BOTAI-UITests`), instead of creating an empty `BOTAI-guest` database. Existing offline guest materials and attempts remain in their original location.
+- Authenticated UUID identities continue to use separate account-specific directories. Full regression for this additional change is pending.
+
 ## Remaining
 1. Map local question IDs to real server Question and QuestionVersion IDs; then implement idempotent uploads, bounded retries and a durable cursor.
 2. Partition private local state by user identity and define guest-to-account migration.
