@@ -25,6 +25,7 @@
 		2CA8AE9A8B0E5F9057BD54DB /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = DB1185682DE012A34F4B8726 /* ZIPFoundation */; };
 		2D697125F33EEC8E69CF44B8 /* QuizAuthoringService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA5BF0C84057B447AE79E32 /* QuizAuthoringService.swift */; };
 		302CC06408F8DB6B1A315683 /* MVPDemoData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8EC75D93437F2936503D0BE /* MVPDemoData.swift */; };
+		33B28CE46001E7765281C1F2 /* LearningAnalyticsRegressionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A51D185C08B83B7A5AF0012 /* LearningAnalyticsRegressionTests.swift */; };
 		36E491D0963FAA57DBF2BFE4 /* CoursesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0D525E86C13C906F3E053A9 /* CoursesView.swift */; };
 		3B368B34981973EE9FB7A432 /* CourseStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64DBEBC1AD45A262DBB0D392 /* CourseStore.swift */; };
 		3C8AB3F9C39387749D11C629 /* GameDemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60DD59EEE1D1FF5044C85337 /* GameDemo.swift */; };
@@ -119,6 +120,7 @@
 		22B87193836385214F5B9C21 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		249B988E7ACF5EA5C5138193 /* DemoLibraryData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoLibraryData.swift; sourceTree = "<group>"; };
 		25FA731CD7EB466A9BF618BE /* PublicLibraryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublicLibraryStore.swift; sourceTree = "<group>"; };
+		2A51D185C08B83B7A5AF0012 /* LearningAnalyticsRegressionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningAnalyticsRegressionTests.swift; sourceTree = "<group>"; };
 		2D192BB63142C7D058BAB1FB /* QuizProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizProgressView.swift; sourceTree = "<group>"; };
 		2F7BD1B53294738809CBB3A2 /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
 		376F56258F82F144D8E84E66 /* DailyPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyPlan.swift; sourceTree = "<group>"; };
@@ -442,6 +444,7 @@
 				97A015FACA3ABA7F35E3D03A /* CoursePersistenceTests.swift */,
 				73BBD4473054760B92F62626 /* DailyPlanTests.swift */,
 				13538C4E3B4BBFDB13C066D0 /* DeletionHistoryTests.swift */,
+				2A51D185C08B83B7A5AF0012 /* LearningAnalyticsRegressionTests.swift */,
 				DE4287578AC9F45A50FD6A46 /* LearningRepositoryTests.swift */,
 				596555D1BDE357A8CAFEFD2C /* LearningStateTests.swift */,
 				FE42EE2CA2719BF2A733B642 /* MaterialStorageTests.swift */,
@@ -645,6 +648,7 @@
 				52DB39239603E2F521335894 /* CoursePersistenceTests.swift in Sources */,
 				EB96DB4352D299493ABB9F85 /* DailyPlanTests.swift in Sources */,
 				C8DB32E3FE66B89978F59CBF /* DeletionHistoryTests.swift in Sources */,
+				33B28CE46001E7765281C1F2 /* LearningAnalyticsRegressionTests.swift in Sources */,
 				BD11BD3F336356AE0475190A /* LearningRepositoryTests.swift in Sources */,
 				D6B02D17988A36E08AD46C18 /* LearningStateTests.swift in Sources */,
 				DC0B3848E2E81A962A942613 /* MaterialStorageTests.swift in Sources */,
