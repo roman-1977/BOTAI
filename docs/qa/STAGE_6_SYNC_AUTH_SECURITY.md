@@ -14,6 +14,11 @@ Status: active. Server integration and account isolation are not accepted.
 - Added correct mapping for all three grades (again → incorrect, hard → hard, good → correct).
 - Added two focused `SyncSafetyTests`: mapping and durable local pending attempt. **2/2 passed**, `Test-BOTAI-2026.10.21_17-48-47-+0300.xcresult`.
 
+## Local identity namespace groundwork
+- Added deterministic separate folder names for guest and authenticated UUID identities (`LocalAccountStorage`).
+- Added `LocalAccountStorageTests` to check distinct identities and UI-test isolation: **1/1 passed** (`Test-BOTAI-2026.10.21_17-51-53-+0300.xcresult`).
+- Namespace selection is NOT yet wired into `BOTAIApp`; the existing database path is deliberately unchanged until a safe legacy-data migration and auth-driven repository reopening are implemented.
+
 ## Remaining
 1. Map local question IDs to real server Question and QuestionVersion IDs; then implement idempotent uploads, bounded retries and a durable cursor.
 2. Partition private local state by user identity and define guest-to-account migration.
