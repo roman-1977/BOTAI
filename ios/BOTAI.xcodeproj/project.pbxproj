@@ -59,6 +59,7 @@
 		7A79B26154B65E189173BA69 /* RemoteQuestionMappingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC930B696FF8B8B3DD56DAA0 /* RemoteQuestionMappingTests.swift */; };
 		7DE450C6FB8F95516C99AEBA /* TodayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8FB7B3788DDBCEE725936CF /* TodayView.swift */; };
 		7F7154D72410ECF270F9D30A /* BOTAIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DD151C06E4A2253F428D68B /* BOTAIApp.swift */; };
+		8700C00078614944E6A8BCBB /* OutboxAcknowledgementTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73D5A534C13189D935808F81 /* OutboxAcknowledgementTests.swift */; };
 		8C1D71C430E4B129A1CBFCA9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 22B87193836385214F5B9C21 /* Assets.xcassets */; };
 		90CBE53052CF75BA676EF925 /* TableImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A95EBF1449A8292B3B357F3 /* TableImportView.swift */; };
 		9246243623147B92DD1F2B96 /* PublicLibraryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25FA731CD7EB466A9BF618BE /* PublicLibraryStore.swift */; };
@@ -155,6 +156,7 @@
 		6EEC0059B7C03D9B17854A1E /* DemoContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoContent.swift; sourceTree = "<group>"; };
 		734B831E99BBB11025AFE3A1 /* PersonalQuizView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalQuizView.swift; sourceTree = "<group>"; };
 		73BBD4473054760B92F62626 /* DailyPlanTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyPlanTests.swift; sourceTree = "<group>"; };
+		73D5A534C13189D935808F81 /* OutboxAcknowledgementTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutboxAcknowledgementTests.swift; sourceTree = "<group>"; };
 		7935931C0B46440EDBC79AAA /* SyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncService.swift; sourceTree = "<group>"; };
 		7A36BBC8DF3354B0F598EA75 /* SupabaseProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseProvider.swift; sourceTree = "<group>"; };
 		7DD151C06E4A2253F428D68B /* BOTAIApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BOTAIApp.swift; sourceTree = "<group>"; };
@@ -475,6 +477,7 @@
 				596555D1BDE357A8CAFEFD2C /* LearningStateTests.swift */,
 				FFA7C8E0BBF426CD218CA98D /* LocalAccountStorageTests.swift */,
 				FE42EE2CA2719BF2A733B642 /* MaterialStorageTests.swift */,
+				73D5A534C13189D935808F81 /* OutboxAcknowledgementTests.swift */,
 				0B4EAD52AA4CE587DF81126D /* PackageRoundTripTests.swift */,
 				04E1CDDA5641B55FC697A5BC /* PackageSafetyTests.swift */,
 				BC930B696FF8B8B3DD56DAA0 /* RemoteQuestionMappingTests.swift */,
@@ -689,6 +692,7 @@
 				D6B02D17988A36E08AD46C18 /* LearningStateTests.swift in Sources */,
 				CF319D173FE8E832AECE9945 /* LocalAccountStorageTests.swift in Sources */,
 				DC0B3848E2E81A962A942613 /* MaterialStorageTests.swift in Sources */,
+				8700C00078614944E6A8BCBB /* OutboxAcknowledgementTests.swift in Sources */,
 				07F9887D17D73C2C5F86B508 /* PackageRoundTripTests.swift in Sources */,
 				44F65275408F968CA13A8D18 /* PackageSafetyTests.swift in Sources */,
 				7A79B26154B65E189173BA69 /* RemoteQuestionMappingTests.swift in Sources */,
