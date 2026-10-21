@@ -87,3 +87,11 @@ Status: active. Server integration and account isolation are not accepted.
 2. Complete optional, explicit guest-to-account migration without assuming ownership of legacy data; per-identity SQLite partitioning already exists.
 3. Bind sync execution to a stable authenticated identity, reject stale-account results, and validate sign-in, sign-out, switching and cross-user RLS against a live backend.
 4. Complete current full regression suite and physical-device checks.
+
+## Verified baseline and live database availability (2026-10-21, later run)
+- Serial iPhone 16 Pro Max iOS 18.6 simulator suite **71/71 passed**, zero failures/skips after both concurrency guards (`/tmp/BOTAI_stage6_serviceguard_full_20261021.xcresult`).
+- `AttemptSyncCoordinator` and `SyncService` each reject overlapping `flush()` calls; focused suspended-backend regression covers actor reentrancy. Published commits: `b106310`, `efc6253` on `origin/main`.
+- Supabase cloud is accessible again. `supabase migration list --workdir backend` reports matching local/remote versions **0001–0018**. This establishes migration history consistency, **not** live RLS correctness.
+- Server attempts RLS restricts SELECT/INSERT to `auth.uid() = user_id`; no UPDATE policy. Question/version visibility depends on owner or publication policies.
+- **Critical gate:** `RemoteQuestionMappingRepository.saveVerified` only persists IDs supplied by its caller; it performs no remote verification, and no production caller currently supplies authoritative mappings. `SupabaseBackendAPI` deliberately refuses all nonempty uploads. Do not bypass this guard using fabricated IDs.
+- Remaining live acceptance: authenticated A/B sign-in and cross-user RLS tests, authoritative question/version mapping with server ownership checks, idempotent upload/ACK under retries, and physical-device verification.
