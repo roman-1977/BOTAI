@@ -75,3 +75,9 @@ Date: 2026-10-21.
 - Added tests that reject a non-ZIP file named `.botai` and a truncated ZIP archive.
 - All **29 unit tests passed** on the iPhone 16 Pro Max simulator, `Test-BOTAI-2026.10.21_16-18-06-+0300.xcresult`. The four UI smoke tests passed in the preceding run.
 - Remaining Stage 3 item: full system document-picker file selection and preview/import UI coverage.
+
+## Import preview cancellation cleanup (2026-10-21)
+
+- Closing the BOTAI import preview now removes the temporary extracted package directory; successful import already removes it in MaterialStore.
+- Simulator build and all 29 unit tests passed (`Test-BOTAI-2026.10.21_16-19-14-+0300.xcresult`).
+- End-to-end selection through the native iOS document picker remains unverified.
