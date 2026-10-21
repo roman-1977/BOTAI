@@ -70,6 +70,34 @@ final class LaunchSmokeTests: XCTestCase {
         XCTAssertTrue(browse.waitForExistence(timeout: 10), "The iOS document picker did not appear")
     }
 
+    func testCreateCourseAndCancelEditingKeepsOriginalTitle() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-botai-ui-testing", "-botai-reset-ui-test-data"]
+        app.launch()
+        let courses = app.buttons["Мои курсы"]
+        XCTAssertTrue(courses.waitForExistence(timeout: 20))
+        courses.tap()
+        XCTAssertTrue(app.navigationBars["Мои курсы"].waitForExistence(timeout: 10))
+        app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Создать курс")).firstMatch.tap()
+        let title = app.textFields["ЕГЭ Химия 2027"]
+        XCTAssertTrue(title.waitForExistence(timeout: 10))
+        title.tap()
+        title.typeText("Курс для проверки")
+        app.buttons["Создать"].tap()
+        XCTAssertTrue(app.staticTexts["Курс для проверки"].waitForExistence(timeout: 10))
+        app.staticTexts["Курс для проверки"].tap()
+        let edit = app.buttons.matching(identifier: "Изменить курс").firstMatch
+        XCTAssertTrue(edit.waitForExistence(timeout: 10))
+        edit.tap()
+        let editedTitle = app.textFields["Курс для проверки"]
+        XCTAssertTrue(editedTitle.waitForExistence(timeout: 10))
+        editedTitle.tap()
+        editedTitle.typeText(" новый")
+        app.buttons["Отмена"].tap()
+        XCTAssertTrue(app.navigationBars["Курс для проверки"].waitForExistence(timeout: 10))
+        XCTAssertFalse(app.staticTexts["Курс для проверки новый"].exists)
+    }
+
     func testSelectBOTAIFileAndImportIntoLibrary() throws {
         let app = XCUIApplication()
         app.launchArguments = ["-botai-ui-testing", "-botai-reset-ui-test-data", "-botai-seed-import-fixture"]
