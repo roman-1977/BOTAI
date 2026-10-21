@@ -103,7 +103,19 @@ struct BOTAIApp: App {
                     RootTabView()
                         .id(LocalAccountStorage.directoryName(for: activeIdentity))
                 }
-                else { ProgressView() }
+                else if authStore.didFailBootstrap {
+                    VStack(spacing: 16) {
+                        Text("Не удалось проверить учётную запись")
+                        Text("Проверьте подключение и повторите попытку.")
+                        Button("Повторить") {
+                            Task {
+                                await authStore.bootstrap()
+                                didResolveInitialIdentity = !authStore.didFailBootstrap && switchStorageIfNeeded()
+                            }
+                        }
+                    }
+                    .padding()
+                } else { ProgressView() }
             }
                 .environment(learningStore)
                 .environment(authStore)
@@ -112,11 +124,11 @@ struct BOTAIApp: App {
                 .environment(studyProfileStore)
                 .task {
                     await authStore.bootstrap()
-                    didResolveInitialIdentity = switchStorageIfNeeded()
+                    didResolveInitialIdentity = !authStore.didFailBootstrap && switchStorageIfNeeded()
                 }
                 .onChange(of: authStore.userID) { _, _ in
                     didResolveInitialIdentity = false
-                    didResolveInitialIdentity = switchStorageIfNeeded()
+                    didResolveInitialIdentity = !authStore.didFailBootstrap && switchStorageIfNeeded()
                 }
         }
     }

@@ -56,6 +56,10 @@ Status: active. Server integration and account isolation are not accepted.
 - The optional legacy copy helper now rejects guest-as-destination (which resolves to the source directory) and refuses copies if either SQLite WAL or SHM sidecars exist.
 - Added a unit regression for guest destination and SHM sidecar; focused storage suite **4/4 passed** (`Test-BOTAI-2026.10.21_18-32-12-+0300.xcresult`). An earlier overlapping simulator run crashed before test bootstrap; the isolated retry passed. This helper remains intentionally opt-in; no automatic account ownership assignment occurs.
 
+## Auth bootstrap error containment
+- Bootstrap distinguishes `AuthError.sessionMissing` (confirmed guest) from other auth errors (network/refresh/storage). Unexpected errors keep private content hidden and display a retry action rather than silently opening the guest library.
+- The app compiles with this handling (`/tmp/botai_stage6_auth_error_build.log`). A complete regression and live Supabase error-injection test remain required.
+
 ## Remaining
 1. Map local question IDs to real server Question and QuestionVersion IDs; then implement idempotent uploads, bounded retries and a durable cursor.
 2. Partition private local state by user identity and define guest-to-account migration.

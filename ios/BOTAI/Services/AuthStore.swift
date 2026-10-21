@@ -14,16 +14,27 @@ final class AuthStore {
     }
 
     func bootstrap() async {
+        didFailBootstrap = false
         do {
             let session = try await client.auth.session
             userID = session.user.id
             isAuthenticated = true
             errorMessage = nil
-        } catch {
+        } catch AuthError.sessionMissing {
+            // Only a confirmed missing session is safe to treat as guest.
             userID = nil
             isAuthenticated = false
+            errorMessage = nil
+        } catch {
+            // Network, refresh and storage errors must not silently reveal guest content.
+            errorMessage = error.localizedDescription
+            isAuthenticated = false
+            userID = nil
+            didFailBootstrap = true
         }
     }
+
+    private(set) var didFailBootstrap = false
 
     #if DEBUG
     func signInForDevelopment() async {
