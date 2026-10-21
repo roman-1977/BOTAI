@@ -10,6 +10,7 @@ struct BOTAIApp: App {
     @State private var studyProfileStore: StudyProfileStore
     @State private var activeIdentity: LocalAccountStorage.Identity = .guest
     @State private var didResolveInitialIdentity = false
+    @State private var syncService: SyncService?
 
     init() {
         var materialRepository: MaterialRepository?
@@ -73,7 +74,12 @@ struct BOTAIApp: App {
     @discardableResult
     private func switchStorageIfNeeded() -> Bool {
         let identity = authStore.localIdentity
-        guard identity != activeIdentity else { return true }
+        guard identity != activeIdentity else {
+            if !authStore.isAuthenticated { syncService = nil }
+            return true
+        }
+        // Invalidate the old account's sync service before attempting any database switch.
+        syncService = nil
         guard let support = try? FileManager.default.url(
             for: .applicationSupportDirectory, in: .userDomainMask,
             appropriateFor: nil, create: true
@@ -84,7 +90,11 @@ struct BOTAIApp: App {
             try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
             let database = try AppDatabase(path: folder.appendingPathComponent("learning.sqlite").path)
             // Replace all stores together so no authenticated identity sees another account's data.
-            learningStore = LearningStore(repository: LearningRepository(database: database))
+            let learningRepository = LearningRepository(database: database)
+            learningStore = LearningStore(repository: learningRepository)
+            // Recreate sync with the exact database for the newly authenticated identity.
+            // Guest mode never owns an authenticated sync service.
+            syncService = authStore.isAuthenticated ? SyncService(repository: learningRepository) : nil
             materialStore = MaterialStore(repository: MaterialRepository(database: database))
             courseStore = CourseStore(repository: CourseRepository(database: database))
             studyProfileStore = StudyProfileStore(repository: StudyProfileRepository(database: database))
