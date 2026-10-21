@@ -2,7 +2,7 @@ import SwiftUI
 
 /// Semantic palette for the existing dark learning/home experience.
 /// Components should use roles rather than scattering literal RGB values.
-private enum HomeTheme {
+enum HomeTheme {
   static let accent = Color(red: 0.45, green: 0.77, blue: 1.0)
   static let success = Color(red: 0.36, green: 0.83, blue: 0.69)
   static let canvasTop = Color(red: 0.06, green: 0.10, blue: 0.19)
@@ -10,6 +10,9 @@ private enum HomeTheme {
   static let canvasBottom = Color(red: 0.04, green: 0.07, blue: 0.13)
   static let surface = Color(red: 0.11, green: 0.17, blue: 0.27)
   static let muted = Color.white.opacity(0.72)
+  static let separator = Color.white.opacity(0.14)
+  static let warning = Color(red: 0.98, green: 0.74, blue: 0.38)
+  static let error = Color(red: 0.97, green: 0.46, blue: 0.52)
 }
 
 struct GameHomeView: View {

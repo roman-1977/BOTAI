@@ -91,12 +91,12 @@ struct LearnSessionView: View {
       ).fixedSize(horizontal: false, vertical: true).multilineTextAlignment(.leading)
         .layoutPriority(1)
       Spacer(minLength: 0)
-    }.foregroundStyle(.cyan).frame(maxWidth: .infinity, minHeight: 42, alignment: .topLeading)
+    }.foregroundStyle(HomeTheme.accent).frame(maxWidth: .infinity, minHeight: 42, alignment: .topLeading)
   }
   private var questionCard: some View {
     VStack(spacing: 14) {
       ZStack {
-        Circle().fill(.cyan.opacity(0.08)).frame(width: 66, height: 66)
+        Circle().fill(HomeTheme.accent.opacity(0.08)).frame(width: 66, height: 66)
         Image(systemName: revealed ? "checkmark.seal.fill" : "flask.fill").font(.title)
           .foregroundStyle(revealed ? .mint : .cyan).shadow(color: .cyan.opacity(0.7), radius: 9)
       }
@@ -259,13 +259,13 @@ struct LearnSessionView: View {
     VStack(spacing: 20) {
       Spacer()
       ZStack {
-        Circle().fill(.cyan.opacity(0.12)).frame(width: 150, height: 150)
-        Image(systemName: "sparkles").font(.system(size: 66)).foregroundStyle(.cyan).shadow(
+        Circle().fill(HomeTheme.accent.opacity(0.12)).frame(width: 150, height: 150)
+        Image(systemName: "sparkles").font(.system(size: 66)).foregroundStyle(HomeTheme.accent).shadow(
           color: .cyan, radius: 18)
       }
       Text("ВОПРОСЫ ЗАКОНЧИЛИСЬ").font(.largeTitle.bold()).foregroundStyle(.white)
       Text("Сегодня: \(answeredToday) вопросов · \(studySecondsToday/60) мин").font(.title3.bold())
-        .foregroundStyle(.cyan)
+        .foregroundStyle(HomeTheme.accent)
       Button("ГОТОВО") { dismiss() }.buttonStyle(.borderedProminent).controlSize(.large)
       Spacer()
     }.padding()
@@ -327,11 +327,11 @@ private struct LearnDigitalBackground: View {
     ZStack {
       LinearGradient(
         colors: [
-          Color(red: 0.015, green: 0.025, blue: 0.08), Color(red: 0.025, green: 0.055, blue: 0.14),
-          Color(red: 0.08, green: 0.025, blue: 0.16),
+          HomeTheme.canvasTop, HomeTheme.canvasMiddle,
+          HomeTheme.canvasBottom,
         ], startPoint: .topLeading, endPoint: .bottomTrailing
       ).ignoresSafeArea()
-      Circle().fill(.cyan.opacity(0.10)).frame(width: 280, height: 280).blur(radius: 70).offset(
+      Circle().fill(HomeTheme.accent.opacity(0.10)).frame(width: 280, height: 280).blur(radius: 70).offset(
         x: -150, y: -270)
       Circle().fill(.purple.opacity(0.12)).frame(width: 300, height: 300).blur(radius: 80).offset(
         x: 160, y: 250)
