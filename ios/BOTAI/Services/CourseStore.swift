@@ -49,6 +49,10 @@ import Observation
   }
   @discardableResult
   func removeReferences(to materialID: UUID) -> Bool {
+    guard repository != nil else {
+      lastPersistenceError = CocoaError(.fileNoSuchFile).localizedDescription
+      return false
+    }
     var firstError: String?
     for var course in courses {
       var changed = false
