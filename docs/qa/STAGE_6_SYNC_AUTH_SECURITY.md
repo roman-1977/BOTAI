@@ -32,7 +32,12 @@ Status: active. Server integration and account isolation are not accepted.
 ## Runtime repository switching (under regression)
 - `BOTAIApp` now watches the authenticated user UUID and reopens all four repositories together in an identity-scoped SQLite directory. It does not automatically claim legacy data for any signed-in account.
 - The old unscoped database remains the initial guest/legacy store; explicit migration and bootstrap privacy handling still require acceptance tests.
-- Simulator build succeeded (`/tmp/botai_stage6_switch_build.log`). Full regression suite started; do not consider runtime isolation accepted until the results and transitions are verified.
+- Simulator build succeeded (`/tmp/botai_stage6_switch_build.log`). Full simulator regression **50/50 passed, 0 failed, 0 skipped** (`Test-BOTAI-2026.10.21_17-59-57-+0300.xcresult`). Real sign-in/sign-out/account switching transitions remain unverified.
+
+## Bootstrap privacy guard
+- Root UI is now gated behind initial auth bootstrap and identity-scoped repository selection; no study/material/course content is rendered while the initial session is unresolved.
+- The existing guest/legacy database is retained and not automatically claimed by authenticated accounts.
+- Full simulator suite is running (`/tmp/botai_stage6_bootstrap_suite.log`); live account-transition testing remains required.
 
 ## Remaining
 1. Map local question IDs to real server Question and QuestionVersion IDs; then implement idempotent uploads, bounded retries and a durable cursor.

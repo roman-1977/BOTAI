@@ -9,6 +9,7 @@ struct BOTAIApp: App {
     @State private var courseStore: CourseStore
     @State private var studyProfileStore: StudyProfileStore
     @State private var activeIdentity: LocalAccountStorage.Identity = .guest
+    @State private var didResolveInitialIdentity = false
 
     init() {
         var materialRepository: MaterialRepository?
@@ -94,7 +95,10 @@ struct BOTAIApp: App {
 
     var body: some Scene {
         WindowGroup {
-            RootTabView()
+            Group {
+                if didResolveInitialIdentity { RootTabView() }
+                else { ProgressView() }
+            }
                 .environment(learningStore)
                 .environment(authStore)
                 .environment(materialStore)
@@ -103,6 +107,7 @@ struct BOTAIApp: App {
                 .task {
                     await authStore.bootstrap()
                     switchStorageIfNeeded()
+                    didResolveInitialIdentity = true
                 }
                 .onChange(of: authStore.userID) { _, _ in switchStorageIfNeeded() }
         }
