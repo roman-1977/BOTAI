@@ -39,4 +39,39 @@ struct PackageRoundTripTests {
         #expect(try Data(contentsOf: payload.root.appendingPathComponent(imagePath)) == imageBytes)
         #expect(payload.manifest.rows.first?["name"] == "Example")
     }
+
+    @Test @MainActor func importedMediaPersistsAndDuplicateReferencesReuseFile() throws {
+        let fm = FileManager.default
+        let db = try AppDatabase()
+        let repo = MaterialRepository(database: db)
+        let store = MaterialStore(repository: repo)
+        let sourceID = UUID()
+        let mediaDir = MaterialMediaStore.directory(for: sourceID)
+        try fm.createDirectory(at: mediaDir, withIntermediateDirectories: true)
+        defer { try? fm.removeItem(at: mediaDir) }
+        let bytes = Data([1, 2, 3, 4, 5, 6])
+        try bytes.write(to: mediaDir.appendingPathComponent("shared.png"))
+        let now = Date()
+        let material = StudyMaterialRecord(id: sourceID, title: "Shared media", subject: nil, topic: nil, kind: .reference, source: .created, createdAt: now, updatedAt: now)
+        let fields = [
+            MaterialField(id: UUID(), materialID: sourceID, key: "name", title: "Name", position: 0),
+            MaterialField(id: UUID(), materialID: sourceID, key: "image", title: "Image", position: 1)
+        ]
+        let ref = MaterialMediaStore.reference(materialID: sourceID, fileName: "shared.png")
+        let rows = (0..<2).map { KnowledgeRow(id: UUID(), materialID: sourceID, position: $0, values: ["name": "Row \($0)", "image": ref]) }
+        let rules = [QuestionRule(id: UUID(), materialID: sourceID, kind: .card, promptFieldKey: "name", answerFieldKey: "image", enabled: true)]
+        let exported = try BOTAIPackageService.write(MaterialContent(material: material, fields: fields, rows: rows, rules: rules))
+        defer { try? fm.removeItem(at: exported) }
+        try store.importPackage(exported)
+        let imported = try #require(store.materials.first(where: { $0.title == "Shared media" }))
+        defer { try? repo.delete(id: imported.id); try? fm.removeItem(at: MaterialMediaStore.directory(for: imported.id)) }
+        let content = try #require(store.content(id: imported.id))
+        #expect(content.rows.count == 2)
+        let first = try #require(content.rows.first?.values["image"])
+        let second = try #require(content.rows.last?.values["image"])
+        let resolved = try #require(MaterialMediaStore.url(for: first))
+        let secondURL = try #require(MaterialMediaStore.url(for: second))
+        #expect(try Data(contentsOf: resolved) == bytes)
+        #expect(try Data(contentsOf: secondURL) == bytes)
+    }
 }

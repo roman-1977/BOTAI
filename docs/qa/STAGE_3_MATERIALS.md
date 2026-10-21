@@ -54,3 +54,11 @@ Date: 2026-10-21.
 - New simulator UI test confirms the user can navigate from home to materials and access both import options.
 - The initial attempt to assert a localized system file picker UI was unreliable; **picker presentation and file selection are not yet covered**. This is explicitly outstanding.
 - Full simulator suite: **25 unit tests and 4 UI tests passed**, `/tmp/botai_stage3_sources.log`.
+
+## Imported media persistence (2026-10-21)
+
+- Package import now rejects missing referenced image files rather than silently leaving broken image references.
+- Package import validates the manifest again before copying files and tolerates repeated references to the same destination filename.
+- Added integration regression importing a two-row package with shared source media into MaterialRepository, verifying persisted row references and comparing both resolved image files with source bytes.
+- Unit test rerun: **26 passed** (`Test-BOTAI-2026.10.21_16-14-31-+0300.xcresult`). UI suite: **4 passed** in preceding run. The preceding combined run reported a simulator test-runner bootstrap crash, so unit tests were rerun separately.
+- Remaining: corrupted archive regression, document-picker selection, and failure cleanup coverage.
