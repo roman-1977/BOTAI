@@ -26,3 +26,10 @@ Date: 2026-10-21.
 - PASS: manifest decoding now enforces a 2 MB limit and removes temporary extraction folder on error.
 - NOT RUN: interactive CSV/TSV and .botai file picker workflows, actual .botai export/import round-trip with images, hostile path traversal fixture and device-level manual verification.
 - **Stage 3 remains OPEN** until those workflows are covered. Passing automated tests alone is insufficient.
+
+## ZIP import hardening follow-up
+
+- Shared ZIP entry safety preflight is now used for both .botai packages (root manifest required) and generic ZIP archives containing CSV/TSV plus media (manifest optional).
+- Generic ZIP importer cleans its temporary directory if extraction or CSV parsing fails.
+- Regression test verifies a normal CSV ZIP passes manifest-optional validation but fails .botai validation.
+- 2026-10-21 full simulator suite: **22 unit tests and 3 UI tests passed**, result bundle `/tmp/botai_release_audit_derived/Logs/Test/Test-BOTAI-2026.10.21_15-56-11-+0300.xcresult`.

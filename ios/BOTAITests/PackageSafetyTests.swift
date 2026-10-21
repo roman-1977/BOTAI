@@ -43,4 +43,18 @@ struct PackageSafetyTests {
             try BOTAIPackageService.validateArchive(archive)
         }
     }
+
+    @Test func ordinaryCSVArchiveDoesNotNeedManifest() throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        try Data("A,B\n1,2".utf8).write(to: root.appendingPathComponent("table.csv"))
+        let archive = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString).appendingPathExtension("zip")
+        defer { try? FileManager.default.removeItem(at: archive) }
+        try FileManager.default.zipItem(at: root, to: archive, shouldKeepParent: false)
+        try BOTAIPackageService.validateArchive(archive, requiresManifest: false)
+        #expect(throws: BOTAIPackageError.self) {
+            try BOTAIPackageService.validateArchive(archive)
+        }
+    }
 }

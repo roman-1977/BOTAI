@@ -76,8 +76,28 @@ struct AddMaterialView: View {
     }
 
     private func importZIP(_ url: URL) throws -> ImportedTable {
-        let root = FileManager.default.temporaryDirectory.appendingPathComponent("botai-import-\(UUID().uuidString)", isDirectory:true);try FileManager.default.createDirectory(at:root,withIntermediateDirectories:true);try FileManager.default.unzipItem(at:url,to:root)
-        let files=(FileManager.default.enumerator(at:root,includingPropertiesForKeys:nil)?.allObjects as? [URL]) ?? [];guard let csv=files.first(where:{["csv","tsv"].contains($0.pathExtension.lowercased())}) else { throw CocoaError(.fileReadCorruptFile) };let data=try Data(contentsOf:csv);guard let text=String(data:data,encoding:.utf8) ?? String(data:data,encoding:.windowsCP1251),var parsed=TableImportParser.parse(text) else {throw CocoaError(.fileReadCorruptFile)};parsed.mediaRoot=root;let exts:Set<String>=["png","jpg","jpeg","webp","heic"];parsed.mediaColumns=Set(parsed.headers.indices.filter { col in parsed.rows.contains { row in col < row.count && exts.contains(URL(fileURLWithPath:row[col]).pathExtension.lowercased()) } });return parsed
+        try BOTAIPackageService.validateArchive(url, requiresManifest: false)
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent("botai-import-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        do {
+            try FileManager.default.unzipItem(at: url, to: root)
+            let files = (FileManager.default.enumerator(at: root, includingPropertiesForKeys: nil)?.allObjects as? [URL]) ?? []
+            guard let csv = files.first(where: { ["csv", "tsv"].contains($0.pathExtension.lowercased()) }) else {
+                throw CocoaError(.fileReadCorruptFile)
+            }
+            let data = try Data(contentsOf: csv)
+            guard let text = String(data: data, encoding: .utf8) ?? String(data: data, encoding: .windowsCP1251),
+                  var parsed = TableImportParser.parse(text) else { throw CocoaError(.fileReadCorruptFile) }
+            parsed.mediaRoot = root
+            let exts: Set<String> = ["png", "jpg", "jpeg", "webp", "heic"]
+            parsed.mediaColumns = Set(parsed.headers.indices.filter { col in
+                parsed.rows.contains { row in col < row.count && exts.contains(URL(fileURLWithPath: row[col]).pathExtension.lowercased()) }
+            })
+            return parsed
+        } catch {
+            try? FileManager.default.removeItem(at: root)
+            throw error
+        }
     }
 
     private func resolveMediaURL(root: URL, value: String) -> URL? {

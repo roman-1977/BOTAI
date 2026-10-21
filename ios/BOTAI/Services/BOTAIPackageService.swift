@@ -26,7 +26,7 @@ enum BOTAIPackageService {
             throw error
         }
     }
-    static func validateArchive(_ url: URL) throws {
+    static func validateArchive(_ url: URL, requiresManifest: Bool = true) throws {
         let archive = try Archive(url: url, accessMode: .read)
         var count = 0
         var expanded: UInt64 = 0
@@ -48,7 +48,7 @@ enum BOTAIPackageService {
             expanded += entry.uncompressedSize
             if path == "manifest.json" { foundManifest = true }
         }
-        guard foundManifest else { throw BOTAIPackageError.invalidManifest }
+        guard !requiresManifest || foundManifest else { throw BOTAIPackageError.invalidManifest }
     }
     static func write(_ c:MaterialContent)throws->URL{let root=FileManager.default.temporaryDirectory.appendingPathComponent("botai-export-\(UUID().uuidString)",isDirectory:true),media=root.appendingPathComponent("media",isDirectory:true);try FileManager.default.createDirectory(at:media,withIntermediateDirectories:true);let exts=Set(["png","jpg","jpeg","webp","heic"]);var rows:[[String:String]]=[],mediaKeys=Set<String>();for r in c.rows{var v=r.values;for(k,value)in r.values{let u=MaterialMediaStore.resolvedURL(for:value) ?? URL(fileURLWithPath:value);if (MaterialMediaStore.isImageReference(value) || exts.contains(u.pathExtension.lowercased())),FileManager.default.fileExists(atPath:u.path){let n="\(UUID().uuidString)-\(u.lastPathComponent)";try FileManager.default.copyItem(at:u,to:media.appendingPathComponent(n));v[k]="media/\(n)";mediaKeys.insert(k)}};rows.append(v)};let fields=c.fields.map{PackageField(key:$0.key,title:$0.title,position:$0.position,type:mediaKeys.contains($0.key) ? "image":"text")};let sets=c.rules.map{PackageQuestionSet(kind:$0.kind,promptTemplate:$0.promptTemplate,promptFieldKeys:$0.promptFieldKeys,answers:$0.answers,showCorrectCount:$0.showCorrectCount,enabled:$0.enabled)};let m=BOTAIPackageManifest(formatVersion:1,title:c.material.title,description:c.material.description,author:c.material.author ?? (c.material.source == .created ? "Вы" : nil),tags:c.material.topic,kind:c.material.kind,fields:fields,rows:rows,questionSets:sets);let e=JSONEncoder();e.outputFormatting=[.prettyPrinted,.sortedKeys,.withoutEscapingSlashes];try e.encode(m).write(to:root.appendingPathComponent("manifest.json"));let out=FileManager.default.temporaryDirectory.appendingPathComponent(c.material.title.replacingOccurrences(of:"/",with:"-")).appendingPathExtension("botai");try? FileManager.default.removeItem(at:out);try FileManager.default.zipItem(at:root,to:out,shouldKeepParent:false);return out}
 }
