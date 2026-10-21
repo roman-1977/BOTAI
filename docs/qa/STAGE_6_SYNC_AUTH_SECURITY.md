@@ -50,11 +50,11 @@ Status: active. Server integration and account isolation are not accepted.
 
 ## Account navigation reset
 - Root tab navigation is now keyed by the active storage identity. On account switch, SwiftUI recreates the root view hierarchy rather than retaining the previous user's selected course, editing sheet, or navigation stack.
-- This is an additional defense alongside repository rebinding, not a substitute for live account-transition tests.
+- Full simulator regression for navigation reset **50/50 passed, 0 failed, 0 skipped** (`Test-BOTAI-2026.10.21_18-25-49-+0300.xcresult`). This is an additional defense alongside repository rebinding, not a substitute for live account-transition tests.
 
 ## Legacy migration safety
 - The optional legacy copy helper now rejects guest-as-destination (which resolves to the source directory) and refuses copies if either SQLite WAL or SHM sidecars exist.
-- Added a unit regression for guest destination and SHM sidecar. This helper remains intentionally opt-in; no automatic account ownership assignment occurs.
+- Added a unit regression for guest destination and SHM sidecar; focused storage suite **4/4 passed** (`Test-BOTAI-2026.10.21_18-32-12-+0300.xcresult`). An earlier overlapping simulator run crashed before test bootstrap; the isolated retry passed. This helper remains intentionally opt-in; no automatic account ownership assignment occurs.
 
 ## Remaining
 1. Map local question IDs to real server Question and QuestionVersion IDs; then implement idempotent uploads, bounded retries and a durable cursor.
