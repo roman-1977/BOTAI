@@ -135,6 +135,9 @@ struct BOTAIApp: App {
                 .task {
                     await authStore.bootstrap()
                     didResolveInitialIdentity = !authStore.didFailBootstrap && switchStorageIfNeeded()
+                    if didResolveInitialIdentity, let syncService {
+                        await syncService.flush(questions: learningStore.questions)
+                    }
                 }
                 .onChange(of: learningStore.attempts.count) { _, _ in
                     guard let syncService else { return }
@@ -145,6 +148,10 @@ struct BOTAIApp: App {
                     didResolveInitialIdentity = false
                     guard !authStore.isBootstrapping && !authStore.didFailBootstrap else { return }
                     didResolveInitialIdentity = switchStorageIfNeeded()
+                    if didResolveInitialIdentity, let syncService {
+                        let questions = learningStore.questions
+                        Task { await syncService.flush(questions: questions) }
+                    }
                 }
         }
     }
