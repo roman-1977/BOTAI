@@ -52,3 +52,22 @@ struct StudySessionRepositoryTests {
         #expect(try repository.sessions() == [session])
     }
 }
+
+struct MissingLearningStorageTests {
+    @Test @MainActor func answerIsNotCountedWhenStorageUnavailable() {
+        let question = StudyQuestion(id: UUID(), prompt: "Вопрос", answer: "Ответ", kind: .reveal, choices: [], correctChoiceIndexes: [])
+        let store = LearningStore(questions: [question])
+        #expect(!store.record(question: question, rating: .good))
+        #expect(store.attempts.isEmpty)
+        #expect(store.states.isEmpty)
+        #expect(store.lastPersistenceError != nil)
+    }
+
+    @Test @MainActor func sessionIsNotCountedWhenStorageUnavailable() {
+        let store = LearningStore(questions: [])
+        let session = StudySession(id: UUID(), startedAt: .now, endedAt: .now, activeSeconds: 12, answered: 1, correct: 1)
+        store.saveSession(session)
+        #expect(store.sessions.isEmpty)
+        #expect(store.lastPersistenceError != nil)
+    }
+}

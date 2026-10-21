@@ -15,7 +15,17 @@ final class LearningStore {
     init(questions: [StudyQuestion] = DemoContent.questions, repository: LearningRepository? = nil) {
         self.questions = questions
         self.repository = repository
-        if let repository, let saved = try? repository.load() { attempts = saved.0; states = saved.1; sessions = (try? repository.sessions()) ?? [] }
+        if let repository {
+            do {
+                let saved = try repository.load()
+                let savedSessions = try repository.sessions()
+                attempts = saved.0
+                states = saved.1
+                sessions = savedSessions
+            } catch {
+                lastPersistenceError = error.localizedDescription
+            }
+        }
     }
 
     func use(questions: [StudyQuestion], title: String = "Обучение", targetMinutes: Int = 0) { self.questions = questions; sessionTitle = title; sessionTargetMinutes = targetMinutes }
@@ -29,10 +39,12 @@ final class LearningStore {
 
     func saveSession(_ session: StudySession) {
         guard session.answered > 0 || session.activeSeconds > 0 else { return }
-        if let repository {
-            do { try repository.saveSession(session); lastPersistenceError = nil }
-            catch { lastPersistenceError = error.localizedDescription; return }
+        guard let repository else {
+            lastPersistenceError = "Локальное хранилище недоступно"
+            return
         }
+        do { try repository.saveSession(session); lastPersistenceError = nil }
+        catch { lastPersistenceError = error.localizedDescription; return }
         if let i=sessions.firstIndex(where:{$0.id == session.id}) { sessions[i]=session } else { sessions.append(session) }
     }
     var analytics: LearningAnalytics { LearningAnalytics(sessions:sessions,attempts:attempts,states:states) }
@@ -45,12 +57,14 @@ final class LearningStore {
         var state = states[question.id] ?? LearningState(); state.apply(rating)
         // Never report an answer as saved if the durable local write failed.
         // Otherwise the UI advances while the sync outbox silently loses the event.
-        if let repository {
-            do { try repository.record(attempt, state: state, question: question) }
-            catch {
-                lastPersistenceError = error.localizedDescription
-                return false
-            }
+        guard let repository else {
+            lastPersistenceError = "Локальное хранилище недоступно"
+            return false
+        }
+        do { try repository.record(attempt, state: state, question: question) }
+        catch {
+            lastPersistenceError = error.localizedDescription
+            return false
         }
         attempts.append(attempt); states[question.id] = state
         lastPersistenceError = nil
