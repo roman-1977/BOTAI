@@ -1,12 +1,13 @@
 import Foundation
 import Testing
+import Supabase
 @testable import BOTAI
 
 struct BOTAIBackendAPITests {
-    @Test func adapterFailsClosedWithoutAuthoritativeQuestionMapping() async throws {
+    @Test func adapterRequiresAuthenticatedSessionBeforeUploading() async throws {
         let adapter = SupabaseBackendAPI()
         let item = BOTAIUploadAttempt(id: UUID(), questionID: UUID(), questionVersionID: UUID(), occurredAt: Date(), result: "correct")
-        await #expect(throws: BOTAIBackendError.missingServerQuestionMapping) {
+        await #expect(throws: AuthError.sessionMissing) {
             try await adapter.uploadAttempts(BOTAIUploadAttemptsRequest(attempts: [item]))
         }
     }
