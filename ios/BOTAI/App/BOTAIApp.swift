@@ -11,6 +11,7 @@ struct BOTAIApp: App {
     @State private var studyProfileStore: StudyProfileStore
     @State private var activeIdentity: LocalAccountStorage.Identity = .guest
     @State private var didResolveInitialIdentity = false
+    @State private var storageFailure: String?
     @State private var syncService: SyncService?
 
     init() {
@@ -100,9 +101,10 @@ struct BOTAIApp: App {
             courseStore = CourseStore(repository: CourseRepository(database: database))
             studyProfileStore = StudyProfileStore(repository: StudyProfileRepository(database: database))
             activeIdentity = identity
+            storageFailure = nil
             return true
         } catch {
-            assertionFailure("Unable to open identity-scoped storage: \(error)")
+            storageFailure = error.localizedDescription
             return false
         }
     }
@@ -113,6 +115,17 @@ struct BOTAIApp: App {
                 if didResolveInitialIdentity && !authStore.isBootstrapping && !authStore.didFailBootstrap {
                     RootTabView()
                         .id(LocalAccountStorage.directoryName(for: activeIdentity))
+                }
+                else if storageFailure != nil {
+                    ContentUnavailableView {
+                        Label("Хранилище недоступно", systemImage: "externaldrive.badge.exclamationmark")
+                    } description: {
+                        Text(storageFailure ?? "Не удалось открыть локальную базу данных")
+                    } actions: {
+                        Button("Повторить") {
+                            didResolveInitialIdentity = switchStorageIfNeeded()
+                        }
+                    }
                 }
                 else if authStore.didFailBootstrap {
                     VStack(spacing: 16) {
