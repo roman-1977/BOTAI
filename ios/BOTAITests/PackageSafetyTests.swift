@@ -71,4 +71,31 @@ struct PackageSafetyTests {
         let manifest = try JSONDecoder().decode(BOTAIPackageManifest.self, from: Data(json.utf8))
         try BOTAIPackageService.validateManifest(manifest)
     }
+
+    @Test func malformedArchiveIsRejectedWithoutExtraction() throws {
+        let fm = FileManager.default
+        let archive = fm.temporaryDirectory.appendingPathComponent(UUID().uuidString).appendingPathExtension("botai")
+        defer { try? fm.removeItem(at: archive) }
+        try Data("This is not a ZIP archive".utf8).write(to: archive)
+        #expect(throws: Error.self) {
+            try BOTAIPackageService.read(archive)
+        }
+    }
+
+    @Test func truncatedArchiveIsRejected() throws {
+        let fm = FileManager.default
+        let root = fm.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try fm.createDirectory(at: root, withIntermediateDirectories: true)
+        defer { try? fm.removeItem(at: root) }
+        try Data("{}".utf8).write(to: root.appendingPathComponent("manifest.json"))
+        let archive = fm.temporaryDirectory.appendingPathComponent(UUID().uuidString).appendingPathExtension("botai")
+        defer { try? fm.removeItem(at: archive) }
+        try fm.zipItem(at: root, to: archive, shouldKeepParent: false)
+        let data = try Data(contentsOf: archive)
+        #expect(data.count > 30)
+        try data.prefix(data.count / 2).write(to: archive)
+        #expect(throws: Error.self) {
+            try BOTAIPackageService.read(archive)
+        }
+    }
 }

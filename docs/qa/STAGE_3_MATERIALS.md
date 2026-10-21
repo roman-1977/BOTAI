@@ -69,3 +69,9 @@ Date: 2026-10-21.
 - Added regression for a valid manifest with missing image bytes: import rejects the package, SQLite material count stays unchanged, and the extracted temporary root is removed.
 - Simulator unit suite: **27 tests passed**, `Test-BOTAI-2026.10.21_16-16-16-+0300.xcresult`. Previous UI suite: 4 passed.
 - Remaining: malformed ZIP archive regression and complete system document-picker selection.
+
+## Corrupt archive regression (2026-10-21)
+
+- Added tests that reject a non-ZIP file named `.botai` and a truncated ZIP archive.
+- All **29 unit tests passed** on the iPhone 16 Pro Max simulator, `Test-BOTAI-2026.10.21_16-18-06-+0300.xcresult`. The four UI smoke tests passed in the preceding run.
+- Remaining Stage 3 item: full system document-picker file selection and preview/import UI coverage.
