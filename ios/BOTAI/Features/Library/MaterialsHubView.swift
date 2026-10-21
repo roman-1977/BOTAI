@@ -67,7 +67,7 @@ struct MaterialsHubView: View {
     }
 
     private func materialCard(_ m: DemoMaterial) -> some View {
-        HStack(spacing:12) { Image(systemName:m.kind == "Опросник" ? "questionmark.bubble.fill":"tablecells.fill").font(.title2).foregroundStyle(.mint); VStack(alignment:.leading,spacing:4) { Text(m.title).font(.headline); Text(m.description).font(.caption).foregroundStyle(.white.opacity(0.62)).lineLimit(2); Text("\(m.kind) · \(m.count) · \(m.source)").font(.caption2).foregroundStyle(.cyan.opacity(0.85)) }; Spacer(); Menu { Button("Создать задание"){}; Button("Удалить из библиотеки",role:.destructive){} } label:{Image(systemName:"ellipsis").padding(8)} }
+        HStack(spacing:12) { Image(systemName:m.kind == "Опросник" ? "questionmark.bubble.fill":"tablecells.fill").font(.title2).foregroundStyle(.mint); VStack(alignment:.leading,spacing:4) { Text(m.title).font(.headline); Text(m.description).font(.caption).foregroundStyle(.white.opacity(0.62)).lineLimit(2); Text("\(m.kind) · \(m.count) · \(m.source)").font(.caption2).foregroundStyle(.cyan.opacity(0.85)) }; Spacer(); Image(systemName:"chevron.right").foregroundStyle(.white.opacity(0.5)) }
             .padding(13).background(.black.opacity(0.22),in:RoundedRectangle(cornerRadius:16)).foregroundStyle(.white)
             .contentShape(Rectangle()).onTapGesture { selectedMaterial = m }
     }
@@ -93,7 +93,6 @@ private struct MaterialDetailView: View {
                     HStack { stat(material.count, "Содержимое"); stat(material.subject, "Предмет") }
                     detailBlock
                     sampleBlock
-                    Button("Начать заниматься") {}.buttonStyle(.borderedProminent).tint(HomeTheme.accent).frame(maxWidth: .infinity)
                 }.padding(18) }
             }.navigationTitle("Материал").navigationBarTitleDisplayMode(.inline).toolbar { Button("Готово") { dismiss() } }
         }
