@@ -87,6 +87,21 @@ struct RemoteQuestionMappingTests {
         #expect(try learning.load().0.map(\.id) == [attempt.id])
     }
 
+    @Test func recordedAttemptRetainsOriginalQuestionContent() throws {
+        let database = try AppDatabase()
+        let learning = LearningRepository(database: database)
+        let id = UUID()
+        let question = StudyQuestion(id: id, prompt: "Старый вопрос", answer: "Старый ответ",
+                                     kind: .pair, choices: [], correctChoiceIndexes: [])
+        let attempt = Attempt(id: UUID(), questionID: id, occurredAt: .now, rating: .good)
+        try learning.record(attempt, state: LearningState(), question: question)
+        let stored = try #require(try learning.attempt(id: attempt.id.uuidString))
+        #expect(stored.snapshotPrompt == "Старый вопрос")
+        #expect(stored.snapshotAnswer == "Старый ответ")
+        #expect(stored.snapshotKind == "pair")
+        #expect(try learning.outboxCount() == 1)
+    }
+
     @Test func mappingDoesNotAlterExistingLearningAttempts() throws {
         let database = try AppDatabase()
         let learning = LearningRepository(database: database)

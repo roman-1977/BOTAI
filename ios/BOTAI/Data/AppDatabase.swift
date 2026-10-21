@@ -10,6 +10,9 @@ struct LocalAttemptRecord: Codable, FetchableRecord, PersistableRecord {
     var remoteQuestionID: String? = nil
     var remoteVersionID: String? = nil
     var invalidatedBeforePublication: Bool = false
+    var snapshotPrompt: String? = nil
+    var snapshotAnswer: String? = nil
+    var snapshotKind: String? = nil
 }
 
 struct LocalLearningStateRecord: Codable, FetchableRecord, PersistableRecord {
@@ -106,6 +109,13 @@ final class AppDatabase: @unchecked Sendable {
         migrator.registerMigration("v10_unpublished_attempt_invalidation") { db in
             try db.alter(table: "attempts") { t in
                 t.add(column: "invalidatedBeforePublication", .boolean).notNull().defaults(to: false)
+            }
+        }
+        migrator.registerMigration("v11_attempt_content_snapshot") { db in
+            try db.alter(table: "attempts") { t in
+                t.add(column: "snapshotPrompt", .text)
+                t.add(column: "snapshotAnswer", .text)
+                t.add(column: "snapshotKind", .text)
             }
         }
         return migrator

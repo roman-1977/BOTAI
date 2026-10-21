@@ -41,7 +41,7 @@ final class LearningStore {
         // Never report an answer as saved if the durable local write failed.
         // Otherwise the UI advances while the sync outbox silently loses the event.
         if let repository {
-            do { try repository.record(attempt, state: state) }
+            do { try repository.record(attempt, state: state, question: question) }
             catch {
                 assertionFailure("Unable to persist learning attempt: \(error)")
                 return

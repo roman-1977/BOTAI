@@ -18,13 +18,16 @@ final class LearningRepository: @unchecked Sendable {
         }
     }
 
-    func record(_ attempt: Attempt, state: LearningState) throws {
+    func record(_ attempt: Attempt, state: LearningState, question: StudyQuestion? = nil) throws {
         try database.dbQueue.write { db in
             let mapping = try RemoteQuestionMapping.fetchOne(db, key: attempt.questionID.uuidString)
             try LocalAttemptRecord(id: attempt.id.uuidString, questionID: attempt.questionID.uuidString,
                 occurredAt: attempt.occurredAt, rating: attempt.rating.rawValue,
                 remoteQuestionID: mapping?.remoteQuestionID,
-                remoteVersionID: mapping?.remoteQuestionVersionID).insert(db)
+                remoteVersionID: mapping?.remoteQuestionVersionID,
+                snapshotPrompt: question?.prompt, snapshotAnswer: question?.answer,
+                snapshotKind: question.map { $0.kind == .pair ? "pair" :
+                    ($0.kind == .reveal ? "self_check" : "unsupported") }).insert(db)
             try LocalLearningStateRecord(questionID: attempt.questionID.uuidString, intervalDays: state.intervalDays, streak: state.streak, nextDueAt: state.nextDueAt).save(db)
             try OutboxRecord(id: UUID().uuidString, entityType: "attempt", entityID: attempt.id.uuidString, operation: "upsert", payloadVersion: 1, createdAt: .now, attemptCount: 0, nextRetryAt: nil, lastError: nil).insert(db)
         }
