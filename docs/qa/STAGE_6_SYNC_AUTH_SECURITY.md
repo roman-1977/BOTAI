@@ -63,7 +63,7 @@ Status: active. Server integration and account isolation are not accepted.
 ## Guest and multi-account persistence isolation
 - Added a disk-backed test with guest, account A and account B, each recording a different number of attempts. Reopening every SQLite database preserves its own outbox count without mixing data across identities.
 - Focused `LocalAccountStorageTests` suite **5/5 passed** (`Test-BOTAI-2026.10.21_18-44-02-+0300.xcresult`). Complete simulator regression **53/53 passed, 0 failed, 0 skipped** (`Test-BOTAI-2026.10.21_18-44-45-+0300.xcresult`). This is local persistence verification; it does not establish Supabase RLS or end-to-end sign-in correctness.
-- Supabase CLI can list the BOTAI cloud project, but remote migration inspection is blocked by IPv6-only connection; the CLI requests linking via IPv4. No production database changes were attempted.
+- Supabase CLI lists the BOTAI cloud project. Attempting `supabase link --project-ref` reveals the actual blocker: **the cloud project is paused** (`project is paused`; admin must unpause it in the Supabase dashboard). An earlier migration-list attempt also reported IPv6 connectivity limitations. No production database changes were attempted. Live RLS and migration checks must wait until the project is resumed.
 
 ## Remaining
 1. Map local question IDs to real server Question and QuestionVersion IDs; then implement idempotent uploads, bounded retries and a durable cursor.
