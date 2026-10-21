@@ -16,8 +16,6 @@ struct LearnSessionView: View {
   @State private var activeStartedAt: Date? = Date()
   @State private var activeQuestionSeconds: TimeInterval = 0
   @State private var showModes = false
-  @State private var questionMode = 0
-  @State private var answerMode = 0
   @State private var paceMode = 0
   @State private var speedSeconds = 20
   @State private var questionStartedAt = Date()
@@ -89,10 +87,6 @@ struct LearnSessionView: View {
       CoverageRing(seen: seenToday.count, total: store.questions.count)
     }.padding(.horizontal, 14).padding(.top, 10).padding(.bottom, 8)
   }
-  private let modes = [("УЧИМ", "book.fill"), ("ПОВТОРЯЕМ", "arrow.clockwise"), ("AI", "sparkles")]
-  private let answerModes = [
-    ("КАРТОЧКА", "rectangle.portrait"), ("ТЕСТ", "list.bullet.rectangle"), ("AI", "sparkles"),
-  ]
   private var modeOverlay: some View {
     ZStack(alignment: .bottom) {
       Color.black.opacity(0.48).ignoresSafeArea().onTapGesture { showModes = false }
@@ -100,8 +94,6 @@ struct LearnSessionView: View {
         Capsule().fill(.white.opacity(0.18)).frame(width: 42, height: 4)
         ScrollView(showsIndicators: false) {
           VStack(spacing: 18) {
-            modeRow(title: "СТРАТЕГИЯ", items: modes, selection: questionMode) { questionMode = $0 }
-            modeRow(title: "ФОРМАТ", items: answerModes, selection: answerMode) { answerMode = $0 }
             paceRow
           }
         }.frame(maxHeight: 390)
@@ -144,7 +136,6 @@ struct LearnSessionView: View {
             paceMode = 1
           }
         }
-        modeTile("AI", "sparkles", selected: paceMode == 2) { paceMode = 2 }
       }
     }
   }
@@ -165,37 +156,6 @@ struct LearnSessionView: View {
           selected ? .cyan : .white.opacity(0.68))
       }.frame(maxWidth: .infinity)
     }.buttonStyle(.plain)
-  }
-  private func modeRow(
-    title: String, items: [(String, String)], selection: Int, onSelect: @escaping (Int) -> Void
-  ) -> some View {
-    VStack(spacing: 10) {
-      Text(title).frame(maxWidth: .infinity, alignment: .center).font(.caption2.bold()).tracking(
-        1.7
-      ).foregroundStyle(.white.opacity(0.5))
-      HStack(spacing: 10) {
-        ForEach(Array(items.enumerated()), id: \.offset) { i, m in
-          Button {
-            onSelect(i)
-          } label: {
-            VStack(spacing: 8) {
-              ZStack {
-                Hexagon().fill(
-                  i == selection ? Color.cyan.opacity(0.18) : Color.white.opacity(0.045))
-                Hexagon().stroke(
-                  i == selection ? Color.cyan : Color.white.opacity(0.12),
-                  lineWidth: i == selection ? 2 : 1)
-                Image(systemName: m.1).font(.title2).foregroundStyle(
-                  i == selection ? .cyan : .white.opacity(0.72)
-                ).shadow(color: i == selection ? .cyan : .clear, radius: 7)
-              }.frame(height: 62)
-              Text(m.0).font(.system(size: 10, weight: .bold)).foregroundStyle(
-                i == selection ? .cyan : .white.opacity(0.68))
-            }.frame(maxWidth: .infinity)
-          }
-        }.buttonStyle(.plain)
-      }
-    }
   }
   private var topicBadge: some View {
     HStack(alignment: .top, spacing: 8) {
