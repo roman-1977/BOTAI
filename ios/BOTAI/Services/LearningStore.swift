@@ -38,7 +38,15 @@ final class LearningStore {
     func record(question: StudyQuestion, rating: RecallRating) {
         let attempt = Attempt(id: UUID(), questionID: question.id, occurredAt: .now, rating: rating)
         var state = states[question.id] ?? LearningState(); state.apply(rating)
-        if let repository { try? repository.record(attempt, state: state) }
+        // Never report an answer as saved if the durable local write failed.
+        // Otherwise the UI advances while the sync outbox silently loses the event.
+        if let repository {
+            do { try repository.record(attempt, state: state) }
+            catch {
+                assertionFailure("Unable to persist learning attempt: \(error)")
+                return
+            }
+        }
         attempts.append(attempt); states[question.id] = state
     }
 

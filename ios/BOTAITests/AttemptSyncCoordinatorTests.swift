@@ -76,6 +76,26 @@ struct AttemptSyncCoordinatorTests {
         #expect(try learning.outboxCount() == 1)
     }
 
+    @Test func retryAfterTransientBackendFailureAcknowledgesOnce() async throws {
+        let (learning, original) = try setup(mapped: true)
+        let gate: @Sendable () async -> Bool = { true }
+        let first = AttemptSyncCoordinator(backend: FakeAttemptBackend(.fail),
+                                           repository: learning, isCurrentAccount: gate)
+        await #expect(throws: BOTAIBackendError.missingServerQuestionMapping) {
+            try await first.flush()
+        }
+        #expect(try learning.outboxCount() == 1)
+        #expect(try learning.load().0.map(\.id) == [original.id])
+        let backend = FakeAttemptBackend(.acknowledgeAll)
+        let retry = AttemptSyncCoordinator(backend: backend, repository: learning,
+                                           isCurrentAccount: gate)
+        #expect(try await retry.flush() == 1)
+        #expect(try learning.outboxCount() == 0)
+        #expect(try learning.load().0.map(\.id) == [original.id])
+        #expect(try await retry.flush() == 0)
+        #expect(await backend.calls == 1)
+    }
+
     @Test func backendFailurePreservesQueue() async throws {
         let (learning, _) = try setup(mapped: true)
         let sync = AttemptSyncCoordinator(backend: FakeAttemptBackend(.fail), repository: learning, isCurrentAccount: { true })
