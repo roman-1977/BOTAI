@@ -70,13 +70,14 @@ struct BOTAIApp: App {
     }
 
     @MainActor
-    private func switchStorageIfNeeded() {
+    @discardableResult
+    private func switchStorageIfNeeded() -> Bool {
         let identity = authStore.localIdentity
-        guard identity != activeIdentity else { return }
+        guard identity != activeIdentity else { return true }
         guard let support = try? FileManager.default.url(
             for: .applicationSupportDirectory, in: .userDomainMask,
             appropriateFor: nil, create: true
-        ) else { return }
+        ) else { return false }
         let uiTesting = ProcessInfo.processInfo.arguments.contains("-botai-ui-testing")
         let folder = LocalAccountStorage.directory(for: identity, support: support, uiTesting: uiTesting)
         do {
@@ -88,8 +89,10 @@ struct BOTAIApp: App {
             courseStore = CourseStore(repository: CourseRepository(database: database))
             studyProfileStore = StudyProfileStore(repository: StudyProfileRepository(database: database))
             activeIdentity = identity
+            return true
         } catch {
             assertionFailure("Unable to open identity-scoped storage: \(error)")
+            return false
         }
     }
 
@@ -106,10 +109,12 @@ struct BOTAIApp: App {
                 .environment(studyProfileStore)
                 .task {
                     await authStore.bootstrap()
-                    switchStorageIfNeeded()
-                    didResolveInitialIdentity = true
+                    didResolveInitialIdentity = switchStorageIfNeeded()
                 }
-                .onChange(of: authStore.userID) { _, _ in switchStorageIfNeeded() }
+                .onChange(of: authStore.userID) { _, _ in
+                    didResolveInitialIdentity = false
+                    didResolveInitialIdentity = switchStorageIfNeeded()
+                }
         }
     }
 }

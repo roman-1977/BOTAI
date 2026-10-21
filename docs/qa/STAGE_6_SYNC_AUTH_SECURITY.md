@@ -37,7 +37,8 @@ Status: active. Server integration and account isolation are not accepted.
 ## Bootstrap privacy guard
 - Root UI is now gated behind initial auth bootstrap and identity-scoped repository selection; no study/material/course content is rendered while the initial session is unresolved.
 - The existing guest/legacy database is retained and not automatically claimed by authenticated accounts.
-- Full simulator suite is running (`/tmp/botai_stage6_bootstrap_suite.log`); live account-transition testing remains required.
+- Repository selection now reports success; root content stays hidden if an account-specific database fails to open, and identity changes hide the previous UI before rebinding.
+- Full simulator suite **50/50 passed, 0 failed, 0 skipped** (`Test-BOTAI-2026.10.21_18-07-12-+0300.xcresult`) on the bootstrap gate revision. Subsequent fail-closed handling builds successfully (`/tmp/botai_stage6_failclosed_build.log`); full regression on that latest handling and live account transitions remain required.
 
 ## Remaining
 1. Map local question IDs to real server Question and QuestionVersion IDs; then implement idempotent uploads, bounded retries and a durable cursor.
