@@ -99,7 +99,10 @@ struct BOTAIApp: App {
     var body: some Scene {
         WindowGroup {
             Group {
-                if didResolveInitialIdentity { RootTabView() }
+                if didResolveInitialIdentity {
+                    RootTabView()
+                        .id(LocalAccountStorage.directoryName(for: activeIdentity))
+                }
                 else { ProgressView() }
             }
                 .environment(learningStore)

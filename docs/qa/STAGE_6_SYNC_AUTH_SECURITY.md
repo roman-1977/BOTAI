@@ -48,6 +48,10 @@ Status: active. Server integration and account isolation are not accepted.
 - `LocalAccountStorage.directoryName(.guest)` now resolves to the existing legacy `BOTAI` directory (or `BOTAI-UITests` in UI testing). This avoids contradictory guest path definitions in runtime and migration helpers.
 - Added explicit unit assertions for both guest directory names. Full simulator regression **50/50 passed, 0 failed, 0 skipped** (`Test-BOTAI-2026.10.21_18-20-52-+0300.xcresult`).
 
+## Account navigation reset
+- Root tab navigation is now keyed by the active storage identity. On account switch, SwiftUI recreates the root view hierarchy rather than retaining the previous user's selected course, editing sheet, or navigation stack.
+- This is an additional defense alongside repository rebinding, not a substitute for live account-transition tests.
+
 ## Remaining
 1. Map local question IDs to real server Question and QuestionVersion IDs; then implement idempotent uploads, bounded retries and a durable cursor.
 2. Partition private local state by user identity and define guest-to-account migration.
