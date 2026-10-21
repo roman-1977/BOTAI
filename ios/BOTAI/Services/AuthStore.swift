@@ -13,6 +13,11 @@ final class AuthStore {
         userID.map { .authenticated($0) } ?? .guest
     }
 
+    static func isConfirmedMissingSession(_ error: Error) -> Bool {
+        guard let authError = error as? AuthError else { return false }
+        return authError == .sessionMissing
+    }
+
     func bootstrap() async {
         didFailBootstrap = false
         do {
@@ -20,17 +25,16 @@ final class AuthStore {
             userID = session.user.id
             isAuthenticated = true
             errorMessage = nil
-        } catch AuthError.sessionMissing {
-            // Only a confirmed missing session is safe to treat as guest.
-            userID = nil
-            isAuthenticated = false
-            errorMessage = nil
         } catch {
-            // Network, refresh and storage errors must not silently reveal guest content.
-            errorMessage = error.localizedDescription
-            isAuthenticated = false
             userID = nil
-            didFailBootstrap = true
+            isAuthenticated = false
+            if Self.isConfirmedMissingSession(error) {
+                errorMessage = nil
+            } else {
+                // Network, refresh and storage errors must not reveal guest content.
+                errorMessage = error.localizedDescription
+                didFailBootstrap = true
+            }
         }
     }
 

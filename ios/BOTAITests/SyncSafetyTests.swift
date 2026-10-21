@@ -1,8 +1,15 @@
 import Foundation
+import Supabase
 import Testing
 @testable import BOTAI
 
 struct SyncSafetyTests {
+    @Test @MainActor func onlyExplicitMissingSessionPermitsGuestBootstrap() {
+        #expect(AuthStore.isConfirmedMissingSession(AuthError.sessionMissing))
+        #expect(!AuthStore.isConfirmedMissingSession(URLError(.notConnectedToInternet)))
+        #expect(!AuthStore.isConfirmedMissingSession(NSError(domain: "storage", code: 1)))
+    }
+
     @Test func remoteRatingsPreserveAllThreeGrades() {
         #expect(SyncService.remoteResult(for: .again) == "incorrect")
         #expect(SyncService.remoteResult(for: .hard) == "hard")
