@@ -21,7 +21,7 @@ struct MaterialsHubView: View {
                 DigitalHubBackground()
                 ScrollView { VStack(spacing: 18) { scopePicker; if scope == 0 { personal } else { groups } }.padding(16) }
             }
-            .navigationTitle("Материалы").navigationBarTitleDisplayMode(.inline)
+            .navigationTitle("Материалы").navigationBarTitleDisplayMode(.inline).preferredColorScheme(.dark)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Закрыть") { dismiss() } }
                 ToolbarItem(placement: .primaryAction) { Button { addMaterial = true } label: { Image(systemName: "plus.circle.fill").font(.title2) }.accessibilityLabel("Добавить материал") }
