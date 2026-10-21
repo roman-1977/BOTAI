@@ -8,6 +8,7 @@ actor SyncService {
     private let repository: LearningRepository
     private let mappings: RemoteQuestionMappingRepository
     private var flushInFlight = false
+    private var pendingFlushQuestions: [StudyQuestion]?
 
     init(client: SupabaseClient = SupabaseProvider.client, repository: LearningRepository,
          mappings: RemoteQuestionMappingRepository) {
@@ -18,9 +19,21 @@ actor SyncService {
 
     func flush(questions: [StudyQuestion]) async {
         // A new coordinator is created per call; guard at the service boundary too.
-        guard !flushInFlight else { return }
+        if flushInFlight {
+            // Do not lose a sync request made while the previous upload is awaiting network IO.
+            pendingFlushQuestions = questions
+            return
+        }
         flushInFlight = true
-        defer { flushInFlight = false }
+        await performFlush(questions: questions)
+        while let queued = pendingFlushQuestions {
+            pendingFlushQuestions = nil
+            await performFlush(questions: queued)
+        }
+        flushInFlight = false
+    }
+
+    private func performFlush(questions: [StudyQuestion]) async {
         // Capture the actual authenticated Supabase identity, not a caller-supplied UUID.
         guard let originalUserID = try? await client.auth.session.user.id else { return }
         let accountCheck: @Sendable () async -> Bool = { [client] in
