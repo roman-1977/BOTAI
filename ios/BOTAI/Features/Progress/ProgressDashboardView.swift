@@ -1,9 +1,58 @@
 import SwiftUI
+
 struct ProgressDashboardView: View {
- var body:some View { NavigationStack { ScrollView { VStack(alignment:.leading,spacing:20){
-    HStack{ZStack{Circle().stroke(.secondary.opacity(0.15),lineWidth:10);Circle().trim(from:0,to:0.83).stroke(.blue,lineWidth:10).rotationEffect(.degrees(-90));Text("83%").bold()}.frame(width:105,height:105);VStack(alignment:.leading,spacing:6){Text("Уровень \(GameDemo.level)").font(.title.bold());Text("До нового уровня — 260 XP").foregroundStyle(.secondary);Label("\(GameDemo.streak) дня подряд",systemImage:"flame.fill").foregroundStyle(.orange)}}.frame(maxWidth:.infinity,alignment:.leading)
-    Text("Твои достижения").font(.title2.bold()); ForEach(Array(GameDemo.achievements.enumerated()),id:\.offset){_,a in HStack(spacing:14){Image(systemName:a.0).font(.title2).frame(width:50,height:50).background(.yellow.opacity(0.14),in:Circle());VStack(alignment:.leading){Text(a.1).font(.headline);Text(a.2).font(.caption).foregroundStyle(.secondary)};Spacer();Image(systemName:"checkmark.seal.fill").foregroundStyle(.green)}.padding().background(.thinMaterial,in:RoundedRectangle(cornerRadius:16))}
-    Text("Твои миры").font(.title2.bold()); ForEach(MVPDemoData.plans){p in VStack(alignment:.leading,spacing:8){HStack{Text(p.title).font(.headline);Spacer();Text("\(Int(p.progress*100))%").bold()};ProgressView(value:p.progress);Text(p.progress > 0.6 ? "Отлично идёшь!" : "Следующая миссия уже ждёт").font(.caption).foregroundStyle(.secondary)}.padding().background(.thinMaterial,in:RoundedRectangle(cornerRadius:16))}
-    Text("Последние победы").font(.title2.bold()); Label("+120 XP · Лаборатория кислот",systemImage:"sparkles"); Label("Новый рекорд: 7 правильных подряд",systemImage:"bolt.fill"); Label("+90 XP · Английский",systemImage:"star.fill")
- }.padding() }.navigationTitle("Мой путь") } }
+    @Environment(LearningStore.self) private var learning
+
+    private var analytics: LearningAnalytics { learning.analytics }
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    HStack(spacing: 16) {
+                        ZStack {
+                            Circle().stroke(.secondary.opacity(0.15), lineWidth: 10)
+                            Circle().trim(from: 0, to: CGFloat(learning.masteryPercent) / 100)
+                                .stroke(.blue, lineWidth: 10)
+                                .rotationEffect(.degrees(-90))
+                            Text("\(learning.masteryPercent)%").bold()
+                        }
+                        .frame(width: 105, height: 105)
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Освоение материала").font(.title3.bold())
+                            Text("\(analytics.totalAnswered) ответов · \(analytics.totalCorrect) верно")
+                            Text("\(learning.streak) дней подряд")
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                    Text("Статистика обучения").font(.title2.bold())
+                    LabeledContent("Точность", value: "\(Int((analytics.accuracy * 100).rounded()))%")
+                    LabeledContent("Время занятий", value: "\(analytics.totalSeconds / 60) мин")
+                    LabeledContent("Завершённых и начатых занятий", value: "\(analytics.sessions.count)")
+
+                    Text("Последние занятия").font(.title2.bold())
+                    if analytics.sessions.isEmpty {
+                        ContentUnavailableView("Занятий пока нет", systemImage: "chart.bar",
+                                               description: Text("Статистика появится после первого занятия."))
+                    } else {
+                        ForEach(analytics.sessions.sorted { $0.startedAt > $1.startedAt }.prefix(10)) { session in
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(session.startedAt, format: .dateTime.day().month().year())
+                                    .font(.headline)
+                                Text("\(session.answered) ответов · \(session.correct) верно · \(session.activeSeconds / 60) мин")
+                                    .foregroundStyle(.secondary)
+                            }
+                            .padding()
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 14))
+                        }
+                    }
+                }
+                .padding()
+            }
+            .navigationTitle("Мой путь")
+        }
+    }
 }
