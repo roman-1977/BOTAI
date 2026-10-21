@@ -18,6 +18,24 @@ private actor FakeAttemptBackend: BOTAIBackendAPI {
     }
 }
 
+private actor SuspendedAttemptBackend: BOTAIBackendAPI {
+    private var continuation: CheckedContinuation<Void, Never>?
+    private var didStart = false
+    func uploadAttempts(_ request: BOTAIUploadAttemptsRequest) async throws -> BOTAIUploadAttemptsResponse {
+        didStart = true
+        await withCheckedContinuation { continuation = $0 }
+        return .init(schemaVersion: 1, acknowledgedIDs: request.attempts.map(\.id))
+    }
+    func started() -> Bool { didStart }
+    func resume() { continuation?.resume(); continuation = nil }
+}
+
+private actor AccountGate {
+    private var active = true
+    func isActive() -> Bool { active }
+    func deactivate() { active = false }
+}
+
 struct AttemptSyncCoordinatorTests {
     private func setup(mapped: Bool) throws -> (LearningRepository, Attempt) {
         let database = try AppDatabase()
@@ -72,6 +90,26 @@ struct AttemptSyncCoordinatorTests {
         #expect(try await sync.flush() == 0)
         #expect(await backend.calls == 0)
         #expect(try learning.outboxCount() == 1)
+    }
+
+    @Test func accountChangesDuringNetworkRequestPreservesOutbox() async throws {
+        let (learning, _) = try setup(mapped: true)
+        let backend = SuspendedAttemptBackend()
+        let gate = AccountGate()
+        let sync = AttemptSyncCoordinator(backend: backend, repository: learning,
+            isCurrentAccount: { await gate.isActive() })
+        let operation = Task { try await sync.flush() }
+        // Wait for the fake network call to enter its suspended state.
+        for _ in 0..<1000 {
+            if await backend.started() { break }
+            await Task.yield()
+        }
+        #expect(await backend.started())
+        await gate.deactivate()
+        await backend.resume()
+        #expect(try await operation.value == 0)
+        #expect(try learning.outboxCount() == 1)
+        #expect(try learning.load().0.count == 1)
     }
 
     @Test func noAcknowledgementsPreserveQueue() async throws {
