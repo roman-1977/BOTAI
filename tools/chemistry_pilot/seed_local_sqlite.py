@@ -33,7 +33,7 @@ def main():
     for q in questions:
         assert len(q["choices"]) == 4
         assert next(c["text"] for c in q["choices"] if c["key"] == q["correct_choice"]) == q["answer"]
-        groups[(q["section"], q["topic"], q["knowledge_set"])].append(q)
+        groups[(q["section"], q["topic"], q["knowledge_set"], q["correct_choice"])].append(q)
     print("Validated", len(questions), "knowledge questions in", len(groups), "sets")
     if not args.apply:
         print("Preview only. No database modified.")
@@ -57,9 +57,9 @@ def main():
             # All deletes are deliberately scoped to learning data in the selected local account DB.
             for table in ("syncOutbox", "remoteQuestionMappings", "attempts", "learningStates", "studySessions", "courses", "studyProfile", "materialFields", "knowledgeRows", "questionRules", "materials"):
                 con.execute(f'DELETE FROM "{table}"')
-            for index, ((section, topic, name), rows) in enumerate(sorted(groups.items())):
-                mid, card_rule, choice_rule = uid("material:"+section+":"+topic+":"+name), uid("card:"+section+":"+topic+":"+name), uid("choice:"+section+":"+topic+":"+name)
-                con.execute("INSERT INTO materials(id,title,subject,topic,description,author,kind,source,createdAt,updatedAt) VALUES(?,?,?,?,?,?,?,?,?,?)", (mid,name,"Химия",topic,section,"BOTAI Pilot","quiz","created",ts,ts))
+            for index, ((section, topic, name, correct_letter), rows) in enumerate(sorted(groups.items())):
+                mid, card_rule, choice_rule = uid("material:"+section+":"+topic+":"+name+":"+correct_letter), uid("card:"+section+":"+topic+":"+name+":"+correct_letter), uid("choice:"+section+":"+topic+":"+name+":"+correct_letter)
+                con.execute("INSERT INTO materials(id,title,subject,topic,description,author,kind,source,createdAt,updatedAt) VALUES(?,?,?,?,?,?,?,?,?,?)", (mid,name+" ["+correct_letter+"]","Химия",topic,section,"BOTAI Pilot","quiz","created",ts,ts))
                 fields = ["question", "answer", "A", "B", "C", "D"]
                 for pos, key in enumerate(fields):
                     con.execute("INSERT INTO materialFields(id,materialID,key,title,position) VALUES(?,?,?,?,?)", (uid(mid+":field:"+key),mid,key,key,pos))
@@ -68,25 +68,26 @@ def main():
                     values.update({c["key"]:c["text"] for c in q["choices"]})
                     con.execute("INSERT INTO knowledgeRows(id,materialID,position,valuesJSON) VALUES(?,?,?,?)", (uid("row:"+q["id"]),mid,pos,json.dumps(values,ensure_ascii=False)))
                 card_answers = [{"template":"{1}","fieldKeys":["answer"],"correct":True}]
-                choice_answers = [{"template":"{1}","fieldKeys":[letter],"correct":letter == rows[0]["correct_choice"]} for letter in "ABCD"]
+                choice_answers = [{"template":"{1}","fieldKeys":[letter],"correct":letter == correct_letter} for letter in "ABCD"]
                 # If correct letters differ between rows, one rule cannot encode correctness.
                 # Split multiple-choice rules by answer key to keep all questions correct.
-                for rid, kind, ans in ((card_rule,"card",card_answers),):
+                for rid, kind, ans in ((card_rule,"card",card_answers),(choice_rule,"singleChoice",choice_answers)):
                     con.execute("INSERT INTO questionRules(id,materialID,kind,promptFieldKey,answerFieldKey,promptTemplate,promptFieldKeysJSON,answersJSON,showCorrectCount,enabled) VALUES(?,?,?,?,?,?,?,?,?,?)",
                                 (rid,mid,kind,"question","answer","{1}",json.dumps(["question"]),json.dumps(ans),0,1))
-                refs[(section,topic,name)] = {"materialID":mid,"ruleID":card_rule}
-                sections[section][topic].append(refs[(section,topic,name)])
+                refs[(section,topic,name,correct_letter,"card")] = {"materialID":mid,"ruleID":card_rule}
+                refs[(section,topic,name,correct_letter,"choice")] = {"materialID":mid,"ruleID":choice_rule}
+                sections[section][topic].extend([refs[(section,topic,name,correct_letter,"card")],refs[(section,topic,name,correct_letter,"choice")]])
             section_data = []
             for section, topics in sorted(sections.items()):
                 section_data.append({"id":uid("section:"+section),"title":section,"description":"","estimatedMinutes":None,"topics":[{"id":uid("topic:"+section+":"+topic),"title":topic,"questionSets":refs} for topic,refs in sorted(topics.items())]})
-            goal_refs = list(refs.values())
+            goal_refs = [ref for key, ref in refs.items() if key[-1] == "card"]
             deadline = dt.datetime(2026,12,31,23,59,59,tzinfo=dt.timezone.utc)
             course = {"id":uid("course"),"title":"ЕГЭ — Химия 2027","description":"Пилот адаптивного обучения: 323 знания, 31.12.2026","subject":"Химия","audience":"ЕГЭ","estimatedMinutes":None,"author":"BOTAI Pilot","language":"ru","coverSymbol":"flask.fill","source":"created","sections":section_data,"goals":[{"id":uid("goal"),"title":"Освоить 90% химии к 31 декабря","questionSets":goal_refs,"masteryTarget":90,"deadline":apple_date(deadline),"state":"active"}],"createdAt":apple_date(now),"updatedAt":apple_date(now)}
             con.execute("INSERT INTO courses(id,payloadJSON,updatedAt) VALUES(?,?,?)",(course["id"],json.dumps(course,ensure_ascii=False),ts))
             profile = {"defaultDailyMinutes":25,"customDays":[{"weekday":1,"minutes":0}],"updatedAt":apple_date(now)}
             con.execute("INSERT INTO studyProfile(id,payloadJSON,updatedAt) VALUES(1,?,?)",(json.dumps(profile),ts))
-        print("Seeded:",len(questions),"knowledge rows,",len(groups),"materials,",len(section_data),"sections; 1 active goal")
-        print("NOTE: card/reveal rules only; choice variants need row-specific correctness support in iOS domain.")
+        print("Seeded:",len(questions),"knowledge rows,",len(groups),"materials,",len(section_data),"sections; 2 assessment modes, 1 active goal")
+        print("Choice correctness is grouped by answer letter; both modes use the existing Swift rule model.")
     finally:
         con.close()
 
