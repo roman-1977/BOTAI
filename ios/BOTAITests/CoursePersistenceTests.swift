@@ -42,15 +42,22 @@ struct CoursePersistenceTests {
   let course = StudyCourse(id: UUID(), title: "Курс", description: "", subject: "", audience: "", estimatedMinutes: nil, author: nil, language: "Русский", coverSymbol: "book", source: .created, sections: [section], goals: [goal], createdAt: now, updatedAt: now)
   try repository.save(course)
   let store = CourseStore(repository: repository)
-  store.removeReferences(to: removed.materialID)
+  #expect(store.removeReferences(to: removed.materialID))
+  #expect(store.lastPersistenceError == nil)
   let loaded = try #require(repository.courses().first(where: { $0.id == course.id }))
   #expect(loaded.sections[0].topics[0].questionSets == [retained])
   #expect(loaded.goals[0].questionSets == [retained])
   #expect(loaded.goals[0].state == .active)
-  store.removeReferences(to: removed.materialID)
+  #expect(store.removeReferences(to: removed.materialID))
   let repeated = try #require(repository.courses().first(where: { $0.id == course.id }))
   #expect(repeated.sections[0].topics[0].questionSets == [retained])
   #expect(repeated.goals[0].questionSets == [retained])
+ }
+
+ @Test @MainActor func referenceCleanupWithoutDatabaseReportsFailure() {
+  let store = CourseStore()
+  #expect(!store.removeReferences(to: UUID()))
+  #expect(store.lastPersistenceError != nil)
  }
 
  @Test func legacyCourseWithoutGoalsDecodesToEmptyGoals() throws {
