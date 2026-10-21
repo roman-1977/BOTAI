@@ -19,6 +19,11 @@ Status: active. Server integration and account isolation are not accepted.
 - Added `LocalAccountStorageTests` to check distinct identities and UI-test isolation: **1/1 passed** (`Test-BOTAI-2026.10.21_17-51-53-+0300.xcresult`).
 - Namespace selection is NOT yet wired into `BOTAIApp`; the existing database path is deliberately unchanged until a safe legacy-data migration and auth-driven repository reopening are implemented.
 
+## Safe legacy database migration preparation
+- Added explicit-identity, non-destructive copy helper for checkpointed SQLite databases. It refuses WAL sidecars and refuses to overwrite an existing account database.
+- Three focused namespace/migration tests passed: source retained, destination never overwritten, WAL guard enforced (`Test-BOTAI-2026.10.21_17-54-50-+0300.xcresult`).
+- This is a migration primitive, **not** automatic account migration. The application still uses its existing database until ownership and repository switching are safely wired.
+
 ## Remaining
 1. Map local question IDs to real server Question and QuestionVersion IDs; then implement idempotent uploads, bounded retries and a durable cursor.
 2. Partition private local state by user identity and define guest-to-account migration.
