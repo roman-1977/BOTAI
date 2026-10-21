@@ -31,6 +31,29 @@ final class LearningRepository: @unchecked Sendable {
 
     func pendingOutbox() throws -> [OutboxRecord] { try database.dbQueue.read { try OutboxRecord.order(Column("createdAt")).fetchAll($0) } }
     func attempt(id: String) throws -> LocalAttemptRecord? { try database.dbQueue.read { try LocalAttemptRecord.fetchOne($0, key: id) } }
+
+    /// Build a server-ready batch from one consistent database snapshot.
+    /// Unmapped attempts stay pending and are never assigned fabricated remote IDs.
+    func mappedUploadBatch(now: Date = .now) throws -> BOTAIUploadAttemptsRequest {
+        try database.dbQueue.read { db in
+            let pending = try OutboxRecord.filter(Column("entityType") == "attempt")
+                .order(Column("createdAt")).fetchAll(db)
+            var uploads: [BOTAIUploadAttempt] = []
+            for item in pending {
+                guard item.nextRetryAt == nil || item.nextRetryAt! <= now else { continue }
+                guard let attempt = try LocalAttemptRecord.fetchOne(db, key: item.entityID),
+                      let id = UUID(uuidString: attempt.id),
+                      let mapping = try RemoteQuestionMapping.fetchOne(db, key: attempt.questionID),
+                      let remoteID = UUID(uuidString: mapping.remoteQuestionID),
+                      let remoteVersionID = UUID(uuidString: mapping.remoteQuestionVersionID),
+                      let rating = RecallRating(rawValue: attempt.rating) else { continue }
+                uploads.append(BOTAIUploadAttempt(id: id, questionID: remoteID,
+                    questionVersionID: remoteVersionID, occurredAt: attempt.occurredAt,
+                    result: SyncService.remoteResult(for: rating)))
+            }
+            return BOTAIUploadAttemptsRequest(attempts: uploads)
+        }
+    }
     func acknowledgeOutbox(id: String) throws { _ = try database.dbQueue.write { db in try OutboxRecord.deleteOne(db, key: id) } }
 
     /// Delete only attempt outbox events explicitly acknowledged by the server.
