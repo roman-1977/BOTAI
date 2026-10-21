@@ -47,7 +47,9 @@ import Observation
       lastPersistenceError = nil
     } catch { lastPersistenceError = error.localizedDescription }
   }
-  func removeReferences(to materialID: UUID) {
+  @discardableResult
+  func removeReferences(to materialID: UUID) -> Bool {
+    var firstError: String?
     for var course in courses {
       var changed = false
       for si in course.sections.indices {
@@ -62,8 +64,16 @@ import Observation
         course.goals[gi].questionSets.removeAll { $0.materialID == materialID }
         changed = changed || before != course.goals[gi].questionSets.count
       }
-      if changed { save(course) }
+      if changed {
+        save(course)
+        if firstError == nil { firstError = lastPersistenceError }
+      }
     }
     refresh()
+    if let firstError {
+      lastPersistenceError = firstError
+      return false
+    }
+    return lastPersistenceError == nil
   }
 }

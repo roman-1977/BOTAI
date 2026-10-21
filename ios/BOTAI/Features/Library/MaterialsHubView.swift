@@ -73,7 +73,7 @@ struct MaterialsHubView: View {
     }
 
     private func recordCard(_ m: StudyMaterialRecord) -> some View { HStack { Image(systemName:"tablecells").foregroundStyle(.mint); VStack(alignment:.leading,spacing:4){Text(m.title).font(.headline);if let d=m.description {Text(d).font(.caption).foregroundStyle(.white.opacity(0.62)).lineLimit(2)};if let tags=m.topic {Text(tags).font(.caption2).foregroundStyle(HomeTheme.accent)}};Spacer();Menu{Button("Удалить из библиотеки",role:.destructive){deleteRecord=m}}label:{Image(systemName:"ellipsis").padding(8)}.accessibilityLabel("Меню сохранённого материала") }.padding(13).background(.black.opacity(0.22),in:RoundedRectangle(cornerRadius:16)).foregroundStyle(.white).contentShape(Rectangle()).onTapGesture{selectedRecord=m} }
-    private func deleteSavedMaterial(_ m:StudyMaterialRecord){do{try store.delete(id:m.id);courses.removeReferences(to:m.id);deleteRecord=nil}catch{deleteError=error.localizedDescription}}
+    private func deleteSavedMaterial(_ m:StudyMaterialRecord){do{try store.delete(id:m.id);if !courses.removeReferences(to:m.id) { deleteError = courses.lastPersistenceError ?? "Не удалось обновить курсы" };deleteRecord=nil}catch{deleteError=error.localizedDescription}}
 
     private var groups: some View { VStack(spacing:14) { Text("Назначено преподавателем или родителем").font(.caption).foregroundStyle(.white.opacity(0.55)).frame(maxWidth:.infinity,alignment:.leading); ForEach(demo.groups) { g in VStack(alignment:.leading,spacing:10) { HStack { Image(systemName:"person.3.fill").foregroundStyle(.purple); VStack(alignment:.leading){Text(g.title).font(.headline);Text(g.owner).font(.caption).foregroundStyle(.white.opacity(0.55))};Spacer();Image(systemName:"lock.fill").foregroundStyle(.white.opacity(0.4)) }; Divider().overlay(.white.opacity(0.1)); Label(g.task,systemImage:"target").foregroundStyle(.mint); Text("\(g.materials) материалов · цель задаёт руководитель").font(.caption).foregroundStyle(.white.opacity(0.6)) }.padding(15).background(.white.opacity(0.05),in:RoundedRectangle(cornerRadius:18)).foregroundStyle(.white) } } }
 }
@@ -156,7 +156,7 @@ private struct SavedMaterialDetailView: View {
         }.padding(15).background(.white.opacity(0.055), in: RoundedRectangle(cornerRadius: 18)).overlay(RoundedRectangle(cornerRadius: 18).stroke(.cyan.opacity(0.2)))
     }
     private func exportMaterial() { do { exportURL=try store.exportPackage(id:material.id) } catch { deleteError=error.localizedDescription } }
-    private func deleteMaterial() { do { courses.removeReferences(to:material.id);try store.delete(id: material.id); dismiss() } catch { deleteError = error.localizedDescription } }
+    private func deleteMaterial() { do { try store.delete(id: material.id);if !courses.removeReferences(to:material.id) { deleteError = courses.lastPersistenceError ?? "Не удалось обновить курсы"; return };dismiss() } catch { deleteError = error.localizedDescription } }
     private func render(_ template: String, _ keys: [String], _ row: KnowledgeRow?) -> String { var x = template; for (i,k) in keys.enumerated() { x = x.replacingOccurrences(of: "{\(i+1)}", with: row?.values[k] ?? "—") }; return x }
 }
 
