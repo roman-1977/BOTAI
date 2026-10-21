@@ -62,4 +62,14 @@ Baseline date: 2026-10-21. Source revision at start: `69eb56d` (`main`).
 
 ## Execution log
 
-- 2026-10-21: Confirmed clean `main` at `69eb56d`, source/test inventory and available simulator/device list. Baseline build initiated; result recorded separately when complete.
+- 2026-10-21: Confirmed clean `main` at `69eb56d`, source/test inventory and available simulator/device list. Baseline Debug build for generic iOS Simulator PASSED (`xcodebuild -project ios/BOTAI.xcodeproj -scheme BOTAI -configuration Debug -destination "generic/platform=iOS Simulator" -derivedDataPath /tmp/botai_release_audit_derived CODE_SIGNING_ALLOWED=NO build`); 44.85 s, exit 0. AppIntents metadata warning is non-blocking. No test execution claimed.
+
+## Stage 1 acceptance
+
+- PASS: Repository status and baseline revision recorded.
+- PASS: Application/service and test-source inventory, dependencies and deployment target recorded.
+- PASS: Simulator and paired-device discovery recorded.
+- PASS: Baseline Debug simulator compilation verified.
+- PASS: Feature coverage matrix, release risks and stage gates documented.
+- NOT RUN: Unit/UI tests and real-device deployment; scheduled for stages 2 and 8 respectively.
+- Stage 1 is an inventory/diagnostic gate only; a green build is not a release approval.
