@@ -62,7 +62,15 @@ final class MaterialRepository: @unchecked Sendable {
     }
 
     private func freezePendingAttemptMappings(_ db: Database, localID: UUID) throws {
-        guard let mapping = try RemoteQuestionMapping.fetchOne(db, key: localID.uuidString) else { return }
+        guard let mapping = try RemoteQuestionMapping.fetchOne(db, key: localID.uuidString) else {
+            // Historical attempts without a published server version must never be
+            // assigned the newly edited card's mapping. Keep them locally for recovery.
+            try db.execute(sql: """
+                UPDATE attempts SET invalidatedBeforePublication = 1
+                WHERE questionID = ? AND remoteQuestionID IS NULL
+                """, arguments: [localID.uuidString])
+            return
+        }
         // Preserve the exact server version used by historical attempts before
         // invalidating the current card mapping on edit or deletion.
         try db.execute(sql: """

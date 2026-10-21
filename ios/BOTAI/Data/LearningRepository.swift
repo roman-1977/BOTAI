@@ -47,6 +47,7 @@ final class LearningRepository: @unchecked Sendable {
                 guard item.nextRetryAt == nil || item.nextRetryAt! <= now else { continue }
                 guard let attempt = try LocalAttemptRecord.fetchOne(db, key: item.entityID),
                       let id = UUID(uuidString: attempt.id),
+                      !attempt.invalidatedBeforePublication,
                       let remoteIDs = try resolvedRemoteIDs(for: attempt, in: db),
                       let remoteID = UUID(uuidString: remoteIDs.0),
                       let remoteVersionID = UUID(uuidString: remoteIDs.1),

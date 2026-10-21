@@ -61,6 +61,32 @@ struct RemoteQuestionMappingTests {
         #expect(stillOld.questionVersionID == oldVersion)
     }
 
+    @Test func unpublishedAttemptIsNotMisattributedAfterMaterialEdit() throws {
+        let database = try AppDatabase()
+        let materials = MaterialRepository(database: database)
+        let learning = LearningRepository(database: database)
+        let mappings = RemoteQuestionMappingRepository(database: database)
+        let materialID = UUID(), ruleID = UUID(), rowID = UUID()
+        let material = StudyMaterialRecord(id: materialID, title: "Тест", kind: .quiz,
+                                           source: .created, createdAt: .now, updatedAt: .now)
+        let rule = QuestionRule(id: ruleID, materialID: materialID, kind: .card,
+                                promptFieldKey: "name", answerFieldKey: "answer", enabled: true)
+        let row = KnowledgeRow(id: rowID, materialID: materialID, position: 0,
+                               values: ["name": "До", "answer": "Ответ"])
+        let localID = StudyQuestionBuilder.stableID(ruleID: ruleID, rowID: rowID)
+        try materials.save(material: material, fields: [], rows: [row], rules: [rule])
+        let attempt = Attempt(id: UUID(), questionID: localID, occurredAt: .now, rating: .good)
+        try learning.record(attempt, state: LearningState())
+        var edited = row
+        edited.values["name"] = "После"
+        try materials.save(material: material, fields: [], rows: [edited], rules: [rule])
+        try mappings.saveVerified(localQuestionID: localID,
+                                  remoteQuestionID: UUID(), remoteVersionID: UUID())
+        #expect(try learning.mappedUploadBatch().attempts.isEmpty)
+        #expect(try learning.outboxCount() == 1)
+        #expect(try learning.load().0.map(\.id) == [attempt.id])
+    }
+
     @Test func mappingDoesNotAlterExistingLearningAttempts() throws {
         let database = try AppDatabase()
         let learning = LearningRepository(database: database)

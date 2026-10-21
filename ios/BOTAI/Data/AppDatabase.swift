@@ -9,6 +9,7 @@ struct LocalAttemptRecord: Codable, FetchableRecord, PersistableRecord {
     let rating: String
     var remoteQuestionID: String? = nil
     var remoteVersionID: String? = nil
+    var invalidatedBeforePublication: Bool = false
 }
 
 struct LocalLearningStateRecord: Codable, FetchableRecord, PersistableRecord {
@@ -100,6 +101,11 @@ final class AppDatabase: @unchecked Sendable {
             try db.alter(table: "attempts") { t in
                 t.add(column: "remoteQuestionID", .text)
                 t.add(column: "remoteVersionID", .text)
+            }
+        }
+        migrator.registerMigration("v10_unpublished_attempt_invalidation") { db in
+            try db.alter(table: "attempts") { t in
+                t.add(column: "invalidatedBeforePublication", .boolean).notNull().defaults(to: false)
             }
         }
         return migrator
