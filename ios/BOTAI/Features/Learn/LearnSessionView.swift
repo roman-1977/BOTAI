@@ -308,12 +308,14 @@ struct LearnSessionView: View {
     activeQuestionSeconds = 0
   }
 
-  private func persistSession() { store.saveSession(.init(id:sessionID,startedAt:sessionStartedAt,endedAt:.now,activeSeconds:sessionActiveSeconds,answered:sessionAnswered,correct:sessionCorrect)) }
+  @discardableResult
+  private func persistSession() -> Bool {
+    store.saveSession(.init(id:sessionID,startedAt:sessionStartedAt,endedAt:.now,activeSeconds:sessionActiveSeconds,answered:sessionAnswered,correct:sessionCorrect))
+  }
   private func finishSession() {
     guard !store.questions.isEmpty, index < store.questions.count else { dismiss(); return }
     countQuestionTime()
-    persistSession()
-    guard store.lastPersistenceError == nil else {
+    guard persistSession() else {
       persistenceAlert = true
       return
     }

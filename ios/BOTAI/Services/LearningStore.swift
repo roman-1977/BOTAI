@@ -37,15 +37,17 @@ final class LearningStore {
         return QuizLearningStats(total:questions.count,learned:learned,attempts:a.count,known:known,hard:hard,again:again,today:a.filter{Calendar.current.isDateInToday($0.occurredAt)}.count)
     }
 
-    func saveSession(_ session: StudySession) {
-        guard session.answered > 0 || session.activeSeconds > 0 else { return }
+    @discardableResult
+    func saveSession(_ session: StudySession) -> Bool {
+        guard session.answered > 0 || session.activeSeconds > 0 else { return true }
         guard let repository else {
             lastPersistenceError = "Локальное хранилище недоступно"
-            return
+            return false
         }
         do { try repository.saveSession(session); lastPersistenceError = nil }
-        catch { lastPersistenceError = error.localizedDescription; return }
+        catch { lastPersistenceError = error.localizedDescription; return false }
         if let i=sessions.firstIndex(where:{$0.id == session.id}) { sessions[i]=session } else { sessions.append(session) }
+        return true
     }
     var analytics: LearningAnalytics { LearningAnalytics(sessions:sessions,attempts:attempts,states:states) }
     var knownCount:Int { states.values.filter{$0.masteryLevel == .known}.count }
