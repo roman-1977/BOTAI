@@ -167,8 +167,9 @@ struct GameHomeView: View {
           LinearGradient(
             colors: [HomeTheme.accent.opacity(0.9), .blue.opacity(0.88), .purple.opacity(0.7)],
             startPoint: .leading, endPoint: .trailing), in: RoundedRectangle(cornerRadius: 22))
-      }.buttonStyle(.plain).disabled(plan.questions.isEmpty).opacity(
-        plan.questions.isEmpty ? 0.45 : 1)
+      }.buttonStyle(.plain)
+        .disabled(plan.questions.isEmpty)
+        .accessibilityHint(plan.questions.isEmpty ? "Сначала выберите учебную цель" : "Начать занятия по плану")
       if plan.questions.isEmpty {
         Button(launchActionTitle) { coursesOpen = true }.buttonStyle(.bordered).tint(
           HomeTheme.accent)
