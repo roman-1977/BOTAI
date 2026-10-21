@@ -1,45 +1,39 @@
 # BOTAI implementation status
 
-Snapshot: 2026-10-01. This file distinguishes code that exists now from accepted target architecture.
+Snapshot: 2026-10-21. This describes the `refactor/v0.2.0` branch, not a released App Store build. The feature scope is frozen for v0.2.0: refactoring, reliability, UI consistency and regression testing only.
 
-## Implemented now
+## Implemented
 
-- SwiftUI iOS app generated from ios/project.yml with XcodeGen.
-- GRDB/SQLite migrations v1-v7.
-- Offline Material library with CSV/TSV and BOTAI Package v1 import/export.
-- Card, single-choice and multiple-choice generation with stable question IDs.
-- Attempts, LearningState, StudySessions and transactional Attempt sync outbox.
-- Persistent Courses, Sections, Topics, Learning Goals and StudyProfile.
-- Local DailyPlanner and study-session UI.
-- Material/Course/Goal deletion retains learning history; material deletion cleans live course references.
-- Partial Supabase auth, public-library/social/account-safety and Attempt-upload services.
+- SwiftUI iOS app built with XcodeGen (`ios/project.yml`), GRDB/SQLite local-first storage and migrations v1–v7.
+- Material library: CSV/TSV import, BOTAI Package v1 import/export, generated cards and single/multiple-choice questions.
+- Persistent attempts, learning states, study sessions, course/section/topic/goal hierarchy and study schedule.
+- Local daily planner, learning session, course and material management, progress views.
+- Account-scoped local database switching and an attempt-upload outbox through Supabase. This is **not** full bidirectional sync.
+- Refactor branch: storage errors surfaced to users rather than silently accepted; failed answers do not advance the session; failed final session saves keep the session open; deletion and reference cleanup errors are reported.
+- Shared dark palette across home, learning, courses, materials and profile; nonfunctional speed/mode and demo-material controls removed or clearly marked unavailable.
 
-## Partial / prototype
+## Partial / not production-complete
 
-- Repetition scheduling is a simple MVP heuristic, not the final scheduler.
-- Sync uploads Attempts but lacks full pull/reconciliation/cursor handling.
-- Course persistence is a JSON aggregate; schema evolution needs compatibility tests.
-- BOTAI Package v1 is a Material format; Course Package v2 is not implemented.
-- History retains stable question IDs but not display snapshots of deleted/renamed material/course/goal names.
+- The learning algorithm is an MVP scheduling heuristic.
+- Supabase attempt upload exists, but complete pull, reconciliation, sync cursors/tombstones, cross-device learning state and content sync are not complete.
+- Course data is stored as a JSON aggregate; migration compatibility needs more old-database fixtures.
+- Some demo fixtures and placeholder group/library content remain visible. They must not be mistaken for user data.
+- The root navigation is a home view with modal sections, not the four-tab information architecture described in `UI_SPEC.md`.
+- UI still contains tightly coupled views and hardcoded dimensions; Dynamic Type, VoiceOver, contrast and reduced-motion audits are outstanding.
+- Public library/classroom acquisition, Course Package v2 and AI exam are outside the current release scope.
 
-## Not implemented yet
+## v0.2.0 verification
 
-- Per-account private local database isolation and account-switch cleanup.
-- Complete multi-device sync and canonical LearningState reconciliation.
-- Sync cursors/tombstones and server-content cache lifecycle.
-- Course Package v2 and complete class/group acquisition.
-- Release-grade migration fixtures, package fuzz/size-limit tests, accessibility/localization hardening.
-- BOLDAI / AI exam.
+- The previous full simulator regression on commit `69fed32` passed **87 tests, 0 failures**.
+- Focused persistence tests on `786e520` passed **4 tests, 0 failures**.
+- Simulator installation and launch on iPhone 16 Pro Max (iOS 18.6) succeeded; a screenshot was captured, but **visual approval has not been completed**.
+- A fresh full regression for `786e520` was started; its result must be checked separately. Do not use the earlier result to claim that subsequent commits passed.
 
-## Current technical-debt priorities
+## Remaining acceptance gates
 
-1. Surface persistence failures instead of swallowing them with try? in user-visible write paths.
-2. Split LearnSessionView (541 lines at this snapshot) into smaller presentation components and a testable session model.
-3. Add migration-upgrade fixtures and malformed/oversized package security tests.
-4. Define retained historical metadata snapshots for long-term statistics after content deletion/rename.
-5. Finish account isolation before treating authentication as production-ready.
-6. Keep XcodeGen generation deterministic and avoid accidental generated-project diffs.
+1. Complete full regression on the final commit, including UI tests and launch/relaunch paths.
+2. Review rendered UI on compact and large devices, large text, accessibility and navigation.
+3. Exercise fresh install, failed storage, offline use, import/export, delete, account switch and sync recovery.
+4. Document residual limitations, freeze and tag the validated candidate; keep `main` unchanged until sign-off.
 
-## Validation baseline
-
-git diff --check must be clean. A generic iOS Simulator build must compile. Unit tests cover learning state, repositories, material cascade deletion, deletion/history invariants, table parsing, daily plan and study profile.
+See `docs/PRE_REFACTOR_AUDIT_2026-10-21.md` for the original audit and proposed architecture; its snapshot predates the branch changes above.
