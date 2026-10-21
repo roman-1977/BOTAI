@@ -42,7 +42,7 @@ Status: active. Server integration and account isolation are not accepted.
 
 ## Guest continuity
 - Returning to guest after sign-out now reopens the original legacy `BOTAI/learning.sqlite` (or `BOTAI-UITests`), instead of creating an empty `BOTAI-guest` database. Existing offline guest materials and attempts remain in their original location.
-- Authenticated UUID identities continue to use separate account-specific directories. Full regression for this additional change is pending.
+- Authenticated UUID identities continue to use separate account-specific directories. The full simulator suite for the preceding fail-closed revision passed **50/50** (`Test-BOTAI-2026.10.21_18-11-53-+0300.xcresult`); the guest continuity change itself still requires a fresh regression.
 
 ## Remaining
 1. Map local question IDs to real server Question and QuestionVersion IDs; then implement idempotent uploads, bounded retries and a durable cursor.
