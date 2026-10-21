@@ -6,20 +6,41 @@ import Supabase
 actor SyncService {
     private let client: SupabaseClient
     private let repository: LearningRepository
+    private let mappings: RemoteQuestionMappingRepository
     private var flushInFlight = false
 
-    init(client: SupabaseClient = SupabaseProvider.client, repository: LearningRepository) {
+    init(client: SupabaseClient = SupabaseProvider.client, repository: LearningRepository,
+         mappings: RemoteQuestionMappingRepository) {
         self.client = client
         self.repository = repository
+        self.mappings = mappings
     }
 
-    func flush() async {
+    func flush(questions: [StudyQuestion]) async {
         // A new coordinator is created per call; guard at the service boundary too.
         guard !flushInFlight else { return }
         flushInFlight = true
         defer { flushInFlight = false }
         // Capture the actual authenticated Supabase identity, not a caller-supplied UUID.
         guard let originalUserID = try? await client.auth.session.user.id else { return }
+        let accountCheck: @Sendable () async -> Bool = { [client] in
+            guard let currentID = try? await client.auth.session.user.id else { return false }
+            return currentID == originalUserID
+        }
+        // Only publish questions with durable pending attempts and known local content.
+        if let pending = try? repository.pendingOutbox() {
+            let ids = Set(pending.filter { $0.entityType == "attempt" }.compactMap {
+                try? repository.attempt(id: $0.entityID)?.questionID
+            })
+            let publisher = RemoteQuestionPublisher(client: client, mappings: mappings,
+                                                    isCurrentAccount: accountCheck)
+            for question in questions where ids.contains(question.id.uuidString) {
+                guard await accountCheck() else { return }
+                if (try? mappings.mapping(for: question.id)) == nil {
+                    _ = try? await publisher.publish(question)
+                }
+            }
+        }
         let backend = SupabaseBackendAPI(client: client)
         let coordinator = AttemptSyncCoordinator(backend: backend, repository: repository,
             isCurrentAccount: { [client] in

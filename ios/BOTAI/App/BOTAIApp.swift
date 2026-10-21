@@ -94,7 +94,7 @@ struct BOTAIApp: App {
             learningStore = LearningStore(repository: learningRepository)
             // Recreate sync with the exact database for the newly authenticated identity.
             // Guest mode never owns an authenticated sync service.
-            syncService = authStore.isAuthenticated ? SyncService(repository: learningRepository) : nil
+            syncService = authStore.isAuthenticated ? SyncService(repository: learningRepository, mappings: RemoteQuestionMappingRepository(database: database)) : nil
             materialStore = MaterialStore(repository: MaterialRepository(database: database))
             courseStore = CourseStore(repository: CourseRepository(database: database))
             studyProfileStore = StudyProfileStore(repository: StudyProfileRepository(database: database))
@@ -135,6 +135,11 @@ struct BOTAIApp: App {
                 .task {
                     await authStore.bootstrap()
                     didResolveInitialIdentity = !authStore.didFailBootstrap && switchStorageIfNeeded()
+                }
+                .onChange(of: learningStore.attempts.count) { _, _ in
+                    guard let syncService else { return }
+                    let questions = learningStore.questions
+                    Task { await syncService.flush(questions: questions) }
                 }
                 .onChange(of: authStore.userID) { _, _ in
                     didResolveInitialIdentity = false

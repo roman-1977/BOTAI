@@ -26,6 +26,7 @@
 		2A5ED9453153B12640FAC166 /* DailyPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 376F56258F82F144D8E84E66 /* DailyPlan.swift */; };
 		2CA8AE9A8B0E5F9057BD54DB /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = DB1185682DE012A34F4B8726 /* ZIPFoundation */; };
 		2D697125F33EEC8E69CF44B8 /* QuizAuthoringService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA5BF0C84057B447AE79E32 /* QuizAuthoringService.swift */; };
+		3007DAA982A30EDC29E9D31F /* RemoteQuestionPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F20494598FF6A3C5245BF7F /* RemoteQuestionPublisher.swift */; };
 		302CC06408F8DB6B1A315683 /* MVPDemoData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8EC75D93437F2936503D0BE /* MVPDemoData.swift */; };
 		33B28CE46001E7765281C1F2 /* LearningAnalyticsRegressionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A51D185C08B83B7A5AF0012 /* LearningAnalyticsRegressionTests.swift */; };
 		33DD3441187D8A9397F0DEA2 /* SyncSafetyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA3B7D3E6917484B885A19C /* SyncSafetyTests.swift */; };
@@ -144,6 +145,7 @@
 		376F56258F82F144D8E84E66 /* DailyPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyPlan.swift; sourceTree = "<group>"; };
 		3B699B3CE980DD812D06D996 /* MaterialsHubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaterialsHubView.swift; sourceTree = "<group>"; };
 		3BA88389CDE8AA15512F3501 /* StudyProfileRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyProfileRepository.swift; sourceTree = "<group>"; };
+		3F20494598FF6A3C5245BF7F /* RemoteQuestionPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteQuestionPublisher.swift; sourceTree = "<group>"; };
 		3FA3B7D3E6917484B885A19C /* SyncSafetyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncSafetyTests.swift; sourceTree = "<group>"; };
 		3FA5BF0C84057B447AE79E32 /* QuizAuthoringService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizAuthoringService.swift; sourceTree = "<group>"; };
 		3FD1DB3787A94308A54118B0 /* Courses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Courses.swift; sourceTree = "<group>"; };
@@ -426,6 +428,7 @@
 				8BDBEB068052A2E0BAAE393C /* PersonalQuizService.swift */,
 				25FA731CD7EB466A9BF618BE /* PublicLibraryStore.swift */,
 				3FA5BF0C84057B447AE79E32 /* QuizAuthoringService.swift */,
+				3F20494598FF6A3C5245BF7F /* RemoteQuestionPublisher.swift */,
 				77ED0A8A9275AF5DD61244E5 /* RemoteQuestionVerifier.swift */,
 				426462B56FD0EC9AF023D9F2 /* SocialService.swift */,
 				E15E81FC9BCB68D623474AAB /* StudyProfileStore.swift */,
@@ -671,6 +674,7 @@
 				4536E93EFE8DAD448151D032 /* QuizProgressView.swift in Sources */,
 				B041CC1EA11FFDB1EF541A27 /* QuizQuestionFactory.swift in Sources */,
 				9DA44409506C3105795A6622 /* RemoteQuestionMappingRepository.swift in Sources */,
+				3007DAA982A30EDC29E9D31F /* RemoteQuestionPublisher.swift in Sources */,
 				D23DB1E9F05A2CF7F4C406D8 /* RemoteQuestionVerifier.swift in Sources */,
 				A394EDF0F0E05976F65B1546 /* RootTabView.swift in Sources */,
 				0ED1DD8B73BC23FBBB1859A4 /* SocialService.swift in Sources */,
