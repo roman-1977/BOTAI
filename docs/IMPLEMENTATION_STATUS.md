@@ -25,9 +25,10 @@ Snapshot: 2026-10-21. This describes the `refactor/v0.2.0` branch, not a release
 ## v0.2.0 verification
 
 - Full iPhone 16 Pro Max / iOS 18.6 simulator regressions on commits `786e520`, `0a5584e` and `8f4c9bd` each passed **87 tests, 0 failures**, including UI tests.
-- The full regression on code commit `c4d07b0` passed **87 tests, 0 failures**, including UI tests. Subsequent commit `67288de` changed documentation only.
+- The full regression on code commit `c4d07b0` passed **87 tests, 0 failures**, including UI tests. A new full regression on `0e867a3` is running; its outcome is not yet confirmed.
 - Debug simulator builds and installs succeeded. The home screen was visually reviewed at standard and Accessibility Medium text sizes.
 - A large-text layout issue was reproduced (truncated study button and crowded metric labels), fixed in `c4d07b0`, and the corrected screen was captured and reviewed at Accessibility Medium.
+- The home screen was also inspected on the smaller iPhone 16e at default and Accessibility Medium sizes. A clipped daily-plan heading was found and fixed in `0e867a3`; the updated compact-device screenshot confirmed the complete heading and repositioned progress ring. At accessibility sizes, the goal selection control is below the fold but remains reachable by scrolling.
 - VoiceOver descriptions were added for session progress rings, but a full screen-reader walkthrough has not been performed.
 - UI review is **partial**, not final: other sections, compact devices, further accessibility sizes and contrast/reduced-motion settings remain to be examined.
 
