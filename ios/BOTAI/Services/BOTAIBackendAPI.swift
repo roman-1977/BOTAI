@@ -33,4 +33,5 @@ struct BOTAIUploadAttemptsResponse: Codable, Sendable, Equatable {
 enum BOTAIBackendError: Error, Equatable {
     case missingServerQuestionMapping
     case incompatibleSchemaVersion
+    case invalidAcknowledgement
 }
