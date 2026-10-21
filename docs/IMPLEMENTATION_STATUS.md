@@ -24,10 +24,12 @@ Snapshot: 2026-10-21. This describes the `refactor/v0.2.0` branch, not a release
 
 ## v0.2.0 verification
 
-- The previous full simulator regression on commit `69fed32` passed **87 tests, 0 failures**.
-- Focused persistence tests on `786e520` passed **4 tests, 0 failures**.
-- Simulator installation and launch on iPhone 16 Pro Max (iOS 18.6) succeeded; a screenshot was captured, but **visual approval has not been completed**.
-- A fresh full regression for `786e520` was started; its result must be checked separately. Do not use the earlier result to claim that subsequent commits passed.
+- Full iPhone 16 Pro Max / iOS 18.6 simulator regressions on commits `786e520`, `0a5584e` and `8f4c9bd` each passed **87 tests, 0 failures**, including UI tests.
+- The full regression on the current code commit `c4d07b0` is running; do not count it as passed until the result bundle is complete.
+- Debug simulator builds and installs succeeded. The home screen was visually reviewed at standard and Accessibility Medium text sizes.
+- A large-text layout issue was reproduced (truncated study button and crowded metric labels), fixed in `c4d07b0`, and the corrected screen was captured and reviewed at Accessibility Medium.
+- VoiceOver descriptions were added for session progress rings, but a full screen-reader walkthrough has not been performed.
+- UI review is **partial**, not final: other sections, compact devices, further accessibility sizes and contrast/reduced-motion settings remain to be examined.
 
 ## Remaining acceptance gates
 
