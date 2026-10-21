@@ -8,6 +8,7 @@ struct BOTAIApp: App {
     @State private var materialStore: MaterialStore
     @State private var courseStore: CourseStore
     @State private var studyProfileStore: StudyProfileStore
+    @State private var activeIdentity: LocalAccountStorage.Identity = .guest
 
     init() {
         var materialRepository: MaterialRepository?
@@ -67,5 +68,43 @@ struct BOTAIApp: App {
         }
     }
 
-    var body: some Scene { WindowGroup { RootTabView().environment(learningStore).environment(authStore).environment(materialStore).environment(courseStore).environment(studyProfileStore).task { await authStore.bootstrap() } } }
+    @MainActor
+    private func switchStorageIfNeeded() {
+        let identity = authStore.localIdentity
+        guard identity != activeIdentity else { return }
+        guard let support = try? FileManager.default.url(
+            for: .applicationSupportDirectory, in: .userDomainMask,
+            appropriateFor: nil, create: true
+        ) else { return }
+        let uiTesting = ProcessInfo.processInfo.arguments.contains("-botai-ui-testing")
+        let folder = LocalAccountStorage.directory(for: identity, support: support, uiTesting: uiTesting)
+        do {
+            try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+            let database = try AppDatabase(path: folder.appendingPathComponent("learning.sqlite").path)
+            // Replace all stores together so no authenticated identity sees another account's data.
+            learningStore = LearningStore(repository: LearningRepository(database: database))
+            materialStore = MaterialStore(repository: MaterialRepository(database: database))
+            courseStore = CourseStore(repository: CourseRepository(database: database))
+            studyProfileStore = StudyProfileStore(repository: StudyProfileRepository(database: database))
+            activeIdentity = identity
+        } catch {
+            assertionFailure("Unable to open identity-scoped storage: \(error)")
+        }
+    }
+
+    var body: some Scene {
+        WindowGroup {
+            RootTabView()
+                .environment(learningStore)
+                .environment(authStore)
+                .environment(materialStore)
+                .environment(courseStore)
+                .environment(studyProfileStore)
+                .task {
+                    await authStore.bootstrap()
+                    switchStorageIfNeeded()
+                }
+                .onChange(of: authStore.userID) { _, _ in switchStorageIfNeeded() }
+        }
+    }
 }

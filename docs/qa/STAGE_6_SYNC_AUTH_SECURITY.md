@@ -29,6 +29,11 @@ Status: active. Server integration and account isolation are not accepted.
 - Sign-out clears identity **only after successful server sign-out**; failure leaves the current identity intact and exposes an error instead of silently claiming success.
 - Simulator Debug build succeeded (`/tmp/botai_stage6_auth_build.log`). Repository rebinding is still pending, so this does not yet constitute account isolation.
 
+## Runtime repository switching (under regression)
+- `BOTAIApp` now watches the authenticated user UUID and reopens all four repositories together in an identity-scoped SQLite directory. It does not automatically claim legacy data for any signed-in account.
+- The old unscoped database remains the initial guest/legacy store; explicit migration and bootstrap privacy handling still require acceptance tests.
+- Simulator build succeeded (`/tmp/botai_stage6_switch_build.log`). Full regression suite started; do not consider runtime isolation accepted until the results and transitions are verified.
+
 ## Remaining
 1. Map local question IDs to real server Question and QuestionVersion IDs; then implement idempotent uploads, bounded retries and a durable cursor.
 2. Partition private local state by user identity and define guest-to-account migration.
