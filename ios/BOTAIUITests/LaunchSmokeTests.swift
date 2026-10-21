@@ -151,6 +151,22 @@ final class LaunchSmokeTests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Освоить проверку"].waitForExistence(timeout: 10))
         app.buttons["Начать"].tap()
         XCTAssertTrue(app.staticTexts["Активная"].waitForExistence(timeout: 10))
+        app.buttons["Пауза"].tap()
+        XCTAssertTrue(app.staticTexts["На паузе"].waitForExistence(timeout: 10))
+        app.buttons["Продолжить"].tap()
+        XCTAssertTrue(app.staticTexts["Активная"].waitForExistence(timeout: 10))
+        app.terminate()
+        app.launchArguments = ["-botai-ui-testing"]
+        app.launch()
+        let reopenedCourses = app.buttons["Мои курсы"]
+        XCTAssertTrue(reopenedCourses.waitForExistence(timeout: 20))
+        reopenedCourses.tap()
+        let reopenedCourse = app.staticTexts["Курс с разделом"]
+        XCTAssertTrue(reopenedCourse.waitForExistence(timeout: 10))
+        reopenedCourse.tap()
+        app.buttons["Цели"].tap()
+        XCTAssertTrue(app.staticTexts["Освоить проверку"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["Активная"].waitForExistence(timeout: 10))
     }
 
     func testSelectBOTAIFileAndImportIntoLibrary() throws {
