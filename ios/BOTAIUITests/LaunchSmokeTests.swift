@@ -25,6 +25,23 @@ final class LaunchSmokeTests: XCTestCase {
         XCTAssertTrue(app.staticTexts["ПЛАН НА СЕГОДНЯ"].waitForExistence(timeout: 20))
     }
 
+    func testImportSourceOptionsAreAvailable() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-botai-ui-testing", "-botai-reset-ui-test-data"]
+        app.launch()
+        let materials = app.buttons["Материалы"]
+        XCTAssertTrue(materials.waitForExistence(timeout: 20))
+        materials.tap()
+        let add = app.buttons["Добавить материал"]
+        XCTAssertTrue(add.waitForExistence(timeout: 10))
+        add.tap()
+        let importTable = app.buttons["Импортировать таблицу"]
+        let importPackage = app.buttons["Импортировать BOTAI"]
+        XCTAssertTrue(importTable.waitForExistence(timeout: 10))
+        XCTAssertTrue(importPackage.exists)
+        XCTAssertTrue(importPackage.isHittable)
+    }
+
     func testMaterialsLibraryOpens() throws {
         let app = XCUIApplication()
         app.launchArguments = ["-botai-ui-testing", "-botai-reset-ui-test-data"]

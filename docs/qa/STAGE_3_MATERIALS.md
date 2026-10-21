@@ -47,3 +47,10 @@ Date: 2026-10-21.
 - Verified manifest metadata, question sets, image field type, and row data survive export/import.
 - Simulator suite: **25 unit tests and 3 UI tests passed**, `Test-BOTAI-2026.10.21_16-05-15-+0300.xcresult`.
 - Still needed: system document-picker UI workflow, malformed archive fixtures, and repository-level imported media persistence.
+
+## Import source UI smoke (2026-10-21)
+
+- Added accessible labels for the library add button and the CSV/TSV and BOTAI import source actions.
+- New simulator UI test confirms the user can navigate from home to materials and access both import options.
+- The initial attempt to assert a localized system file picker UI was unreliable; **picker presentation and file selection are not yet covered**. This is explicitly outstanding.
+- Full simulator suite: **25 unit tests and 4 UI tests passed**, `/tmp/botai_stage3_sources.log`.
