@@ -82,6 +82,16 @@ struct PackageSafetyTests {
         }
     }
 
+    @Test func missingPackageFileIsRejectedWithoutCreatingIt() throws {
+        let fm = FileManager.default
+        let folder = fm.temporaryDirectory.appendingPathComponent("botai-missing-package-" + UUID().uuidString)
+        let archive = folder.appendingPathComponent("missing.botai")
+        defer { try? fm.removeItem(at: folder) }
+        #expect(throws: Error.self) { try BOTAIPackageService.read(archive) }
+        #expect(!fm.fileExists(atPath: archive.path))
+        #expect(!fm.fileExists(atPath: folder.path))
+    }
+
     @Test func truncatedArchiveIsRejected() throws {
         let fm = FileManager.default
         let root = fm.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
