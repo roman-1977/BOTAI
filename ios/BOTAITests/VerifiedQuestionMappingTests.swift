@@ -15,7 +15,7 @@ struct VerifiedQuestionMappingTests {
     @Test func inaccessiblePairDoesNotPersist() async throws {
         let repository = RemoteQuestionMappingRepository(database: try AppDatabase())
         let local = UUID()
-        let service = VerifiedQuestionMappingService(lookup: FakePairLookup(visible: false, fails: false), repository: repository)
+        let service = VerifiedQuestionMappingService(lookup: FakePairLookup(visible: false, fails: false), repository: repository, isCurrentAccount: { true })
         #expect(try await service.verifyAndSave(localQuestionID: local, remoteQuestionID: UUID(), remoteVersionID: UUID()) == false)
         #expect(try repository.mapping(for: local) == nil)
     }
@@ -23,20 +23,35 @@ struct VerifiedQuestionMappingTests {
     @Test func serverFailureDoesNotPersist() async throws {
         let repository = RemoteQuestionMappingRepository(database: try AppDatabase())
         let local = UUID()
-        let service = VerifiedQuestionMappingService(lookup: FakePairLookup(visible: false, fails: true), repository: repository)
+        let service = VerifiedQuestionMappingService(lookup: FakePairLookup(visible: false, fails: true), repository: repository, isCurrentAccount: { true })
         await #expect(throws: BOTAIBackendError.missingServerQuestionMapping) {
             try await service.verifyAndSave(localQuestionID: local, remoteQuestionID: UUID(), remoteVersionID: UUID())
         }
         #expect(try repository.mapping(for: local) == nil)
     }
 
+    @Test func accountChangePreventsPersistence() async throws {
+        let repository = RemoteQuestionMappingRepository(database: try AppDatabase())
+        let local = UUID()
+        let state = AccountCheckState()
+        let service = VerifiedQuestionMappingService(lookup: FakePairLookup(visible: true, fails: false),
+            repository: repository, isCurrentAccount: { await state.check() })
+        #expect(try await service.verifyAndSave(localQuestionID: local, remoteQuestionID: UUID(), remoteVersionID: UUID()) == false)
+        #expect(try repository.mapping(for: local) == nil)
+    }
+
     @Test func visiblePairPersists() async throws {
         let repository = RemoteQuestionMappingRepository(database: try AppDatabase())
         let local = UUID(), question = UUID(), version = UUID()
-        let service = VerifiedQuestionMappingService(lookup: FakePairLookup(visible: true, fails: false), repository: repository)
+        let service = VerifiedQuestionMappingService(lookup: FakePairLookup(visible: true, fails: false), repository: repository, isCurrentAccount: { true })
         #expect(try await service.verifyAndSave(localQuestionID: local, remoteQuestionID: question, remoteVersionID: version))
         let saved = try #require(try repository.mapping(for: local))
         #expect(saved.remoteQuestionID == question.uuidString)
         #expect(saved.remoteQuestionVersionID == version.uuidString)
     }
+}
+
+private actor AccountCheckState {
+    private var checks = 0
+    func check() -> Bool { checks += 1; return checks == 1 }
 }

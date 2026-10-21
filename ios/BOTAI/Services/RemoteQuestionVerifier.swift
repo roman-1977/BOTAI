@@ -28,12 +28,16 @@ struct SupabaseQuestionPairLookup: RemoteQuestionPairLookup {
 struct VerifiedQuestionMappingService: Sendable {
     let lookup: any RemoteQuestionPairLookup
     let repository: RemoteQuestionMappingRepository
+    let isCurrentAccount: @Sendable () async -> Bool
 
     /// Persistence occurs only after a server-confirmed, RLS-visible pair.
     func verifyAndSave(localQuestionID: UUID, remoteQuestionID: UUID, remoteVersionID: UUID) async throws -> Bool {
+        guard await isCurrentAccount() else { return false }
         guard try await lookup.isVisiblePair(questionID: remoteQuestionID, versionID: remoteVersionID) else {
             return false
         }
+        // An auth change while the network request was suspended invalidates the lookup.
+        guard await isCurrentAccount() else { return false }
         try repository.saveVerified(localQuestionID: localQuestionID,
                                     remoteQuestionID: remoteQuestionID, remoteVersionID: remoteVersionID)
         return true
