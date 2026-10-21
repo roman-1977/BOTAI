@@ -16,6 +16,7 @@ enum HomeTheme {
 }
 
 struct GameHomeView: View {
+  @Environment(\.dynamicTypeSize) private var dynamicTypeSize
   @Environment(LearningStore.self) private var learning
   @Environment(MaterialStore.self) private var materials
   @Environment(CourseStore.self) private var courses
@@ -142,11 +143,19 @@ struct GameHomeView: View {
     }.padding(16).homeCard()
   }
   private var progressCard: some View {
-    HStack(spacing: 8) {
-      HomeMetric(value: "\(learning.masteryPercent)%", label: "ОСВОЕНО")
-      HomeMetric(value: "\(learning.dueCount)", label: "ПОВТОРИТЬ")
-      HomeMetric(value: timeText(learning.analytics.totalSeconds), label: "ВСЕГО")
+    Group {
+      if dynamicTypeSize.isAccessibilitySize {
+        VStack(spacing: 8) { progressMetrics }
+      } else {
+        HStack(spacing: 8) { progressMetrics }
+      }
     }.padding(12).homeCard()
+  }
+  @ViewBuilder
+  private var progressMetrics: some View {
+    HomeMetric(value: "\(learning.masteryPercent)%", label: "ОСВОЕНО")
+    HomeMetric(value: "\(learning.dueCount)", label: "ПОВТОРИТЬ")
+    HomeMetric(value: timeText(learning.analytics.totalSeconds), label: "ВСЕГО")
   }
   private var launch: some View {
     VStack(spacing: 9) {
@@ -158,12 +167,12 @@ struct GameHomeView: View {
             width: 52, height: 52
           ).background(.white.opacity(0.16), in: Circle())
           VStack(alignment: .leading, spacing: 3) {
-            Text("УЧИТЬСЯ СЕГОДНЯ").font(.headline)
-            Text(launchSubtitle).font(.caption).opacity(0.72)
+            Text("УЧИТЬСЯ СЕГОДНЯ").font(.headline).lineLimit(2)
+            Text(launchSubtitle).font(.caption).opacity(0.72).lineLimit(3)
           }
           Spacer()
           Image(systemName: "chevron.right")
-        }.foregroundStyle(.white).padding(.horizontal, 14).frame(height: 78).background(
+        }.foregroundStyle(.white).padding(.horizontal, 14).frame(minHeight: 78).padding(.vertical, 6).background(
           LinearGradient(
             colors: [HomeTheme.accent.opacity(0.9), .blue.opacity(0.88), .purple.opacity(0.7)],
             startPoint: .leading, endPoint: .trailing), in: RoundedRectangle(cornerRadius: 22))
@@ -248,7 +257,7 @@ private struct HomeMetric: View {
   var body: some View {
     VStack(spacing: 4) {
       Text(value).font(.headline.bold()).foregroundStyle(.white)
-      Text(label).font(.caption2.weight(.semibold)).foregroundStyle(HomeTheme.accent)
+      Text(label).font(.caption2.weight(.semibold)).foregroundStyle(HomeTheme.accent).minimumScaleFactor(0.8).lineLimit(2)
     }.frame(maxWidth: .infinity, minHeight: 58).background(
       .black.opacity(0.2), in: RoundedRectangle(cornerRadius: 12))
   }
