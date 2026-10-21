@@ -75,8 +75,15 @@ Status: active. Server integration and account isolation are not accepted.
 - Added `RemoteQuestionMappingRepository`; it never derives remote IDs from local IDs. The caller must validate remote IDs against authoritative server content before storing them. No automatic sync is enabled.
 - Full serial regression for the API adapter baseline **55/55 passed, 0 failed, 0 skipped** (`Test-BOTAI-2026.10.21_19-11-35-+0300.xcresult`). Focused new mapping persistence test **1/1 passed** (`Test-BOTAI-2026.10.21_19-15-58-+0300.xcresult`). Full suite including the mapping test is still pending.
 
+## Safe attempt upload pipeline (2026-10-21)
+- `SyncAcknowledgement` rejects duplicate, unknown and version-incompatible server acknowledgements. Four focused tests passed; full serial suite **61/61 passed** (`Test-BOTAI-2026.10.21_19-25-07-+0300.xcresult`).
+- `LearningRepository.acknowledgeUploadedAttempts` deletes only confirmed attempt outbox events within a transaction, never learning history. Focused test passed.
+- `LearningRepository.mappedUploadBatch` reads a consistent local snapshot, skips unmapped attempts and respects retry timestamps. Focused test passed. `RemoteQuestionMappingRepository.saveVerified` must only be called after authoritative remote validation; current method does not itself contact the server.
+- `AttemptSyncCoordinator` joins batch preparation, `BOTAIBackendAPI.uploadAttempts` and ACK processing in an actor; five fake-backend tests passed (`Test-BOTAI-2026.10.21_19-35-03-+0300.xcresult`). It is not yet invoked by the app's production `SyncService`.
+- **Network uploads remain disabled in `SupabaseBackendAPI` for nonempty batches.** A fake backend proves client behavior only, not real RLS, identity ownership, server mappings or production upload safety. The account-scoped app lifecycle must not start a coordinator for a stale identity.
+
 ## Remaining
-1. Map local question IDs to real server Question and QuestionVersion IDs; then implement idempotent uploads, bounded retries and a durable cursor.
-2. Partition private local state by user identity and define guest-to-account migration.
-3. Validate auth bootstrap, sign-out, account switching, and cross-user RLS with an actual backend.
-4. Run full regression suite and physical-device checks.
+1. Verify remote Question and QuestionVersion IDs against the authenticated server and account; implement real idempotent uploads, bounded retries and a durable cursor.
+2. Complete optional, explicit guest-to-account migration without assuming ownership of legacy data; per-identity SQLite partitioning already exists.
+3. Bind sync execution to a stable authenticated identity, reject stale-account results, and validate sign-in, sign-out, switching and cross-user RLS against a live backend.
+4. Complete current full regression suite and physical-device checks.
