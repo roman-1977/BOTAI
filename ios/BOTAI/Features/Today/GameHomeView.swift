@@ -86,29 +86,47 @@ struct GameHomeView: View {
     }.padding(.top, 8)
   }
   private var todayCard: some View {
-    VStack(alignment: .leading, spacing: 12) {
-      HStack {
-        VStack(alignment: .leading, spacing: 4) {
-          Text("ПЛАН НА СЕГОДНЯ").font(.caption.bold()).foregroundStyle(HomeTheme.accent)
-          Text(
-            plan.budgetMinutes == 0
-              ? "Сегодня день отдыха" : "\(plan.budgetMinutes) минут на обучение"
-          ).font(.title2.bold()).foregroundStyle(.white)
-          Text(
-            plan.goals.isEmpty ? emptyPlanText : "BOTAI распределил время между текущими целями."
-          ).font(.caption).foregroundStyle(HomeTheme.muted)
+    Group {
+      if dynamicTypeSize.isAccessibilitySize {
+        VStack(alignment: .leading, spacing: 12) {
+          todayDetails
+          HStack {
+            Spacer()
+            todayProgressRing
+          }
         }
-        Spacer()
-        ZStack {
-          Circle().stroke(.white.opacity(0.1), lineWidth: 8)
-          Circle().trim(
-            from: 0, to: min(1, Double(todayMinutes) / Double(max(1, plan.budgetMinutes)))
-          ).stroke(HomeTheme.accent, style: StrokeStyle(lineWidth: 8, lineCap: .round))
-            .rotationEffect(.degrees(-90))
-          Text("\(todayMinutes)").font(.headline.bold()).foregroundStyle(.white)
-        }.frame(width: 70, height: 70)
+      } else {
+        HStack(spacing: 12) {
+          todayDetails
+          Spacer(minLength: 0)
+          todayProgressRing
+        }
       }
     }.padding(16).homeCard()
+  }
+  private var todayDetails: some View {
+    VStack(alignment: .leading, spacing: 4) {
+      Text("ПЛАН НА СЕГОДНЯ").font(.caption.bold()).foregroundStyle(HomeTheme.accent)
+      Text(
+        plan.budgetMinutes == 0
+          ? "Сегодня день отдыха" : "\(plan.budgetMinutes) минут на обучение"
+      ).font(.title2.bold()).foregroundStyle(.white).fixedSize(horizontal: false, vertical: true)
+      Text(
+        plan.goals.isEmpty ? emptyPlanText : "BOTAI распределил время между текущими целями."
+      ).font(.caption).foregroundStyle(HomeTheme.muted)
+    }
+  }
+  private var todayProgressRing: some View {
+    ZStack {
+      Circle().stroke(.white.opacity(0.1), lineWidth: 8)
+      Circle().trim(
+        from: 0, to: min(1, Double(todayMinutes) / Double(max(1, plan.budgetMinutes)))
+      ).stroke(HomeTheme.accent, style: StrokeStyle(lineWidth: 8, lineCap: .round))
+        .rotationEffect(.degrees(-90))
+      Text("\(todayMinutes)").font(.headline.bold()).foregroundStyle(.white)
+    }.frame(width: 70, height: 70)
+      .accessibilityElement(children: .ignore)
+      .accessibilityLabel("Сегодня изучено \(todayMinutes) из \(plan.budgetMinutes) минут")
   }
   private var goalsCard: some View {
     VStack(alignment: .leading, spacing: 11) {
