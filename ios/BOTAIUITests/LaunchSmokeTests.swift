@@ -98,6 +98,43 @@ final class LaunchSmokeTests: XCTestCase {
         XCTAssertFalse(app.staticTexts["Курс для проверки новый"].exists)
     }
 
+    func testCancelSectionEditingKeepsOriginalTitleAfterRelaunch() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-botai-ui-testing", "-botai-reset-ui-test-data"]
+        app.launch()
+        XCTAssertTrue(app.buttons["Мои курсы"].waitForExistence(timeout: 20))
+        app.buttons["Мои курсы"].tap()
+        app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Создать курс")).firstMatch.tap()
+        let title = app.textFields["ЕГЭ Химия 2027"]
+        title.tap()
+        title.typeText("Курс разделов")
+        app.buttons["Создать"].tap()
+        app.staticTexts["Курс разделов"].tap()
+        app.buttons["Добавить раздел"].tap()
+        let section = app.textFields["Неорганическая химия"]
+        section.tap()
+        section.typeText("Исходный раздел")
+        app.buttons["Добавить"].tap()
+        XCTAssertTrue(app.staticTexts["Исходный раздел"].waitForExistence(timeout: 10))
+        app.staticTexts["Исходный раздел"].tap()
+        app.buttons["Изменить раздел"].tap()
+        let edited = app.textFields["Исходный раздел"]
+        XCTAssertTrue(edited.waitForExistence(timeout: 10))
+        edited.tap()
+        edited.typeText(" изменён")
+        app.buttons["Отмена"].tap()
+        XCTAssertTrue(app.staticTexts["Исходный раздел"].waitForExistence(timeout: 10))
+        XCTAssertFalse(app.staticTexts["Исходный раздел изменён"].exists)
+        app.terminate()
+        app.launchArguments = ["-botai-ui-testing"]
+        app.launch()
+        XCTAssertTrue(app.buttons["Мои курсы"].waitForExistence(timeout: 20))
+        app.buttons["Мои курсы"].tap()
+        app.staticTexts["Курс разделов"].tap()
+        XCTAssertTrue(app.staticTexts["Исходный раздел"].waitForExistence(timeout: 10))
+        XCTAssertFalse(app.staticTexts["Исходный раздел изменён"].exists)
+    }
+
     func testCreateCourseSectionTopicAndGoal() throws {
         let app = XCUIApplication()
         app.launchArguments = ["-botai-ui-testing", "-botai-reset-ui-test-data", "-botai-seed-course-material"]
