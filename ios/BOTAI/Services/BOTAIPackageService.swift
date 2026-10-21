@@ -20,10 +20,28 @@ enum BOTAIPackageService {
                   !manifest.rows.isEmpty, !manifest.questionSets.isEmpty else {
                 throw BOTAIPackageError.invalidManifest
             }
+            try validateManifest(manifest)
             return .init(manifest: manifest, root: root)
         } catch {
             try? FileManager.default.removeItem(at: root)
             throw error
+        }
+    }
+    static func validateManifest(_ manifest: BOTAIPackageManifest) throws {
+        let keys = manifest.fields.map(\.key)
+        guard Set(keys).count == keys.count,
+              keys.allSatisfy({ !$0.isEmpty }),
+              manifest.rows.allSatisfy({ Set($0.keys).isSubset(of: Set(keys)) }) else {
+            throw BOTAIPackageError.invalidManifest
+        }
+        for field in manifest.fields where field.type == "image" {
+            for row in manifest.rows {
+                guard let path = row[field.key], !path.isEmpty else { continue }
+                let parts = path.split(separator: "/")
+                guard path.hasPrefix("media/"), !path.contains("\\"),
+                      !path.contains(":"), !parts.contains(".."), !parts.contains("."),
+                      !path.hasPrefix("/") else { throw BOTAIPackageError.unsafePath }
+            }
         }
     }
     static func validateArchive(_ url: URL, requiresManifest: Bool = true) throws {

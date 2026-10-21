@@ -57,4 +57,18 @@ struct PackageSafetyTests {
             try BOTAIPackageService.validateArchive(archive)
         }
     }
+
+    @Test func rejectsEscapingImageReference() throws {
+        let json = #"{"formatVersion":1,"title":"Test","description":"","tags":"","kind":"reference","fields":[{"key":"picture","title":"Picture","position":0,"type":"image"}],"rows":[{"picture":"media/../../outside.png"}],"questionSets":[{"kind":"card","promptTemplate":"{1}","promptFieldKeys":["picture"],"answers":[{"template":"{1}","fieldKeys":["picture"],"correct":true}],"showCorrectCount":false,"enabled":true}]}"#
+        let manifest = try JSONDecoder().decode(BOTAIPackageManifest.self, from: Data(json.utf8))
+        #expect(throws: BOTAIPackageError.self) {
+            try BOTAIPackageService.validateManifest(manifest)
+        }
+    }
+
+    @Test func acceptsImageWithinMediaDirectory() throws {
+        let json = #"{"formatVersion":1,"title":"Test","description":"","tags":"","kind":"reference","fields":[{"key":"picture","title":"Picture","position":0,"type":"image"}],"rows":[{"picture":"media/photo.png"}],"questionSets":[{"kind":"card","promptTemplate":"{1}","promptFieldKeys":["picture"],"answers":[{"template":"{1}","fieldKeys":["picture"],"correct":true}],"showCorrectCount":false,"enabled":true}]}"#
+        let manifest = try JSONDecoder().decode(BOTAIPackageManifest.self, from: Data(json.utf8))
+        try BOTAIPackageService.validateManifest(manifest)
+    }
 }

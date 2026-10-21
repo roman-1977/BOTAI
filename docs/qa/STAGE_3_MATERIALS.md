@@ -33,3 +33,10 @@ Date: 2026-10-21.
 - Generic ZIP importer cleans its temporary directory if extraction or CSV parsing fails.
 - Regression test verifies a normal CSV ZIP passes manifest-optional validation but fails .botai validation.
 - 2026-10-21 full simulator suite: **22 unit tests and 3 UI tests passed**, result bundle `/tmp/botai_release_audit_derived/Logs/Test/Test-BOTAI-2026.10.21_15-56-11-+0300.xcresult`.
+
+## Image reference validation (2026-10-21)
+
+- The package manifest now validates unique field keys, row keys, and that image field paths stay under `media/` without traversal or absolute paths.
+- Added positive and negative regression tests for image path references.
+- Full iPhone 16 Pro Max simulator suite: **24 unit tests and 3 UI tests passed**, `Test-BOTAI-2026.10.21_16-02-02-+0300.xcresult`.
+- Still needed: export/import round-trip using real image bytes and end-to-end file picker checks; stage remains open.
