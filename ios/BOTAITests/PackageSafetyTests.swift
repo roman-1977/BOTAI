@@ -1,0 +1,30 @@
+import Foundation
+import Testing
+import ZIPFoundation
+@testable import BOTAI
+
+struct PackageSafetyTests {
+    @Test func archiveWithoutManifestIsRejected() throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        try Data("hello".utf8).write(to: root.appendingPathComponent("other.txt"))
+        let archive = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString).appendingPathExtension("botai")
+        defer { try? FileManager.default.removeItem(at: archive) }
+        try FileManager.default.zipItem(at: root, to: archive, shouldKeepParent: false)
+        #expect(throws: BOTAIPackageError.self) {
+            try BOTAIPackageService.validateArchive(archive)
+        }
+    }
+
+    @Test func normalManifestArchivePassesPreflight() throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        try Data("{}".utf8).write(to: root.appendingPathComponent("manifest.json"))
+        let archive = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString).appendingPathExtension("botai")
+        defer { try? FileManager.default.removeItem(at: archive) }
+        try FileManager.default.zipItem(at: root, to: archive, shouldKeepParent: false)
+        try BOTAIPackageService.validateArchive(archive)
+    }
+}

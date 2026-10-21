@@ -29,6 +29,7 @@
 		3C8AB3F9C39387749D11C629 /* GameDemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60DD59EEE1D1FF5044C85337 /* GameDemo.swift */; };
 		3F21EC6E380058072DA0F977 /* GRDB in Frameworks */ = {isa = PBXBuildFile; productRef = FA66617488ED7FA786129E43 /* GRDB */; };
 		40DD9B9113A7CD00DD88952D /* Courses.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FD1DB3787A94308A54118B0 /* Courses.swift */; };
+		44F65275408F968CA13A8D18 /* PackageSafetyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04E1CDDA5641B55FC697A5BC /* PackageSafetyTests.swift */; };
 		450DB60F8F67AAF37E06543F /* StudyQuestion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20EAB15C2761F0F7B90FEE9B /* StudyQuestion.swift */; };
 		4536E93EFE8DAD448151D032 /* QuizProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D192BB63142C7D058BAB1FB /* QuizProgressView.swift */; };
 		45E8C1DD9B9148C5DFD60E6B /* StudyProfileTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0B3752F018E17CBA225EE81 /* StudyProfileTests.swift */; };
@@ -105,6 +106,7 @@
 
 /* Begin PBXFileReference section */
 		01557FDC64AB9F3E731E15AA /* MyQuizzesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyQuizzesView.swift; sourceTree = "<group>"; };
+		04E1CDDA5641B55FC697A5BC /* PackageSafetyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PackageSafetyTests.swift; sourceTree = "<group>"; };
 		0D16621BFA37243165C0D00C /* LearningStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningStore.swift; sourceTree = "<group>"; };
 		0EEB254DC7672F182570BFA5 /* BOTAI.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = BOTAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13538C4E3B4BBFDB13C066D0 /* DeletionHistoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeletionHistoryTests.swift; sourceTree = "<group>"; };
@@ -436,6 +438,7 @@
 				DE4287578AC9F45A50FD6A46 /* LearningRepositoryTests.swift */,
 				596555D1BDE357A8CAFEFD2C /* LearningStateTests.swift */,
 				FE42EE2CA2719BF2A733B642 /* MaterialStorageTests.swift */,
+				04E1CDDA5641B55FC697A5BC /* PackageSafetyTests.swift */,
 				A0B3752F018E17CBA225EE81 /* StudyProfileTests.swift */,
 				91BCE76407335C9713304F9D /* TableImportParserTests.swift */,
 			);
@@ -636,6 +639,7 @@
 				BD11BD3F336356AE0475190A /* LearningRepositoryTests.swift in Sources */,
 				D6B02D17988A36E08AD46C18 /* LearningStateTests.swift in Sources */,
 				DC0B3848E2E81A962A942613 /* MaterialStorageTests.swift in Sources */,
+				44F65275408F968CA13A8D18 /* PackageSafetyTests.swift in Sources */,
 				45E8C1DD9B9148C5DFD60E6B /* StudyProfileTests.swift in Sources */,
 				01C7E1B0EF4F6D6F80C5B24C /* TableImportParserTests.swift in Sources */,
 			);
