@@ -42,6 +42,7 @@ import Observation
   }
   private func persist(_ operation: () throws -> Void) {
     do {
+      guard repository != nil else { throw CocoaError(.fileNoSuchFile) }
       try operation()
       lastPersistenceError = nil
     } catch { lastPersistenceError = error.localizedDescription }

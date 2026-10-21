@@ -14,7 +14,8 @@ import Observation
     let updated = StudyProfile(
       defaultDailyMinutes: defaultMinutes, customDays: customDays, updatedAt: .now)
     do {
-      try repository?.save(updated)
+      guard let repository else { throw CocoaError(.fileNoSuchFile) }
+      try repository.save(updated)
       profile = updated
       lastPersistenceError = nil
       return true

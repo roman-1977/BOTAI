@@ -66,3 +66,20 @@ struct CoursePersistenceTests {
   #expect(decoded.goals.isEmpty)
  }
 }
+
+struct StoreFailureTests {
+    @Test @MainActor func courseCreationWithoutDatabaseReportsFailure() {
+        let store = CourseStore()
+        _ = store.create(title: "Не сохранён", description: "", subject: "", audience: "", minutes: nil, language: "Русский")
+        #expect(store.courses.isEmpty)
+        #expect(store.lastPersistenceError != nil)
+    }
+
+    @Test @MainActor func scheduleWithoutDatabaseDoesNotPretendToSave() {
+        let store = StudyProfileStore()
+        let original = store.profile
+        #expect(!store.save(defaultMinutes: 90, customDays: []))
+        #expect(store.profile == original)
+        #expect(store.lastPersistenceError != nil)
+    }
+}

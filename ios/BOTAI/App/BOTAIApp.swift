@@ -42,6 +42,7 @@ struct BOTAIApp: App {
         if ProcessInfo.processInfo.arguments.contains("-botai-seed-import-fixture") {
             Self.seedImportFixture()
         }
+        _storageFailure = State(initialValue: repository == nil ? "Не удалось открыть локальную базу данных. Проверьте свободное место и повторите попытку." : nil)
         _learningStore = State(initialValue: LearningStore(repository: repository))
         let materials = MaterialStore(repository: materialRepository)
         if ProcessInfo.processInfo.arguments.contains("-botai-seed-course-material") {
@@ -76,7 +77,7 @@ struct BOTAIApp: App {
     @discardableResult
     private func switchStorageIfNeeded() -> Bool {
         let identity = authStore.localIdentity
-        guard identity != activeIdentity else {
+        guard identity != activeIdentity || storageFailure != nil else {
             if !authStore.isAuthenticated { syncService = nil }
             return true
         }
