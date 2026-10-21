@@ -30,6 +30,27 @@ struct LocalAccountStorageTests {
         }
     }
 
+    @Test func databaseOpenFailureDoesNotReplaceExistingNonDatabaseFile() throws {
+        let fm = FileManager.default
+        let folder = fm.temporaryDirectory.appendingPathComponent("botai-corrupt-db-" + UUID().uuidString)
+        try fm.createDirectory(at: folder, withIntermediateDirectories: true)
+        defer { try? fm.removeItem(at: folder) }
+        let path = folder.appendingPathComponent("learning.sqlite")
+        let original = Data("not a SQLite database".utf8)
+        try original.write(to: path)
+        #expect(throws: Error.self) { try AppDatabase(path: path.path) }
+        #expect(try Data(contentsOf: path) == original)
+    }
+
+    @Test func databaseOpenFailureDoesNotCreateMissingParentDirectory() throws {
+        let fm = FileManager.default
+        let folder = fm.temporaryDirectory.appendingPathComponent("botai-missing-parent-" + UUID().uuidString)
+        defer { try? fm.removeItem(at: folder) }
+        let path = folder.appendingPathComponent("nested/learning.sqlite")
+        #expect(throws: Error.self) { try AppDatabase(path: path.path) }
+        #expect(!fm.fileExists(atPath: folder.path))
+    }
+
     @Test func namespacesAreDistinctAndDeterministic() {
         let first = UUID(), second = UUID()
         let guest = LocalAccountStorage.directoryName(for: .guest)
