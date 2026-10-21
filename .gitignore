@@ -22,3 +22,6 @@ xcuserdata/
 .vscode/
 
 backend/supabase/.temp/
+
+# Supabase CLI scratch files (not project migrations)
+supabase/.temp/
