@@ -34,6 +34,23 @@ actor SyncService {
             })
             let publisher = RemoteQuestionPublisher(client: client, mappings: mappings,
                                                     isCurrentAccount: accountCheck)
+            // Historical attempts publish from their immutable answer-time snapshot.
+            // Use the attempt UUID as the mapping key to avoid mutating the current card.
+            if let snapshots = try? repository.unpublishedSnapshots() {
+                for snapshot in snapshots {
+                    guard await accountCheck() else { return }
+                    if (try? mappings.mapping(for: snapshot.attemptID)) == nil {
+                        _ = try? await publisher.publish(snapshot.question)
+                    }
+                    if let mapping = try? mappings.mapping(for: snapshot.attemptID),
+                       let remoteID = UUID(uuidString: mapping.remoteQuestionID),
+                       let versionID = UUID(uuidString: mapping.remoteQuestionVersionID),
+                       await accountCheck() {
+                        try? repository.pinPublishedSnapshot(attemptID: snapshot.attemptID,
+                            remoteQuestionID: remoteID, versionID: versionID)
+                    }
+                }
+            }
             for question in questions where ids.contains(question.id.uuidString) {
                 guard await accountCheck() else { return }
                 if (try? mappings.mapping(for: question.id)) == nil {

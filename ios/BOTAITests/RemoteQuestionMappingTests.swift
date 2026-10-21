@@ -102,6 +102,30 @@ struct RemoteQuestionMappingTests {
         #expect(try learning.outboxCount() == 1)
     }
 
+    @Test func snapshotRecoveryPinsOldAttemptWithoutChangingEditedCard() throws {
+        let database = try AppDatabase()
+        let learning = LearningRepository(database: database)
+        let mapping = RemoteQuestionMappingRepository(database: database)
+        let localID = UUID(), attemptID = UUID()
+        let question = StudyQuestion(id: localID, prompt: "До изменения", answer: "Ответ",
+                                     kind: .reveal, choices: [], correctChoiceIndexes: [])
+        let attempt = Attempt(id: attemptID, questionID: localID, occurredAt: .now, rating: .good)
+        try learning.record(attempt, state: LearningState(), question: question)
+        let snapshots = try learning.unpublishedSnapshots()
+        #expect(snapshots.count == 1)
+        #expect(snapshots.first?.attemptID == attemptID)
+        #expect(snapshots.first?.question.prompt == "До изменения")
+        let oldRemote = UUID(), oldVersion = UUID()
+        try learning.pinPublishedSnapshot(attemptID: attemptID,
+                                          remoteQuestionID: oldRemote, versionID: oldVersion)
+        try mapping.saveVerified(localQuestionID: localID,
+                                 remoteQuestionID: UUID(), remoteVersionID: UUID())
+        let upload = try #require(try learning.mappedUploadBatch().attempts.first)
+        #expect(upload.questionID == oldRemote)
+        #expect(upload.questionVersionID == oldVersion)
+        #expect(try learning.unpublishedSnapshots().isEmpty)
+    }
+
     @Test func mappingDoesNotAlterExistingLearningAttempts() throws {
         let database = try AppDatabase()
         let learning = LearningRepository(database: database)

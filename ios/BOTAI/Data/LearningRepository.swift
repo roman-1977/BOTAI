@@ -26,8 +26,13 @@ final class LearningRepository: @unchecked Sendable {
                 remoteQuestionID: mapping?.remoteQuestionID,
                 remoteVersionID: mapping?.remoteQuestionVersionID,
                 snapshotPrompt: question?.prompt, snapshotAnswer: question?.answer,
-                snapshotKind: question.map { $0.kind == .pair ? "pair" :
-                    ($0.kind == .reveal ? "self_check" : "unsupported") }).insert(db)
+                snapshotKind: question.map {
+                    guard $0.mediaURL == nil, $0.promptLaTeX == nil, $0.answerLaTeX == nil else {
+                        return "unsupported"
+                    }
+                    return $0.kind == .pair ? "pair" :
+                        ($0.kind == .reveal ? "self_check" : "unsupported")
+                }).insert(db)
             try LocalLearningStateRecord(questionID: attempt.questionID.uuidString, intervalDays: state.intervalDays, streak: state.streak, nextDueAt: state.nextDueAt).save(db)
             try OutboxRecord(id: UUID().uuidString, entityType: "attempt", entityID: attempt.id.uuidString, operation: "upsert", payloadVersion: 1, createdAt: .now, attemptCount: 0, nextRetryAt: nil, lastError: nil).insert(db)
         }
@@ -38,6 +43,39 @@ final class LearningRepository: @unchecked Sendable {
 
     func pendingOutbox() throws -> [OutboxRecord] { try database.dbQueue.read { try OutboxRecord.order(Column("createdAt")).fetchAll($0) } }
     func attempt(id: String) throws -> LocalAttemptRecord? { try database.dbQueue.read { try LocalAttemptRecord.fetchOne($0, key: id) } }
+
+    /// Recoverable text snapshots are independent of the current edited card.
+    func unpublishedSnapshots() throws -> [(attemptID: UUID, question: StudyQuestion)] {
+        try database.dbQueue.read { db in
+            let pending = try OutboxRecord.filter(Column("entityType") == "attempt").fetchAll(db)
+            return try pending.compactMap { item -> (attemptID: UUID, question: StudyQuestion)? in
+                guard let attempt = try LocalAttemptRecord.fetchOne(db, key: item.entityID),
+                      let id = UUID(uuidString: attempt.id),
+                      attempt.remoteQuestionID == nil,
+                      try (attempt.invalidatedBeforePublication ||
+                       RemoteQuestionMapping.fetchOne(db, key: attempt.questionID) == nil),
+                      let prompt = attempt.snapshotPrompt, !prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                      let answer = attempt.snapshotAnswer, !answer.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                      let kind = attempt.snapshotKind,
+                      kind == "pair" || kind == "self_check" else { return nil }
+                return (id, StudyQuestion(id: id, prompt: prompt, answer: answer,
+                    kind: kind == "pair" ? .pair : .reveal,
+                    choices: [], correctChoiceIndexes: []))
+            }
+        }
+    }
+
+    /// Pin a server-verified historical publication to its attempt, never to an edited card.
+    func pinPublishedSnapshot(attemptID: UUID, remoteQuestionID: UUID, versionID: UUID) throws {
+        try database.dbQueue.write { db in
+            guard var attempt = try LocalAttemptRecord.fetchOne(db, key: attemptID.uuidString),
+                  attempt.remoteQuestionID == nil else { return }
+            attempt.remoteQuestionID = remoteQuestionID.uuidString
+            attempt.remoteVersionID = versionID.uuidString
+            attempt.invalidatedBeforePublication = false
+            try attempt.update(db)
+        }
+    }
 
     /// Build a server-ready batch from one consistent database snapshot.
     /// Unmapped attempts stay pending and are never assigned fabricated remote IDs.
