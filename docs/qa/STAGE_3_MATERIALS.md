@@ -81,3 +81,8 @@ Date: 2026-10-21.
 - Closing the BOTAI import preview now removes the temporary extracted package directory; successful import already removes it in MaterialStore.
 - Simulator build and all 29 unit tests passed (`Test-BOTAI-2026.10.21_16-19-14-+0300.xcresult`).
 - End-to-end selection through the native iOS document picker remains unverified.
+
+## Nested media filenames (2026-10-21)
+
+- Import now derives the stored media filename from the relative package path, rather than its final basename alone. This avoids conflating common files such as `media/chapter1/figure.png` and `media/chapter2/figure.png`.
+- Simulator build and all 29 unit tests passed (`Test-BOTAI-2026.10.21_16-21-20-+0300.xcresult`). Full system picker end-to-end verification remains outstanding.
