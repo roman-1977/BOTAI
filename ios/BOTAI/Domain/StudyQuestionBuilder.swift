@@ -7,8 +7,9 @@ enum StudyQuestionBuilder {
         return content.rows.compactMap { row in
             // A row can generate a card only when every field required by the prompt exists.
             // This is a global rule for every material, not material-specific cleanup.
-            guard fieldsPresent(rule.promptFieldKeys, in: row) else { return nil }
-            let prompt=render(rule.promptTemplate,keys:rule.promptFieldKeys,row:row)
+            let promptKeys = rule.promptFieldKeys.isEmpty ? [rule.promptFieldKey] : rule.promptFieldKeys
+            guard fieldsPresent(promptKeys, in: row) else { return nil }
+            let prompt=render(rule.promptTemplate,keys:promptKeys,row:row)
             guard !prompt.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty else { return nil }
             let rendered=rule.answers.compactMap { answer -> (text:String,correct:Bool)? in
                 guard fieldsPresent(answer.fieldKeys, in: row) else { return nil }
@@ -19,8 +20,13 @@ enum StudyQuestionBuilder {
             let correctTexts=rendered.filter(\.correct).map(\.text)
             guard !correctTexts.isEmpty || !fallback.isEmpty else { return nil }
             var options = rendered
+            if rule.kind != .card && !options.contains(where: { $0.correct }) && !fallback.isEmpty {
+                options.append((fallback, true))
+            }
             if rule.kind != .card && options.count < 4 {
-                let correctTemplates = rule.answers.filter(\.correct)
+                let correctTemplates = rule.answers.filter(\.correct).isEmpty
+                    ? [QuestionAnswerRule(template: "{1}", fieldKeys: [rule.answerFieldKey], correct: true)]
+                    : rule.answers.filter(\.correct)
                 var pool = content.rows.filter { $0.id != row.id }.flatMap { other in
                     correctTemplates.compactMap { a -> String? in
                         guard fieldsPresent(a.fieldKeys, in: other) else { return nil }
@@ -30,6 +36,7 @@ enum StudyQuestionBuilder {
                 }.filter { candidate in !options.contains(where:{$0.text == candidate}) }.shuffled()
                 while options.count < 4, !pool.isEmpty { let x=pool.removeFirst();if !options.contains(where:{$0.text == x}) { options.append((x,false)) } }
             }
+            if rule.kind != .card && options.count < 4 { return nil }
             let shuffled = options.shuffled()
             let answers=shuffled.map(\.text)
             let correct=Set(shuffled.enumerated().compactMap{$0.element.correct ? $0.offset:nil})

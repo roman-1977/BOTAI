@@ -71,6 +71,7 @@
 		D012B71FD44F0E023FC6EAB3 /* EditPersonalQuizView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88CE5F7CA97A124A4E93B218 /* EditPersonalQuizView.swift */; };
 		D539DF947EAD8FF27E037A2B /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F7BD1B53294738809CBB3A2 /* LibraryView.swift */; };
 		D6B02D17988A36E08AD46C18 /* LearningStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 596555D1BDE357A8CAFEFD2C /* LearningStateTests.swift */; };
+		D703F21C06F2D9C8DC0329DA /* CardGenerationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0AB28470AF7EF09A01D93E7 /* CardGenerationTests.swift */; };
 		D7BD2E0356F4A241288F62DB /* MaterialRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90C83F711BA2C11596D3788D /* MaterialRepository.swift */; };
 		D7F8FBAC026F7E1A993DF7D6 /* AccountSafetyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7626D494DC476ABE5F29F05 /* AccountSafetyService.swift */; };
 		DC0B3848E2E81A962A942613 /* MaterialStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE42EE2CA2719BF2A733B642 /* MaterialStorageTests.swift */; };
@@ -161,6 +162,7 @@
 		B8FB7B3788DDBCEE725936CF /* TodayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayView.swift; sourceTree = "<group>"; };
 		BC24BF33022F9D17757276F3 /* MaterialStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaterialStore.swift; sourceTree = "<group>"; };
 		BCE572C04DE8ADC6B6291399 /* RootTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTabView.swift; sourceTree = "<group>"; };
+		C0AB28470AF7EF09A01D93E7 /* CardGenerationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardGenerationTests.swift; sourceTree = "<group>"; };
 		C8EC75D93437F2936503D0BE /* MVPDemoData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MVPDemoData.swift; sourceTree = "<group>"; };
 		CD3FEB8A29FC431933664685 /* MyQuizzesStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyQuizzesStore.swift; sourceTree = "<group>"; };
 		CDE70A07AD9DCE7EBFBAA8E2 /* AddMaterialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddMaterialView.swift; sourceTree = "<group>"; };
@@ -428,6 +430,7 @@
 		F8515A6E759785553F1AAA7C /* BOTAITests */ = {
 			isa = PBXGroup;
 			children = (
+				C0AB28470AF7EF09A01D93E7 /* CardGenerationTests.swift */,
 				73BBD4473054760B92F62626 /* DailyPlanTests.swift */,
 				13538C4E3B4BBFDB13C066D0 /* DeletionHistoryTests.swift */,
 				DE4287578AC9F45A50FD6A46 /* LearningRepositoryTests.swift */,
@@ -627,6 +630,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D703F21C06F2D9C8DC0329DA /* CardGenerationTests.swift in Sources */,
 				EB96DB4352D299493ABB9F85 /* DailyPlanTests.swift in Sources */,
 				C8DB32E3FE66B89978F59CBF /* DeletionHistoryTests.swift in Sources */,
 				BD11BD3F336356AE0475190A /* LearningRepositoryTests.swift in Sources */,
