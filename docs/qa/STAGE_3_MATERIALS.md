@@ -86,3 +86,9 @@ Date: 2026-10-21.
 
 - Import now derives the stored media filename from the relative package path, rather than its final basename alone. This avoids conflating common files such as `media/chapter1/figure.png` and `media/chapter2/figure.png`.
 - Simulator build and all 29 unit tests passed (`Test-BOTAI-2026.10.21_16-21-20-+0300.xcresult`). Full system picker end-to-end verification remains outstanding.
+
+## Native document picker UI smoke (2026-10-21)
+
+- Added XCTest UI test that navigates Home → Materials → Add material → Import BOTAI, taps the source, and verifies the iOS Files document browser appears via its accessible Browse button.
+- The focused test passed twice on the iPhone 16 Pro Max simulator; latest `Test-BOTAI-2026.10.21_16-24-33-+0300.xcresult`.
+- This covers presentation of the native picker, **not** selecting a real file and completing preview → import. That full E2E scenario remains outstanding.

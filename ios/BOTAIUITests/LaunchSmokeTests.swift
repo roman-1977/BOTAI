@@ -52,4 +52,21 @@ final class LaunchSmokeTests: XCTestCase {
         XCTAssertTrue(app.staticTexts["ВСЕ МАТЕРИАЛЫ"].waitForExistence(timeout: 10))
         XCTAssertTrue(app.buttons["Закрыть"].exists)
     }
+
+    func testBOTAIFileImporterPresentsDocumentBrowser() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-botai-ui-testing", "-botai-reset-ui-test-data"]
+        app.launch()
+        let materials = app.buttons["Материалы"]
+        XCTAssertTrue(materials.waitForExistence(timeout: 20))
+        materials.tap()
+        let add = app.buttons["Добавить материал"]
+        XCTAssertTrue(add.waitForExistence(timeout: 10))
+        add.tap()
+        let importPackage = app.buttons["Импортировать BOTAI"]
+        XCTAssertTrue(importPackage.waitForExistence(timeout: 10))
+        importPackage.tap()
+        let browse = app.buttons["Browse"]
+        XCTAssertTrue(browse.waitForExistence(timeout: 10), "The iOS document picker did not appear")
+    }
 }
