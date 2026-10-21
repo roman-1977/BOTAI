@@ -35,7 +35,8 @@ struct RemoteQuestionPublisher: Sendable {
         let remoteID = UUID(), versionID = UUID()
         guard await isCurrentAccount() else { return false }
         try await client.from("questions").insert(QuestionInsert(id: remoteID,
-            creator_user_id: userID, question_type: "self_check")).execute()
+            creator_user_id: userID,
+            question_type: question.kind == .pair ? "pair" : "self_check")).execute()
         guard await isCurrentAccount(), try await client.auth.session.user.id == userID else { return false }
         try await client.from("question_versions").insert(VersionInsert(id: versionID,
             question_id: remoteID, version_number: 1, prompt_text: question.prompt,
