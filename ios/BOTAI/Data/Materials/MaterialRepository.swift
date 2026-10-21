@@ -13,6 +13,19 @@ final class MaterialRepository: @unchecked Sendable {
 
     func save(material: StudyMaterialRecord, fields: [MaterialField], rows: [KnowledgeRow], rules: [QuestionRule]) throws {
         try database.dbQueue.write { db in
+            // Editing a material can change the rendered question while preserving its
+            // stable local ID (ruleID + rowID). Revoke verified server mappings before
+            // changing any rows/rules; otherwise old remote content receives new attempts.
+            let oldRules = try QuestionRuleDBRecord.filter(Column("materialID") == material.id.uuidString).fetchAll(db)
+            let oldRows = try KnowledgeRowDBRecord.filter(Column("materialID") == material.id.uuidString).fetchAll(db)
+            let allRuleIDs = Set(oldRules.compactMap { UUID(uuidString: $0.id) } + rules.map(\.id))
+            let allRowIDs = Set(oldRows.compactMap { UUID(uuidString: $0.id) } + rows.map(\.id))
+            for ruleID in allRuleIDs {
+                for rowID in allRowIDs {
+                    let localID = StudyQuestionBuilder.stableID(ruleID: ruleID, rowID: rowID)
+                    _ = try RemoteQuestionMapping.deleteOne(db, key: localID.uuidString)
+                }
+            }
             try MaterialDBRecord(material).save(db)
             try MaterialFieldDBRecord.filter(Column("materialID") == material.id.uuidString).deleteAll(db)
             try KnowledgeRowDBRecord.filter(Column("materialID") == material.id.uuidString).deleteAll(db)
@@ -47,5 +60,17 @@ final class MaterialRepository: @unchecked Sendable {
         }
     }
 
-    func delete(id: UUID) throws { _ = try database.dbQueue.write { db in try MaterialDBRecord.deleteOne(db, key: id.uuidString) } }
+    func delete(id: UUID) throws {
+        try database.dbQueue.write { db in
+            let rules = try QuestionRuleDBRecord.filter(Column("materialID") == id.uuidString).fetchAll(db)
+            let rows = try KnowledgeRowDBRecord.filter(Column("materialID") == id.uuidString).fetchAll(db)
+            for rule in rules {
+                for row in rows {
+                    guard let ruleID = UUID(uuidString: rule.id), let rowID = UUID(uuidString: row.id) else { continue }
+                    _ = try RemoteQuestionMapping.deleteOne(db, key: StudyQuestionBuilder.stableID(ruleID: ruleID, rowID: rowID).uuidString)
+                }
+            }
+            _ = try MaterialDBRecord.deleteOne(db, key: id.uuidString)
+        }
+    }
 }
