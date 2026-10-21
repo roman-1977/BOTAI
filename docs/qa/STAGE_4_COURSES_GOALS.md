@@ -27,8 +27,11 @@ Status: IN PROGRESS (2026-10-21).
 
 - Full iPhone 16 Pro Max iOS 18.6 simulator suite completed **40/40 passed** (32 unit + 8 UI, zero skipped/failed), verified with `xcresulttool get test-results summary`: `Test-BOTAI-2026.10.21_17-13-41-+0300.xcresult`.
 
-## Remaining
+## Acceptance regressions completed
 - Section cancel UI regression added: create course and section, edit title, Cancel, terminate/relaunch, verify original section name survives and unsaved edit does not. **Passed** (`Test-BOTAI-2026.10.21_17-18-17-+0300.xcresult`).
 - Extended end-to-end UI regression to delete a seeded material referenced by an active course/goal, verify library removal and zero remaining goal question sets. **Passed** (`Test-BOTAI-2026.10.21_17-25-07-+0300.xcresult`).
-- Add persisted-statistics assertions for multiple-choice and interrupted sessions (session counting fix is implemented; current E2E covers reveal answers).
-- Re-run full suite after any further changes; stage remains open until these acceptance cases are covered.
+- Added `choiceAttemptsAndInterruptedSessionSurviveRestart` persistence regression: single/multiple-choice good/again attempts, interrupted-session counters, update-in-place of the same session, and reload from SQLite. **2/2 StudySessionRepositoryTests passed** (`Test-BOTAI-2026.10.21_17-29-31-+0300.xcresult`).
+- Final combined simulator suite **42/42 passed** (33 unit + 9 UI; zero failures, zero skipped), verified with `xcresulttool get test-results summary`: `Test-BOTAI-2026.10.21_17-29-50-+0300.xcresult`.
+
+## Stage decision
+**Stage 4 accepted and closed** on iPhone 16 Pro Max iOS 18.6 simulator. Course and goal persistence, edit cancellation, referenced-material deletion, end-to-end learning, and session statistics have regression coverage. Physical-device E2E and release acceptance remain separate later stages.

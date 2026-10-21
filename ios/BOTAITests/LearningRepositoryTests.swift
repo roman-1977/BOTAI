@@ -21,6 +21,30 @@ struct LearningRepositoryTests {
 }
 
 struct StudySessionRepositoryTests {
+    @Test @MainActor func choiceAttemptsAndInterruptedSessionSurviveRestart() throws {
+        let database = try AppDatabase()
+        let repository = LearningRepository(database: database)
+        let store = LearningStore(questions: [], repository: repository)
+        let correctID = UUID()
+        let wrongID = UUID()
+        let correctQuestion = StudyQuestion(id: correctID, prompt: "Кислота", answer: "Acid", kind: .singleChoice, choices: ["Acid", "Base"], correctChoiceIndexes: [0])
+        let wrongQuestion = StudyQuestion(id: wrongID, prompt: "Основание", answer: "Base", kind: .multipleChoice, choices: ["Base", "Acid"], correctChoiceIndexes: [0])
+        store.record(question: correctQuestion, rating: .good)
+        store.record(question: wrongQuestion, rating: .again)
+        let interrupted = StudySession(id: UUID(), startedAt: Date(timeIntervalSince1970: 100), endedAt: Date(timeIntervalSince1970: 130), activeSeconds: 30, answered: 2, correct: 1)
+        store.saveSession(interrupted)
+        let restored = LearningStore(questions: [correctQuestion, wrongQuestion], repository: repository)
+        #expect(restored.attempts.count == 2)
+        #expect(restored.attempts.contains { $0.questionID == correctID && $0.rating == .good })
+        #expect(restored.attempts.contains { $0.questionID == wrongID && $0.rating == .again })
+        #expect(restored.sessions == [interrupted])
+        let updated = StudySession(id: interrupted.id, startedAt: interrupted.startedAt, endedAt: Date(timeIntervalSince1970: 140), activeSeconds: 40, answered: 2, correct: 1)
+        restored.saveSession(updated)
+        let reopened = LearningStore(questions: [], repository: repository)
+        #expect(reopened.sessions == [updated])
+        #expect(reopened.attempts.count == 2)
+    }
+
     @Test func studySessionIsDurable() throws {
         let database=try AppDatabase();let repository=LearningRepository(database:database)
         let session=StudySession(id:UUID(),startedAt:Date(timeIntervalSince1970:100),endedAt:Date(timeIntervalSince1970:160),activeSeconds:60,answered:4,correct:3)
