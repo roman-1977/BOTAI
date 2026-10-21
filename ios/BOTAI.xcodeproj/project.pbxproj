@@ -107,6 +107,7 @@
 
 /* Begin PBXFileReference section */
 		01557FDC64AB9F3E731E15AA /* MyQuizzesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyQuizzesView.swift; sourceTree = "<group>"; };
+		01E7EE070EA2114AD9D77C58 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		04E1CDDA5641B55FC697A5BC /* PackageSafetyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PackageSafetyTests.swift; sourceTree = "<group>"; };
 		0B4EAD52AA4CE587DF81126D /* PackageRoundTripTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PackageRoundTripTests.swift; sourceTree = "<group>"; };
 		0D16621BFA37243165C0D00C /* LearningStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningStore.swift; sourceTree = "<group>"; };
@@ -299,6 +300,7 @@
 			children = (
 				22B87193836385214F5B9C21 /* Assets.xcassets */,
 				E8181C5074307453B062460D /* BOTAI.entitlements */,
+				01E7EE070EA2114AD9D77C58 /* Info.plist */,
 				C55152D6C05E8AC39B4428DB /* App */,
 				A9B7840F1F7C2C4DEBA401F0 /* Data */,
 				91232322BB566E034FA34638 /* Domain */,
@@ -777,7 +779,10 @@
 				CODE_SIGN_ENTITLEMENTS = BOTAI/BOTAI.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BOTAI/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = BOTAI;
+				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
+				INFOPLIST_KEY_UIFileSharingEnabled = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -797,7 +802,10 @@
 				CODE_SIGN_ENTITLEMENTS = BOTAI/BOTAI.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BOTAI/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = BOTAI;
+				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
+				INFOPLIST_KEY_UIFileSharingEnabled = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

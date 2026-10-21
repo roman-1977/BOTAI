@@ -69,4 +69,29 @@ final class LaunchSmokeTests: XCTestCase {
         let browse = app.buttons["Browse"]
         XCTAssertTrue(browse.waitForExistence(timeout: 10), "The iOS document picker did not appear")
     }
+
+    func testSelectBOTAIFileAndImportIntoLibrary() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-botai-ui-testing", "-botai-reset-ui-test-data", "-botai-seed-import-fixture"]
+        app.launch()
+        XCTAssertTrue(app.buttons["Материалы"].waitForExistence(timeout: 20))
+        app.buttons["Материалы"].tap()
+        app.buttons["Добавить материал"].tap()
+        app.buttons["Импортировать BOTAI"].tap()
+        let browse = app.buttons["Browse"]
+        XCTAssertTrue(browse.waitForExistence(timeout: 10))
+        browse.tap()
+        let onDevice = app.cells["On My iPhone"]
+        XCTAssertTrue(onDevice.waitForExistence(timeout: 10), app.debugDescription)
+        onDevice.tap()
+        let appFolder = app.descendants(matching: .any).matching(identifier: "BOTAI, Container").firstMatch
+        XCTAssertTrue(appFolder.waitForExistence(timeout: 10), app.debugDescription)
+        appFolder.tap()
+        let fixture = app.cells.matching(NSPredicate(format: "label CONTAINS %@", "BOTAI-UI-Fixture")).firstMatch
+        XCTAssertTrue(fixture.waitForExistence(timeout: 10), app.debugDescription)
+        fixture.tap()
+        XCTAssertTrue(app.navigationBars["Предпросмотр импорта"].waitForExistence(timeout: 10))
+        app.buttons["Добавить в библиотеку"].tap()
+        XCTAssertTrue(app.staticTexts["BOTAI UI Fixture"].waitForExistence(timeout: 10))
+    }
 }
