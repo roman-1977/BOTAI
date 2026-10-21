@@ -98,6 +98,40 @@ final class LaunchSmokeTests: XCTestCase {
         XCTAssertFalse(app.staticTexts["Курс для проверки новый"].exists)
     }
 
+    func testCreateCourseSectionAndTopic() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-botai-ui-testing", "-botai-reset-ui-test-data"]
+        app.launch()
+        let courses = app.buttons["Мои курсы"]
+        XCTAssertTrue(courses.waitForExistence(timeout: 20))
+        courses.tap()
+        app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Создать курс")).firstMatch.tap()
+        let title = app.textFields["ЕГЭ Химия 2027"]
+        XCTAssertTrue(title.waitForExistence(timeout: 10))
+        title.tap()
+        title.typeText("Курс с разделом")
+        app.buttons["Создать"].tap()
+        let course = app.staticTexts["Курс с разделом"]
+        XCTAssertTrue(course.waitForExistence(timeout: 10))
+        course.tap()
+        app.buttons["Добавить раздел"].tap()
+        let section = app.textFields["Неорганическая химия"]
+        XCTAssertTrue(section.waitForExistence(timeout: 10))
+        section.tap()
+        section.typeText("Раздел проверки")
+        app.buttons["Добавить"].tap()
+        let sectionRow = app.staticTexts["Раздел проверки"]
+        XCTAssertTrue(sectionRow.waitForExistence(timeout: 10))
+        sectionRow.tap()
+        app.buttons["Добавить тему"].tap()
+        let topic = app.textFields["Например: Кислоты"]
+        XCTAssertTrue(topic.waitForExistence(timeout: 10))
+        topic.tap()
+        topic.typeText("Тема проверки")
+        app.buttons["Сохранить"].tap()
+        XCTAssertTrue(app.staticTexts["Тема проверки"].waitForExistence(timeout: 10))
+    }
+
     func testSelectBOTAIFileAndImportIntoLibrary() throws {
         let app = XCUIApplication()
         app.launchArguments = ["-botai-ui-testing", "-botai-reset-ui-test-data", "-botai-seed-import-fixture"]

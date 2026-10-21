@@ -16,6 +16,8 @@ Status: IN PROGRESS (2026-10-21).
 
 - Added UI regression `testCreateCourseAndCancelEditingKeepsOriginalTitle`: opens Courses from home, creates a course, edits title and cancels, verifies original title remains. Passed on iPhone 16 Pro Max simulator (`Test-BOTAI-2026.10.21_16-50-46-+0300.xcresult`). Added accessibility labels for Courses and Edit Course buttons.
 
+- Added simulator UI regression `testCreateCourseSectionAndTopic`: create course, add section, open section, add topic, verify visible. **Passed** on iPhone 16 Pro Max simulator (`Test-BOTAI-2026.10.21_16-58-07-+0300.xcresult`).
+
 ## Remaining
 - Validate creation/editing of courses and goals via UI.
 - Validate course-to-material references and deletion behavior.
