@@ -26,8 +26,10 @@ enum LocalAccountStorage {
         uiTesting: Bool = false, fileManager: FileManager = .default
     ) throws -> Bool {
         let source = legacyFolder.appendingPathComponent("learning.sqlite")
+        guard case .authenticated = identity else { return false }
         guard fileManager.fileExists(atPath: source.path) else { return false }
         guard !fileManager.fileExists(atPath: source.path + "-wal") else { return false }
+        guard !fileManager.fileExists(atPath: source.path + "-shm") else { return false }
         let destination = directory(for: identity, support: support, uiTesting: uiTesting)
         let target = destination.appendingPathComponent("learning.sqlite")
         guard !fileManager.fileExists(atPath: target.path) else { return false }

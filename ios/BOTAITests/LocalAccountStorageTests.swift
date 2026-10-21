@@ -35,6 +35,22 @@ struct LocalAccountStorageTests {
         #expect(try Data(contentsOf: destination) == Data("new".utf8))
     }
 
+    @Test func migrationRefusesGuestDestinationAndSharedMemorySidecar() throws {
+        let fm = FileManager.default
+        let support = fm.temporaryDirectory.appendingPathComponent("botai-shm-test-" + UUID().uuidString)
+        defer { try? fm.removeItem(at: support) }
+        let legacy = support.appendingPathComponent("BOTAI")
+        try fm.createDirectory(at: legacy, withIntermediateDirectories: true)
+        let source = legacy.appendingPathComponent("learning.sqlite")
+        try Data("db".utf8).write(to: source)
+        #expect(try !LocalAccountStorage.copyCheckpointedLegacyDatabase(from: legacy, to: .guest, support: support))
+        try Data("shared".utf8).write(to: legacy.appendingPathComponent("learning.sqlite-shm"))
+        let account = LocalAccountStorage.Identity.authenticated(UUID())
+        #expect(try !LocalAccountStorage.copyCheckpointedLegacyDatabase(from: legacy, to: account, support: support))
+        #expect(!fm.fileExists(atPath: LocalAccountStorage.directory(for: account, support: support).appendingPathComponent("learning.sqlite").path))
+        #expect(try Data(contentsOf: source) == Data("db".utf8))
+    }
+
     @Test func migrationRefusesUncheckpointedWalDatabase() throws {
         let fm = FileManager.default
         let support = fm.temporaryDirectory.appendingPathComponent("botai-wal-test-" + UUID().uuidString)

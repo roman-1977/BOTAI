@@ -52,6 +52,10 @@ Status: active. Server integration and account isolation are not accepted.
 - Root tab navigation is now keyed by the active storage identity. On account switch, SwiftUI recreates the root view hierarchy rather than retaining the previous user's selected course, editing sheet, or navigation stack.
 - This is an additional defense alongside repository rebinding, not a substitute for live account-transition tests.
 
+## Legacy migration safety
+- The optional legacy copy helper now rejects guest-as-destination (which resolves to the source directory) and refuses copies if either SQLite WAL or SHM sidecars exist.
+- Added a unit regression for guest destination and SHM sidecar. This helper remains intentionally opt-in; no automatic account ownership assignment occurs.
+
 ## Remaining
 1. Map local question IDs to real server Question and QuestionVersion IDs; then implement idempotent uploads, bounded retries and a durable cursor.
 2. Partition private local state by user identity and define guest-to-account migration.
