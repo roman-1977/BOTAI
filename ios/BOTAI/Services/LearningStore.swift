@@ -10,6 +10,7 @@ final class LearningStore {
     private(set) var sessionTitle: String = "Обучение"
     private(set) var sessionTargetMinutes: Int = 0
     private let repository: LearningRepository?
+    private(set) var lastPersistenceError: String?
 
     init(questions: [StudyQuestion] = DemoContent.questions, repository: LearningRepository? = nil) {
         self.questions = questions
@@ -28,14 +29,18 @@ final class LearningStore {
 
     func saveSession(_ session: StudySession) {
         guard session.answered > 0 || session.activeSeconds > 0 else { return }
-        if let repository { try? repository.saveSession(session) }
+        if let repository {
+            do { try repository.saveSession(session); lastPersistenceError = nil }
+            catch { lastPersistenceError = error.localizedDescription; return }
+        }
         if let i=sessions.firstIndex(where:{$0.id == session.id}) { sessions[i]=session } else { sessions.append(session) }
     }
     var analytics: LearningAnalytics { LearningAnalytics(sessions:sessions,attempts:attempts,states:states) }
     var knownCount:Int { states.values.filter{$0.masteryLevel == .known}.count }
     var masteryPercent:Int { states.isEmpty ? 0 : Int((Double(knownCount)/Double(states.count)*100).rounded()) }
 
-    func record(question: StudyQuestion, rating: RecallRating) {
+    @discardableResult
+    func record(question: StudyQuestion, rating: RecallRating) -> Bool {
         let attempt = Attempt(id: UUID(), questionID: question.id, occurredAt: .now, rating: rating)
         var state = states[question.id] ?? LearningState(); state.apply(rating)
         // Never report an answer as saved if the durable local write failed.
@@ -43,11 +48,13 @@ final class LearningStore {
         if let repository {
             do { try repository.record(attempt, state: state, question: question) }
             catch {
-                assertionFailure("Unable to persist learning attempt: \(error)")
-                return
+                lastPersistenceError = error.localizedDescription
+                return false
             }
         }
         attempts.append(attempt); states[question.id] = state
+        lastPersistenceError = nil
+        return true
     }
 
     var completedToday: Int { attempts.filter { Calendar.current.isDateInToday($0.occurredAt) }.count }

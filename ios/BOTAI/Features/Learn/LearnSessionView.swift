@@ -5,6 +5,7 @@ struct LearnSessionView: View {
   @Environment(\.dismiss) private var dismiss
   @Environment(\.scenePhase) private var scenePhase
   @State private var index = 0
+  @State private var persistenceAlert = false
   @State private var revealed = false
   @State private var advancing = false
   @State private var checked = false
@@ -32,7 +33,11 @@ struct LearnSessionView: View {
     ZStack {
       LearnDigitalBackground()
       NavigationStack { if finished { resultView } else { questionView } }.background(.clear)
-    }.preferredColorScheme(.dark).overlay { if showModes { modeOverlay } }.onChange(of: scenePhase)
+    }.preferredColorScheme(.dark).overlay { if showModes { modeOverlay } }
+      .alert("Не удалось сохранить ответ", isPresented: $persistenceAlert) {
+        Button("Повторить", role: .cancel) {}
+      } message: { Text(store.lastPersistenceError ?? "Проверьте доступность хранилища") }
+      .onChange(of: scenePhase)
     { _, phase in handleScenePhase(phase) }
   }
   private var question: StudyQuestion { store.questions[index] }
@@ -332,12 +337,15 @@ struct LearnSessionView: View {
     }
   }
   private func advanceAfterChoice() {
+    let ok = selection == question.correctChoiceIndexes
+    guard store.record(question: question, rating: ok ? .good : .again) else {
+      persistenceAlert = true
+      return
+    }
     countQuestionTime()
     answeredToday += 1
     sessionAnswered += 1
-    let ok = selection == question.correctChoiceIndexes
     if ok { correctToday += 1; sessionCorrect += 1 } else { wrongToday += 1 }
-    store.record(question: question, rating: ok ? .good : .again)
     persistSession()
     if index + 1 < store.questions.count {
       index += 1
@@ -393,11 +401,14 @@ struct LearnSessionView: View {
     }
   }
   private func submit(_ r: RecallRating) {
+    guard store.record(question: question, rating: r) else {
+      persistenceAlert = true
+      return
+    }
     countQuestionTime()
     answeredToday += 1
     sessionAnswered += 1
     if r == .good { correctToday += 1; sessionCorrect += 1 } else { wrongToday += 1 }
-    store.record(question: question, rating: r)
     persistSession()
     if r == .good {
     } else if r == .hard {
