@@ -46,7 +46,7 @@ Status: active. Server integration and account isolation are not accepted.
 
 ## Canonical storage path regression
 - `LocalAccountStorage.directoryName(.guest)` now resolves to the existing legacy `BOTAI` directory (or `BOTAI-UITests` in UI testing). This avoids contradictory guest path definitions in runtime and migration helpers.
-- Added explicit unit assertions for both guest directory names. Full simulator regression is running (`/tmp/botai_stage6_canonical_guest_suite.log`).
+- Added explicit unit assertions for both guest directory names. Full simulator regression **50/50 passed, 0 failed, 0 skipped** (`Test-BOTAI-2026.10.21_18-20-52-+0300.xcresult`).
 
 ## Remaining
 1. Map local question IDs to real server Question and QuestionVersion IDs; then implement idempotent uploads, bounded retries and a durable cursor.
