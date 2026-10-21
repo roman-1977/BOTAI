@@ -41,3 +41,5 @@ Milestones (coverage, not mastery): 2026-10-31 45; 2026-11-15 135; 2026-11-30 23
 ## Continuation instructions
 
 Read this file, `docs/COURSES_AND_GOALS.md`, `docs/OPEN_QUESTIONS.md`, `AGENTS.md`, and inspect `git status` before changes. Continue on this branch. Do not claim seed is installed in the app until verified. Update this log after each meaningful code/test milestone. Avoid resetting simulator user data without identifying the exact store and verifying scope.
+
+- 2026-10-22: project owner mandated per-iteration documentation updates, progress/history, test extensions, reproducible verification and independent handoff. Adopted `docs/iterations/DEVELOPMENT_HANDOFF_STANDARD.md` as Definition of Done.

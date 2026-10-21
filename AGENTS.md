@@ -122,3 +122,7 @@ When an accepted UX decision changes, update the relevant docs/ADR in the same c
 ## Client v1 execution plan
 
 `docs/IMPLEMENTATION_PLAN.md` is the current definition of done and delivery order for the fully working client. `docs/CLIENT_ARCHITECTURE.md`, ADR-019 and ADR-020 define the learner/session and offline material boundaries. New implementation work must preserve offline study and avoid per-user paid API dependencies.
+
+## Mandatory iteration completion / handoff
+
+Every development iteration MUST follow `docs/iterations/DEVELOPMENT_HANDOFF_STANDARD.md`: synchronize impacted docs and implementation status, update dated progress and next steps, extend relevant tests, record reproducible test results, and commit scoped changes. An iteration without tests and handoff documentation is not complete.
