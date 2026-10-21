@@ -14,6 +14,35 @@ final class LaunchSmokeTests: XCTestCase {
         XCTAssertTrue(app.staticTexts["BOTAI"].exists)
     }
 
+    func testPrimaryScreensVisualBaseline() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-botai-ui-testing", "-botai-reset-ui-test-data"]
+        app.launch()
+        XCTAssertTrue(app.staticTexts["ПЛАН НА СЕГОДНЯ"].waitForExistence(timeout: 20))
+        captureScreen(app, name: "01-Home")
+
+        app.buttons["Мои курсы"].tap()
+        XCTAssertTrue(app.navigationBars["Мои курсы"].waitForExistence(timeout: 10))
+        captureScreen(app, name: "02-Courses")
+        app.buttons["Закрыть"].tap()
+
+        app.buttons["Материалы"].tap()
+        XCTAssertTrue(app.staticTexts["ВСЕ МАТЕРИАЛЫ"].waitForExistence(timeout: 10))
+        captureScreen(app, name: "03-Materials")
+        app.buttons["Закрыть"].tap()
+
+        app.buttons["Профиль"].tap()
+        XCTAssertTrue(app.navigationBars["Профиль"].waitForExistence(timeout: 10))
+        captureScreen(app, name: "04-Profile")
+    }
+
+    private func captureScreen(_ app: XCUIApplication, name: String) {
+        let attachment = XCTAttachment(screenshot: app.screenshot())
+        attachment.name = name
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
+
     func testSecondLaunchRetainsIsolatedStorage() throws {
         let app = XCUIApplication()
         app.launchArguments += ["-botai-ui-testing", "-botai-reset-ui-test-data"]
