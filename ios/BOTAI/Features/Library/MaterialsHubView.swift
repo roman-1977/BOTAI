@@ -42,7 +42,7 @@ struct MaterialsHubView: View {
 
     private var personal: some View {
         VStack(spacing: 18) {
-            HStack { Text("ВСЕ МАТЕРИАЛЫ").font(.caption.bold()).foregroundStyle(.cyan); Spacer(); Text("\(demo.materials.count + store.materials.count)").foregroundStyle(.white.opacity(0.55)) }
+            HStack { Text("ВСЕ МАТЕРИАЛЫ").font(.caption.bold()).foregroundStyle(HomeTheme.accent); Spacer(); Text("\(demo.materials.count + store.materials.count)").foregroundStyle(.white.opacity(0.55)) }
             filterBar
             ForEach(filteredDemo) { materialCard($0) }
             ForEach(store.materials) { recordCard($0) }
@@ -63,7 +63,7 @@ struct MaterialsHubView: View {
             .contentShape(Rectangle()).onTapGesture { selectedMaterial = m }
     }
 
-    private func recordCard(_ m: StudyMaterialRecord) -> some View { HStack { Image(systemName:"tablecells").foregroundStyle(.mint); VStack(alignment:.leading,spacing:4){Text(m.title).font(.headline);if let d=m.description {Text(d).font(.caption).foregroundStyle(.white.opacity(0.62)).lineLimit(2)};if let tags=m.topic {Text(tags).font(.caption2).foregroundStyle(.cyan)}};Spacer();Menu{Button("Удалить из библиотеки",role:.destructive){deleteRecord=m}}label:{Image(systemName:"ellipsis").padding(8)}.accessibilityLabel("Меню сохранённого материала") }.padding(13).background(.black.opacity(0.22),in:RoundedRectangle(cornerRadius:16)).foregroundStyle(.white).contentShape(Rectangle()).onTapGesture{selectedRecord=m} }
+    private func recordCard(_ m: StudyMaterialRecord) -> some View { HStack { Image(systemName:"tablecells").foregroundStyle(.mint); VStack(alignment:.leading,spacing:4){Text(m.title).font(.headline);if let d=m.description {Text(d).font(.caption).foregroundStyle(.white.opacity(0.62)).lineLimit(2)};if let tags=m.topic {Text(tags).font(.caption2).foregroundStyle(HomeTheme.accent)}};Spacer();Menu{Button("Удалить из библиотеки",role:.destructive){deleteRecord=m}}label:{Image(systemName:"ellipsis").padding(8)}.accessibilityLabel("Меню сохранённого материала") }.padding(13).background(.black.opacity(0.22),in:RoundedRectangle(cornerRadius:16)).foregroundStyle(.white).contentShape(Rectangle()).onTapGesture{selectedRecord=m} }
     private func deleteSavedMaterial(_ m:StudyMaterialRecord){do{courses.removeReferences(to:m.id);try store.delete(id:m.id);deleteRecord=nil}catch{deleteError=error.localizedDescription}}
 
     private var groups: some View { VStack(spacing:14) { Text("Назначено преподавателем или родителем").font(.caption).foregroundStyle(.white.opacity(0.55)).frame(maxWidth:.infinity,alignment:.leading); ForEach(demo.groups) { g in VStack(alignment:.leading,spacing:10) { HStack { Image(systemName:"person.3.fill").foregroundStyle(.purple); VStack(alignment:.leading){Text(g.title).font(.headline);Text(g.owner).font(.caption).foregroundStyle(.white.opacity(0.55))};Spacer();Image(systemName:"lock.fill").foregroundStyle(.white.opacity(0.4)) }; Divider().overlay(.white.opacity(0.1)); Label(g.task,systemImage:"target").foregroundStyle(.mint); Text("\(g.materials) материалов · цель задаёт руководитель").font(.caption).foregroundStyle(.white.opacity(0.6)) }.padding(15).background(.white.opacity(0.05),in:RoundedRectangle(cornerRadius:18)).foregroundStyle(.white) } } }
@@ -78,20 +78,20 @@ private struct MaterialDetailView: View {
             ZStack {
                 DigitalHubBackground()
                 ScrollView { VStack(alignment: .leading, spacing: 18) {
-                    HStack { Label(material.kind.uppercased(), systemImage: material.kind == "Опросник" ? "questionmark.bubble.fill" : "tablecells.fill"); Spacer(); Text(material.source) }.font(.caption.bold()).foregroundStyle(.cyan)
+                    HStack { Label(material.kind.uppercased(), systemImage: material.kind == "Опросник" ? "questionmark.bubble.fill" : "tablecells.fill"); Spacer(); Text(material.source) }.font(.caption.bold()).foregroundStyle(HomeTheme.accent)
                     Text(material.title).font(.title2.bold()).foregroundStyle(.white)
                     Text(material.description).foregroundStyle(.white.opacity(0.68))
                     HStack { stat(material.count, "Содержимое"); stat(material.subject, "Предмет") }
                     detailBlock
                     sampleBlock
-                    Button("Начать заниматься") {}.buttonStyle(.borderedProminent).tint(.cyan).frame(maxWidth: .infinity)
+                    Button("Начать заниматься") {}.buttonStyle(.borderedProminent).tint(HomeTheme.accent).frame(maxWidth: .infinity)
                 }.padding(18) }
             }.navigationTitle("Материал").navigationBarTitleDisplayMode(.inline).toolbar { Button("Готово") { dismiss() } }
         }
     }
     private func stat(_ value:String,_ label:String)->some View { VStack(alignment:.leading,spacing:3){Text(value).font(.headline).foregroundStyle(.white);Text(label).font(.caption2).foregroundStyle(.white.opacity(0.5))}.frame(maxWidth:.infinity,alignment:.leading).padding(12).background(.white.opacity(0.05),in:RoundedRectangle(cornerRadius:14)) }
-    private var detailBlock: some View { VStack(alignment:.leading,spacing:10){Text(material.kind == "Справочник" ? "КАК ФОРМИРУЮТСЯ ВОПРОСЫ" : "ТИПЫ ВОПРОСОВ").font(.caption.bold()).foregroundStyle(.cyan);ForEach(material.details,id:\.self){Label($0,systemImage:"checkmark.circle.fill").foregroundStyle(.white)}} }
-    private var sampleBlock: some View { VStack(alignment:.leading,spacing:10){Text("ПРИМЕР СОДЕРЖИМОГО").font(.caption.bold()).foregroundStyle(.cyan);ForEach(material.sample,id:\.self){Text($0).frame(maxWidth:.infinity,alignment:.leading).padding(12).background(.black.opacity(0.22),in:RoundedRectangle(cornerRadius:14)).foregroundStyle(.white)}} }
+    private var detailBlock: some View { VStack(alignment:.leading,spacing:10){Text(material.kind == "Справочник" ? "КАК ФОРМИРУЮТСЯ ВОПРОСЫ" : "ТИПЫ ВОПРОСОВ").font(.caption.bold()).foregroundStyle(HomeTheme.accent);ForEach(material.details,id:\.self){Label($0,systemImage:"checkmark.circle.fill").foregroundStyle(.white)}} }
+    private var sampleBlock: some View { VStack(alignment:.leading,spacing:10){Text("ПРИМЕР СОДЕРЖИМОГО").font(.caption.bold()).foregroundStyle(HomeTheme.accent);ForEach(material.sample,id:\.self){Text($0).frame(maxWidth:.infinity,alignment:.leading).padding(12).background(.black.opacity(0.22),in:RoundedRectangle(cornerRadius:14)).foregroundStyle(.white)}} }
 }
 
 
@@ -123,8 +123,8 @@ private struct SavedMaterialDetailView: View {
             if let c = content { ScrollView { VStack(alignment: .leading, spacing: 16) {
                 Text(c.material.title).font(.title2.bold()).foregroundStyle(.white)
                 if let d = c.material.description { Text(d).foregroundStyle(.white.opacity(0.7)) }
-                HStack { Label(c.material.author ?? (c.material.source == .created ? "Вы" : "Автор не указан"), systemImage: "person.crop.circle"); Spacer(); Text("\(c.rows.count) знаний · \(c.rules.count) наборов · \(c.rows.count * c.rules.count) вопросов") }.font(.caption).foregroundStyle(.cyan)
-                if let tags = c.material.topic { Text(tags).font(.caption.bold()).foregroundStyle(.cyan).padding(.horizontal, 10).padding(.vertical, 6).background(.cyan.opacity(0.12), in: Capsule()) }
+                HStack { Label(c.material.author ?? (c.material.source == .created ? "Вы" : "Автор не указан"), systemImage: "person.crop.circle"); Spacer(); Text("\(c.rows.count) знаний · \(c.rules.count) наборов · \(c.rows.count * c.rules.count) вопросов") }.font(.caption).foregroundStyle(HomeTheme.accent)
+                if let tags = c.material.topic { Text(tags).font(.caption.bold()).foregroundStyle(HomeTheme.accent).padding(.horizontal, 10).padding(.vertical, 6).background(.cyan.opacity(0.12), in: Capsule()) }
                 ForEach(c.rules) { rule in ruleCard(rule, c) }
             }.padding(18) } } else { ContentUnavailableView("Материал не найден", systemImage: "exclamationmark.triangle") }
         }.navigationTitle("Просмотр").navigationBarTitleDisplayMode(.inline).toolbar {
@@ -140,10 +140,10 @@ private struct SavedMaterialDetailView: View {
     private func ruleCard(_ rule: QuestionRule, _ c: MaterialContent) -> some View {
         let i = min(indices[rule.id] ?? 0, max(c.rows.count - 1, 0)); let row = c.rows.isEmpty ? nil : c.rows[i]
         return VStack(alignment: .leading, spacing: 11) {
-            HStack { Text("НАБОР ВОПРОСОВ").font(.caption.bold()).foregroundStyle(.cyan); Spacer(); Text("\(c.rows.count) вопросов").font(.caption).foregroundStyle(.white.opacity(0.5)) }
+            HStack { Text("НАБОР ВОПРОСОВ").font(.caption.bold()).foregroundStyle(HomeTheme.accent); Spacer(); Text("\(c.rows.count) вопросов").font(.caption).foregroundStyle(.white.opacity(0.5)) }
             RenderedMaterialValue(template: rule.promptTemplate, keys: rule.promptFieldKeys, row: row).padding(12).frame(maxWidth: .infinity, alignment: .leading).background(.black.opacity(0.25), in: RoundedRectangle(cornerRadius: 14))
             ForEach(Array(rule.answers.enumerated()), id: \.offset) { _, a in HStack { Image(systemName: a.correct ? "checkmark.circle.fill" : "circle").foregroundStyle(a.correct ? Color.green : Color.white.opacity(0.35)); RenderedMaterialValue(template:a.template,keys:a.fieldKeys,row:row) }.padding(.horizontal, 8) }
-            if c.rows.count > 1 { HStack { Button { indices[rule.id] = max(0, i-1) } label: { Image(systemName: "chevron.left") }.disabled(i == 0); Spacer(); Text("\(i+1) / \(c.rows.count)").font(.caption).foregroundStyle(.white.opacity(0.6)); Spacer(); Button { indices[rule.id] = min(c.rows.count-1, i+1) } label: { Image(systemName: "chevron.right") }.disabled(i == c.rows.count-1) }.foregroundStyle(.cyan) }
+            if c.rows.count > 1 { HStack { Button { indices[rule.id] = max(0, i-1) } label: { Image(systemName: "chevron.left") }.disabled(i == 0); Spacer(); Text("\(i+1) / \(c.rows.count)").font(.caption).foregroundStyle(.white.opacity(0.6)); Spacer(); Button { indices[rule.id] = min(c.rows.count-1, i+1) } label: { Image(systemName: "chevron.right") }.disabled(i == c.rows.count-1) }.foregroundStyle(HomeTheme.accent) }
         }.padding(15).background(.white.opacity(0.055), in: RoundedRectangle(cornerRadius: 18)).overlay(RoundedRectangle(cornerRadius: 18).stroke(.cyan.opacity(0.2)))
     }
     private func exportMaterial() { do { exportURL=try store.exportPackage(id:material.id) } catch { deleteError=error.localizedDescription } }
@@ -163,10 +163,10 @@ private struct DeleteMaterialSheet: View {
         ZStack { DigitalHubBackground(); VStack(spacing: 18) {
             ZStack { Circle().fill(.red.opacity(0.14)).frame(width: 70, height: 70); Image(systemName: "trash.fill").font(.system(size: 28)).foregroundStyle(.red) }
             Text("Удалить материал?").font(.title2.bold()).foregroundStyle(.white)
-            Text(title).font(.headline).foregroundStyle(.cyan).multilineTextAlignment(.center)
+            Text(title).font(.headline).foregroundStyle(HomeTheme.accent).multilineTextAlignment(.center)
             Text("Материал и его вопросы будут удалены из библиотеки и текущих курсов. История занятий и статистика сохранятся.").font(.subheadline).foregroundStyle(.white.opacity(0.65)).multilineTextAlignment(.center)
             Button(role: .destructive) { dismiss(); onDelete() } label: { Label("Удалить", systemImage: "trash").font(.headline).frame(maxWidth: .infinity).padding(.vertical, 10) }.buttonStyle(.borderedProminent).tint(.red)
-            Button("Отмена") { dismiss() }.font(.headline).foregroundStyle(.cyan).frame(maxWidth: .infinity).padding(.vertical, 8)
+            Button("Отмена") { dismiss() }.font(.headline).foregroundStyle(HomeTheme.accent).frame(maxWidth: .infinity).padding(.vertical, 8)
         }.padding(24) }.presentationDetents([.height(390)]).presentationDragIndicator(.visible).presentationCornerRadius(28)
     }
 }
@@ -177,18 +177,23 @@ private struct AddMaterialSourceView: View {
     var body: some View { NavigationStack { ZStack { DigitalHubBackground(); ScrollView { VStack(spacing:14) { sourceCard("Импортировать таблицу","CSV / TSV / ZIP · настроить наборы вопросов","tablecells"){create=true};sourceCard("Импортировать BOTAI","Готовый материал .botai","shippingbox.fill"){packageImporter=true};NavigationLink { PlaceholderSource(title:"Общая библиотека") } label: { sourceLabel("Общая библиотека","Найти готовые материалы","books.vertical") }; NavigationLink { PlaceholderSource(title:"Подключиться к классу или группе") } label: { sourceLabel("Класс или группа","Материалы преподавателя или родителя","person.3") } }.padding(16) } }.navigationTitle("Добавить").toolbar{Button("Готово"){dismiss()}}.sheet(isPresented:$create,onDismiss:{if savedMaterial{dismiss()}}){AddMaterialView(onSaved:{savedMaterial=true;create=false})}.sheet(item:$pendingPackage,onDismiss:{if let p=pendingPackage{try? FileManager.default.removeItem(at:p.root)};pendingPackage=nil}){p in BOTAIImportPreview(payload:p){name in do{try store.importPackagePayload(p,title:name);pendingPackage=nil;dismiss()}catch{packageError=error.localizedDescription}}}.fileImporter(isPresented:$packageImporter,allowedContentTypes:[UTType(filenameExtension:"botai") ?? .data],allowsMultipleSelection:false){readPackage($0)}.alert("Не удалось импортировать BOTAI",isPresented:Binding(get:{packageError != nil},set:{if !$0{packageError=nil}})){Button("OK",role:.cancel){}}message:{Text(packageError ?? "Неизвестная ошибка")} } }
     private func readPackage(_ result:Result<[URL],Error>){do{guard let url=try result.get().first else{return};let access=url.startAccessingSecurityScopedResource();defer{if access{url.stopAccessingSecurityScopedResource()}};pendingPackage=try BOTAIPackageService.read(url)}catch{packageError=error.localizedDescription}}
     private func sourceCard(_ title:String,_ subtitle:String,_ icon:String,action:@escaping()->Void)->some View{Button(action:action){sourceLabel(title,subtitle,icon)}.accessibilityLabel(title)}
-    private func sourceLabel(_ title:String,_ subtitle:String,_ icon:String)->some View{HStack(spacing:14){Image(systemName:icon).font(.title2).foregroundStyle(.cyan).frame(width:34);VStack(alignment:.leading,spacing:4){Text(title).font(.headline).foregroundStyle(.white);Text(subtitle).font(.caption).foregroundStyle(.white.opacity(0.55))};Spacer();Image(systemName:"chevron.right").foregroundStyle(.white.opacity(0.3))}.padding(16).background(.white.opacity(0.055),in:RoundedRectangle(cornerRadius:18)).overlay(RoundedRectangle(cornerRadius:18).stroke(.cyan.opacity(0.18)))}
+    private func sourceLabel(_ title:String,_ subtitle:String,_ icon:String)->some View{HStack(spacing:14){Image(systemName:icon).font(.title2).foregroundStyle(HomeTheme.accent).frame(width:34);VStack(alignment:.leading,spacing:4){Text(title).font(.headline).foregroundStyle(.white);Text(subtitle).font(.caption).foregroundStyle(.white.opacity(0.55))};Spacer();Image(systemName:"chevron.right").foregroundStyle(.white.opacity(0.3))}.padding(16).background(.white.opacity(0.055),in:RoundedRectangle(cornerRadius:18)).overlay(RoundedRectangle(cornerRadius:18).stroke(.cyan.opacity(0.18)))}
 }
 
 private struct BOTAIImportPreview: View {
     let payload:BOTAIPackagePayload;let onImport:(String)->Void;@Environment(\.dismiss) private var dismiss;@State private var name:String
     init(payload:BOTAIPackagePayload,onImport:@escaping(String)->Void){self.payload=payload;self.onImport=onImport;_name=State(initialValue:payload.manifest.title)}
     private var count:Int { payload.manifest.rows.count * payload.manifest.questionSets.filter(\.enabled).count }
-    var body:some View{NavigationStack{ZStack{DigitalHubBackground();ScrollView{VStack(alignment:.leading,spacing:18){Text("ГОТОВЫЙ МАТЕРИАЛ").font(.caption.bold()).foregroundStyle(.cyan);VStack(alignment:.leading,spacing:7){Text("Название").font(.caption).foregroundStyle(.white.opacity(0.55));TextField("Название",text:$name).textFieldStyle(.plain).padding(12).background(.black.opacity(0.25),in:RoundedRectangle(cornerRadius:12)).foregroundStyle(.white)};info("Описание",payload.manifest.description ?? "—");info("Автор",payload.manifest.author ?? "Не указан");info("Теги",payload.manifest.tags ?? "—");HStack{stat("\(payload.manifest.rows.count)","Знаний");stat("\(payload.manifest.questionSets.count)","Наборов");stat("\(count)","Вопросов")};Text("Можно изменить только название. Содержимое и правила материала импортируются без изменений.").font(.caption).foregroundStyle(.white.opacity(0.55));Button { onImport(name.trimmingCharacters(in:.whitespacesAndNewlines)) } label: { Label("Добавить в библиотеку",systemImage:"square.and.arrow.down.fill").frame(maxWidth:.infinity).padding(.vertical,8)}.buttonStyle(.borderedProminent).tint(.cyan).disabled(name.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty)}.padding(20)}}.navigationTitle("Предпросмотр импорта").navigationBarTitleDisplayMode(.inline).toolbar{Button("Отмена"){dismiss()}}}}
-    private func info(_ label:String,_ value:String)->some View{VStack(alignment:.leading,spacing:4){Text(label.uppercased()).font(.caption2.bold()).foregroundStyle(.cyan);Text(value).foregroundStyle(.white)}.frame(maxWidth:.infinity,alignment:.leading)}
+    var body:some View{NavigationStack{ZStack{DigitalHubBackground();ScrollView{VStack(alignment:.leading,spacing:18){Text("ГОТОВЫЙ МАТЕРИАЛ").font(.caption.bold()).foregroundStyle(HomeTheme.accent);VStack(alignment:.leading,spacing:7){Text("Название").font(.caption).foregroundStyle(.white.opacity(0.55));TextField("Название",text:$name).textFieldStyle(.plain).padding(12).background(.black.opacity(0.25),in:RoundedRectangle(cornerRadius:12)).foregroundStyle(.white)};info("Описание",payload.manifest.description ?? "—");info("Автор",payload.manifest.author ?? "Не указан");info("Теги",payload.manifest.tags ?? "—");HStack{stat("\(payload.manifest.rows.count)","Знаний");stat("\(payload.manifest.questionSets.count)","Наборов");stat("\(count)","Вопросов")};Text("Можно изменить только название. Содержимое и правила материала импортируются без изменений.").font(.caption).foregroundStyle(.white.opacity(0.55));Button { onImport(name.trimmingCharacters(in:.whitespacesAndNewlines)) } label: { Label("Добавить в библиотеку",systemImage:"square.and.arrow.down.fill").frame(maxWidth:.infinity).padding(.vertical,8)}.buttonStyle(.borderedProminent).tint(HomeTheme.accent).disabled(name.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty)}.padding(20)}}.navigationTitle("Предпросмотр импорта").navigationBarTitleDisplayMode(.inline).toolbar{Button("Отмена"){dismiss()}}}}
+    private func info(_ label:String,_ value:String)->some View{VStack(alignment:.leading,spacing:4){Text(label.uppercased()).font(.caption2.bold()).foregroundStyle(HomeTheme.accent);Text(value).foregroundStyle(.white)}.frame(maxWidth:.infinity,alignment:.leading)}
     private func stat(_ value:String,_ label:String)->some View{VStack(alignment:.leading){Text(value).font(.title3.bold()).foregroundStyle(.white);Text(label).font(.caption2).foregroundStyle(.white.opacity(0.5))}.frame(maxWidth:.infinity,alignment:.leading).padding(10).background(.white.opacity(0.05),in:RoundedRectangle(cornerRadius:12))}
 }
 
 private struct PlaceholderSource: View { let title:String; var body:some View { ContentUnavailableView(title,systemImage:"hammer.fill",description:Text("Интерфейс предусмотрен. Реализация будет добавлена следующим этапом.")) } }
 private struct HubChip: ButtonStyle { let selected:Bool; func makeBody(configuration:Configuration)->some View{configuration.label.font(.caption.bold()).padding(.horizontal,13).padding(.vertical,8).background(selected ? Color.cyan.opacity(0.25):Color.white.opacity(0.06),in:Capsule()).overlay(Capsule().stroke(selected ? Color.cyan.opacity(0.7):Color.white.opacity(0.1))).foregroundStyle(.white)} }
-private struct DigitalHubBackground: View { var body:some View{LinearGradient(colors:[Color(red:0.015,green:0.035,blue:0.12),Color(red:0.03,green:0.08,blue:0.18),.black],startPoint:.top,endPoint:.bottom).ignoresSafeArea()} }
+private struct DigitalHubBackground: View {
+  var body: some View {
+    LinearGradient(colors: [HomeTheme.canvasTop, HomeTheme.canvasMiddle, HomeTheme.canvasBottom],
+                   startPoint: .top, endPoint: .bottom).ignoresSafeArea()
+  }
+}
