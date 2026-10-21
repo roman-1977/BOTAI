@@ -15,9 +15,6 @@ struct LearnSessionView: View {
   @State private var studySecondsToday = 0
   @State private var activeStartedAt: Date? = Date()
   @State private var activeQuestionSeconds: TimeInterval = 0
-  @State private var showModes = false
-  @State private var paceMode = 0
-  @State private var speedSeconds = 20
   @State private var questionStartedAt = Date()
   @State private var correctToday = 0
   @State private var sessionID = UUID()
@@ -35,7 +32,7 @@ struct LearnSessionView: View {
         else if finished { resultView }
         else { questionView }
       }.background(.clear)
-    }.preferredColorScheme(.dark).overlay { if showModes { modeOverlay } }
+    }.preferredColorScheme(.dark)
       .alert("Не удалось сохранить ответ", isPresented: $persistenceAlert) {
         Button("Повторить", role: .cancel) {}
       } message: { Text(store.lastPersistenceError ?? "Проверьте доступность хранилища") }
@@ -60,7 +57,7 @@ struct LearnSessionView: View {
       let cardH = max(compact ? 170 : 220, geo.size.height * (compact ? 0.28 : 0.34))
       VStack(spacing: 10) {
         sessionHeader
-        HStack { topicBadge; Button { showModes = true } label: { Image(systemName: "slider.horizontal.3").font(.title3).foregroundStyle(.cyan).frame(width: 42, height: 42).background(.cyan.opacity(0.10), in: Circle()) }.accessibilityLabel("Настройки занятия") }.padding(.horizontal, 18).padding(.top, 8).frame(height: 50, alignment: .top)
+        HStack { topicBadge }.padding(.horizontal, 18).padding(.top, 8).frame(height: 50, alignment: .top)
         questionCard.frame(height: cardH)
         ScrollView(showsIndicators: false) { answerArea.padding(.bottom, 8) }.frame(maxHeight: .infinity)
         Button {
@@ -87,76 +84,6 @@ struct LearnSessionView: View {
       CoverageRing(seen: seenToday.count, total: store.questions.count)
     }.padding(.horizontal, 14).padding(.top, 10).padding(.bottom, 8)
   }
-  private var modeOverlay: some View {
-    ZStack(alignment: .bottom) {
-      Color.black.opacity(0.48).ignoresSafeArea().onTapGesture { showModes = false }
-      VStack(spacing: 18) {
-        Capsule().fill(.white.opacity(0.18)).frame(width: 42, height: 4)
-        ScrollView(showsIndicators: false) {
-          VStack(spacing: 18) {
-            paceRow
-          }
-        }.frame(maxHeight: 390)
-        Button {
-          withAnimation { showModes = false }
-        } label: {
-          Text("ГОТОВО").font(.caption.bold()).tracking(1.5).foregroundStyle(.cyan).frame(
-            maxWidth: .infinity
-          ).frame(height: 42).background(
-            .cyan.opacity(0.09), in: RoundedRectangle(cornerRadius: 14)
-          ).overlay(RoundedRectangle(cornerRadius: 14).stroke(.cyan.opacity(0.3)))
-        }
-      }.padding(18).padding(.bottom, 12).background(
-        .ultraThinMaterial, in: UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30)
-      ).overlay(
-        UnevenRoundedRectangle(topLeadingRadius: 30, topTrailingRadius: 30).stroke(
-          LinearGradient(
-            colors: [.cyan.opacity(0.45), .purple.opacity(0.2)], startPoint: .topLeading,
-            endPoint: .topTrailing), lineWidth: 1)
-      ).shadow(color: .cyan.opacity(0.12), radius: 24)
-    }
-  }
-  private var paceRow: some View {
-    VStack(spacing: 10) {
-      Text("ТЕМП").frame(maxWidth: .infinity, alignment: .center).font(.caption2.bold()).tracking(
-        1.7
-      ).foregroundStyle(.white.opacity(0.5))
-      HStack(spacing: 10) {
-        modeTile("СПОКОЙНО", "leaf.fill", selected: paceMode == 0) { paceMode = 0 }
-        modeTile(
-          paceMode == 1 ? "\(speedSeconds) СЕК" : "НА СКОРОСТЬ", "timer", selected: paceMode == 1
-        ) {
-          if paceMode == 1 {
-            let values = [10, 20, 30, 60]
-            speedSeconds =
-              values[
-                (values.firstIndex(of: speedSeconds) ?? 0) + 1 < values.count
-                  ? (values.firstIndex(of: speedSeconds) ?? 0) + 1 : 0]
-          } else {
-            paceMode = 1
-          }
-        }
-      }
-    }
-  }
-  private func modeTile(
-    _ title: String, _ icon: String, selected: Bool, action: @escaping () -> Void
-  ) -> some View {
-    Button(action: action) {
-      VStack(spacing: 8) {
-        ZStack {
-          Hexagon().fill(selected ? Color.cyan.opacity(0.18) : Color.white.opacity(0.045))
-          Hexagon().stroke(
-            selected ? Color.cyan : Color.white.opacity(0.12), lineWidth: selected ? 2 : 1)
-          Image(systemName: icon).font(.title2).foregroundStyle(
-            selected ? .cyan : .white.opacity(0.72)
-          ).shadow(color: selected ? .cyan : .clear, radius: 7)
-        }.frame(height: 62)
-        Text(title).font(.system(size: 10, weight: .bold)).foregroundStyle(
-          selected ? .cyan : .white.opacity(0.68))
-      }.frame(maxWidth: .infinity)
-    }.buttonStyle(.plain)
-  }
   private var topicBadge: some View {
     HStack(alignment: .top, spacing: 8) {
       Image(systemName: "atom").frame(width: 18).padding(.top, 2)
@@ -177,7 +104,7 @@ struct LearnSessionView: View {
       Text(revealed ? question.answer : question.prompt).font(
         .system(size: 27, weight: .bold, design: .rounded)
       ).foregroundStyle(.white).multilineTextAlignment(.center).minimumScaleFactor(0.75)
-      Text(revealed ? "Нажми оценку ниже" : paceMode == 1 ? "Темп: до \(speedSeconds) сек · нажми, чтобы перевернуть" : "Нажми на карточку, чтобы перевернуть").font(.caption)
+      Text(revealed ? "Нажми оценку ниже" : "Нажми на карточку, чтобы перевернуть").font(.caption)
         .foregroundStyle(.white.opacity(0.48))
     }.padding(.horizontal, 18).padding(.vertical, 22).frame(
       maxWidth: .infinity, maxHeight: .infinity
