@@ -42,10 +42,10 @@ struct MaterialsHubView: View {
 
     private var personal: some View {
         VStack(spacing: 18) {
-            HStack { Text("ВСЕ МАТЕРИАЛЫ").font(.caption.bold()).foregroundStyle(HomeTheme.accent); Spacer(); Text("\(demo.materials.count + store.materials.count)").foregroundStyle(.white.opacity(0.55)) }
+            HStack { Text("ВСЕ МАТЕРИАЛЫ").font(.caption.bold()).foregroundStyle(HomeTheme.accent); Spacer(); Text("\(filteredDemo.count + filteredSaved.count)").foregroundStyle(.white.opacity(0.55)) }
             filterBar
             ForEach(filteredDemo) { materialCard($0) }
-            ForEach(store.materials) { recordCard($0) }
+            ForEach(filteredSaved) { recordCard($0) }
         }
     }
 
@@ -57,6 +57,15 @@ struct MaterialsHubView: View {
         demo.materials.filter { filter == "Все" || (filter == "Созданные" && $0.source == "Мой") || (filter == "Импорт" && $0.source == "Файл") || (filter == "Библиотека" && $0.source == "Библиотека") }
     }
 
+    private var filteredSaved: [StudyMaterialRecord] {
+        switch filter {
+        case "Созданные": return store.materials.filter { $0.source == .created }
+        case "Импорт": return store.materials.filter { $0.source == .importedPackage }
+        case "Библиотека": return []
+        default: return store.materials
+        }
+    }
+
     private func materialCard(_ m: DemoMaterial) -> some View {
         HStack(spacing:12) { Image(systemName:m.kind == "Опросник" ? "questionmark.bubble.fill":"tablecells.fill").font(.title2).foregroundStyle(.mint); VStack(alignment:.leading,spacing:4) { Text(m.title).font(.headline); Text(m.description).font(.caption).foregroundStyle(.white.opacity(0.62)).lineLimit(2); Text("\(m.kind) · \(m.count) · \(m.source)").font(.caption2).foregroundStyle(.cyan.opacity(0.85)) }; Spacer(); Menu { Button("Создать задание"){}; Button("Удалить из библиотеки",role:.destructive){} } label:{Image(systemName:"ellipsis").padding(8)} }
             .padding(13).background(.black.opacity(0.22),in:RoundedRectangle(cornerRadius:16)).foregroundStyle(.white)
@@ -64,7 +73,7 @@ struct MaterialsHubView: View {
     }
 
     private func recordCard(_ m: StudyMaterialRecord) -> some View { HStack { Image(systemName:"tablecells").foregroundStyle(.mint); VStack(alignment:.leading,spacing:4){Text(m.title).font(.headline);if let d=m.description {Text(d).font(.caption).foregroundStyle(.white.opacity(0.62)).lineLimit(2)};if let tags=m.topic {Text(tags).font(.caption2).foregroundStyle(HomeTheme.accent)}};Spacer();Menu{Button("Удалить из библиотеки",role:.destructive){deleteRecord=m}}label:{Image(systemName:"ellipsis").padding(8)}.accessibilityLabel("Меню сохранённого материала") }.padding(13).background(.black.opacity(0.22),in:RoundedRectangle(cornerRadius:16)).foregroundStyle(.white).contentShape(Rectangle()).onTapGesture{selectedRecord=m} }
-    private func deleteSavedMaterial(_ m:StudyMaterialRecord){do{courses.removeReferences(to:m.id);try store.delete(id:m.id);deleteRecord=nil}catch{deleteError=error.localizedDescription}}
+    private func deleteSavedMaterial(_ m:StudyMaterialRecord){do{try store.delete(id:m.id);courses.removeReferences(to:m.id);deleteRecord=nil}catch{deleteError=error.localizedDescription}}
 
     private var groups: some View { VStack(spacing:14) { Text("Назначено преподавателем или родителем").font(.caption).foregroundStyle(.white.opacity(0.55)).frame(maxWidth:.infinity,alignment:.leading); ForEach(demo.groups) { g in VStack(alignment:.leading,spacing:10) { HStack { Image(systemName:"person.3.fill").foregroundStyle(.purple); VStack(alignment:.leading){Text(g.title).font(.headline);Text(g.owner).font(.caption).foregroundStyle(.white.opacity(0.55))};Spacer();Image(systemName:"lock.fill").foregroundStyle(.white.opacity(0.4)) }; Divider().overlay(.white.opacity(0.1)); Label(g.task,systemImage:"target").foregroundStyle(.mint); Text("\(g.materials) материалов · цель задаёт руководитель").font(.caption).foregroundStyle(.white.opacity(0.6)) }.padding(15).background(.white.opacity(0.05),in:RoundedRectangle(cornerRadius:18)).foregroundStyle(.white) } } }
 }
