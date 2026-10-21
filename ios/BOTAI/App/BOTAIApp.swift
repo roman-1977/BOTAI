@@ -86,7 +86,10 @@ struct BOTAIApp: App {
         guard let support = try? FileManager.default.url(
             for: .applicationSupportDirectory, in: .userDomainMask,
             appropriateFor: nil, create: true
-        ) else { return false }
+        ) else {
+            storageFailure = "Не удалось открыть каталог данных приложения"
+            return false
+        }
         let uiTesting = ProcessInfo.processInfo.arguments.contains("-botai-ui-testing")
         let folder = LocalAccountStorage.directory(for: identity, support: support, uiTesting: uiTesting)
         do {
