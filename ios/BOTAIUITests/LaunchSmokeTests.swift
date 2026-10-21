@@ -24,4 +24,15 @@ final class LaunchSmokeTests: XCTestCase {
         app.launch()
         XCTAssertTrue(app.staticTexts["ПЛАН НА СЕГОДНЯ"].waitForExistence(timeout: 20))
     }
+
+    func testMaterialsLibraryOpens() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-botai-ui-testing", "-botai-reset-ui-test-data"]
+        app.launch()
+        let materials = app.buttons["Материалы"]
+        XCTAssertTrue(materials.waitForExistence(timeout: 20))
+        materials.tap()
+        XCTAssertTrue(app.staticTexts["ВСЕ МАТЕРИАЛЫ"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["Закрыть"].exists)
+    }
 }

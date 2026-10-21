@@ -3,7 +3,29 @@ import ZIPFoundation
 
 struct BOTAIPackagePayload: Identifiable { let id=UUID(); let manifest:BOTAIPackageManifest; let root:URL }
 enum BOTAIPackageService {
-    static func read(_ url:URL)throws->BOTAIPackagePayload{let root=FileManager.default.temporaryDirectory.appendingPathComponent("botai-package-\(UUID().uuidString)",isDirectory:true);try FileManager.default.createDirectory(at:root,withIntermediateDirectories:true);try validateArchive(url);try FileManager.default.unzipItem(at:url,to:root);guard let u=(FileManager.default.enumerator(at:root,includingPropertiesForKeys:nil)?.allObjects as? [URL])?.first(where:{$0.lastPathComponent=="manifest.json"})else{throw BOTAIPackageError.invalidManifest};let m=try JSONDecoder().decode(BOTAIPackageManifest.self,from:Data(contentsOf:u));guard m.formatVersion==BOTAIPackageManifest.currentFormatVersion else{throw BOTAIPackageError.unsupportedVersion};guard !m.title.isEmpty,!m.fields.isEmpty,!m.rows.isEmpty,!m.questionSets.isEmpty else{throw BOTAIPackageError.invalidManifest};return .init(manifest:m,root:root)}
+    static func read(_ url: URL) throws -> BOTAIPackagePayload {
+        try validateArchive(url)
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent("botai-package-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        do {
+            try FileManager.default.unzipItem(at: url, to: root)
+            let manifestURL = root.appendingPathComponent("manifest.json")
+            let data = try Data(contentsOf: manifestURL)
+            guard data.count <= 2_000_000 else { throw BOTAIPackageError.invalidManifest }
+            let manifest = try JSONDecoder().decode(BOTAIPackageManifest.self, from: data)
+            guard manifest.formatVersion == BOTAIPackageManifest.currentFormatVersion else {
+                throw BOTAIPackageError.unsupportedVersion
+            }
+            guard !manifest.title.isEmpty, !manifest.fields.isEmpty,
+                  !manifest.rows.isEmpty, !manifest.questionSets.isEmpty else {
+                throw BOTAIPackageError.invalidManifest
+            }
+            return .init(manifest: manifest, root: root)
+        } catch {
+            try? FileManager.default.removeItem(at: root)
+            throw error
+        }
+    }
     static func validateArchive(_ url: URL) throws {
         let archive = try Archive(url: url, accessMode: .read)
         var count = 0

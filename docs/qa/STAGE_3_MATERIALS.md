@@ -18,3 +18,11 @@ Date: 2026-10-21.
 - Import/export image round-trip, large real-world archives, and hostile ZIP fixtures need further tests before untrusted public package sharing.
 - A four-choice question requires enough distinct distractors in the source dataset. Insufficient rows are excluded; the authoring UI should communicate this.
 - App Store readiness is **not** established by this stage.
+
+## Latest verification (2026-10-21)
+
+- PASS: 21 unit tests and 3 UI tests on iPhone 16 Pro Max simulator, iOS 18.6, including opening Materials from the home screen.
+- PASS: archive preflight regression with 1,001 entries rejected.
+- PASS: manifest decoding now enforces a 2 MB limit and removes temporary extraction folder on error.
+- NOT RUN: interactive CSV/TSV and .botai file picker workflows, actual .botai export/import round-trip with images, hostile path traversal fixture and device-level manual verification.
+- **Stage 3 remains OPEN** until those workflows are covered. Passing automated tests alone is insufficient.
