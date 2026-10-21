@@ -32,7 +32,11 @@ struct LearnSessionView: View {
   var body: some View {
     ZStack {
       LearnDigitalBackground()
-      NavigationStack { if finished { resultView } else { questionView } }.background(.clear)
+      NavigationStack {
+        if store.questions.isEmpty { emptySessionView }
+        else if finished { resultView }
+        else { questionView }
+      }.background(.clear)
     }.preferredColorScheme(.dark).overlay { if showModes { modeOverlay } }
       .alert("Не удалось сохранить ответ", isPresented: $persistenceAlert) {
         Button("Повторить", role: .cancel) {}
@@ -41,6 +45,15 @@ struct LearnSessionView: View {
     { _, phase in handleScenePhase(phase) }
   }
   private var question: StudyQuestion { store.questions[index] }
+  private var emptySessionView: some View {
+    ContentUnavailableView {
+      Label("Нет вопросов для занятия", systemImage: "rectangle.stack.badge.questionmark")
+    } description: {
+      Text("Выберите опросник с вопросами в библиотеке.")
+    } actions: {
+      Button("Закрыть") { dismiss() }
+    }
+  }
   // Layout invariant: reserve the maximum two-line topic header and six-answer area first.
   // The card receives every remaining point so its height never changes between question types.
   private var questionView: some View {
@@ -329,7 +342,7 @@ struct LearnSessionView: View {
     }
   }
   private func animateAdvanceAfterChoice() {
-    guard !advancing else { return }
+    guard !advancing, !finished else { return }
     withAnimation(.easeIn(duration: 0.22)) { advancing = true }
     DispatchQueue.main.asyncAfter(deadline: .now() + 0.22) {
       advanceAfterChoice()
@@ -383,6 +396,7 @@ struct LearnSessionView: View {
     }
   }
   private func submit(_ rating: RecallRating) {
+    guard !finished, index < store.questions.count else { return }
     guard store.record(question: question, rating: rating) else {
       persistenceAlert = true
       return
