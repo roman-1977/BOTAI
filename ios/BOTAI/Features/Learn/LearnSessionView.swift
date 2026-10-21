@@ -372,9 +372,11 @@ private struct GoalRing: View {
         Text("/\(target)").font(.caption2.bold()).foregroundStyle(.white.opacity(0.55))
       }
     }.frame(width: 68, height: 68).overlay(alignment: .bottom) {
-      Text(label).font(.system(size: 9, weight: .bold)).foregroundStyle(.white.opacity(0.72))
-        .offset(y: 16)
+      Text(label).font(.caption2.bold()).foregroundStyle(.white.opacity(0.72))
+        .offset(y: 19)
     }
+    .accessibilityElement(children: .ignore)
+    .accessibilityLabel("\(label): \(value) из \(target)")
   }
 }
 private struct AnswerSplitRing: View {
@@ -399,9 +401,11 @@ private struct AnswerSplitRing: View {
         }.font(.headline.bold().monospacedDigit())
       }
     }.frame(width: 68, height: 68).overlay(alignment: .bottom) {
-      Text("ОТВЕТЫ").font(.system(size: 9, weight: .bold)).foregroundStyle(.white.opacity(0.72))
-        .offset(y: 16)
+      Text("ОТВЕТЫ").font(.caption2.bold()).foregroundStyle(.white.opacity(0.72))
+        .offset(y: 19)
     }
+    .accessibilityElement(children: .ignore)
+    .accessibilityLabel("Ответы: \(correct) правильных, \(wrong) неправильных")
   }
 }
 private struct CoverageRing: View {
@@ -416,9 +420,11 @@ private struct CoverageRing: View {
       ).rotationEffect(.degrees(-90)).shadow(color: .purple.opacity(0.45), radius: 5)
       Text("\(Int(ratio*100))%").font(.headline.bold().monospacedDigit())
     }.frame(width: 68, height: 68).overlay(alignment: .bottom) {
-      Text("ОХВАТ").font(.system(size: 9, weight: .bold)).foregroundStyle(.white.opacity(0.72))
-        .offset(y: 16)
+      Text("ОХВАТ").font(.caption2.bold()).foregroundStyle(.white.opacity(0.72))
+        .offset(y: 19)
     }
+    .accessibilityElement(children: .ignore)
+    .accessibilityLabel("Охват: \(seen) из \(total) вопросов")
   }
 }
 private struct Hexagon: Shape {
