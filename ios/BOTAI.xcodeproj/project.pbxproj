@@ -15,6 +15,7 @@
 		12178330FEFF03A18AF619CF /* StudySetDraft.swift in Sources */ = {isa = PBXBuildFile; fileRef = 986CACA862E1D54CD4DF06CF /* StudySetDraft.swift */; };
 		12DF2E17C8C2BC33E29EC9E0 /* StudentProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F55DD83F00FB6FB6208EC4A2 /* StudentProgressView.swift */; };
 		12EE9A99ED60EF2C510097B7 /* SocialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D8D9DA46C3B40BE1319A220 /* SocialView.swift */; };
+		20B9ADAE6A63460F93E8B185 /* LaunchSmokeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD1CDAA154BE2EB4B271B01D /* LaunchSmokeTests.swift */; };
 		218A1B9153A8F7196A7FD175 /* MyQuizzesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01557FDC64AB9F3E731E15AA /* MyQuizzesView.swift */; };
 		2812354A74E594F7AB92C70D /* AppDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = F739A6F7F8767D0448503087 /* AppDatabase.swift */; };
 		282271177C1A3E3A1D8221D0 /* LearningAnalytics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D312B4678FB966BE05DDAD8 /* LearningAnalytics.swift */; };
@@ -85,6 +86,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		77C59B176C74278F77A7D994 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 047C7DFD313006C15FDB561D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8C7E0572F23B9DC3C118CC43;
+			remoteInfo = BOTAI;
+		};
 		F4FE53C1A8DB0E64DA076CA8 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 047C7DFD313006C15FDB561D /* Project object */;
@@ -118,6 +126,7 @@
 		60DD59EEE1D1FF5044C85337 /* GameDemo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameDemo.swift; sourceTree = "<group>"; };
 		647084ED0C633CE4DFCE53B1 /* CourseRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseRepository.swift; sourceTree = "<group>"; };
 		64DBEBC1AD45A262DBB0D392 /* CourseStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseStore.swift; sourceTree = "<group>"; };
+		6594DB174B3AD47C337D70FE /* BOTAIUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = BOTAIUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		671EA90D234B22B143086115 /* MaterialMediaStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaterialMediaStore.swift; sourceTree = "<group>"; };
 		6EEC0059B7C03D9B17854A1E /* DemoContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoContent.swift; sourceTree = "<group>"; };
 		734B831E99BBB11025AFE3A1 /* PersonalQuizView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalQuizView.swift; sourceTree = "<group>"; };
@@ -157,6 +166,7 @@
 		CDE70A07AD9DCE7EBFBAA8E2 /* AddMaterialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddMaterialView.swift; sourceTree = "<group>"; };
 		CE635A128E1C555D4D845A47 /* StudyQuestionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyQuestionBuilder.swift; sourceTree = "<group>"; };
 		D1CCBBA4074FD61270C407B7 /* ProgressDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressDashboardView.swift; sourceTree = "<group>"; };
+		DD1CDAA154BE2EB4B271B01D /* LaunchSmokeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchSmokeTests.swift; sourceTree = "<group>"; };
 		DE4287578AC9F45A50FD6A46 /* LearningRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningRepositoryTests.swift; sourceTree = "<group>"; };
 		E0D525E86C13C906F3E053A9 /* CoursesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoursesView.swift; sourceTree = "<group>"; };
 		E15E81FC9BCB68D623474AAB /* StudyProfileStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyProfileStore.swift; sourceTree = "<group>"; };
@@ -191,6 +201,7 @@
 			children = (
 				949EBB6041A1B2479A16BA41 /* BOTAI */,
 				F8515A6E759785553F1AAA7C /* BOTAITests */,
+				937D862872C6A1B73D1ECEE6 /* BOTAIUITests */,
 				EF45DE58DE077AA068C034A1 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -267,6 +278,14 @@
 				B167F9A06DD96627FD4E40BB /* Models */,
 			);
 			path = Domain;
+			sourceTree = "<group>";
+		};
+		937D862872C6A1B73D1ECEE6 /* BOTAIUITests */ = {
+			isa = PBXGroup;
+			children = (
+				DD1CDAA154BE2EB4B271B01D /* LaunchSmokeTests.swift */,
+			);
+			path = BOTAIUITests;
 			sourceTree = "<group>";
 		};
 		949EBB6041A1B2479A16BA41 /* BOTAI */ = {
@@ -401,6 +420,7 @@
 			children = (
 				0EEB254DC7672F182570BFA5 /* BOTAI.app */,
 				AFD3EF09AA65DD0860C0C879 /* BOTAITests.xctest */,
+				6594DB174B3AD47C337D70FE /* BOTAIUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -462,6 +482,24 @@
 			productReference = 0EEB254DC7672F182570BFA5 /* BOTAI.app */;
 			productType = "com.apple.product-type.application";
 		};
+		E7FE79C6FD4B931E969B4BDD /* BOTAIUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 657CC3164A3217D99BB9C2F0 /* Build configuration list for PBXNativeTarget "BOTAIUITests" */;
+			buildPhases = (
+				E1F312A1996A16615ADAC3AB /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				796059A81917B8C05A1E4190 /* PBXTargetDependency */,
+			);
+			name = BOTAIUITests;
+			packageProductDependencies = (
+			);
+			productName = BOTAIUITests;
+			productReference = 6594DB174B3AD47C337D70FE /* BOTAIUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -471,6 +509,9 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
+					E7FE79C6FD4B931E969B4BDD = {
+						TestTargetID = 8C7E0572F23B9DC3C118CC43;
+					};
 				};
 			};
 			buildConfigurationList = AFA2421CA54C59E725415979 /* Build configuration list for PBXProject "BOTAI" */;
@@ -494,6 +535,7 @@
 			targets = (
 				8C7E0572F23B9DC3C118CC43 /* BOTAI */,
 				260C368D456DC4CCE4FCF07B /* BOTAITests */,
+				E7FE79C6FD4B931E969B4BDD /* BOTAIUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -595,9 +637,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E1F312A1996A16615ADAC3AB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				20B9ADAE6A63460F93E8B185 /* LaunchSmokeTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		796059A81917B8C05A1E4190 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8C7E0572F23B9DC3C118CC43 /* BOTAI */;
+			targetProxy = 77C59B176C74278F77A7D994 /* PBXContainerItemProxy */;
+		};
 		D711A7B369F4C72E30C26BBD /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 8C7E0572F23B9DC3C118CC43 /* BOTAI */;
@@ -671,6 +726,22 @@
 			};
 			name = Debug;
 		};
+		36F7993915737B3106B90813 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.roman1977.botai.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = BOTAI;
+			};
+			name = Debug;
+		};
 		5E24D7FF671A31C9D498F6FE /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -724,6 +795,22 @@
 				SDKROOT = iphoneos;
 				SUPPORTS_MACCATALYST = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		B1C849181B394D8AF73BC095 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.roman1977.botai.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = BOTAI;
 			};
 			name = Release;
 		};
@@ -804,6 +891,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		657CC3164A3217D99BB9C2F0 /* Build configuration list for PBXNativeTarget "BOTAIUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				36F7993915737B3106B90813 /* Debug */,
+				B1C849181B394D8AF73BC095 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
 		7AE5F7AFDF3BD382109429D6 /* Build configuration list for PBXNativeTarget "BOTAI" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

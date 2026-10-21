@@ -50,6 +50,17 @@
                ReferencedContainer = "container:BOTAI.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "E7FE79C6FD4B931E969B4BDD"
+               BuildableName = "BOTAIUITests.xctest"
+               BlueprintName = "BOTAIUITests"
+               ReferencedContainer = "container:BOTAI.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
       <CommandLineArguments>
       </CommandLineArguments>

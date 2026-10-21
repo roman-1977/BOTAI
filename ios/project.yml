@@ -40,10 +40,20 @@ targets:
       - package: ZIPFoundation
         product: ZIPFoundation
     scheme:
-      testTargets: [BOTAITests]
+      testTargets: [BOTAITests, BOTAIUITests]
   BOTAITests:
     type: bundle.unit-test
     platform: iOS
     sources: [BOTAITests]
     dependencies:
       - target: BOTAI
+
+  BOTAIUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources: [BOTAIUITests]
+    dependencies:
+      - target: BOTAI
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.roman1977.botai.uitests

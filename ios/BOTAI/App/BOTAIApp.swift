@@ -14,7 +14,12 @@ struct BOTAIApp: App {
         var studyProfileRepository: StudyProfileRepository?
         let repository: LearningRepository? = {
             guard let support = try? FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true) else { return nil }
-            let folder = support.appending(path: "BOTAI", directoryHint: .isDirectory)
+            let isUITesting = ProcessInfo.processInfo.arguments.contains("-botai-ui-testing")
+            let folderName = isUITesting ? "BOTAI-UITests" : "BOTAI"
+            let folder = support.appending(path: folderName, directoryHint: .isDirectory)
+            if isUITesting && ProcessInfo.processInfo.arguments.contains("-botai-reset-ui-test-data") {
+                try? FileManager.default.removeItem(at: folder)
+            }
             do {
                 try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true, attributes: nil)
             } catch {
