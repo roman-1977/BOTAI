@@ -34,7 +34,7 @@ struct AttemptSyncCoordinatorTests {
     @Test func unmappedDataNeverReachesBackend() async throws {
         let (learning, _) = try setup(mapped: false)
         let backend = FakeAttemptBackend(.acknowledgeAll)
-        let sync = AttemptSyncCoordinator(backend: backend, repository: learning)
+        let sync = AttemptSyncCoordinator(backend: backend, repository: learning, isCurrentAccount: { true })
         #expect(try await sync.flush() == 0)
         #expect(await backend.calls == 0)
         #expect(try learning.outboxCount() == 1)
@@ -43,7 +43,7 @@ struct AttemptSyncCoordinatorTests {
     @Test func confirmedUploadRemovesOutboxButNotHistory() async throws {
         let (learning, _) = try setup(mapped: true)
         let backend = FakeAttemptBackend(.acknowledgeAll)
-        let sync = AttemptSyncCoordinator(backend: backend, repository: learning)
+        let sync = AttemptSyncCoordinator(backend: backend, repository: learning, isCurrentAccount: { true })
         #expect(try await sync.flush() == 1)
         #expect(try learning.outboxCount() == 0)
         #expect(try learning.load().0.count == 1)
@@ -53,21 +53,30 @@ struct AttemptSyncCoordinatorTests {
 
     @Test func rejectedAcknowledgementPreservesQueue() async throws {
         let (learning, _) = try setup(mapped: true)
-        let sync = AttemptSyncCoordinator(backend: FakeAttemptBackend(.foreignID), repository: learning)
+        let sync = AttemptSyncCoordinator(backend: FakeAttemptBackend(.foreignID), repository: learning, isCurrentAccount: { true })
         await #expect(throws: BOTAIBackendError.invalidAcknowledgement) { try await sync.flush() }
         #expect(try learning.outboxCount() == 1)
     }
 
     @Test func backendFailurePreservesQueue() async throws {
         let (learning, _) = try setup(mapped: true)
-        let sync = AttemptSyncCoordinator(backend: FakeAttemptBackend(.fail), repository: learning)
+        let sync = AttemptSyncCoordinator(backend: FakeAttemptBackend(.fail), repository: learning, isCurrentAccount: { true })
         await #expect(throws: BOTAIBackendError.missingServerQuestionMapping) { try await sync.flush() }
+        #expect(try learning.outboxCount() == 1)
+    }
+
+    @Test func changedAccountBeforeUploadPreventsNetworkAndDeletion() async throws {
+        let (learning, _) = try setup(mapped: true)
+        let backend = FakeAttemptBackend(.acknowledgeAll)
+        let sync = AttemptSyncCoordinator(backend: backend, repository: learning, isCurrentAccount: { false })
+        #expect(try await sync.flush() == 0)
+        #expect(await backend.calls == 0)
         #expect(try learning.outboxCount() == 1)
     }
 
     @Test func noAcknowledgementsPreserveQueue() async throws {
         let (learning, _) = try setup(mapped: true)
-        let sync = AttemptSyncCoordinator(backend: FakeAttemptBackend(.acknowledgeNone), repository: learning)
+        let sync = AttemptSyncCoordinator(backend: FakeAttemptBackend(.acknowledgeNone), repository: learning, isCurrentAccount: { true })
         #expect(try await sync.flush() == 0)
         #expect(try learning.outboxCount() == 1)
     }
