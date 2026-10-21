@@ -29,6 +29,6 @@ Status: IN PROGRESS (2026-10-21).
 
 ## Remaining
 - Section cancel UI regression added: create course and section, edit title, Cancel, terminate/relaunch, verify original section name survives and unsaved edit does not. **Passed** (`Test-BOTAI-2026.10.21_17-18-17-+0300.xcresult`).
-- Add UI regression for deleting a material currently referenced by an active course/goal (unit reference cleanup already covered).
+- Extended end-to-end UI regression to delete a seeded material referenced by an active course/goal, verify library removal and zero remaining goal question sets. **Passed** (`Test-BOTAI-2026.10.21_17-25-07-+0300.xcresult`).
 - Add persisted-statistics assertions for multiple-choice and interrupted sessions (session counting fix is implemented; current E2E covers reveal answers).
 - Re-run full suite after any further changes; stage remains open until these acceptance cases are covered.

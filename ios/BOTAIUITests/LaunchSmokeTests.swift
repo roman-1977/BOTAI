@@ -216,6 +216,17 @@ final class LaunchSmokeTests: XCTestCase {
         answer.tap()
         XCTAssertTrue(app.staticTexts["ВОПРОСЫ ЗАКОНЧИЛИСЬ"].waitForExistence(timeout: 10))
         app.buttons["ГОТОВО"].tap()
+        app.buttons["Материалы"].tap()
+        XCTAssertTrue(app.staticTexts["Учебный материал UI"].waitForExistence(timeout: 10))
+        app.buttons["Меню сохранённого материала"].tap()
+        app.buttons["Удалить из библиотеки"].tap()
+        app.buttons["Удалить материал"].tap()
+        XCTAssertFalse(app.staticTexts["Учебный материал UI"].waitForExistence(timeout: 3))
+        app.buttons["Закрыть"].tap()
+        app.buttons["Мои курсы"].tap()
+        app.staticTexts["Курс с разделом"].tap()
+        app.buttons["Цели"].tap()
+        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", "0 опросников")).firstMatch.waitForExistence(timeout: 10))
     }
 
     func testSelectBOTAIFileAndImportIntoLibrary() throws {
