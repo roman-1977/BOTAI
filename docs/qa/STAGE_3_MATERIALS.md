@@ -40,3 +40,10 @@ Date: 2026-10-21.
 - Added positive and negative regression tests for image path references.
 - Full iPhone 16 Pro Max simulator suite: **24 unit tests and 3 UI tests passed**, `Test-BOTAI-2026.10.21_16-02-02-+0300.xcresult`.
 - Still needed: export/import round-trip using real image bytes and end-to-end file picker checks; stage remains open.
+
+## Export/import image bytes regression (2026-10-21)
+
+- Added a real ZIP round-trip test: create a material with an image media reference, export it as .botai, import the archive, and compare the extracted image bytes exactly to the original bytes.
+- Verified manifest metadata, question sets, image field type, and row data survive export/import.
+- Simulator suite: **25 unit tests and 3 UI tests passed**, `Test-BOTAI-2026.10.21_16-05-15-+0300.xcresult`.
+- Still needed: system document-picker UI workflow, malformed archive fixtures, and repository-level imported media persistence.
