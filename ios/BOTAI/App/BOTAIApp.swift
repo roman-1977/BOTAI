@@ -79,14 +79,7 @@ struct BOTAIApp: App {
             appropriateFor: nil, create: true
         ) else { return false }
         let uiTesting = ProcessInfo.processInfo.arguments.contains("-botai-ui-testing")
-        let folder: URL
-        switch identity {
-        case .guest:
-            // Preserve the existing offline guest library and learning history.
-            folder = support.appendingPathComponent(uiTesting ? "BOTAI-UITests" : "BOTAI", isDirectory: true)
-        case .authenticated:
-            folder = LocalAccountStorage.directory(for: identity, support: support, uiTesting: uiTesting)
-        }
+        let folder = LocalAccountStorage.directory(for: identity, support: support, uiTesting: uiTesting)
         do {
             try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
             let database = try AppDatabase(path: folder.appendingPathComponent("learning.sqlite").path)

@@ -7,6 +7,8 @@ struct LocalAccountStorageTests {
         let first = UUID(), second = UUID()
         let guest = LocalAccountStorage.directoryName(for: .guest)
         let account = LocalAccountStorage.directoryName(for: .authenticated(first))
+        #expect(guest == "BOTAI")
+        #expect(LocalAccountStorage.directoryName(for: .guest, uiTesting: true) == "BOTAI-UITests")
         #expect(guest != account)
         #expect(account != LocalAccountStorage.directoryName(for: .authenticated(second)))
         #expect(account == LocalAccountStorage.directoryName(for: .authenticated(first)))
