@@ -62,3 +62,10 @@ Date: 2026-10-21.
 - Added integration regression importing a two-row package with shared source media into MaterialRepository, verifying persisted row references and comparing both resolved image files with source bytes.
 - Unit test rerun: **26 passed** (`Test-BOTAI-2026.10.21_16-14-31-+0300.xcresult`). UI suite: **4 passed** in preceding run. The preceding combined run reported a simulator test-runner bootstrap crash, so unit tests were rerun separately.
 - Remaining: corrupted archive regression, document-picker selection, and failure cleanup coverage.
+
+## Failed import cleanup (2026-10-21)
+
+- Failed package import now removes the newly created material media directory, preventing orphaned copied files.
+- Added regression for a valid manifest with missing image bytes: import rejects the package, SQLite material count stays unchanged, and the extracted temporary root is removed.
+- Simulator unit suite: **27 tests passed**, `Test-BOTAI-2026.10.21_16-16-16-+0300.xcresult`. Previous UI suite: 4 passed.
+- Remaining: malformed ZIP archive regression and complete system document-picker selection.

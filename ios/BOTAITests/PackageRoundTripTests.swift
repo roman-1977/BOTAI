@@ -74,4 +74,26 @@ struct PackageRoundTripTests {
         #expect(try Data(contentsOf: resolved) == bytes)
         #expect(try Data(contentsOf: secondURL) == bytes)
     }
+
+    @Test @MainActor func missingImageRejectsImportAndCleansTemporaryDirectory() throws {
+        let fm = FileManager.default
+        let db = try AppDatabase()
+        let repo = MaterialRepository(database: db)
+        let store = MaterialStore(repository: repo)
+        let root = fm.temporaryDirectory.appendingPathComponent("botai-broken-\(UUID().uuidString)", isDirectory: true)
+        try fm.createDirectory(at: root, withIntermediateDirectories: true)
+        let json = #"""
+        {"formatVersion":1,"title":"Broken image fixture","kind":"reference","fields":[{"key":"picture","title":"Picture","position":0,"type":"image"}],"rows":[{"picture":"media/missing.png"}],"questionSets":[{"kind":"card","promptTemplate":"{1}","promptFieldKeys":["picture"],"answers":[{"template":"{1}","fieldKeys":["picture"],"correct":true}],"showCorrectCount":false,"enabled":true}]}
+        """#
+        let manifest = try JSONDecoder().decode(BOTAIPackageManifest.self, from: Data(json.utf8))
+        let before = try repo.materials().count
+        do {
+            try store.importPackagePayload(BOTAIPackagePayload(manifest: manifest, root: root))
+            Issue.record("Expected missing image to reject import")
+        } catch {
+            #expect(error is BOTAIPackageError)
+        }
+        #expect(try repo.materials().count == before)
+        #expect(!fm.fileExists(atPath: root.path))
+    }
 }
