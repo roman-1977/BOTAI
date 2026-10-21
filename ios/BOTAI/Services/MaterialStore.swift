@@ -5,17 +5,23 @@ import Observation
 final class MaterialStore {
     private(set) var materials: [StudyMaterialRecord] = []
     private let repository: MaterialRepository?
+    private(set) var lastPersistenceError: String?
 
     init(repository: MaterialRepository? = nil) {
         self.repository = repository
-        try? repository?.migrateLegacyMediaReferences()
+        do { try repository?.migrateLegacyMediaReferences() }
+        catch { lastPersistenceError = error.localizedDescription }
         refresh()
     }
 
-    func refresh() { materials = (try? repository?.materials()) ?? [] }
+    func refresh() {
+        guard let repository else { return }
+        do { materials = try repository.materials(); lastPersistenceError = nil }
+        catch { lastPersistenceError = error.localizedDescription }
+    }
 
     func saveCSV(title: String, description: String = "", tags: String = "", table: ImportedTable, ruleDrafts: [DraftQuestionRule]? = nil, mappings: Set<CardMapping> = []) throws {
-        guard let repository else { return }
+        guard let repository else { throw CocoaError(.fileNoSuchFile) }
         let materialID = UUID(); let now = Date()
         let fields = table.headers.enumerated().map { index, title in MaterialField(id: UUID(), materialID: materialID, key: "f\(index)", title: title, position: index) }
         let mediaDir = MaterialMediaStore.directory(for:materialID)
@@ -40,7 +46,7 @@ final class MaterialStore {
     }
 
     func importPackagePayload(_ p: BOTAIPackagePayload, title overrideTitle: String? = nil) throws {
-        guard let repository else { return };let id=UUID(),now=Date();let mediaDir=MaterialMediaStore.directory(for:id);try BOTAIPackageService.validateManifest(p.manifest);try FileManager.default.createDirectory(at:mediaDir,withIntermediateDirectories:true)
+        guard let repository else { throw CocoaError(.fileNoSuchFile) };let id=UUID(),now=Date();let mediaDir=MaterialMediaStore.directory(for:id);try BOTAIPackageService.validateManifest(p.manifest);try FileManager.default.createDirectory(at:mediaDir,withIntermediateDirectories:true)
         defer { try? FileManager.default.removeItem(at: p.root) }
         var imported = false
         defer { if !imported { try? FileManager.default.removeItem(at: mediaDir) } }
@@ -53,7 +59,7 @@ final class MaterialStore {
     func exportPackage(id: UUID) throws -> URL { guard let repository,let c=try repository.content(id:id) else { throw CocoaError(.fileNoSuchFile) };return try BOTAIPackageService.write(c) }
 
     func delete(id: UUID) throws {
-        guard let repository else { return }
+        guard let repository else { throw CocoaError(.fileNoSuchFile) }
         try repository.delete(id: id)
         try? FileManager.default.removeItem(at: MaterialMediaStore.directory(for:id))
         refresh()
