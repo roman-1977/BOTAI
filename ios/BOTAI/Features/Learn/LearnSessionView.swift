@@ -299,6 +299,7 @@ struct LearnSessionView: View {
   }
   // Study time counts only while the app is active and is committed when the question is completed.
   private func countQuestionTime() {
+    guard index < store.questions.count else { return }
     seenToday.insert(question.id)
     var total = activeQuestionSeconds
     if let start = activeStartedAt { total += Date().timeIntervalSince(start) }
@@ -308,7 +309,16 @@ struct LearnSessionView: View {
   }
 
   private func persistSession() { store.saveSession(.init(id:sessionID,startedAt:sessionStartedAt,endedAt:.now,activeSeconds:sessionActiveSeconds,answered:sessionAnswered,correct:sessionCorrect)) }
-  private func finishSession() { countQuestionTime(); persistSession(); dismiss() }
+  private func finishSession() {
+    guard !store.questions.isEmpty, index < store.questions.count else { dismiss(); return }
+    countQuestionTime()
+    persistSession()
+    guard store.lastPersistenceError == nil else {
+      persistenceAlert = true
+      return
+    }
+    dismiss()
+  }
   private func handleScenePhase(_ phase: ScenePhase) {
     switch phase {
     case .active: if activeStartedAt == nil { activeStartedAt = Date() }
