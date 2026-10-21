@@ -65,6 +65,11 @@ Status: active. Server integration and account isolation are not accepted.
 - Focused `LocalAccountStorageTests` suite **5/5 passed** (`Test-BOTAI-2026.10.21_18-44-02-+0300.xcresult`). Complete simulator regression **53/53 passed, 0 failed, 0 skipped** (`Test-BOTAI-2026.10.21_18-44-45-+0300.xcresult`). This is local persistence verification; it does not establish Supabase RLS or end-to-end sign-in correctness.
 - Supabase CLI lists the BOTAI cloud project. Attempting `supabase link --project-ref` reveals the actual blocker: **the cloud project is paused** (`project is paused`; admin must unpause it in the Supabase dashboard). An earlier migration-list attempt also reported IPv6 connectivity limitations. No production database changes were attempted. Live RLS and migration checks must wait until the project is resumed.
 
+## Portable backend contract and bootstrap race guard
+- Added `BOTAIBackendAPI` with transport-neutral versioned attempt upload DTOs and acknowledgements. No Supabase types appear in the contract. The adapter and authoritative server question mapping are still pending; no upload has been enabled.
+- Added a bootstrap-in-progress guard so SwiftUI does not show the root view or rebind an identity while auth session resolution is in flight.
+- Full simulator suite after the bootstrap guard **53/53 passed** (`Test-BOTAI-2026.10.21_19-01-53-+0300.xcresult`); API contract compile succeeded and focused API test **1/1 passed** (`Test-BOTAI-2026.10.21_19-05-37-+0300.xcresult`). Full suite including the new API test remains to run.
+
 ## Remaining
 1. Map local question IDs to real server Question and QuestionVersion IDs; then implement idempotent uploads, bounded retries and a durable cursor.
 2. Partition private local state by user identity and define guest-to-account migration.

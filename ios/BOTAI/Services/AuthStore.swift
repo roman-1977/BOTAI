@@ -7,6 +7,7 @@ final class AuthStore {
     private(set) var isAuthenticated = false
     private(set) var userID: UUID?
     private(set) var errorMessage: String?
+    private(set) var isBootstrapping = false
     private let client = SupabaseProvider.client
 
     var localIdentity: LocalAccountStorage.Identity {
@@ -19,6 +20,8 @@ final class AuthStore {
     }
 
     func bootstrap() async {
+        isBootstrapping = true
+        defer { isBootstrapping = false }
         didFailBootstrap = false
         do {
             let session = try await client.auth.session

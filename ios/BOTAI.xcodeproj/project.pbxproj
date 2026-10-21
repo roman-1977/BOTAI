@@ -36,6 +36,7 @@
 		44F65275408F968CA13A8D18 /* PackageSafetyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04E1CDDA5641B55FC697A5BC /* PackageSafetyTests.swift */; };
 		450DB60F8F67AAF37E06543F /* StudyQuestion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20EAB15C2761F0F7B90FEE9B /* StudyQuestion.swift */; };
 		4536E93EFE8DAD448151D032 /* QuizProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D192BB63142C7D058BAB1FB /* QuizProgressView.swift */; };
+		453C6BCDACD459B4730C4164 /* BOTAIBackendAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D063F9C9366A38865A6F31D /* BOTAIBackendAPI.swift */; };
 		45E8C1DD9B9148C5DFD60E6B /* StudyProfileTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0B3752F018E17CBA225EE81 /* StudyProfileTests.swift */; };
 		4AF408F4A7671975ECF3F6D7 /* StudyQuestionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE635A128E1C555D4D845A47 /* StudyQuestionBuilder.swift */; };
 		4D691B9E8238C076179611F9 /* AuthStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94C51202DD85DC322CB38093 /* AuthStore.swift */; };
@@ -84,6 +85,7 @@
 		DC0B3848E2E81A962A942613 /* MaterialStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE42EE2CA2719BF2A733B642 /* MaterialStorageTests.swift */; };
 		E0572C93CC5DC7349320117A /* GameHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B4DFDA30A4EDA83192CBE1 /* GameHomeView.swift */; };
 		E30E549896ED854EE99DAB01 /* MaterialStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC24BF33022F9D17757276F3 /* MaterialStore.swift */; };
+		E58028B58076E82F2DED7B9D /* BOTAIBackendAPITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D43425732FF32F44CB307E8B /* BOTAIBackendAPITests.swift */; };
 		EB96DB4352D299493ABB9F85 /* DailyPlanTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73BBD4473054760B92F62626 /* DailyPlanTests.swift */; };
 		ECF1E237CD03936D05825551 /* MaterialMediaStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 671EA90D234B22B143086115 /* MaterialMediaStore.swift */; };
 		EFFBB0C2CF1C8B55C82E9DE3 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 817818ACA82B71632FAE9344 /* ProfileView.swift */; };
@@ -134,6 +136,7 @@
 		3FD1DB3787A94308A54118B0 /* Courses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Courses.swift; sourceTree = "<group>"; };
 		41B4DFDA30A4EDA83192CBE1 /* GameHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameHomeView.swift; sourceTree = "<group>"; };
 		426462B56FD0EC9AF023D9F2 /* SocialService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocialService.swift; sourceTree = "<group>"; };
+		4D063F9C9366A38865A6F31D /* BOTAIBackendAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BOTAIBackendAPI.swift; sourceTree = "<group>"; };
 		4F5A29022FB4F3CE1CBCED08 /* StudyProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyProfile.swift; sourceTree = "<group>"; };
 		596555D1BDE357A8CAFEFD2C /* LearningStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningStateTests.swift; sourceTree = "<group>"; };
 		60DD59EEE1D1FF5044C85337 /* GameDemo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameDemo.swift; sourceTree = "<group>"; };
@@ -182,6 +185,7 @@
 		CDE70A07AD9DCE7EBFBAA8E2 /* AddMaterialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddMaterialView.swift; sourceTree = "<group>"; };
 		CE635A128E1C555D4D845A47 /* StudyQuestionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyQuestionBuilder.swift; sourceTree = "<group>"; };
 		D1CCBBA4074FD61270C407B7 /* ProgressDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressDashboardView.swift; sourceTree = "<group>"; };
+		D43425732FF32F44CB307E8B /* BOTAIBackendAPITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BOTAIBackendAPITests.swift; sourceTree = "<group>"; };
 		DD1CDAA154BE2EB4B271B01D /* LaunchSmokeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchSmokeTests.swift; sourceTree = "<group>"; };
 		DE4287578AC9F45A50FD6A46 /* LearningRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningRepositoryTests.swift; sourceTree = "<group>"; };
 		E0D525E86C13C906F3E053A9 /* CoursesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoursesView.swift; sourceTree = "<group>"; };
@@ -385,6 +389,7 @@
 			children = (
 				A7626D494DC476ABE5F29F05 /* AccountSafetyService.swift */,
 				94C51202DD85DC322CB38093 /* AuthStore.swift */,
+				4D063F9C9366A38865A6F31D /* BOTAIBackendAPI.swift */,
 				8256E8A0B1222090F38434B6 /* BOTAIPackageService.swift */,
 				64DBEBC1AD45A262DBB0D392 /* CourseStore.swift */,
 				B2207465C6658D430BFD407D /* DailyPlanner.swift */,
@@ -447,6 +452,7 @@
 		F8515A6E759785553F1AAA7C /* BOTAITests */ = {
 			isa = PBXGroup;
 			children = (
+				D43425732FF32F44CB307E8B /* BOTAIBackendAPITests.swift */,
 				C0AB28470AF7EF09A01D93E7 /* CardGenerationTests.swift */,
 				97A015FACA3ABA7F35E3D03A /* CoursePersistenceTests.swift */,
 				73BBD4473054760B92F62626 /* DailyPlanTests.swift */,
@@ -589,6 +595,7 @@
 				65E401B51A0CE1196558F42B /* Attempt.swift in Sources */,
 				4D691B9E8238C076179611F9 /* AuthStore.swift in Sources */,
 				7F7154D72410ECF270F9D30A /* BOTAIApp.swift in Sources */,
+				453C6BCDACD459B4730C4164 /* BOTAIBackendAPI.swift in Sources */,
 				95D7BF4D3E7C13DDFADE580B /* BOTAIPackage.swift in Sources */,
 				F02C3636FD90010C812BEAFB /* BOTAIPackageService.swift in Sources */,
 				F2B1DBC5E2C293E133378225 /* CourseRepository.swift in Sources */,
@@ -654,6 +661,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E58028B58076E82F2DED7B9D /* BOTAIBackendAPITests.swift in Sources */,
 				D703F21C06F2D9C8DC0329DA /* CardGenerationTests.swift in Sources */,
 				52DB39239603E2F521335894 /* CoursePersistenceTests.swift in Sources */,
 				EB96DB4352D299493ABB9F85 /* DailyPlanTests.swift in Sources */,

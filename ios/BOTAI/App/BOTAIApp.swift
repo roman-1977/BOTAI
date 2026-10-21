@@ -99,7 +99,7 @@ struct BOTAIApp: App {
     var body: some Scene {
         WindowGroup {
             Group {
-                if didResolveInitialIdentity {
+                if didResolveInitialIdentity && !authStore.isBootstrapping && !authStore.didFailBootstrap {
                     RootTabView()
                         .id(LocalAccountStorage.directoryName(for: activeIdentity))
                 }
@@ -128,7 +128,8 @@ struct BOTAIApp: App {
                 }
                 .onChange(of: authStore.userID) { _, _ in
                     didResolveInitialIdentity = false
-                    didResolveInitialIdentity = !authStore.didFailBootstrap && switchStorageIfNeeded()
+                    guard !authStore.isBootstrapping && !authStore.didFailBootstrap else { return }
+                    didResolveInitialIdentity = switchStorageIfNeeded()
                 }
         }
     }
