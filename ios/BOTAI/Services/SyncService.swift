@@ -6,6 +6,7 @@ import Supabase
 actor SyncService {
     private let client: SupabaseClient
     private let repository: LearningRepository
+    private var flushInFlight = false
 
     init(client: SupabaseClient = SupabaseProvider.client, repository: LearningRepository) {
         self.client = client
@@ -13,6 +14,10 @@ actor SyncService {
     }
 
     func flush() async {
+        // A new coordinator is created per call; guard at the service boundary too.
+        guard !flushInFlight else { return }
+        flushInFlight = true
+        defer { flushInFlight = false }
         // Capture the actual authenticated Supabase identity, not a caller-supplied UUID.
         guard let originalUserID = try? await client.auth.session.user.id else { return }
         let backend = SupabaseBackendAPI(client: client)
