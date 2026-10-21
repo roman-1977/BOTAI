@@ -40,8 +40,13 @@ code,data=req('GET',f'/rest/v1/attempts?id=eq.{ia}&select=id',tb)
 check('B cannot see A attempt',code==200 and data==[])
 code,data=req('POST','/rest/v1/attempts',tb,{'id':ib,'user_id':ua,'question_id':qa,'question_version_id':va,'result':'correct','answered_at':'2026-10-21T17:45:00Z'})
 check('B cannot insert as A',code in (401,403))
+code,data=req('POST','/rest/v1/attempts',tb,{'id':str(uuid.uuid4()),'user_id':ub,'question_id':qa,'question_version_id':va,'result':'correct','answered_at':'2026-10-21T17:45:00Z'})
+check('B cannot insert own attempt against private A question',code in (401,403))
 code,data=req('GET',f'/rest/v1/attempts?id=eq.{ia}&select=id',ta)
 check('A sees own attempt',code==200 and len(data)==1)
 print('TOTAL',sum(ok for _,ok in checks),'/',len(checks))
 # No delete RLS policy on attempts: preserve fixture IDs for targeted admin cleanup later.
 pathlib.Path('/tmp/botai_live_rls_fixture_ids.json').write_text(json.dumps({'user_a':ua,'user_b':ub,'question':qa,'version':va,'attempt':ia}))
+
+if not all(ok for _,ok in checks):
+ raise SystemExit(1)
