@@ -24,6 +24,11 @@ Status: active. Server integration and account isolation are not accepted.
 - Three focused namespace/migration tests passed: source retained, destination never overwritten, WAL guard enforced (`Test-BOTAI-2026.10.21_17-54-50-+0300.xcresult`).
 - This is a migration primitive, **not** automatic account migration. The application still uses its existing database until ownership and repository switching are safely wired.
 
+## Auth identity propagation
+- `AuthStore` now records the authenticated Supabase user UUID after bootstrap and both sign-in flows; exposes a typed `localIdentity` for future storage switching.
+- Sign-out clears identity **only after successful server sign-out**; failure leaves the current identity intact and exposes an error instead of silently claiming success.
+- Simulator Debug build succeeded (`/tmp/botai_stage6_auth_build.log`). Repository rebinding is still pending, so this does not yet constitute account isolation.
+
 ## Remaining
 1. Map local question IDs to real server Question and QuestionVersion IDs; then implement idempotent uploads, bounded retries and a durable cursor.
 2. Partition private local state by user identity and define guest-to-account migration.

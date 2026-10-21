@@ -5,22 +5,58 @@ import Supabase
 @MainActor @Observable
 final class AuthStore {
     private(set) var isAuthenticated = false
+    private(set) var userID: UUID?
     private(set) var errorMessage: String?
     private let client = SupabaseProvider.client
 
-    func bootstrap() async { isAuthenticated = (try? await client.auth.session) != nil }
+    var localIdentity: LocalAccountStorage.Identity {
+        userID.map { .authenticated($0) } ?? .guest
+    }
+
+    func bootstrap() async {
+        do {
+            let session = try await client.auth.session
+            userID = session.user.id
+            isAuthenticated = true
+            errorMessage = nil
+        } catch {
+            userID = nil
+            isAuthenticated = false
+        }
+    }
+
     #if DEBUG
     func signInForDevelopment() async {
         do {
-            _ = try await client.auth.signInAnonymously()
+            let session = try await client.auth.signInAnonymously()
+            userID = session.user.id
             isAuthenticated = true
             errorMessage = nil
-        } catch { errorMessage = error.localizedDescription }
+        } catch {
+            errorMessage = error.localizedDescription
+        }
     }
     #endif
+
     func signInWithApple(idToken: String, nonce: String? = nil) async {
-        do { _ = try await client.auth.signInWithIdToken(credentials: .init(provider: .apple, idToken: idToken, nonce: nonce)); isAuthenticated = true; errorMessage = nil }
-        catch { errorMessage = error.localizedDescription }
+        do {
+            let session = try await client.auth.signInWithIdToken(credentials: .init(provider: .apple, idToken: idToken, nonce: nonce))
+            userID = session.user.id
+            isAuthenticated = true
+            errorMessage = nil
+        } catch {
+            errorMessage = error.localizedDescription
+        }
     }
-    func signOut() async { try? await client.auth.signOut(); isAuthenticated = false }
+
+    func signOut() async {
+        do {
+            try await client.auth.signOut()
+            userID = nil
+            isAuthenticated = false
+            errorMessage = nil
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
 }
