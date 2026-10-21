@@ -3,6 +3,7 @@ import ZIPFoundation
 
 @main
 struct BOTAIApp: App {
+    @Environment(\.scenePhase) private var scenePhase
     @State private var learningStore: LearningStore
     @State private var authStore = AuthStore()
     @State private var materialStore: MaterialStore
@@ -138,6 +139,12 @@ struct BOTAIApp: App {
                     if didResolveInitialIdentity, let syncService {
                         await syncService.flush(questions: learningStore.questions)
                     }
+                }
+                .onChange(of: scenePhase) { _, phase in
+                    guard phase == .active, didResolveInitialIdentity,
+                          let syncService else { return }
+                    let questions = learningStore.questions
+                    Task { await syncService.flush(questions: questions) }
                 }
                 .onChange(of: learningStore.attempts.count) { _, _ in
                     guard let syncService else { return }

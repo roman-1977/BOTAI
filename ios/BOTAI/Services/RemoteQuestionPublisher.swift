@@ -1,4 +1,5 @@
 import Foundation
+import CryptoKit
 import Supabase
 
 /// Publishes a local text card as a private server question and stores its verified IDs.
@@ -22,6 +23,12 @@ struct RemoteQuestionPublisher: Sendable {
         let created_by: UUID
     }
 
+    private func stableID(_ input: String) -> UUID {
+        let bytes = Array(SHA256.hash(data: Data(input.utf8)).prefix(16))
+        let hex = bytes.map { String(format: "%02x", $0) }.joined()
+        return UUID(uuidString: "\(hex.prefix(8))-\(hex.dropFirst(8).prefix(4))-\(hex.dropFirst(12).prefix(4))-\(hex.dropFirst(16).prefix(4))-\(hex.dropFirst(20))")!
+    }
+
     /// A partially created remote question remains private and is not considered mapped.
     @discardableResult
     func publish(_ question: StudyQuestion) async throws -> Bool {
@@ -32,15 +39,21 @@ struct RemoteQuestionPublisher: Sendable {
         guard await isCurrentAccount() else { return false }
         if try mappings.mapping(for: question.id) != nil { return true }
         let userID = try await client.auth.session.user.id
-        let remoteID = UUID(), versionID = UUID()
+        // Deterministic identities make retries safe after a network timeout or crash.
+        // Include the content and account so an edited card never reuses the old version.
+        let seed = "BOTAI:v1:\(userID):\(question.id):\(question.kind):\(question.prompt):\(question.answer)"
+        let remoteID = stableID("question:" + seed)
+        let versionID = stableID("version:" + seed)
         guard await isCurrentAccount() else { return false }
-        try await client.from("questions").insert(QuestionInsert(id: remoteID,
+        try await client.from("questions").upsert(QuestionInsert(id: remoteID,
             creator_user_id: userID,
-            question_type: question.kind == .pair ? "pair" : "self_check")).execute()
+            question_type: question.kind == .pair ? "pair" : "self_check"),
+            onConflict: "id", ignoreDuplicates: true).execute()
         guard await isCurrentAccount(), try await client.auth.session.user.id == userID else { return false }
-        try await client.from("question_versions").insert(VersionInsert(id: versionID,
+        try await client.from("question_versions").upsert(VersionInsert(id: versionID,
             question_id: remoteID, version_number: 1, prompt_text: question.prompt,
-            answer_text: question.answer, created_by: userID)).execute()
+            answer_text: question.answer, created_by: userID),
+            onConflict: "id", ignoreDuplicates: true).execute()
         let verifier = VerifiedQuestionMappingService(lookup: SupabaseQuestionPairLookup(client: client),
             repository: mappings, isCurrentAccount: isCurrentAccount)
         return try await verifier.verifyAndSave(localQuestionID: question.id,

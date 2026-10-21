@@ -80,6 +80,7 @@
 		B432884C11B6796A953925C5 /* QuizLearningStats.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96251857123A04ECDF272634 /* QuizLearningStats.swift */; };
 		BD11BD3F336356AE0475190A /* LearningRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE4287578AC9F45A50FD6A46 /* LearningRepositoryTests.swift */; };
 		BDED0A52965C1A1DB3E933F6 /* CreateQuizView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82BCCA7D3BE740D7C95A5EEE /* CreateQuizView.swift */; };
+		BE84F71483C00472D87E8A09 /* LiveSupabaseSyncTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D381EAF6EE0C80B7AEA4A810 /* LiveSupabaseSyncTests.swift */; };
 		C38209ECB1E44506272D606D /* StudyProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F5A29022FB4F3CE1CBCED08 /* StudyProfile.swift */; };
 		C8DB32E3FE66B89978F59CBF /* DeletionHistoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13538C4E3B4BBFDB13C066D0 /* DeletionHistoryTests.swift */; };
 		CC57CDD0F772F0F8F0D74D2B /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = E8AC53CBAF0DB8EEF0881AA3 /* PrivacyInfo.xcprivacy */; };
@@ -209,6 +210,7 @@
 		CDE70A07AD9DCE7EBFBAA8E2 /* AddMaterialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddMaterialView.swift; sourceTree = "<group>"; };
 		CE635A128E1C555D4D845A47 /* StudyQuestionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyQuestionBuilder.swift; sourceTree = "<group>"; };
 		D1CCBBA4074FD61270C407B7 /* ProgressDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressDashboardView.swift; sourceTree = "<group>"; };
+		D381EAF6EE0C80B7AEA4A810 /* LiveSupabaseSyncTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveSupabaseSyncTests.swift; sourceTree = "<group>"; };
 		D43425732FF32F44CB307E8B /* BOTAIBackendAPITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BOTAIBackendAPITests.swift; sourceTree = "<group>"; };
 		DD1CDAA154BE2EB4B271B01D /* LaunchSmokeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchSmokeTests.swift; sourceTree = "<group>"; };
 		DE4287578AC9F45A50FD6A46 /* LearningRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningRepositoryTests.swift; sourceTree = "<group>"; };
@@ -491,6 +493,7 @@
 				2A51D185C08B83B7A5AF0012 /* LearningAnalyticsRegressionTests.swift */,
 				DE4287578AC9F45A50FD6A46 /* LearningRepositoryTests.swift */,
 				596555D1BDE357A8CAFEFD2C /* LearningStateTests.swift */,
+				D381EAF6EE0C80B7AEA4A810 /* LiveSupabaseSyncTests.swift */,
 				FFA7C8E0BBF426CD218CA98D /* LocalAccountStorageTests.swift */,
 				6B594495EE1B11BD019073B0 /* MappedUploadBatchTests.swift */,
 				FE42EE2CA2719BF2A733B642 /* MaterialStorageTests.swift */,
@@ -712,6 +715,7 @@
 				33B28CE46001E7765281C1F2 /* LearningAnalyticsRegressionTests.swift in Sources */,
 				BD11BD3F336356AE0475190A /* LearningRepositoryTests.swift in Sources */,
 				D6B02D17988A36E08AD46C18 /* LearningStateTests.swift in Sources */,
+				BE84F71483C00472D87E8A09 /* LiveSupabaseSyncTests.swift in Sources */,
 				CF319D173FE8E832AECE9945 /* LocalAccountStorageTests.swift in Sources */,
 				9E354E44ACC75C8B4E8DA550 /* MappedUploadBatchTests.swift in Sources */,
 				DC0B3848E2E81A962A942613 /* MaterialStorageTests.swift in Sources */,
