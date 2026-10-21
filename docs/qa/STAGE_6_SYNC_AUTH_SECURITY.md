@@ -95,3 +95,12 @@ Status: active. Server integration and account isolation are not accepted.
 - Server attempts RLS restricts SELECT/INSERT to `auth.uid() = user_id`; no UPDATE policy. Question/version visibility depends on owner or publication policies.
 - **Critical gate:** `RemoteQuestionMappingRepository.saveVerified` only persists IDs supplied by its caller; it performs no remote verification, and no production caller currently supplies authoritative mappings. `SupabaseBackendAPI` deliberately refuses all nonempty uploads. Do not bypass this guard using fabricated IDs.
 - Remaining live acceptance: authenticated A/B sign-in and cross-user RLS tests, authoritative question/version mapping with server ownership checks, idempotent upload/ACK under retries, and physical-device verification.
+
+
+### Live API checkpoint — 2026-10-21
+
+- Migrations 0019–0023 deployed to linked Supabase: authenticated table privileges now permit RLS-controlled reads and inserts.
+- Two anonymous authenticated accounts exercised via REST: private question/version isolation, attempt ownership and visibility, and duplicate-ID insert retry: **10/10 checks passed**.
+- The repeatable probe is `backend/tests/live_rls_probe.py` (requires `BOTAI_SUPABASE_URL`). It creates disposable fixtures, but **does not automatically clean them up**, because normal clients have no DELETE policy on attempts. Run sparingly; use privileged targeted cleanup.
+- iOS upload adapter now verifies each remote pair under the JWT, inserts idempotently, and ACKs only rows whose question/version/result match. An iOS build passed; simulator full regression is still running at this checkpoint.
+- **Remaining blocker:** `StudyQuestionBuilder.stableID(ruleID:rowID:)` creates a local deterministic UUID, not a server question ID. No production flow currently obtains and verifies the authoritative server question and version pair. Never infer mapping from the stable local UUID or prompt text alone. Until the server-content linkage is implemented, these local attempts remain in the outbox.
