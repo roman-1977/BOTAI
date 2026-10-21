@@ -25,8 +25,10 @@ Status: IN PROGRESS (2026-10-21).
 - Fixed session statistics for multiple/single-choice answers: `advanceAfterChoice` now increments `sessionAnswered`, `sessionCorrect` when appropriate and persists session immediately, matching reveal-mode recording.
 - Extended UI E2E: after relaunch and reopening active goal, navigate home, start daily plan, reveal the seeded card, mark correct, verify end-of-questions result, and dismiss. **Passed** (`Test-BOTAI-2026.10.21_17-10-35-+0300.xcresult`).
 
+- Full iPhone 16 Pro Max iOS 18.6 simulator suite completed **40/40 passed** (32 unit + 8 UI, zero skipped/failed), verified with `xcresulttool get test-results summary`: `Test-BOTAI-2026.10.21_17-13-41-+0300.xcresult`.
+
 ## Remaining
-- Validate creation/editing of courses and goals via UI.
-- Validate course-to-material references and deletion behavior.
-- Verify learning session selection, daily goals, completion and resume paths.
-- Run full unit + UI suite after implementation and fixes.
+- Add direct UI regression for editing a section and canceling changes (course cancel already covered).
+- Add UI regression for deleting a material currently referenced by an active course/goal (unit reference cleanup already covered).
+- Add persisted-statistics assertions for multiple-choice and interrupted sessions (session counting fix is implemented; current E2E covers reveal answers).
+- Re-run full suite after any further changes; stage remains open until these acceptance cases are covered.
