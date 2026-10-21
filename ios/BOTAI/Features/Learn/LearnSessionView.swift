@@ -4,6 +4,7 @@ struct LearnSessionView: View {
   @Environment(LearningStore.self) private var store
   @Environment(\.dismiss) private var dismiss
   @Environment(\.scenePhase) private var scenePhase
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
   @State private var index = 0
   @State private var persistenceAlert = false
   @State private var revealed = false
@@ -229,15 +230,24 @@ struct LearnSessionView: View {
   }
   private func animateAdvanceAfterChoice() {
     guard !advancing, !finished else { return }
-    withAnimation(.easeIn(duration: 0.22)) { advancing = true }
-    advanceAfterChoice()
-    withAnimation(.easeOut(duration: 0.22)) { advancing = false }
+    if reduceMotion {
+      advancing = true
+      advanceAfterChoice()
+      advancing = false
+    } else {
+      withAnimation(.easeIn(duration: 0.22)) { advancing = true }
+      advanceAfterChoice()
+      withAnimation(.easeOut(duration: 0.22)) { advancing = false }
+    }
   }
   private func advanceAfterChoice() {
     let correct = selection == question.correctChoiceIndexes
     submit(correct ? .good : .again)
   }
-  private func checkAnswers() { withAnimation(.easeInOut(duration: 0.2)) { checked = true } }
+  private func checkAnswers() {
+    if reduceMotion { checked = true }
+    else { withAnimation(.easeInOut(duration: 0.2)) { checked = true } }
+  }
   private var ratingButtons: some View {
     HStack(spacing: 8) {
       rating("НЕ ПОМНЮ", .again, .orange)
