@@ -15,7 +15,6 @@ struct LearnSessionView: View {
   @State private var studySecondsToday = 0
   @State private var activeStartedAt: Date? = Date()
   @State private var activeQuestionSeconds: TimeInterval = 0
-  @State private var questionStartedAt = Date()
   @State private var correctToday = 0
   @State private var sessionID = UUID()
   @State private var sessionStartedAt = Date()
@@ -231,10 +230,8 @@ struct LearnSessionView: View {
   private func animateAdvanceAfterChoice() {
     guard !advancing, !finished else { return }
     withAnimation(.easeIn(duration: 0.22)) { advancing = true }
-    DispatchQueue.main.asyncAfter(deadline: .now() + 0.22) {
-      advanceAfterChoice()
-      withAnimation(.easeOut(duration: 0.22)) { advancing = false }
-    }
+    advanceAfterChoice()
+    withAnimation(.easeOut(duration: 0.22)) { advancing = false }
   }
   private func advanceAfterChoice() {
     let correct = selection == question.correctChoiceIndexes
@@ -272,15 +269,6 @@ struct LearnSessionView: View {
       Button("ГОТОВО") { dismiss() }.buttonStyle(.borderedProminent).controlSize(.large)
       Spacer()
     }.padding()
-  }
-  private func toggle(_ i: Int) {
-    if question.kind == .singleChoice {
-      selection = [i]
-    } else if selection.contains(i) {
-      selection.remove(i)
-    } else {
-      selection.insert(i)
-    }
   }
   private func submit(_ rating: RecallRating) {
     guard !finished, index < store.questions.count else { return }
