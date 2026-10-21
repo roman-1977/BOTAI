@@ -19,7 +19,12 @@ struct SupabaseBackendAPI: BOTAIBackendAPI {
         let answered_at: Date
     }
 
-    private struct AttemptID: Decodable { let id: UUID }
+    private struct StoredAttempt: Decodable {
+        let id: UUID
+        let question_id: UUID
+        let question_version_id: UUID
+        let result: String
+    }
 
     func uploadAttempts(_ request: BOTAIUploadAttemptsRequest) async throws -> BOTAIUploadAttemptsResponse {
         guard request.schemaVersion == 1 else { throw BOTAIBackendError.incompatibleSchemaVersion }
@@ -55,15 +60,21 @@ struct SupabaseBackendAPI: BOTAIBackendAPI {
         }
         // ACK only IDs actually visible to this user after the insert.
         let ids = request.attempts.map(\.id.uuidString)
-        let stored: [AttemptID] = try await client.from("attempts")
-            .select("id")
+        let stored: [StoredAttempt] = try await client.from("attempts")
+            .select("id,question_id,question_version_id,result")
             .in("id", values: ids)
             .execute().value
         guard try await client.auth.session.user.id == userID else {
             throw BOTAIBackendError.invalidAcknowledgement
         }
-        let requested = Set(request.attempts.map(\.id))
-        let confirmed = Set(stored.map(\.id)).intersection(requested)
+        let expected = Dictionary(uniqueKeysWithValues: request.attempts.map { ($0.id, $0) })
+        let confirmed = Set(stored.compactMap { row -> UUID? in
+            guard let attempt = expected[row.id],
+                  attempt.questionID == row.question_id,
+                  attempt.questionVersionID == row.question_version_id,
+                  attempt.result == row.result else { return nil }
+            return row.id
+        })
         return BOTAIUploadAttemptsResponse(schemaVersion: 1, acknowledgedIDs: Array(confirmed))
     }
 }
