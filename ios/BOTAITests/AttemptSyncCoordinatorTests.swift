@@ -112,6 +112,25 @@ struct AttemptSyncCoordinatorTests {
         #expect(try learning.load().0.count == 1)
     }
 
+    @Test func concurrentFlushesDoNotUploadSameBatchTwice() async throws {
+        let (learning, _) = try setup(mapped: true)
+        let backend = SuspendedAttemptBackend()
+        let sync = AttemptSyncCoordinator(backend: backend, repository: learning,
+            isCurrentAccount: { true })
+        let first = Task { try await sync.flush() }
+        for _ in 0..<1000 {
+            if await backend.started() { break }
+            await Task.yield()
+        }
+        #expect(await backend.started())
+        // First upload is suspended; the actor must not reenter the upload pipeline.
+        #expect(try await sync.flush() == 0)
+        #expect(try learning.outboxCount() == 1)
+        await backend.resume()
+        #expect(try await first.value == 1)
+        #expect(try learning.outboxCount() == 0)
+    }
+
     @Test func noAcknowledgementsPreserveQueue() async throws {
         let (learning, _) = try setup(mapped: true)
         let sync = AttemptSyncCoordinator(backend: FakeAttemptBackend(.acknowledgeNone), repository: learning, isCurrentAccount: { true })
