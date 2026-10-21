@@ -337,26 +337,8 @@ struct LearnSessionView: View {
     }
   }
   private func advanceAfterChoice() {
-    let ok = selection == question.correctChoiceIndexes
-    guard store.record(question: question, rating: ok ? .good : .again) else {
-      persistenceAlert = true
-      return
-    }
-    countQuestionTime()
-    answeredToday += 1
-    sessionAnswered += 1
-    if ok { correctToday += 1; sessionCorrect += 1 } else { wrongToday += 1 }
-    persistSession()
-    if index + 1 < store.questions.count {
-      index += 1
-      activeStartedAt = scenePhase == .active ? Date() : nil
-      activeQuestionSeconds = 0
-      revealed = false
-      checked = false
-      selection = []
-    } else {
-      finished = true
-    }
+    let correct = selection == question.correctChoiceIndexes
+    submit(correct ? .good : .again)
   }
   private func checkAnswers() { withAnimation(.easeInOut(duration: 0.2)) { checked = true } }
   private var ratingButtons: some View {
@@ -400,20 +382,21 @@ struct LearnSessionView: View {
       selection.insert(i)
     }
   }
-  private func submit(_ r: RecallRating) {
-    guard store.record(question: question, rating: r) else {
+  private func submit(_ rating: RecallRating) {
+    guard store.record(question: question, rating: rating) else {
       persistenceAlert = true
       return
     }
     countQuestionTime()
     answeredToday += 1
     sessionAnswered += 1
-    if r == .good { correctToday += 1; sessionCorrect += 1 } else { wrongToday += 1 }
-    persistSession()
-    if r == .good {
-    } else if r == .hard {
+    if rating == .good {
+      correctToday += 1
+      sessionCorrect += 1
     } else {
+      wrongToday += 1
     }
+    persistSession()
     if index + 1 < store.questions.count {
       index += 1
       activeStartedAt = scenePhase == .active ? Date() : nil

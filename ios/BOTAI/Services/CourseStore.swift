@@ -34,11 +34,11 @@ import Observation
     var x = course
     x.updatedAt = Date()
     persist { try repository?.save(x) }
-    refresh()
+    if lastPersistenceError == nil { refresh() }
   }
   func delete(_ id: UUID) {
     persist { try repository?.delete(id) }
-    refresh()
+    if lastPersistenceError == nil { refresh() }
   }
   private func persist(_ operation: () throws -> Void) {
     do {
