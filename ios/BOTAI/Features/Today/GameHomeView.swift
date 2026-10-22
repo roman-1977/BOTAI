@@ -37,15 +37,14 @@ struct GameHomeView: View {
     NavigationStack {
       ZStack {
         DigitalBackground()
-        ScrollView(showsIndicators: false) {
-          VStack(spacing: 14) {
-            topBar
-            todayCard
-            if !plan.goals.isEmpty { goalsCard }
-            progressCard
-            reportAction
-            launch
-          }.padding(.horizontal, 14).padding(.bottom, 26)
+        GeometryReader { geometry in
+          Group {
+            if dynamicTypeSize.isAccessibilitySize {
+              ScrollView(showsIndicators: false) { homeDashboard.padding(.bottom, 20) }
+            } else {
+              homeDashboard.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            }
+          }.frame(width: geometry.size.width, height: geometry.size.height)
         }
       }.toolbar(.hidden, for: .navigationBar).confirmationDialog(
         "Что изучать?", isPresented: $chooseGoal, titleVisibility: .visible
@@ -67,6 +66,71 @@ struct GameHomeView: View {
         CoursesView()
       }
     }
+  }
+  /// The standard-size home is a one-screen dashboard; only accessibility text sizes scroll.
+  private var homeDashboard: some View {
+    VStack(spacing: 9) {
+      topBar
+      motivationChart
+      todayCard
+      progressCard
+      launch
+      HStack(spacing: 8) {
+        Button("Мои цели") { coursesOpen = true }
+        Button("Отчёт PDF") { exportReport() }
+      }.buttonStyle(.bordered).tint(HomeTheme.accent).font(.caption)
+    }.padding(.horizontal, 14).padding(.bottom, 8)
+  }
+  private var motivationChart: some View {
+    let selectedGoalID = activeGoals.first?.id
+    let history = learning.forecastHistory.filter { $0.goalID == selectedGoalID }
+      .sorted { $0.calculatedAt < $1.calculatedAt }
+    let points = Array(history.suffix(14))
+    let latest = points.last
+    return VStack(alignment: .leading, spacing: 5) {
+      HStack {
+        Text("МОЙ ПУТЬ К ЦЕЛИ").font(.caption.bold()).foregroundStyle(HomeTheme.accent)
+        Spacer()
+        if let last = latest, let deadline = activeGoals.first(where: { $0.id == last.goalID })?.deadline,
+           let predicted = last.forecastAt {
+          let days = Calendar.current.dateComponents([.day], from: deadline, to: predicted).day ?? 0
+          Text(days > 0 ? "Отставание: \(days) дн." : days < 0 ? "Опережение: \(-days) дн." : "По графику")
+            .font(.caption.bold()).foregroundStyle(days > 0 ? HomeTheme.warning : HomeTheme.success)
+        } else { Text("Прогноз после 3 дней занятий").font(.caption2).foregroundStyle(HomeTheme.muted) }
+      }
+      GeometryReader { geo in
+        let maxValue = max(1, points.map(\.target).max() ?? 1)
+        ZStack {
+          Path { path in
+            let y = geo.size.height * 0.25
+            path.move(to: CGPoint(x: 0, y: y))
+            path.addLine(to: CGPoint(x: geo.size.width, y: y))
+          }.stroke(HomeTheme.accent.opacity(0.18), style: StrokeStyle(lineWidth: 1, dash: [4, 4]))
+          if points.count > 1 {
+            Path { path in
+              for (index, point) in points.enumerated() {
+                let x = geo.size.width * CGFloat(index) / CGFloat(points.count - 1)
+                let y = geo.size.height * (1 - CGFloat(point.known) / CGFloat(maxValue))
+                if index == 0 { path.move(to: CGPoint(x: x, y: y)) }
+                else { path.addLine(to: CGPoint(x: x, y: y)) }
+              }
+            }.stroke(HomeTheme.success, style: StrokeStyle(lineWidth: 2.5, lineCap: .round, lineJoin: .round))
+          } else {
+            Text("История освоения появится после занятий")
+              .font(.caption2).foregroundStyle(HomeTheme.muted)
+          }
+        }
+      }.frame(height: 55)
+    }.padding(11).homeCard()
+  }
+  private func exportReport() {
+    do {
+      captureForecasts()
+      reportURL = try StudyPDFReport.export(profile: profile.profile, sessions: learning.sessions,
+        attempts: learning.attempts, knowledgeStates: learning.knowledgeStates,
+        courses: courses.courses, materials: materials, knowledgeHistory: learning.knowledgeHistory,
+        planHistory: profile.history, forecastHistory: learning.forecastHistory)
+    } catch { reportError = error.localizedDescription }
   }
   private var topBar: some View {
     HStack {
