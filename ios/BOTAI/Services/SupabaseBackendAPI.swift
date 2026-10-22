@@ -111,6 +111,7 @@ extension SupabaseBackendAPI: SessionSummaryBackendAPI {
     func uploadSessionSummaries(_ summaries: [CompletedSessionSummary]) async throws -> [UUID] {
         guard !summaries.isEmpty else { return [] }
         let userID = try await client.auth.session.user.id
+        guard Set(summaries.map(\.sessionID)).count == summaries.count else { throw BOTAIBackendError.invalidAcknowledgement }
         let rows = summaries.map { SessionSummaryRow($0, userID: userID) }
         guard try await client.auth.session.user.id == userID else {
             throw BOTAIBackendError.invalidAcknowledgement
@@ -166,6 +167,7 @@ extension SupabaseBackendAPI: TopicAggregateBackendAPI {
         var rows: [TopicAggregateRow] = []
         for summary in summaries {
             guard let breakdown = summary.topicBreakdown, !breakdown.isEmpty else { continue }
+            guard Set(breakdown.map(\.attribution)).count == breakdown.count else { throw BOTAIBackendError.invalidAcknowledgement }
             let attributed = breakdown.reduce(0) { $0 + $1.answered }
             let correct = breakdown.reduce(0) { $0 + $1.correct }
             guard attributed + (summary.unattributedAnswered ?? 0) == summary.answered,

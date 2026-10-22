@@ -118,3 +118,5 @@ See `docs/iterations/V030_CHEMISTRY_PILOT.md` for authoritative milestones, veri
 - 2026-10-22: Completed-session local outbox now retains optional topic aggregates and unknown bucket atomically, with count validation and backward-compatible JSON; 10/10 focused tests passed. Server upload intentionally still overall-only; targeted UI screenshot retry started.
 - 2026-10-22: Visual-baseline UI test retry PASS (1/1); prior full-run failure was a snapshot acquisition error. Drafted unapplied migration 0026 and rollback-only two-user topic RLS fixture; no live deployment or topic upload.
 - 2026-10-22: Implemented local v17 independent topic ACK queue and authenticated topic aggregate transport with verified readback, retry-safe parent-before-topic ordering, and 7/7 new coordinator tests. Supabase 0025/0026 still unapplied; no live server validation.
+
+- 2026-10-22: Duplicate-key guards added; 131/131 unit tests PASS; full UI regression pending.
