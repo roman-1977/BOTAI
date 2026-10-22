@@ -135,3 +135,5 @@ RC-06 reconnection integration regression (2026-10-23): `SessionSummarySyncCoord
 RC-06 authoritative handoff refresh 2026-10-23: latest verified `353f603` 11/11 focused PASS; prior `820f07b` signed unit and 25/25 UI PASS. Historical running PID 82041 has completed; do not wait for it. Disposable PostgreSQL migrations/RLS were tested with an auth shim, hosted Supabase not tested. Read updated `docs/CHATGPT_REPOSITORY_GUIDE.md` and RC readiness ledger.
 
 RC-06 live acceptance harness updated: `ios/BOTAITests/LiveSupabaseSyncTests.swift` no longer tests obsolete legacy attempt publishing. Hosted aggregate-only fixture is gated by BOTH `BOTAI_RUN_LIVE_SYNC=1` and `BOTAI_DISPOSABLE_SUPABASE_CONFIRMED=1`; do not enable without disposable backend approval and 0025/0026 migration. Local compile-only run must not be represented as hosted PASS.
+
+RC-06 hosted fixture now checks both completed-session parent and topic aggregate rows with two-account read isolation; remains explicitly opt-in. See `LiveSupabaseSyncTests.swift` and its two required environment guards.
