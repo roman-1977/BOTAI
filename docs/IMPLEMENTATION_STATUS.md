@@ -1,3 +1,5 @@
+> **2026-10-22 choice-format UI:** populated single-choice chemistry fixture, `Тесты` launch, correct selection and feedback PASS; wrong/multi-select paths pending.
+
 > **2026-10-22 strategy UI:** populated topic All→Automatic switching and launch PASS; actual prioritization unit-tested; multiple-choice UI pending.
 
 > **2026-10-22 format UI:** populated card-only catalog Tests→Cards filtering PASS; strategy UI and choice fixture pending.

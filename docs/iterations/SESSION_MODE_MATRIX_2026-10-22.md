@@ -60,3 +60,9 @@ All scenarios are mandatory for MVP; this is a verification plan, not evidence o
 - `testPopulatedCatalogStrategyAllAndAutomatic`: populated topic allows switching `All questions` → `System chooses`, remains launchable, opens actual question. **PASS** (`/tmp/botai_populated_strategy_ui_20261022.log`).
 - UI verifies controls and launch, while ordering/priority differences are covered by `StudyQuestionSelectionMatrixTests` unit tests.
 - Remaining: real multiple-choice UI fixture and shared-set topic-attribution end-to-end.
+
+### Multiple-choice format UI checkpoint — 2026-10-22
+
+- `testPopulatedChoiceOnlyTestsFormatAndAnswer`: isolated four-row chemistry fixture with generated single-choice questions (minimum four options), `Тесты` filter, topic launch, correct answer and feedback: **PASS** (`/tmp/botai_populated_choice_ui_retry4_20261022.log`).
+- Generator intentionally drops choice questions with fewer than four available options; the fixture includes enough source rows for distractor completion. Test handles shuffled question order.
+- Still pending: incorrect answer UI path, multiple-choice (multi-select) UI path, full regression after these fixture changes.

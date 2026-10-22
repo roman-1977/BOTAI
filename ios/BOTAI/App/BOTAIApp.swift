@@ -50,7 +50,30 @@ struct BOTAIApp: App {
             let rows = ProcessInfo.processInfo.arguments.contains("-botai-seed-two-course-questions")
                 ? [["Кислота", "Acid"], ["Основание", "Base"]] : [["Кислота", "Acid"]]
             let table = ImportedTable(headers: ["Термин", "Значение"], rows: rows)
+            if !ProcessInfo.processInfo.arguments.contains("-botai-seed-choice-course-material") {
             try? materials.saveCSV(title: "Учебный материал UI", table: table, mappings: [CardMapping(from: 0, to: 1)])
+            }
+            if ProcessInfo.processInfo.arguments.contains("-botai-seed-choice-course-material") {
+                var rule = DraftQuestionRule()
+                rule.fields = [0]
+                rule.template = "{1}"
+                var correct = DraftAnswer()
+                correct.fields = [1]
+                correct.template = "{1}"
+                correct.correct = true
+                var distractor = DraftAnswer()
+                distractor.fields = [2]
+                distractor.template = "{1}"
+                distractor.correct = false
+                rule.answers = [correct, distractor]
+                let choiceTable = ImportedTable(headers: ["Вопрос", "Ответ", "Неверный ответ"],
+                    rows: [["HCl — какая кислота?", "Соляная", "Серная"],
+                           ["H2SO4 — какая кислота?", "Серная", "Соляная"],
+                           ["HNO3 — какая кислота?", "Азотная", "Фосфорная"],
+                           ["H3PO4 — какая кислота?", "Фосфорная", "Азотная"]])
+                try? materials.saveCSV(title: "Тестовый материал UI", table: choiceTable,
+                    ruleDrafts: [rule])
+            }
         }
         _materialStore = State(initialValue: materials)
         _courseStore = State(initialValue: CourseStore(repository: courseRepository))
