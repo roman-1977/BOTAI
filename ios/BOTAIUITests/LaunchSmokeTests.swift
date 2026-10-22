@@ -214,6 +214,73 @@ final class LaunchSmokeTests: XCTestCase {
         XCTAssertFalse(app.staticTexts["Исходный раздел изменён"].exists)
     }
 
+    func testResumeUnansweredQuestionAfterRelaunch() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-botai-ui-testing", "-botai-reset-ui-test-data", "-botai-seed-course-material"]
+        app.launch()
+        let courses = app.buttons["Мои курсы"]
+        XCTAssertTrue(courses.waitForExistence(timeout: 20))
+        courses.tap()
+        app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Создать курс")).firstMatch.tap()
+        let title = app.textFields["ЕГЭ Химия 2027"]
+        XCTAssertTrue(title.waitForExistence(timeout: 10))
+        title.tap()
+        title.typeText("Курс с разделом")
+        app.buttons["Создать"].tap()
+        let course = app.staticTexts["Курс с разделом"]
+        XCTAssertTrue(course.waitForExistence(timeout: 10))
+        course.tap()
+        app.buttons["Добавить раздел"].tap()
+        let section = app.textFields["Неорганическая химия"]
+        XCTAssertTrue(section.waitForExistence(timeout: 10))
+        section.tap()
+        section.typeText("Раздел проверки")
+        app.buttons["Добавить"].tap()
+        let sectionRow = app.staticTexts["Раздел проверки"]
+        XCTAssertTrue(sectionRow.waitForExistence(timeout: 10))
+        sectionRow.tap()
+        app.buttons["Добавить тему"].tap()
+        let topic = app.textFields["Например: Кислоты"]
+        XCTAssertTrue(topic.waitForExistence(timeout: 10))
+        topic.tap()
+        topic.typeText("Тема проверки")
+        app.buttons["Сохранить"].tap()
+        let topicRow = app.staticTexts["Тема проверки"]
+        XCTAssertTrue(topicRow.waitForExistence(timeout: 10))
+        topicRow.tap()
+        app.buttons["Выбрать опросники"].tap()
+        XCTAssertTrue(app.staticTexts["Учебный материал UI"].waitForExistence(timeout: 10))
+        app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "course-rule-")).firstMatch.tap()
+        app.buttons["Готово"].tap()
+        app.navigationBars["Тема проверки"].buttons.firstMatch.tap()
+        app.navigationBars["Раздел"].buttons.firstMatch.tap()
+        app.terminate()
+        app.launchArguments = ["-botai-ui-testing"]
+        app.launch()
+        let launch = app.buttons["primary-study-launch"]
+        XCTAssertTrue(launch.waitForExistence(timeout: 20))
+        launch.tap()
+        let topicLaunch = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Тема проверки")).firstMatch
+        XCTAssertTrue(topicLaunch.waitForExistence(timeout: 10))
+        topicLaunch.tap()
+        XCTAssertTrue(app.staticTexts["Кислота"].waitForExistence(timeout: 10))
+        app.terminate()
+        app.launch()
+        let resume = app.buttons["primary-study-launch"]
+        XCTAssertTrue(resume.waitForExistence(timeout: 20))
+        XCTAssertTrue(app.staticTexts["ПРОДОЛЖИТЬ"].exists)
+        resume.tap()
+        XCTAssertTrue(app.staticTexts["Кислота"].waitForExistence(timeout: 10))
+        app.staticTexts["Кислота"].tap()
+        let answer = app.buttons["ОТВЕТИЛ ЛЕГКО"]
+        XCTAssertTrue(answer.waitForExistence(timeout: 10))
+        answer.tap()
+        XCTAssertTrue(app.staticTexts["ВОПРОСЫ ЗАКОНЧИЛИСЬ"].waitForExistence(timeout: 10))
+        app.buttons["ГОТОВО"].tap()
+        XCTAssertTrue(app.staticTexts["БОТАТЬ"].waitForExistence(timeout: 10))
+        XCTAssertFalse(app.staticTexts["ПРОДОЛЖИТЬ"].exists)
+    }
+
     func testCreateCourseSectionTopicAndGoal() throws {
         let app = XCUIApplication()
         app.launchArguments = ["-botai-ui-testing", "-botai-reset-ui-test-data", "-botai-seed-course-material"]

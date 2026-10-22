@@ -162,6 +162,15 @@ final class AppDatabase: @unchecked Sendable {
             }
             try db.create(index: "idx_goal_forecast_date", on: "goalForecastSnapshots", columns: ["calculatedAt"])
         }
+        migrator.registerMigration("v15_resumable_study_session") { db in
+            // One unfinished session per local account. Questions and cursor are saved
+            // together to avoid reordering or silently changing the learning strategy.
+            try db.create(table: "resumableStudySession") { t in
+                t.column("slot", .integer).primaryKey()
+                t.column("snapshotJSON", .text).notNull()
+                t.column("updatedAt", .datetime).notNull()
+            }
+        }
         return migrator
     }
 }

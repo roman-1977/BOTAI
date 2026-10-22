@@ -200,3 +200,9 @@ Updated two outdated UI assertions after the accepted single-button study launch
 An earlier attempted full run was invalidated by two concurrent xcodebuild processes targeting the same simulator, causing runner restarts; it was discarded and replaced with the clean serial run above. This confirms current UI smoke regression and seeded chemistry smoke tests, **not** full device release acceptance, small/large-screen visual fit, complete course exhaustion, cloud sync, or unfinished session configuration/resume work.
 
 **Data safety:** `ios/BOTAI.xcodeproj/project.pbxproj` contains pre-existing user changes; deliberately excluded from this checkpoint. No physical iPhone touched. No push.
+
+### 2026-10-22 — Resumable session checkpoint (in progress)
+
+Implemented v15 resumable-session persistence and restart UI test; full 14/14 `LaunchSmokeTests` passed before atomicity hardening (`/tmp/botai_resume_regression_20261022.log`). Subsequent atomic attempt+cursor transaction requires retest (`/tmp/botai_resume_atomic_ui_20261022.log`). See `docs/iterations/RESUMABLE_SESSION_2026-10-22.md` for exact status, risks and next steps. Do not include unrelated Xcode project changes in commits.
+
+Resumable session follow-up: post-atomic focused UI **2/2 PASS** and new unit **2/2 PASS**. See `docs/iterations/RESUMABLE_SESSION_2026-10-22.md`.

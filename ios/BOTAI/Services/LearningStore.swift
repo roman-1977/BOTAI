@@ -1,6 +1,21 @@
 import Foundation
 import Observation
 
+/// Exact ordered questions and cursor for one interrupted session, scoped to the local account database.
+struct ResumableStudySession: Codable, Equatable {
+    let id: UUID
+    let startedAt: Date
+    let title: String
+    let targetMinutes: Int
+    let questions: [StudyQuestion]
+    var nextIndex: Int
+    var answered: Int
+    var correct: Int
+    var activeSeconds: Int
+
+    var canResume: Bool { !questions.isEmpty && questions.indices.contains(nextIndex) }
+}
+
 @MainActor @Observable
 final class LearningStore {
     private(set) var attempts: [Attempt] = []
@@ -12,6 +27,7 @@ final class LearningStore {
     private(set) var questions: [StudyQuestion]
     private(set) var sessionTitle: String = "Обучение"
     private(set) var sessionTargetMinutes: Int = 0
+    private(set) var resumableSession: ResumableStudySession?
     private let repository: LearningRepository?
     private(set) var lastPersistenceError: String?
 
@@ -28,6 +44,8 @@ final class LearningStore {
                 knowledgeHistory = try repository.knowledgeHistory()
                 forecastHistory = try repository.forecastSnapshots()
                 sessions = savedSessions
+                let snapshot = try repository.loadResumableSession()
+                resumableSession = snapshot?.canResume == true ? snapshot : nil
             } catch {
                 lastPersistenceError = error.localizedDescription
             }
@@ -45,6 +63,26 @@ final class LearningStore {
     }
 
     func use(questions: [StudyQuestion], title: String = "Обучение", targetMinutes: Int = 0) { self.questions = questions; sessionTitle = title; sessionTargetMinutes = targetMinutes }
+
+    @discardableResult
+    func checkpoint(_ snapshot: ResumableStudySession?) -> Bool {
+        guard let repository else { lastPersistenceError = "Локальное хранилище недоступно"; return false }
+        do {
+            try repository.saveResumableSession(snapshot)
+            resumableSession = snapshot
+            lastPersistenceError = nil
+            return true
+        } catch {
+            lastPersistenceError = error.localizedDescription
+            return false
+        }
+    }
+
+    func restoreResumableSession() -> ResumableStudySession? {
+        guard let snapshot = resumableSession, snapshot.canResume else { return nil }
+        use(questions: snapshot.questions, title: snapshot.title, targetMinutes: snapshot.targetMinutes)
+        return snapshot
+    }
 
     func attempts(for questionIDs: Set<UUID>) -> [Attempt] { attempts.filter { questionIDs.contains($0.questionID) } }
     func stats(for questions: [StudyQuestion]) -> QuizLearningStats {
@@ -70,7 +108,7 @@ final class LearningStore {
     var masteryPercent:Int { knowledgeStates.isEmpty ? 0 : Int((Double(knownCount)/Double(knowledgeStates.count)*100).rounded()) }
 
     @discardableResult
-    func record(question: StudyQuestion, rating: RecallRating) -> Bool {
+    func record(question: StudyQuestion, rating: RecallRating, advancingTo snapshot: ResumableStudySession? = nil) -> Bool {
         let attempt = Attempt(id: UUID(), questionID: question.id, occurredAt: .now, rating: rating)
         var state = knowledgeStates[question.knowledgeID] ?? LearningState(); state.apply(rating)
         // Never report an answer as saved if the durable local write failed.
@@ -79,11 +117,12 @@ final class LearningStore {
             lastPersistenceError = "Локальное хранилище недоступно"
             return false
         }
-        do { try repository.record(attempt, state: state, question: question) }
+        do { try repository.record(attempt, state: state, question: question, nextSession: snapshot) }
         catch {
             lastPersistenceError = error.localizedDescription
             return false
         }
+        if let snapshot { resumableSession = snapshot.canResume ? snapshot : nil }
         attempts.append(attempt); states[question.id] = state; knowledgeStates[question.knowledgeID] = state
         knowledgeHistory.append(.init(attemptID: attempt.id, knowledgeID: question.knowledgeID,
                                       occurredAt: attempt.occurredAt, isKnown: state.masteryLevel == .known))

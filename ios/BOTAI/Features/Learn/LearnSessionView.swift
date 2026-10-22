@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct LearnSessionView: View {
+  var resume = false
   @Environment(LearningStore.self) private var store
   @Environment(\.dismiss) private var dismiss
   @Environment(\.scenePhase) private var scenePhase
@@ -36,6 +37,7 @@ struct LearnSessionView: View {
       .alert("Не удалось сохранить ответ", isPresented: $persistenceAlert) {
         Button("Повторить", role: .cancel) {}
       } message: { Text(store.lastPersistenceError ?? "Проверьте доступность хранилища") }
+      .onAppear { restoreOrCheckpoint() }
       .onChange(of: scenePhase)
     { _, phase in handleScenePhase(phase) }
   }
@@ -281,9 +283,45 @@ struct LearnSessionView: View {
       Spacer()
     }.padding()
   }
+  private func restoreOrCheckpoint() {
+    if resume, let snapshot = store.restoreResumableSession() {
+      index = snapshot.nextIndex
+      sessionID = snapshot.id
+      sessionStartedAt = snapshot.startedAt
+      sessionAnswered = snapshot.answered
+      sessionCorrect = snapshot.correct
+      sessionActiveSeconds = snapshot.activeSeconds
+      answeredToday = snapshot.answered
+      correctToday = snapshot.correct
+      wrongToday = max(0, snapshot.answered - snapshot.correct)
+      studySecondsToday = snapshot.activeSeconds
+      seenToday = Set(snapshot.questions.prefix(snapshot.nextIndex).map(\.id))
+    } else if !store.questions.isEmpty {
+      checkpointQuestion()
+    }
+  }
+
+  @discardableResult
+  private func checkpointQuestion() -> Bool {
+    guard !store.questions.isEmpty, index < store.questions.count else { return true }
+    return store.checkpoint(.init(id: sessionID, startedAt: sessionStartedAt,
+      title: store.sessionTitle, targetMinutes: store.sessionTargetMinutes,
+      questions: store.questions, nextIndex: index, answered: sessionAnswered,
+      correct: sessionCorrect, activeSeconds: sessionActiveSeconds))
+  }
+
   private func submit(_ rating: RecallRating) {
     guard !finished, index < store.questions.count else { return }
-    guard store.record(question: question, rating: rating) else {
+    // Commit answer and the next cursor in one SQLite transaction.
+    var elapsed = activeQuestionSeconds
+    if let start = activeStartedAt { elapsed += Date().timeIntervalSince(start) }
+    let nextSeconds = sessionActiveSeconds + max(0, Int(elapsed))
+    let nextIndex = index + 1
+    let next = ResumableStudySession(id: sessionID, startedAt: sessionStartedAt,
+      title: store.sessionTitle, targetMinutes: store.sessionTargetMinutes,
+      questions: store.questions, nextIndex: nextIndex, answered: sessionAnswered + 1,
+      correct: sessionCorrect + (rating == .good ? 1 : 0), activeSeconds: nextSeconds)
+    guard store.record(question: question, rating: rating, advancingTo: next) else {
       persistenceAlert = true
       return
     }
@@ -330,6 +368,7 @@ struct LearnSessionView: View {
       persistenceAlert = true
       return
     }
+    guard store.checkpoint(nil) else { persistenceAlert = true; return }
     dismiss()
   }
   private func handleScenePhase(_ phase: ScenePhase) {
@@ -339,6 +378,7 @@ struct LearnSessionView: View {
       if let start = activeStartedAt {
         let seconds=max(0,Int(Date().timeIntervalSince(start)));studySecondsToday += seconds;sessionActiveSeconds += seconds
         activeQuestionSeconds = 0;activeStartedAt = nil;persistSession()
+        if !finished { checkpointQuestion() }
       }
     @unknown default: break
     }

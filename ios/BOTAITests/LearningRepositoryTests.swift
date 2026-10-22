@@ -135,3 +135,57 @@ struct KnowledgeProgressHistoryTests {
         #expect(try repo.knowledgeHistory().isEmpty)
     }
 }
+
+
+struct ResumableStudySessionTests {
+    @Test @MainActor func orderedQuestionsAndCursorSurviveStoreRecreation() throws {
+        let db = try AppDatabase()
+        let repository = LearningRepository(database: db)
+        let questions = [
+            StudyQuestion(id: UUID(), prompt: "First", answer: "One", kind: .reveal, choices: [], correctChoiceIndexes: []),
+            StudyQuestion(id: UUID(), prompt: "Second", answer: "Two", kind: .singleChoice, choices: ["Two", "Three"], correctChoiceIndexes: [0])
+        ]
+        let snapshot = ResumableStudySession(id: UUID(), startedAt: .now, title: "Chemistry", targetMinutes: 15,
+            questions: questions, nextIndex: 1, answered: 1, correct: 1, activeSeconds: 12)
+        let first = LearningStore(questions: [], repository: repository)
+        #expect(first.checkpoint(snapshot))
+        let restored = LearningStore(questions: [], repository: repository)
+        #expect(restored.resumableSession == snapshot)
+        #expect(restored.restoreResumableSession() == snapshot)
+        #expect(restored.questions == questions)
+        #expect(restored.sessionTitle == "Chemistry")
+        #expect(restored.checkpoint(nil))
+        #expect(LearningStore(questions: [], repository: repository).resumableSession == nil)
+    }
+
+    @Test @MainActor func answerAndCursorAreAtomicIncludingLastAnswer() throws {
+        let db = try AppDatabase()
+        let repository = LearningRepository(database: db)
+        let questions = [
+            StudyQuestion(id: UUID(), prompt: "First", answer: "One", kind: .reveal, choices: [], correctChoiceIndexes: []),
+            StudyQuestion(id: UUID(), prompt: "Second", answer: "Two", kind: .reveal, choices: [], correctChoiceIndexes: [])
+        ]
+        let id = UUID()
+        let started = Date()
+        let store = LearningStore(questions: questions, repository: repository)
+        let initial = ResumableStudySession(id: id, startedAt: started, title: "Test", targetMinutes: 10,
+            questions: questions, nextIndex: 0, answered: 0, correct: 0, activeSeconds: 0)
+        #expect(store.checkpoint(initial))
+        var afterFirst = initial
+        afterFirst.nextIndex = 1
+        afterFirst.answered = 1
+        afterFirst.correct = 1
+        #expect(store.record(question: questions[0], rating: .good, advancingTo: afterFirst))
+        let reopened = LearningStore(questions: [], repository: repository)
+        #expect(reopened.attempts.count == 1)
+        #expect(reopened.resumableSession == afterFirst)
+        var afterLast = afterFirst
+        afterLast.nextIndex = 2
+        afterLast.answered = 2
+        #expect(reopened.record(question: questions[1], rating: .again, advancingTo: afterLast))
+        let completed = LearningStore(questions: [], repository: repository)
+        #expect(completed.attempts.count == 2)
+        #expect(completed.resumableSession == nil)
+        #expect(try repository.loadResumableSession() == nil)
+    }
+}

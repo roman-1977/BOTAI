@@ -24,6 +24,7 @@ struct GameHomeView: View {
   @Environment(CourseStore.self) private var courses
   @Environment(StudyProfileStore.self) private var profile
   @State private var learn = false
+  @State private var resumeSession = false
   @State private var profileOpen = false
   @State private var materialsOpen = false
   @State private var coursesOpen = false
@@ -58,6 +59,7 @@ struct GameHomeView: View {
         SessionLaunchPicker(courses: courses.courses, materials: materials, learning: learning) { questions, title in
           learning.use(questions: questions, title: title, targetMinutes: plan.budgetMinutes)
           chooseSession = false
+          resumeSession = false
           learn = true
         }
       }.sheet(isPresented: Binding(get: { reportURL != nil }, set: { if !$0 { reportURL = nil } })) {
@@ -68,7 +70,7 @@ struct GameHomeView: View {
           GoalProgressService.reconcile(courses: courses, materials: materials, learning: learning)
           captureForecasts()
         }
-      ) { LearnSessionView() }.sheet(isPresented: $profileOpen) {
+      ) { LearnSessionView(resume: resumeSession) }.sheet(isPresented: $profileOpen) {
         NavigationStack { ProfileView() }
       }.sheet(isPresented: $materialsOpen) { MaterialsHubView() }.sheet(isPresented: $coursesOpen) {
         CoursesView()
@@ -317,14 +319,20 @@ struct GameHomeView: View {
   private var launch: some View {
     VStack(spacing: 9) {
       Button {
-        chooseSession = true
+        if learning.resumableSession?.canResume == true {
+          _ = learning.restoreResumableSession()
+          resumeSession = true
+          learn = true
+        } else {
+          chooseSession = true
+        }
       } label: {
         HStack(spacing: 12) {
           Image(systemName: "play.fill").font(.title2).foregroundStyle(.white).frame(
             width: 52, height: 52
           ).background(.white.opacity(0.16), in: Circle())
           VStack(alignment: .leading, spacing: 3) {
-            Text("БОТАТЬ").font(.headline).lineLimit(2)
+            Text(learning.resumableSession?.canResume == true ? "ПРОДОЛЖИТЬ" : "БОТАТЬ").font(.headline).lineLimit(2)
             Text(launchSubtitle).font(.caption).opacity(0.72).lineLimit(3)
           }
           Spacer()
@@ -335,7 +343,11 @@ struct GameHomeView: View {
             startPoint: .leading, endPoint: .trailing), in: RoundedRectangle(cornerRadius: 22))
       }.buttonStyle(.plain)
         .accessibilityIdentifier("primary-study-launch")
-        .accessibilityHint("Настроить и начать занятие")
+        .accessibilityHint(learning.resumableSession?.canResume == true ? "Продолжить прерванное занятие" : "Настроить и начать занятие")
+      if learning.resumableSession?.canResume == true {
+        Button("Новое занятие") { chooseSession = true }
+          .buttonStyle(.bordered).font(.caption)
+      }
       if plan.questions.isEmpty {
         Button(launchActionTitle) { coursesOpen = true }.buttonStyle(.bordered).tint(
           HomePalette.accent)

@@ -76,7 +76,7 @@ final class LearningRepository: @unchecked Sendable {
         }
     }
 
-    func record(_ attempt: Attempt, state: LearningState, question: StudyQuestion? = nil) throws {
+    func record(_ attempt: Attempt, state: LearningState, question: StudyQuestion? = nil, nextSession: ResumableStudySession? = nil) throws {
         try database.dbQueue.write { db in
             let mapping = try RemoteQuestionMapping.fetchOne(db, key: attempt.questionID.uuidString)
             try LocalAttemptRecord(id: attempt.id.uuidString, questionID: attempt.questionID.uuidString,
@@ -97,6 +97,33 @@ final class LearningRepository: @unchecked Sendable {
             try db.execute(sql: "INSERT INTO knowledgeStates(knowledgeID,intervalDays,streak,nextDueAt) VALUES(?,?,?,?) ON CONFLICT(knowledgeID) DO UPDATE SET intervalDays=excluded.intervalDays,streak=excluded.streak,nextDueAt=excluded.nextDueAt", arguments: [knowledgeID.uuidString, state.intervalDays, state.streak, state.nextDueAt])
             try db.execute(sql: "INSERT INTO knowledgeProgressEvents(attemptID,knowledgeID,occurredAt,streak,intervalDays,isKnown) VALUES(?,?,?,?,?,?)", arguments: [attempt.id.uuidString, knowledgeID.uuidString, attempt.occurredAt, state.streak, state.intervalDays, state.masteryLevel == .known])
             try OutboxRecord(id: UUID().uuidString, entityType: "attempt", entityID: attempt.id.uuidString, operation: "upsert", payloadVersion: 1, createdAt: .now, attemptCount: 0, nextRetryAt: nil, lastError: nil).insert(db)
+            if let nextSession {
+                if nextSession.canResume {
+                    let json = String(decoding: try JSONEncoder().encode(nextSession), as: UTF8.self)
+                    try db.execute(sql: "INSERT INTO resumableStudySession(slot,snapshotJSON,updatedAt) VALUES(1,?,?) ON CONFLICT(slot) DO UPDATE SET snapshotJSON=excluded.snapshotJSON,updatedAt=excluded.updatedAt", arguments: [json, Date()])
+                } else {
+                    try db.execute(sql: "DELETE FROM resumableStudySession WHERE slot = 1")
+                }
+            }
+        }
+    }
+
+    func loadResumableSession() throws -> ResumableStudySession? {
+        try database.dbQueue.read { db in
+            guard let row = try Row.fetchOne(db, sql: "SELECT snapshotJSON FROM resumableStudySession WHERE slot = 1") else { return nil }
+            let json: String = row["snapshotJSON"]
+            return try JSONDecoder().decode(ResumableStudySession.self, from: Data(json.utf8))
+        }
+    }
+
+    func saveResumableSession(_ snapshot: ResumableStudySession?) throws {
+        try database.dbQueue.write { db in
+            if let snapshot {
+                let json = try String(decoding: JSONEncoder().encode(snapshot), as: UTF8.self)
+                try db.execute(sql: "INSERT INTO resumableStudySession(slot,snapshotJSON,updatedAt) VALUES(1,?,?) ON CONFLICT(slot) DO UPDATE SET snapshotJSON=excluded.snapshotJSON,updatedAt=excluded.updatedAt", arguments: [json, Date()])
+            } else {
+                try db.execute(sql: "DELETE FROM resumableStudySession WHERE slot = 1")
+            }
         }
     }
 
