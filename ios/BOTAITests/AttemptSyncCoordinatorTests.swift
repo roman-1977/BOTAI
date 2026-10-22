@@ -198,6 +198,45 @@ struct SessionSummarySyncCoordinatorTests {
         return (repository, session)
     }
 
+    @Test func offlineCompletionSurvivesDatabaseReopenAndUploadsExactlyOnce() async throws {
+        let path = FileManager.default.temporaryDirectory
+            .appendingPathComponent("botai-offline-summary-\(UUID().uuidString).sqlite").path
+        defer {
+            for suffix in ["", "-wal", "-shm"] {
+                try? FileManager.default.removeItem(atPath: path + suffix)
+            }
+        }
+        let session = StudySession(id: UUID(), startedAt: .now, endedAt: .now,
+            activeSeconds: 81, answered: 2, correct: 1)
+        do {
+            let offline = LearningRepository(database: try AppDatabase(path: path))
+            try offline.saveSession(session)
+            #expect(try offline.pendingSessionSummaries().isEmpty)
+            try offline.completeSession(session)
+            try offline.completeSession(session)
+            #expect(try offline.pendingSessionSummaries().map(\.sessionID) == [session.id])
+        }
+        let reopened = LearningRepository(database: try AppDatabase(path: path))
+        #expect(try reopened.pendingSessionSummaries().map(\.sessionID) == [session.id])
+        let offlineBackend = FakeSessionSummaryBackend(.fail)
+        let offlineSync = SessionSummarySyncCoordinator(backend: offlineBackend,
+            repository: reopened, isCurrentAccount: { true })
+        await #expect(throws: BOTAIBackendError.invalidAcknowledgement) {
+            try await offlineSync.flush()
+        }
+        #expect(try reopened.pendingSessionSummaries().count == 1)
+        let onlineBackend = FakeSessionSummaryBackend(.acknowledgeAll)
+        let onlineSync = SessionSummarySyncCoordinator(backend: onlineBackend,
+            repository: reopened, isCurrentAccount: { true })
+        #expect(try await onlineSync.flush() == 1)
+        #expect(await onlineBackend.received == [CompletedSessionSummary(session: session)])
+        #expect(try await onlineSync.flush() == 0)
+        #expect(await onlineBackend.calls == 1)
+        let restarted = LearningRepository(database: try AppDatabase(path: path))
+        #expect(try restarted.pendingSessionSummaries().isEmpty)
+        #expect(try restarted.sessions().count == 1)
+    }
+
     @Test func unfinishedSessionIsNeverUploaded() async throws {
         let (repository, _) = try setup()
         let backend = FakeSessionSummaryBackend(.acknowledgeAll)
@@ -321,6 +360,41 @@ struct TopicAggregateSyncCoordinatorTests {
             activeSeconds: 12, answered: 1, correct: 1)
         try repository.completeSession(session, topics: topics)
         return (repository, session.id)
+    }
+
+    @Test func offlineTopicQueueSurvivesReopenAndWaitsForParentAck() async throws {
+        let path = FileManager.default.temporaryDirectory
+            .appendingPathComponent("botai-offline-topics-\(UUID().uuidString).sqlite").path
+        defer {
+            for suffix in ["", "-wal", "-shm"] {
+                try? FileManager.default.removeItem(atPath: path + suffix)
+            }
+        }
+        let sessionID = UUID()
+        do {
+            let offline = LearningRepository(database: try AppDatabase(path: path))
+            let attribution = StudyQuestionAttribution(courseID: UUID(), sectionID: UUID(), topicID: UUID())
+            var topics = SessionTopicAccumulator()
+            topics.record(correct: true, attribution: attribution)
+            let session = StudySession(id: sessionID, startedAt: .now, endedAt: .now,
+                activeSeconds: 25, answered: 1, correct: 1)
+            try offline.completeSession(session, topics: topics)
+            #expect(try offline.pendingTopicSessionSummaries().isEmpty)
+        }
+        let reopened = LearningRepository(database: try AppDatabase(path: path))
+        let backend = FakeTopicAggregateBackend(.all)
+        let sync = TopicAggregateSyncCoordinator(backend: backend, repository: reopened,
+            isCurrentAccount: { true })
+        #expect(try await sync.flush() == 0)
+        #expect(await backend.calls == 0)
+        try reopened.acknowledgeSessionSummaries([sessionID])
+        #expect(try reopened.pendingTopicSessionSummaries().count == 1)
+        #expect(try await sync.flush() == 1)
+        #expect(try await sync.flush() == 0)
+        #expect(await backend.calls == 1)
+        let restarted = LearningRepository(database: try AppDatabase(path: path))
+        #expect(try restarted.pendingSessionSummaries().isEmpty)
+        #expect(try restarted.pendingTopicSessionSummaries().isEmpty)
     }
 
     @Test func waitsUntilParentSummaryAcknowledged() async throws {

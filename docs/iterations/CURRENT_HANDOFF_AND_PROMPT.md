@@ -54,3 +54,7 @@ Owner requested work in **substantial blocks** with overall release progress, no
 ### Consolidated regression checkpoint — 2026-10-22
 
 Complete clean full test suite **146/146 unit + 25/25 standard UI PASS** with two intentionally skipped chemistry tests on unseeded standard simulator, exit 0: `/tmp/botai_full_clean_regression_20261022.log`. Independently **2/2 seeded chemistry UI PASS** on disposable simulator, exit 0: `/tmp/botai_seeded_chemistry_acceptance_20261022.log`. Five chemistry fixture Python tests PASS: `/tmp/botai_chemistry_seed_python_20261022.log`. RC-08 PASS for tested revision; still NOT RC. Next work in meaningful blocks: offline/reconnect + backend migration 0025/0026 RLS on disposable Postgres, adaptive teacher guidance policy, visual/accessibility/device gates. Preserve user-owned pbxproj and never deploy without approval.
+
+### Offline/reconnect checkpoint — 2026-10-22
+
+Two disk-backed, restart-persistent fake-network integration tests now cover summary retry/ACK and parent-first topic aggregate upload/ACK, including duplicate-completion idempotency. **148/148 BOTAITests PASS**, `/tmp/botai_offline_reopen_sync_units_20261022.log`. Disposable Postgres migration 0025/0026 RLS fixtures remain unexecuted: `docker`, `psql`, `pg_ctl` unavailable on Mac PATH; do NOT use linked/live Supabase as a substitute. Real network drop, hardware, migration and RLS acceptance remain open. Continue work in batches and preserve user-owned pbxproj.
