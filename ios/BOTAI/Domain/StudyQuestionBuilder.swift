@@ -42,7 +42,7 @@ enum StudyQuestionBuilder {
             let correct=Set(shuffled.enumerated().compactMap{$0.element.correct ? $0.offset:nil})
             let answer=correctTexts.joined(separator:", ")
             let kind:StudyQuestion.Kind = rule.kind == .singleChoice ? .singleChoice : rule.kind == .multipleChoice ? .multipleChoice : .reveal
-            return StudyQuestion(id:stableID(ruleID:rule.id,rowID:row.id),prompt:prompt,answer:answer.isEmpty ? fallback:answer,kind:kind,choices:answers,correctChoiceIndexes:correct)
+            return StudyQuestion(id:stableID(ruleID:rule.id,rowID:row.id),prompt:prompt,answer:answer.isEmpty ? fallback:answer,kind:kind,choices:answers,correctChoiceIndexes:correct,knowledgeID:row.id)
         }
     }
     private static func fieldsPresent(_ keys:[String],in row:KnowledgeRow)->Bool { keys.allSatisfy { !(row.values[$0] ?? "").trimmingCharacters(in:.whitespacesAndNewlines).isEmpty } }

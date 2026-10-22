@@ -48,3 +48,7 @@ Snapshot: 2026-10-21. This describes the `refactor/v0.2.0` branch, not a release
 4. Document residual limitations, freeze and tag the validated candidate; keep `main` unchanged until sign-off.
 
 See `docs/PRE_REFACTOR_AUDIT_2026-10-21.md` for the original audit and proposed architecture; its snapshot predates the branch changes above.
+
+### v0.3.0 chemistry pilot (2026-10-22, in progress)
+
+See `docs/iterations/V030_CHEMISTRY_PILOT.md` for authoritative milestones, verification and handoff. A deterministic 323-question developer fixture and guarded local SQLite seed exist (not yet installed into running app). `StudyQuestion.knowledgeID` now links both assessment modes at the presentation model level; persistence/mastery remain keyed by mode-specific IDs and need migration. Targeted simulator tests: 2/2 passed; fixture tests: 5/5 passed. No live account reset or production Supabase changes.
