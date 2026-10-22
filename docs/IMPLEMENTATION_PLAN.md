@@ -72,3 +72,7 @@ Chosen-topic sessions now override ambiguous shared-question ownership with the 
 ### Chemistry seeded checkpoint — 2026-10-22
 
 На отдельном disposable iPhone 16e после guarded seed **2/2 ChemistryPilotSmokeTests PASS** (`/tmp/botai_chemistry_disposable_seeded_20261022.log`, exit 0). Вместе с предыдущей стандартной регрессией **140/140 unit + 23/23 UI PASS** это закрывает текущий автоматизированный regression checkpoint, но не остальные RC-гейты. Далее cross-product режимов и shared-set attribution.
+
+### Shared questionnaire semantics — 2026-10-22
+
+Владелец подтвердил: один опросник в разных темах освоен везде при освоении единого `knowledgeID`. Unit regression на durable reopen across topic contexts: **141/141 PASS**, `/tmp/botai_shared_knowledge_all_units_20261022.log`. Следующая проверка: UI E2E двух реальных тем и статистика уникального прогресса.

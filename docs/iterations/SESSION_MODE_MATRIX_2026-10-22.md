@@ -85,3 +85,10 @@ All scenarios are mandatory for MVP; this is a verification plan, not evidence o
 - Booted simulator, backed up only isolated UI-test SQLite to `.build/chemistry-pilot/ui-test-before-seed-20261022-214203.sqlite`, then ran `bash tools/chemistry_pilot/run_simulator_smoke.sh 62B01BED-4A72-43B9-A02D-351D9E82EE7A`. Seeded 323 knowledge rows, 102 materials, 5 sections and 1 goal.
 - **Seeded chemistry: 2/2 UI PASS, zero failures, exit 0, `TEST SUCCEEDED`**, `/tmp/botai_chemistry_disposable_seeded_20261022.log`. Standard regression previously **140/140 unit + 23/23 UI PASS**. These are separate, correctly isolated runs.
 - Next: remaining cross-product UI and shared-set attribution E2E; RC not approved.
+
+### Shared knowledge across topics — 2026-10-22
+
+- Product invariant reaffirmed by owner: a questionnaire reused in several topics has **one shared mastery state** per `knowledgeID`; studying it in one topic counts as learned in every referencing topic. Topic-level coverage can include it in each topic, but subject/global unique coverage must not double-count it. Session attribution is a reporting dimension, not a separate mastery key.
+- Added durable SQLite regression `SharedKnowledgeProgressTests.sharedQuestionInTwoTopicsKeepsOneMasteryAfterReopen`: answer in first topic, reopen store from second topic, verify same streak and one state, answer again, reopen first topic, verify two attempts and one shared state.
+- **141/141 Swift Testing unit PASS in 45 suites**, exit 0, `/tmp/botai_shared_knowledge_all_units_20261022.log`. An initial incorrectly scoped `-only-testing:BOTAITests/SharedKnowledgeProgressTests` ran **0 tests** and is not treated as evidence; reran entire `BOTAITests` target and verified test name in log.
+- Still pending: UI-level shared-question reuse across two actual topics, topic aggregate semantics, and full mode matrix.

@@ -97,6 +97,30 @@ struct SharedKnowledgeProgressTests {
         #expect(try repository.outboxCount() == 2)
     }
 
+    @Test @MainActor func sharedQuestionInTwoTopicsKeepsOneMasteryAfterReopen() throws {
+        // Two topic references resolve to the same durable knowledge item.
+        // Topic membership must not create topic-specific learning states.
+        let db = try AppDatabase()
+        let repository = LearningRepository(database: db)
+        let knowledgeID = UUID()
+        let shared = StudyQuestion(id: UUID(), prompt: "Кислота?", answer: "HCl",
+                                   kind: .reveal, choices: [], correctChoiceIndexes: [],
+                                   knowledgeID: knowledgeID)
+        let firstTopicQuestions = [shared]
+        let secondTopicQuestions = [shared]
+        let store = LearningStore(questions: firstTopicQuestions, repository: repository)
+        #expect(store.record(question: firstTopicQuestions[0], rating: .good))
+        let reopenedInSecondTopic = LearningStore(questions: secondTopicQuestions, repository: repository)
+        #expect(reopenedInSecondTopic.knowledgeStates.count == 1)
+        #expect(reopenedInSecondTopic.knowledgeStates[knowledgeID]?.streak == 1)
+        #expect(reopenedInSecondTopic.attempts.count == 1)
+        #expect(reopenedInSecondTopic.record(question: secondTopicQuestions[0], rating: .good))
+        let restored = LearningStore(questions: firstTopicQuestions, repository: repository)
+        #expect(restored.knowledgeStates.count == 1)
+        #expect(restored.knowledgeStates[knowledgeID]?.streak == 2)
+        #expect(restored.attempts.count == 2)
+    }
+
     @Test func legacyProgressIsBackfilledDuringMigration() throws {
         let db = try AppDatabase()
         let repository = LearningRepository(database: db)
