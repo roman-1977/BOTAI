@@ -1,4 +1,5 @@
 import Foundation
+import PDFKit
 import Testing
 @testable import BOTAI
 
@@ -45,5 +46,31 @@ struct RestDayAndPDFReportTests {
         let data = try Data(contentsOf:url)
         #expect(data.starts(with:Data("%PDF".utf8)))
         #expect(data.count > 1500)
+    }
+}
+
+
+struct ForecastRecommendationPDFTests {
+    @Test func underPlanSuggestsMorePractice() throws {
+        let profile = StudyProfile(defaultDailyMinutes:30,customDays:[],updatedAt:.now)
+        let url = try StudyPDFReport.export(profile:profile,sessions:[],attempts:[],knowledgeStates:[:],courses:[])
+        defer { try? FileManager.default.removeItem(at:url) }
+        let text = try #require(PDFDocument(url:url)?.string)
+        #expect(text.contains("отставание от плана"))
+        #expect(text.contains("Рекомендация: добавить"))
+    }
+
+    @Test func aheadOfPlanDoesNotRecommendIncreasingWorkload() throws {
+        let now = Date()
+        let profile = StudyProfile(defaultDailyMinutes:10,customDays:[],updatedAt:now)
+        let sessions = (0..<14).map { offset in
+            let date = Calendar.current.date(byAdding:.day,value:-offset,to:now)!
+            return StudySession(id:UUID(),startedAt:date,endedAt:date.addingTimeInterval(1200),activeSeconds:1200,answered:5,correct:4)
+        }
+        let url = try StudyPDFReport.export(profile:profile,sessions:sessions,attempts:[],knowledgeStates:[:],courses:[],now:now)
+        defer { try? FileManager.default.removeItem(at:url) }
+        let text = try #require(PDFDocument(url:url)?.string)
+        #expect(text.contains("опережение плана"))
+        #expect(text.contains("дополнительные занятия необязательны"))
     }
 }

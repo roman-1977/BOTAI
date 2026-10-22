@@ -17,3 +17,9 @@ Home screen → **Расширенный отчёт · PDF** → native share sh
 ## Verification
 
 2026-10-22: `RestDayAndPDFReportTests` (2 tests) and `SharedKnowledgeProgressTests` (2 tests) passed on iPhone 16 Pro Max simulator. Full UI/export and visual QA pending. See `docs/iterations/V030_CHEMISTRY_PILOT.md`.
+
+## Recommendation engine v1 (2026-10-22)
+
+The PDF compares average weekly **actual minutes** over the last 14 calendar days against `StudyProfile.weeklyMinutes`. When behind, it prints the weekly minute shortfall and a suggested number of additional 15-minute sessions (or redistributing those minutes among preferred days). When ahead, it recognizes the lead and does **not** suggest more mandatory workload. For a zero-minute weekly plan, voluntary activity is described as optional. This is a **time-budget** comparison only, not a knowledge-readiness forecast. For goals with deadlines the PDF explicitly discloses that readiness projection needs a historical mastery series.
+
+Tests `ForecastRecommendationPDFTests` extract real PDF text using PDFKit and assert under-plan and ahead-of-plan recommendations; 2/2 passed on simulator. The earlier `RestDayAndPDFReportTests` also passed 2/2 after reconnection.

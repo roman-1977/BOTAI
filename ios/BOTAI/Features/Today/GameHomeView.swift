@@ -365,6 +365,36 @@ enum StudyPDFReport {
     } else {
       lines.append("Есть отставание от плана по времени. Можно начать с короткого занятия сегодня.")
     }
+    lines.append("")
+    lines.append("ПРОГНОЗ И РЕКОМЕНДАЦИИ")
+    let recentDays = days.suffix(14)
+    let recentMinutes = recentDays.reduce(0) { total, day in
+      total + sessions.filter { calendar.isDate($0.startedAt, inSameDayAs: day) }
+        .reduce(0) { $0 + $1.activeSeconds } / 60
+    }
+    let weeklyPace = Double(recentMinutes) / 2.0
+    let plannedWeekly = profile.weeklyMinutes
+    lines.append("Фактический темп за 14 дней: \(Int(weeklyPace.rounded())) мин/нед.; план: \(plannedWeekly) мин/нед.")
+    let delta = Int((weeklyPace - Double(plannedWeekly)).rounded())
+    if plannedWeekly > 0 {
+      lines.append(delta >= 0
+        ? "По времени опережение плана: +\(delta) мин/нед."
+        : "По времени отставание от плана: \(abs(delta)) мин/нед.")
+      if delta < 0 {
+        let shortfall = abs(delta)
+        let extraDays = max(1, Int(ceil(Double(shortfall) / 15.0)))
+        lines.append("Рекомендация: добавить \(extraDays) коротких занятий по 15 минут в неделю или распределить недостающие \(shortfall) минут между удобными днями.")
+      } else {
+        lines.append("Рекомендация: сохраняйте устойчивый темп; дополнительные занятия необязательны.")
+      }
+    } else {
+      lines.append("Запланированного времени нет. Занятия по желанию — дополнительный результат.")
+    }
+    let activeDeadlines = courses.flatMap(\.goals).filter { $0.state == .active && $0.deadline != nil }
+    if !activeDeadlines.isEmpty {
+      lines.append("Прогноз достижения учебных целей: пока недостаточно истории изменения освоения.")
+      lines.append("Текущий темп минут не равен скорости освоения знаний; прогноз готовности по дедлайну будет добавлен после накопления снимков прогресса.")
+    }
     lines.append("Показатель освоения рассчитан по знаниям с сохранённым прогрессом, а не по всему учебному курсу.")
     let output = FileManager.default.temporaryDirectory.appendingPathComponent("BOTAI_Study_Report_\(UUID().uuidString).pdf")
     let renderer = UIGraphicsPDFRenderer(bounds: CGRect(x: 0, y: 0, width: 595, height: 842))
