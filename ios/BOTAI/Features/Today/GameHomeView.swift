@@ -809,7 +809,6 @@ private struct SessionLaunchPicker: View {
             Picker("Стратегия", selection: $strategy) {
               Text("Выбирает система").tag("auto")
               Text("Все вопросы").tag("all")
-              Text("Повторение").tag("review")
             }
             Button("Вернуть автоматический выбор") {
               format = "mixed"
@@ -821,7 +820,6 @@ private struct SessionLaunchPicker: View {
         }
         Section("Быстрый старт") {
           launchRow("Все предметы вперемешку", refs: allRefs)
-          launchRow("Повторить изученное", refs: allRefs, dueOnly: true)
         }
         ForEach(courses) { course in
           Section(course.title) {
@@ -839,7 +837,7 @@ private struct SessionLaunchPicker: View {
         .toolbar { Button("Закрыть") { dismiss() } }
     }
   }
-  private func launchRow(_ title: String, refs: [CourseRuleReference], dueOnly: Bool = false) -> some View {
+  private func launchRow(_ title: String, refs: [CourseRuleReference]) -> some View {
     let candidates = questions(refs).filter { question in
       switch format {
       case "cards": return question.kind == .reveal || question.kind == .pair
@@ -852,9 +850,7 @@ private struct SessionLaunchPicker: View {
       return state.nextDueAt <= .now
     }
     let selected: [StudyQuestion]
-    if dueOnly || strategy == "review" {
-      selected = due
-    } else if strategy == "auto" && !due.isEmpty {
+    if strategy == "auto" && !due.isEmpty {
       let dueIDs = Set(due.map(\.id))
       selected = due + candidates.filter { !dueIDs.contains($0.id) }
     } else {

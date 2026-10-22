@@ -64,6 +64,22 @@ final class LaunchSmokeTests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Стратегия"].waitForExistence(timeout: 5))
     }
 
+    func testAdvancedLaunchShowsAllFormatAndStrategyChoices() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-botai-ui-testing", "-botai-reset-ui-test-data"]
+        app.launch()
+        let choose = app.buttons["primary-study-launch"]
+        XCTAssertTrue(choose.waitForExistence(timeout: 20))
+        choose.tap()
+        app.buttons["Дополнительные настройки"].tap()
+        XCTAssertTrue(app.staticTexts["Формат"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Стратегия"].exists)
+        XCTAssertTrue(app.buttons["Вернуть автоматический выбор"].exists)
+        // Opening and closing settings must not implicitly launch a session.
+        app.buttons["Дополнительные настройки"].tap()
+        XCTAssertTrue(app.navigationBars["Что будем учить?"].exists)
+    }
+
     func testPrimaryScreensVisualBaseline() throws {
         let app = XCUIApplication()
         app.launchArguments = ["-botai-ui-testing", "-botai-reset-ui-test-data"]

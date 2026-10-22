@@ -18,17 +18,18 @@ enum DailyPlanner {
  }
 
  @MainActor private static func adaptiveQuestions(goal:LearningGoal,materials:MaterialStore,learning:LearningStore,count:Int,date:Date)->[StudyQuestion] {
-   var groups=goal.questionSets.compactMap{ref -> [StudyQuestion]? in
-     guard let c=materials.content(id:ref.materialID) else{return nil}
-     let qs=StudyQuestionBuilder.questions(for:ref,content:c).sorted { lhs,rhs in
-       let left=priority(lhs,learning,date:date),right=priority(rhs,learning,date:date)
-       return left == right ? lhs.id.uuidString < rhs.id.uuidString : left > right
-     }
-     return qs.isEmpty ? nil:qs
+   // Rank across all referenced sets: a due card in a later set must not
+   // be displaced by a new/not-due card in an earlier set.
+   let all=goal.questionSets.flatMap { ref -> [StudyQuestion] in
+     guard let content=materials.content(id:ref.materialID) else{return []}
+     return StudyQuestionBuilder.questions(for:ref,content:content)
    }
-   var result:[StudyQuestion]=[];var cursor=0
-   while result.count<count && groups.contains(where:{!$0.isEmpty}) { let i=cursor % groups.count;if !groups[i].isEmpty { result.append(groups[i].removeFirst()) };cursor += 1 }
-   return result
+   var seen=Set<UUID>()
+   let unique=all.filter { seen.insert($0.id).inserted }
+   return Array(unique.sorted { lhs,rhs in
+     let left=priority(lhs,learning,date:date),right=priority(rhs,learning,date:date)
+     return left == right ? lhs.id.uuidString < rhs.id.uuidString : left > right
+   }.prefix(count))
  }
  @MainActor private static func priority(_ q:StudyQuestion,_ l:LearningStore,date:Date)->Int { guard let s=l.knowledgeStates[q.knowledgeID] else{return 100};if s.nextDueAt <= date{return 80-s.streak*5};return 20-s.streak }
 }
