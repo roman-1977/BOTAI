@@ -364,6 +364,22 @@ final class LaunchSmokeTests: XCTestCase {
         XCTAssertEqual(firstCount, subjectCount)
         second.tap()
         XCTAssertTrue(app.staticTexts["Кислота"].waitForExistence(timeout: 10))
+        app.staticTexts["Кислота"].tap()
+        XCTAssertTrue(app.buttons["ОТВЕТИЛ ЛЕГКО"].waitForExistence(timeout: 10))
+        app.buttons["ОТВЕТИЛ ЛЕГКО"].tap()
+        XCTAssertTrue(app.staticTexts["ВОПРОСЫ ЗАКОНЧИЛИСЬ"].waitForExistence(timeout: 10))
+        app.buttons["ГОТОВО"].tap()
+        XCTAssertTrue(app.staticTexts["БОТАТЬ"].waitForExistence(timeout: 10))
+        app.terminate()
+        app.launchArguments = ["-botai-ui-testing"]
+        app.launch()
+        XCTAssertTrue(app.buttons["primary-study-launch"].waitForExistence(timeout: 20))
+        app.buttons["primary-study-launch"].tap()
+        let firstAfterReopen = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Тема первая")).firstMatch
+        XCTAssertTrue(firstAfterReopen.waitForExistence(timeout: 10))
+        XCTAssertTrue(firstAfterReopen.isEnabled)
+        firstAfterReopen.tap()
+        XCTAssertTrue(app.staticTexts["Кислота"].waitForExistence(timeout: 10))
     }
 
     func testPopulatedCatalogStrategyAllAndAutomatic() throws {
