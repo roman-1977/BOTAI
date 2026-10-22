@@ -412,9 +412,9 @@ struct TopicAggregateConcurrencyTests {
         let coordinator = TopicAggregateSyncCoordinator(backend: backend,
             repository: repository, isCurrentAccount: { await gate.isActive() })
         let task = Task { try await coordinator.flush() }
-        for _ in 0..<1000 {
+        for _ in 0..<500 {
             if await backend.started() { break }
-            await Task.yield()
+            try await Task.sleep(for: .milliseconds(2))
         }
         #expect(await backend.started())
         await gate.deactivate()
@@ -429,9 +429,9 @@ struct TopicAggregateConcurrencyTests {
         let coordinator = TopicAggregateSyncCoordinator(backend: backend,
             repository: repository, isCurrentAccount: { true })
         let task = Task { try await coordinator.flush() }
-        for _ in 0..<1000 {
+        for _ in 0..<500 {
             if await backend.started() { break }
-            await Task.yield()
+            try await Task.sleep(for: .milliseconds(2))
         }
         #expect(await backend.started())
         #expect(try await coordinator.flush() == 0)

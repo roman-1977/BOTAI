@@ -122,3 +122,5 @@ See `docs/iterations/V030_CHEMISTRY_PILOT.md` for authoritative milestones, veri
 - 2026-10-22: Duplicate-key guards added; 131/131 unit tests PASS; full UI regression pending.
 
 - 2026-10-22: Added topic-sync concurrency regression tests (account switch, duplicate flush, backend failure); execution pending completion of UI suite.
+
+- 2026-10-22: 15 general UI tests PASS; 2 chemistry UI tests require separate seeded fixture. Topic concurrency 3/3 PASS after stabilizing async test polling. Seeded chemistry rerun pending.
