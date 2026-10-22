@@ -42,3 +42,9 @@ All scenarios are mandatory for MVP; this is a verification plan, not evidence o
 - Fixed shared-question attribution: an explicit topic launch now records all selected question IDs against that chosen course/section/topic, even when another topic references the same question set. Subject/mixed launch retains ambiguity-safe `uniqueAttributions` behavior.
 - Added deterministic `explicitTopicOverridesSharedQuestionAmbiguity` test, including duplicate input and empty selection. **140/140 unit PASS** (`/tmp/botai_scope_attribution_unit_20261022.log`, exit 0).
 - **Verified:** full regression 140/140 unit + 17/17 UI PASS (`/tmp/botai_topic_attribution_full_20261022.log`, exit 0). **Pending:** UI test for choosing a populated topic that shares a question set.
+
+### Populated catalog UI checkpoint — 2026-10-22
+
+- New isolated UI test `testPopulatedTopicAndSubjectLaunchAreEnabled`: creates course/section/topic, attaches a real seeded question set, verifies topic/subject/mixed launch rows enabled and launches the topic into a real question. **PASS** (`/tmp/botai_populated_scope_ui_retry_20261022.log`).
+- First test attempt failed because test navigation remained inside course editor; corrected test navigation, no product defect established.
+- Still pending: format × strategy populated-catalog UI cross-product and shared-set topic-result attribution end-to-end.

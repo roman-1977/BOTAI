@@ -1,3 +1,5 @@
+> **2026-10-22 populated UI:** topic/subject/mixed launch enablement and topic question display PASS in new isolated UI test; cross-product pending.
+
 > **2026-10-22 scope fix:** explicit topic attribution for shared question sets implemented; 140/140 unit PASS (`/tmp/botai_scope_attribution_unit_20261022.log`). Full regression 140/140 unit + 17/17 UI PASS (`/tmp/botai_topic_attribution_full_20261022.log`); **NOT RC**.
 
 > **2026-10-22 additional focused UI:** empty-library launch disabled/no accidental session **PASS** (`/tmp/botai_empty_catalog_ui_20261022.log`); full regression after this UI-only change pending.
