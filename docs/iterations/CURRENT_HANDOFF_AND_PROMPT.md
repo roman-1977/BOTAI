@@ -90,3 +90,7 @@ Isolated Keychain integration test found `SecItemAdd` -34018 in unsigned simulat
 ### Signed simulator Keychain acceptance — 2026-10-23
 
 Signed simulator test run succeeded with `GENERATE_INFOPLIST_FILE=YES CODE_SIGN_IDENTITY='-'` build overrides: 153/153 PASS, isolated Keychain persistence test PASS, `/tmp/botai_keychain_signed_sim2_20261023.log`. Previous -34018 was due to unsigned test host. No pbxproj modifications. Next verify app cold start with network loss/reconnect and account switching; device gate still open.
+
+### Reconnect fix — 2026-10-23
+
+`AuthStore.reconnectOfflineSession` requires restored Supabase user UUID to equal cached offline user. `BOTAIApp` on scene activation revalidates then restores sync service to the same isolated SQLite database. Signed-simulator 153/153 units PASS `/tmp/botai_offline_reconnect_20261023.log`. Add actual offline→online UI/integration coverage, including mismatched account and revoked session; do not call gate closed yet.

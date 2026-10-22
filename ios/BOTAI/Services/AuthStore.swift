@@ -116,6 +116,29 @@ final class AuthStore {
         }
     }
 
+    /// Revalidate without hiding local study UI while the network is still unavailable.
+    func reconnectOfflineSession() async -> Bool {
+        guard isOfflineLocalSession else { return isAuthenticated }
+        do {
+            let session = try await client.auth.session
+            guard session.user.id == userID else {
+                // Never silently switch the current offline study session to another account.
+                errorMessage = "Учётная запись изменилась. Перезапустите приложение."
+                return false
+            }
+            isAuthenticated = true
+            isOfflineLocalSession = false
+            OfflineAccountBinding.save(session.user.id)
+            errorMessage = nil
+            return true
+        } catch {
+            if !Self.isTransportFailure(error) {
+                errorMessage = "Не удалось подтвердить учётную запись."
+            }
+            return false
+        }
+    }
+
     private(set) var didFailBootstrap = false
 
     #if DEBUG

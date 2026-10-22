@@ -113,6 +113,22 @@ struct BOTAIApp: App {
         let identity = authStore.localIdentity
         guard identity != activeIdentity || storageFailure != nil else {
             if !authStore.isAuthenticated { syncService = nil }
+            else if syncService == nil {
+                // The same account can return online after an offline-only cold launch.
+                // Rebind sync to the already opened account database, never to guest data.
+                guard let support = try? FileManager.default.url(
+                    for: .applicationSupportDirectory, in: .userDomainMask,
+                    appropriateFor: nil, create: true
+                ) else { return false }
+                let uiTesting = ProcessInfo.processInfo.arguments.contains("-botai-ui-testing")
+                let folder = LocalAccountStorage.directory(for: identity, support: support, uiTesting: uiTesting)
+                guard let database = try? AppDatabase(path: folder.appendingPathComponent("learning.sqlite").path) else {
+                    storageFailure = "Не удалось повторно открыть базу для синхронизации"
+                    return false
+                }
+                let repository = LearningRepository(database: database)
+                syncService = SyncService(repository: repository, mappings: RemoteQuestionMappingRepository(database: database))
+            }
             return true
         }
         // Invalidate the old account's sync service before attempting any database switch.
@@ -192,10 +208,15 @@ struct BOTAIApp: App {
                     }
                 }
                 .onChange(of: scenePhase) { _, phase in
-                    guard phase == .active, didResolveInitialIdentity,
-                          let syncService else { return }
-                    let questions = learningStore.questions
-                    Task { await syncService.flush(questions: questions) }
+                    guard phase == .active, didResolveInitialIdentity else { return }
+                    Task {
+                        if authStore.isOfflineLocalSession {
+                            guard await authStore.reconnectOfflineSession() else { return }
+                            guard switchStorageIfNeeded() else { return }
+                        }
+                        guard let syncService else { return }
+                        await syncService.flush(questions: learningStore.questions)
+                    }
                 }
                 .onChange(of: learningStore.completedSessionSignal) { _, _ in
                     guard let syncService else { return }
