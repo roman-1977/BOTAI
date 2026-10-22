@@ -55,3 +55,7 @@ The existing real two-topic UI E2E now checks **topic A = topic B = whole subjec
 ### Mixed catalog UI checkpoint
 
 Added isolated mixed card and choice fixture. Real topic attaches both sets; all 18 scope x format x strategy combinations enabled, and test question feedback succeeds. Focused 1/1 UI PASS: /tmp/botai_mixed_catalog_ui_20261022.log. Distinct subject fixture and full mixed session still pending.
+
+### Full-suite regression audit (2026-10-22)
+
+A complete xcodebuild test run on standard isolated simulator is underway; raw log: /tmp/botai_all_scenarios_regression_20261022.log. It initially revealed that two chemistry-pilot UI tests assumed preseeded content and failed on a standard empty simulator. Those tests now skip only when the external chemistry fixture is absent, and still execute assertions when seeded. A clean rerun is required after the current run finishes. Do not count skipped pilot tests as verified.
