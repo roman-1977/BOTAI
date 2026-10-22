@@ -74,3 +74,7 @@ New `backend/tests/completed_session_negative_permissions.sql` fixture PASS on d
 ### Offline auth cold-launch blocker — 2026-10-22
 
 Source audit found `AuthStore.bootstrap()` non-missing-session error -> `didFailBootstrap`, and `BOTAIApp` blocks RootTabView. This prevents reliable offline cold launch for previously authenticated users when session refresh requires network. Preserve strict account separation; do not replace identity with guest on network error. Design secure cached local identity and test offline cold launch, expired token, sign-out and switching before RC. Also 151/151 unit tests PASS including partial ACK retry, `/tmp/botai_partial_summary_retry_20261022.log`.
+
+### Offline account binding prototype — 2026-10-23
+
+`AuthStore.swift` adds Keychain-backed last verified UUID; only transport failure with cached UUID allows local-only access to exact account database; no cloud sync, no guest fallback. Binding cleared on confirmed missing session/successful sign-out, replaced on verified sign-in. 152/152 units PASS `/tmp/botai_offline_auth_guard_tests_20261023.log`. MUST test actual offline cold start, token expiration/revocation, account switching, Keychain behavior, and reconnect before release; this is not fully accepted. Do not touch user-owned project.pbxproj.

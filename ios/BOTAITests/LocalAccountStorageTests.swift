@@ -3,6 +3,13 @@ import Testing
 @testable import BOTAI
 
 struct LocalAccountStorageTests {
+    @Test @MainActor func offlineFallbackOnlyAcceptsTransportFailures() {
+        #expect(AuthStore.isTransportFailure(URLError(.notConnectedToInternet)))
+        #expect(AuthStore.isTransportFailure(URLError(.timedOut)))
+        #expect(!AuthStore.isTransportFailure(NSError(domain: "authentication", code: 401)))
+        #expect(!AuthStore.isTransportFailure(NSError(domain: "storage", code: 1)))
+    }
+
     @Test func guestAndTwoAccountsPersistSeparateLearningDatabases() throws {
         let fm = FileManager.default
         let support = fm.temporaryDirectory.appendingPathComponent("botai-account-isolation-" + UUID().uuidString)
