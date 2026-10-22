@@ -13,6 +13,17 @@ Status: ACCEPTED by project owner, 2026-10-22. Applies to every development iter
 7. **Git**: use a feature branch, coherent commits and clean staged scope. Do not include unrelated pre-existing changes. Record branch, baseline, commit IDs and push status.
 8. **Handoff**: ensure a new developer can start from the repository without chat history: environment setup, source of truth, decisions, current status, exact commands to reproduce, next tasks and known limitations.
 
+## Verification tiers — accepted 2026-10-23
+
+The owner superseded the previous practice of running the entire signed simulator UI suite after each small edit. **Do not weaken the requirement to test each behavior change.** Choose the smallest defensible test scope, and document the exact command and results:
+
+- **Documentation-only**: check affected references and `git diff --check`; no simulator run unless documentation changes executable setup.
+- **Localized implementation**: compile the app and run targeted unit tests plus the directly affected UI tests if behavior is visible. Add/update regression coverage for the changed behavior.
+- **Auth, persistence, account isolation, migrations, sync**: run the relevant security/data unit and integration suites and focused UI paths, including failure/offline cases. Broaden to full regression if a change affects shared bootstrap, navigation, or multiple stores.
+- **Completed milestone / release candidate / before release**: run the complete signed unit and UI regression suites, plus required live-backend and device acceptance separately. A simulator green result does not imply live backend acceptance.
+
+Prefer **one substantial, coherent implementation batch** followed by its verification and one self-contained commit. Avoid multiple background test queues, overlapping `xcodebuild` processes, and repetitive full regressions. If a full regression is already running, allow it to finish rather than starting a duplicate. Each commit still requires current documentation, changed-behavior tests, build evidence, and explicit limitations. Record deferred full-regression debt in the active milestone log; never describe it as passed.
+
 ## Handoff checklist
 
 - [ ] Current branch and baseline identified
