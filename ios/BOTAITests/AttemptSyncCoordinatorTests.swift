@@ -160,7 +160,7 @@ struct AttemptSyncCoordinatorTests {
 }
 
 private actor FakeSessionSummaryBackend: SessionSummaryBackendAPI {
-    enum Behavior: Sendable { case acknowledgeAll, acknowledgeNone, foreignID, fail }
+    enum Behavior: Sendable { case acknowledgeAll, acknowledgeNone, foreignID, duplicateID, fail }
     let behavior: Behavior
     private(set) var calls = 0
     private(set) var received: [CompletedSessionSummary] = []
@@ -172,6 +172,7 @@ private actor FakeSessionSummaryBackend: SessionSummaryBackendAPI {
         case .acknowledgeAll: return summaries.map(\.sessionID)
         case .acknowledgeNone: return []
         case .foreignID: return [UUID()]
+        case .duplicateID: return summaries.isEmpty ? [] : [summaries[0].sessionID, summaries[0].sessionID]
         case .fail: throw BOTAIBackendError.invalidAcknowledgement
         }
     }
@@ -285,6 +286,17 @@ struct SessionSummarySyncCoordinatorTests {
         #expect(try repository.pendingSessionSummaries().count == 1)
     }
 
+    @Test func duplicateSummaryAcknowledgementIsRejectedAndRemainsPending() async throws {
+        let (repository, session) = try setup()
+        try repository.completeSession(session)
+        let sync = SessionSummarySyncCoordinator(backend: FakeSessionSummaryBackend(.duplicateID),
+            repository: repository, isCurrentAccount: { true })
+        await #expect(throws: BOTAIBackendError.invalidAcknowledgement) {
+            try await sync.flush()
+        }
+        #expect(try repository.pendingSessionSummaries().map(\.sessionID) == [session.id])
+    }
+
     @Test func inactiveAccountPreventsUpload() async throws {
         let (repository, session) = try setup()
         try repository.completeSession(session)
@@ -335,7 +347,7 @@ struct SessionSummarySyncCoordinatorTests {
 }
 
 private actor FakeTopicAggregateBackend: TopicAggregateBackendAPI {
-    enum Behavior: Sendable { case all, none, foreign, failure }
+    enum Behavior: Sendable { case all, none, foreign, duplicate, failure }
     let behavior: Behavior
     private(set) var calls = 0
     init(_ behavior: Behavior) { self.behavior = behavior }
@@ -345,6 +357,7 @@ private actor FakeTopicAggregateBackend: TopicAggregateBackendAPI {
         case .all: return summaries.map(\.sessionID)
         case .none: return []
         case .foreign: return [UUID()]
+        case .duplicate: return summaries.isEmpty ? [] : [summaries[0].sessionID, summaries[0].sessionID]
         case .failure: throw BOTAIBackendError.invalidAcknowledgement
         }
     }
@@ -439,6 +452,17 @@ struct TopicAggregateSyncCoordinatorTests {
             try await coordinator.flush()
         }
         #expect(try repository.pendingTopicSessionSummaries().count == 1)
+    }
+
+    @Test func duplicateTopicAcknowledgementIsRejectedAndRemainsPending() async throws {
+        let (repository, id) = try setup()
+        try repository.acknowledgeSessionSummaries([id])
+        let sync = TopicAggregateSyncCoordinator(backend: FakeTopicAggregateBackend(.duplicate),
+            repository: repository, isCurrentAccount: { true })
+        await #expect(throws: BOTAIBackendError.invalidAcknowledgement) {
+            try await sync.flush()
+        }
+        #expect(try repository.pendingTopicSessionSummaries().map(\.sessionID) == [id])
     }
 
     @Test func inactiveAccountNeverUploads() async throws {

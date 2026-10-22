@@ -58,3 +58,7 @@ Complete clean full test suite **146/146 unit + 25/25 standard UI PASS** with tw
 ### Offline/reconnect checkpoint — 2026-10-22
 
 Two disk-backed, restart-persistent fake-network integration tests now cover summary retry/ACK and parent-first topic aggregate upload/ACK, including duplicate-completion idempotency. **148/148 BOTAITests PASS**, `/tmp/botai_offline_reopen_sync_units_20261022.log`. Disposable Postgres migration 0025/0026 RLS fixtures remain unexecuted: `docker`, `psql`, `pg_ctl` unavailable on Mac PATH; do NOT use linked/live Supabase as a substitute. Real network drop, hardware, migration and RLS acceptance remain open. Continue work in batches and preserve user-owned pbxproj.
+
+### Duplicate ACK security regression — 2026-10-22
+
+Added duplicate-ACK rejection in both completed session and topic aggregate upload coordinators; malicious fake-backend tests confirm no local ACK on duplicate IDs. **150/150 BOTAITests PASS** `/tmp/botai_duplicate_ack_tests_20261022.log`. Still pending isolated PostgreSQL RLS migrations 0025/0026 and real network disruption tests.

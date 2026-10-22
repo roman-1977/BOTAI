@@ -61,7 +61,8 @@ actor SessionSummarySyncCoordinator {
         let acknowledged = try await backend.uploadSessionSummaries(pending)
         guard await isCurrentAccount() else { return 0 }
         let pendingIDs = Set(pending.map(\.sessionID))
-        guard Set(acknowledged).isSubset(of: pendingIDs) else {
+        guard acknowledged.count == Set(acknowledged).count,
+              Set(acknowledged).isSubset(of: pendingIDs) else {
             throw BOTAIBackendError.invalidAcknowledgement
         }
         try repository.acknowledgeSessionSummaries(acknowledged)
@@ -93,7 +94,8 @@ actor TopicAggregateSyncCoordinator {
         guard !pending.isEmpty, await isCurrentAccount() else { return 0 }
         let acknowledged = try await backend.uploadTopicAggregates(pending)
         guard await isCurrentAccount() else { return 0 }
-        guard Set(acknowledged).isSubset(of: Set(pending.map(\.sessionID))) else {
+        guard acknowledged.count == Set(acknowledged).count,
+              Set(acknowledged).isSubset(of: Set(pending.map(\.sessionID))) else {
             throw BOTAIBackendError.invalidAcknowledgement
         }
         try repository.acknowledgeTopicSessionSummaries(acknowledged)
