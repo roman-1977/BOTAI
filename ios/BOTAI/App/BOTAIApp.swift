@@ -166,7 +166,7 @@ struct BOTAIApp: App {
                     let questions = learningStore.questions
                     Task { await syncService.flush(questions: questions) }
                 }
-                .onChange(of: learningStore.attempts.count) { _, _ in
+                .onChange(of: learningStore.completedSessionSignal) { _, _ in
                     guard let syncService else { return }
                     let questions = learningStore.questions
                     Task { await syncService.flush(questions: questions) }

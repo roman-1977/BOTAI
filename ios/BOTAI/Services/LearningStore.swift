@@ -24,6 +24,7 @@ final class LearningStore {
     private(set) var knowledgeHistory: [LearningRepository.KnowledgeProgressEvent] = []
     private(set) var forecastHistory: [LearningRepository.ForecastSnapshot] = []
     private(set) var sessions: [StudySession] = []
+    private(set) var completedSessionSignal = 0
     private(set) var questions: [StudyQuestion]
     private(set) var sessionTitle: String = "Обучение"
     private(set) var sessionTargetMinutes: Int = 0
@@ -113,6 +114,7 @@ final class LearningStore {
         catch { lastPersistenceError = error.localizedDescription; return false }
         if let i = sessions.firstIndex(where: { $0.id == session.id }) { sessions[i] = session }
         else { sessions.append(session) }
+        completedSessionSignal += 1
         return true
     }
 

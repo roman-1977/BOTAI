@@ -158,3 +158,139 @@ struct AttemptSyncCoordinatorTests {
         #expect(try learning.outboxCount() == 1)
     }
 }
+
+private actor FakeSessionSummaryBackend: SessionSummaryBackendAPI {
+    enum Behavior: Sendable { case acknowledgeAll, acknowledgeNone, foreignID, fail }
+    let behavior: Behavior
+    private(set) var calls = 0
+    private(set) var received: [CompletedSessionSummary] = []
+    init(_ behavior: Behavior) { self.behavior = behavior }
+    func uploadSessionSummaries(_ summaries: [CompletedSessionSummary]) async throws -> [UUID] {
+        calls += 1
+        received = summaries
+        switch behavior {
+        case .acknowledgeAll: return summaries.map(\.sessionID)
+        case .acknowledgeNone: return []
+        case .foreignID: return [UUID()]
+        case .fail: throw BOTAIBackendError.invalidAcknowledgement
+        }
+    }
+}
+
+private actor SuspendedSessionSummaryBackend: SessionSummaryBackendAPI {
+    private var continuation: CheckedContinuation<Void, Never>?
+    private var didStart = false
+    func uploadSessionSummaries(_ summaries: [CompletedSessionSummary]) async throws -> [UUID] {
+        didStart = true
+        await withCheckedContinuation { continuation = $0 }
+        return summaries.map(\.sessionID)
+    }
+    func started() -> Bool { didStart }
+    func resume() { continuation?.resume(); continuation = nil }
+}
+
+struct SessionSummarySyncCoordinatorTests {
+    private func setup() throws -> (LearningRepository, StudySession) {
+        let repository = LearningRepository(database: try AppDatabase())
+        let session = StudySession(id: UUID(), startedAt: .now, endedAt: .now,
+            activeSeconds: 42, answered: 7, correct: 5)
+        try repository.saveSession(session)
+        return (repository, session)
+    }
+
+    @Test func unfinishedSessionIsNeverUploaded() async throws {
+        let (repository, _) = try setup()
+        let backend = FakeSessionSummaryBackend(.acknowledgeAll)
+        let sync = SessionSummarySyncCoordinator(backend: backend, repository: repository,
+            isCurrentAccount: { true })
+        #expect(try await sync.flush() == 0)
+        #expect(await backend.calls == 0)
+    }
+
+    @Test func completedSessionUploadsOnlyAggregateAndAcknowledgesOnce() async throws {
+        let (repository, session) = try setup()
+        try repository.completeSession(session)
+        let backend = FakeSessionSummaryBackend(.acknowledgeAll)
+        let sync = SessionSummarySyncCoordinator(backend: backend, repository: repository,
+            isCurrentAccount: { true })
+        #expect(try await sync.flush() == 1)
+        #expect(try repository.pendingSessionSummaries().isEmpty)
+        #expect(await backend.received == [CompletedSessionSummary(session: session)])
+        #expect(try await sync.flush() == 0)
+        #expect(await backend.calls == 1)
+        #expect(try repository.sessions().count == 1)
+    }
+
+    @Test func failuresAndMissingAckKeepSummaryPending() async throws {
+        let (repository, session) = try setup()
+        try repository.completeSession(session)
+        let failed = SessionSummarySyncCoordinator(backend: FakeSessionSummaryBackend(.fail),
+            repository: repository, isCurrentAccount: { true })
+        await #expect(throws: BOTAIBackendError.invalidAcknowledgement) { try await failed.flush() }
+        let unconfirmed = SessionSummarySyncCoordinator(backend: FakeSessionSummaryBackend(.acknowledgeNone),
+            repository: repository, isCurrentAccount: { true })
+        #expect(try await unconfirmed.flush() == 0)
+        #expect(try repository.pendingSessionSummaries().count == 1)
+        let retry = SessionSummarySyncCoordinator(backend: FakeSessionSummaryBackend(.acknowledgeAll),
+            repository: repository, isCurrentAccount: { true })
+        #expect(try await retry.flush() == 1)
+        #expect(try repository.pendingSessionSummaries().isEmpty)
+    }
+
+    @Test func foreignAcknowledgementRejected() async throws {
+        let (repository, session) = try setup()
+        try repository.completeSession(session)
+        let sync = SessionSummarySyncCoordinator(backend: FakeSessionSummaryBackend(.foreignID),
+            repository: repository, isCurrentAccount: { true })
+        await #expect(throws: BOTAIBackendError.invalidAcknowledgement) { try await sync.flush() }
+        #expect(try repository.pendingSessionSummaries().count == 1)
+    }
+
+    @Test func inactiveAccountPreventsUpload() async throws {
+        let (repository, session) = try setup()
+        try repository.completeSession(session)
+        let backend = FakeSessionSummaryBackend(.acknowledgeAll)
+        let sync = SessionSummarySyncCoordinator(backend: backend, repository: repository,
+            isCurrentAccount: { false })
+        #expect(try await sync.flush() == 0)
+        #expect(await backend.calls == 0)
+        #expect(try repository.pendingSessionSummaries().count == 1)
+    }
+
+    @Test func accountSwitchDuringNetworkPreservesQueue() async throws {
+        let (repository, session) = try setup()
+        try repository.completeSession(session)
+        let backend = SuspendedSessionSummaryBackend()
+        let gate = AccountGate()
+        let sync = SessionSummarySyncCoordinator(backend: backend, repository: repository,
+            isCurrentAccount: { await gate.isActive() })
+        let task = Task { try await sync.flush() }
+        for _ in 0..<1000 {
+            if await backend.started() { break }
+            await Task.yield()
+        }
+        #expect(await backend.started())
+        await gate.deactivate()
+        await backend.resume()
+        #expect(try await task.value == 0)
+        #expect(try repository.pendingSessionSummaries().count == 1)
+    }
+
+    @Test func overlappingFlushDoesNotDoubleUpload() async throws {
+        let (repository, session) = try setup()
+        try repository.completeSession(session)
+        let backend = SuspendedSessionSummaryBackend()
+        let sync = SessionSummarySyncCoordinator(backend: backend, repository: repository,
+            isCurrentAccount: { true })
+        let task = Task { try await sync.flush() }
+        for _ in 0..<1000 {
+            if await backend.started() { break }
+            await Task.yield()
+        }
+        #expect(await backend.started())
+        #expect(try await sync.flush() == 0)
+        await backend.resume()
+        #expect(try await task.value == 1)
+        #expect(try repository.pendingSessionSummaries().isEmpty)
+    }
+}
