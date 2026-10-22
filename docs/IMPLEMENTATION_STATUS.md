@@ -86,3 +86,5 @@ See `docs/iterations/V030_CHEMISTRY_PILOT.md` for authoritative milestones, veri
 2026-10-22: chemistry pilot end-to-end UI recall smoke passed: open session, flip card, rate answer, finish, terminate/relaunch; isolated simulator SQLite inspection after first run found 1 attempt, 1 session and 1 knowledge history event. Multi-choice/full-session/sync remain pending.
 
 2026-10-22: WARNING: chemistry UI reported two answered questions and XCTest passed, but inspected simulator SQLite increased attempts only 3→4 and newest session answered=1. Possible test container mismatch or real persistence bug. Blocker: reconcile test target container and on-disk DB before accepting multi-question session.
+
+2026-10-22: resolved apparent two-answer SQLite discrepancy: xcodebuild was executing old single-answer XCTest body (confirmed by action trace). Renamed test selector; fresh action trace confirms two answer taps and both UI counters, SQLite attempts 4→6 and latest session answered=2/correct=2. New strict test passed.

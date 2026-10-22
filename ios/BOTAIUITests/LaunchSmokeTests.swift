@@ -306,7 +306,7 @@ import XCTest
 /// chemistry pilot script. Do not run this test on an unseeded simulator.
 @MainActor
 final class ChemistryPilotSmokeTests: XCTestCase {
-    func testChemistryStudyAnswerPersistsAfterRelaunch() throws {
+    func testChemistryTwoAnswersPersistAfterRelaunch() throws {
         let app = XCUIApplication()
         app.launchArguments = ["-botai-ui-testing"]
         app.launch()
