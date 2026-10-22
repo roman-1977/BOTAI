@@ -41,4 +41,4 @@ All scenarios are mandatory for MVP; this is a verification plan, not evidence o
 
 - Fixed shared-question attribution: an explicit topic launch now records all selected question IDs against that chosen course/section/topic, even when another topic references the same question set. Subject/mixed launch retains ambiguity-safe `uniqueAttributions` behavior.
 - Added deterministic `explicitTopicOverridesSharedQuestionAmbiguity` test, including duplicate input and empty selection. **140/140 unit PASS** (`/tmp/botai_scope_attribution_unit_20261022.log`, exit 0).
-- **Pending:** full UI regression after this change and UI test for choosing a populated topic that shares a question set.
+- **Verified:** full regression 140/140 unit + 17/17 UI PASS (`/tmp/botai_topic_attribution_full_20261022.log`, exit 0). **Pending:** UI test for choosing a populated topic that shares a question set.
