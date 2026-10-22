@@ -141,3 +141,7 @@ RC-06 hosted fixture now checks both completed-session parent and topic aggregat
 Hosted RC-06 harness security: four environment variables required (BOTAI_RUN_LIVE_SYNC, BOTAI_DISPOSABLE_SUPABASE_CONFIRMED, BOTAI_TEST_SUPABASE_URL, BOTAI_TEST_SUPABASE_PUBLISHABLE_KEY). Rejects app-configured production backend. Never run on a non-disposable project; confirm migrations and anonymous auth before enabling.
 
 RC-06 hosted acceptance now tests forbidden foreign-owner INSERT for both tables. A live run must verify both denial paths; local test PASS with opt-in disabled does not count as server acceptance.
+
+RC-06 consolidated verification: `tools/verify_rc06_disposable_postgres.sh` replays all three rollback-only SQL security fixtures on pre-existing disposable PostgreSQL cluster, PASS `/tmp/botai_rc06_sql_replay_20261023.log`. It refuses running clusters and stops its own server. Next required: hosted Supabase and real network/device acceptance; no production changes authorized.
+
+Consolidated signed simulator full unit/UI regression PASS: `/tmp/botai_rc06_consolidated_full_20261023.log`. Live Supabase test runs in safe disabled mode; do not call it hosted PASS.

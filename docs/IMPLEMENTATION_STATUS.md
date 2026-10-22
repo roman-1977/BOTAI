@@ -198,3 +198,7 @@ RC-06 hosted opt-in fixture expanded: verifies parent-first topic aggregate uplo
 RC-06 safety: hosted test now requires a separate explicit BOTAI_TEST_SUPABASE_URL and BOTAI_TEST_SUPABASE_PUBLISHABLE_KEY, refuses the app-configured Supabase URL/key, and refuses insecure non-loopback HTTP. Added deterministic negative configuration test; no hosted requests in routine suite.
 
 RC-06 live backend fixture now includes negative cross-account INSERT tests for both parent and topic aggregates (RLS WITH CHECK), in addition to SELECT isolation. These hosted assertions remain unexecuted until disposable Supabase is configured; local compilation only validates the fixture.
+
+RC-06 consolidated SQL replay (2026-10-23): added `tools/verify_rc06_disposable_postgres.sh`, a fail-closed runner for the previously created isolated PostgreSQL 17 cluster at `/tmp/botai_pg17_rls_20261022/data`, bound only to 127.0.0.1:55439. All three existing RLS/negative-permission fixtures PASS (`/tmp/botai_rc06_sql_replay_20261023.log`); runner stops server on exit. It does not migrate production or replace hosted Auth/PostgREST testing. Full signed regression initiated after the hosted test-harness changes; see subsequent checkpoint for results.
+
+RC-06 signed simulator consolidated unit/UI suite PASS after SQL replay and hosted harness additions: `/tmp/botai_rc06_consolidated_full_20261023.log`. Hosted integration test is disabled by default, so its live assertions were NOT executed.

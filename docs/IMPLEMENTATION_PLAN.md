@@ -116,3 +116,5 @@ Use targeted build + affected unit/UI tests for localized changes; run full sign
 RC-06 (2026-10-23): deterministic SQLite cold-relaunch → offline failure → reconnect → idempotent ACK regression added. Next acceptance: opt-in development Supabase integration with migrations 0025/0026 and two-user RLS; no production migration or host-network interruption without explicit authorization.
 
 RC-06 hosted acceptance harness: `LiveSupabaseSyncTests.aggregateOnlyIdempotentUploadAndTwoAccountIsolation` verifies server ACK, duplicate retry and cross-user RLS read on disposable Supabase. Keep disabled until test project and migrations 0025/0026 are explicitly confirmed; extend with topic ACK and revoked token tests. Routine focused compile/tests do not exercise the hosted service.
+
+RC-06 repeatable SQL security gate: run `tools/verify_rc06_disposable_postgres.sh` only on the disposable Mac cluster; fail closed if absent/already running. Confirm all three fixtures PASS. This covers SQL RLS with shim only. Hosted Supabase ACK/RLS, genuine offline interruption and physical device remain separate acceptance gates.
