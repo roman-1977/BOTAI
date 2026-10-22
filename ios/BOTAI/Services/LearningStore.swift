@@ -52,8 +52,8 @@ final class LearningStore {
         return true
     }
     var analytics: LearningAnalytics { LearningAnalytics(sessions:sessions,attempts:attempts,states:states) }
-    var knownCount:Int { states.values.filter{$0.masteryLevel == .known}.count }
-    var masteryPercent:Int { states.isEmpty ? 0 : Int((Double(knownCount)/Double(states.count)*100).rounded()) }
+    var knownCount:Int { knowledgeStates.values.filter{$0.masteryLevel == .known}.count }
+    var masteryPercent:Int { knowledgeStates.isEmpty ? 0 : Int((Double(knownCount)/Double(knowledgeStates.count)*100).rounded()) }
 
     @discardableResult
     func record(question: StudyQuestion, rating: RecallRating) -> Bool {
@@ -82,9 +82,9 @@ final class LearningStore {
         return attempts.filter { $0.occurredAt >= start && $0.occurredAt < end }.count
     }
     var thisWeek: Int { count(daysBack: -1, length: 7) }
-    var dailyRecommended: Int { max(10, min(40, states.values.filter { $0.nextDueAt <= .now }.count + 10)) }
-    var dueCount: Int { states.values.filter { $0.nextDueAt <= .now }.count }
-    var weakCount: Int { states.values.filter { $0.streak == 0 }.count }
+    var dailyRecommended: Int { max(10, min(40, knowledgeStates.values.filter { $0.nextDueAt <= .now }.count + 10)) }
+    var dueCount: Int { knowledgeStates.values.filter { $0.nextDueAt <= .now }.count }
+    var weakCount: Int { knowledgeStates.values.filter { $0.streak == 0 }.count }
     var newCount: Int { max(0, questions.count - states.count) }
     var previousWeek: Int { count(daysBack: 6, length: 7) }
     var streak: Int {

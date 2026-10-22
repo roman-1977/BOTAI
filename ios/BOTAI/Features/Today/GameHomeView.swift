@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 /// Semantic palette for the existing dark learning/home experience.
 /// Components should use roles rather than scattering literal RGB values.
@@ -26,6 +27,7 @@ struct GameHomeView: View {
   @State private var materialsOpen = false
   @State private var coursesOpen = false
   @State private var chooseGoal = false
+  @State private var reportURL: URL?
   private var plan: DailyStudyPlan {
     DailyPlanner.make(
       courses: courses.courses, materials: materials, learning: learning, profile: profile.profile)
@@ -40,6 +42,7 @@ struct GameHomeView: View {
             todayCard
             if !plan.goals.isEmpty { goalsCard }
             progressCard
+            reportAction
             launch
           }.padding(.horizontal, 14).padding(.bottom, 26)
         }
@@ -49,6 +52,8 @@ struct GameHomeView: View {
         ForEach(plan.goals) { g in Button("\(g.title) · \(g.questions.count) вопросов") { start(g) }
         }
         Button("Отмена", role: .cancel) {}
+      }.sheet(isPresented: Binding(get: { reportURL != nil }, set: { if !$0 { reportURL = nil } })) {
+        if let url = reportURL { PDFShareSheet(url: url) }
       }.sheet(
         isPresented: $learn,
         onDismiss: {
@@ -109,7 +114,7 @@ struct GameHomeView: View {
       Text("ПЛАН НА СЕГОДНЯ").font(.caption.bold()).foregroundStyle(HomeTheme.accent)
       Text(
         plan.budgetMinutes == 0
-          ? "Сегодня день отдыха" : "\(plan.budgetMinutes) минут на обучение"
+          ? "По плану отдых · заниматься можно" : "\(plan.budgetMinutes) минут на обучение"
       ).font(.title2.bold()).foregroundStyle(.white).fixedSize(horizontal: false, vertical: true)
       Text(
         plan.goals.isEmpty ? emptyPlanText : "BOTAI распределил время между текущими целями."
@@ -175,6 +180,22 @@ struct GameHomeView: View {
     HomeMetric(value: "\(learning.dueCount)", label: "ПОВТОРИТЬ")
     HomeMetric(value: timeText(learning.analytics.totalSeconds), label: "ВСЕГО")
   }
+  private var reportAction: some View {
+    Button {
+      do {
+        reportURL = try StudyPDFReport.export(profile: profile.profile, sessions: learning.sessions,
+          attempts: learning.attempts, knowledgeStates: learning.knowledgeStates,
+          courses: courses.courses)
+      } catch { reportError = error.localizedDescription }
+    } label: {
+      Label("Расширенный отчёт · PDF", systemImage: "doc.richtext")
+        .frame(maxWidth: .infinity).padding(12)
+    }.buttonStyle(.bordered).tint(HomeTheme.accent)
+      .alert("Не удалось создать PDF", isPresented: Binding(get: { reportError != nil }, set: { if !$0 { reportError = nil } })) {
+        Button("OK", role: .cancel) { reportError = nil }
+      } message: { Text(reportError ?? "") }
+  }
+  @State private var reportError: String?
   private var launch: some View {
     VStack(spacing: 9) {
       Button {
@@ -209,7 +230,7 @@ struct GameHomeView: View {
     } / 60
   }
   private var emptyPlanText: String {
-    if plan.budgetMinutes == 0 { return "В профиле на этот день установлено 0 минут." }
+    if plan.budgetMinutes == 0 { return "По расписанию отдых. Любое занятие сегодня — дополнительное достижение." }
     if courses.courses.flatMap(\.goals).isEmpty {
       return "Создай цель в курсе — она определит, что изучать."
     }
@@ -222,9 +243,9 @@ struct GameHomeView: View {
   }
   private var launchSubtitle: String {
     if !plan.questions.isEmpty {
-      return "\(plan.questions.count) вопросов · план \(plan.plannedMinutes) мин"
+      return plan.budgetMinutes == 0 ? "\(plan.questions.count) вопросов · вне плана" : "\(plan.questions.count) вопросов · план \(plan.plannedMinutes) мин"
     }
-    if plan.budgetMinutes == 0 { return "Сегодня по расписанию день отдыха" }
+    if plan.budgetMinutes == 0 { return "Можно заниматься вне плана — по своему желанию" }
     if !activeGoals.isEmpty { return "В активной цели пока нет доступных вопросов" }
     return "Сначала один раз запусти учебную цель"
   }
@@ -235,7 +256,7 @@ struct GameHomeView: View {
     if plan.goals.count == 1, let g = plan.goals.first { start(g) } else { chooseGoal = true }
   }
   private func start(_ g: DailyStudyPlan.GoalPlan) {
-    learning.use(questions: g.questions.shuffled(), title: g.title, targetMinutes: g.minutes)
+    learning.use(questions: g.questions.shuffled(), title: g.title, targetMinutes: plan.budgetMinutes == 0 ? 0 : g.minutes)
     learn = true
   }
   private func timeText(_ seconds: Int) -> String {
@@ -284,5 +305,85 @@ extension View {
   fileprivate func homeCard() -> some View {
     background(HomeTheme.surface, in: RoundedRectangle(cornerRadius: 22)).overlay(
       RoundedRectangle(cornerRadius: 22).stroke(HomeTheme.accent.opacity(0.2)))
+  }
+}
+
+private struct PDFShareSheet: UIViewControllerRepresentable {
+  let url: URL
+  func makeUIViewController(context: Context) -> UIActivityViewController {
+    UIActivityViewController(activityItems: [url], applicationActivities: nil)
+  }
+  func updateUIViewController(_ controller: UIActivityViewController, context: Context) {}
+}
+
+/// PDF is rendered locally; no learning data is uploaded.
+enum StudyPDFReport {
+  static func export(profile: StudyProfile, sessions: [StudySession], attempts: [Attempt],
+                     knowledgeStates: [UUID: LearningState], courses: [StudyCourse],
+                     now: Date = .now) throws -> URL {
+    let calendar = Calendar.current
+    let days = (0..<28).reversed().compactMap { calendar.date(byAdding: .day, value: -$0, to: calendar.startOfDay(for: now)) }
+    let totalSeconds = sessions.reduce(0) { $0 + $1.activeSeconds }
+    let answered = attempts.count
+    let known = knowledgeStates.values.filter { $0.masteryLevel == .known }.count
+    let due = knowledgeStates.values.filter { $0.nextDueAt <= now }.count
+    let pages: [String] = [
+      "BOTAI — РАСШИРЕННЫЙ ОТЧЁТ",
+      "Сформирован: \(now.formatted(date: .abbreviated, time: .shortened))",
+      "Период: последние 28 дней",
+      "Знаний в истории: \(knowledgeStates.count)",
+      "Устойчиво освоено: \(known) (\(knowledgeStates.isEmpty ? 0 : known * 100 / knowledgeStates.count)%)",
+      "К повторению: \(due)",
+      "Ответов за всё время: \(answered)",
+      "Учебное время за всё время: \(totalSeconds / 60) минут",
+      "Активных целей: \(courses.flatMap(\.goals).filter { $0.state == .active }.count)",
+      "",
+      "ПЛАН И ФАКТ ПО ДНЯМ",
+      "План — ориентир, занятия вне плана учитываются и приветствуются."
+    ]
+    var lines = pages
+    var plannedTotal = 0
+    var actualTotal = 0
+    for day in days {
+      let planned = profile.minutes(for: calendar.component(.weekday, from: day))
+      let seconds = sessions.filter { calendar.isDate($0.startedAt, inSameDayAs: day) }.reduce(0) { $0 + $1.activeSeconds }
+      let actual = seconds / 60
+      let answers = attempts.filter { calendar.isDate($0.occurredAt, inSameDayAs: day) }.count
+      plannedTotal += planned
+      actualTotal += actual
+      let status = planned == 0 ? (actual > 0 ? "Бонус: вне плана" : "Отдых по плану")
+        : (actual >= planned ? "План выполнен" : "Ниже плана")
+      lines.append("\(day.formatted(date: .numeric, time: .omitted)): план \(planned) мин, факт \(actual) мин, ответов \(answers) — \(status)")
+    }
+    lines.insert("За 28 дней: план \(plannedTotal) мин / факт \(actualTotal) мин", at: 12)
+    lines.append("")
+    lines.append("ИНТЕРПРЕТАЦИЯ")
+    if plannedTotal == 0 {
+      lines.append(actualTotal > 0 ? "Вы занимались по собственной инициативе. Отличная работа!" : "В расписании отдых. Учиться можно в любой день.")
+    } else if actualTotal >= plannedTotal {
+      lines.append("План по времени выполнен. Отличная дисциплина!")
+    } else {
+      lines.append("Есть отставание от плана по времени. Можно начать с короткого занятия сегодня.")
+    }
+    lines.append("Показатель освоения рассчитан по знаниям с сохранённым прогрессом, а не по всему учебному курсу.")
+    let output = FileManager.default.temporaryDirectory.appendingPathComponent("BOTAI_Study_Report_\(UUID().uuidString).pdf")
+    let renderer = UIGraphicsPDFRenderer(bounds: CGRect(x: 0, y: 0, width: 595, height: 842))
+    let data = renderer.pdfData { ctx in
+      var y: CGFloat = 45
+      ctx.beginPage()
+      for (index, line) in lines.enumerated() {
+        let font = index == 0 ? UIFont.boldSystemFont(ofSize: 18) : UIFont.systemFont(ofSize: 10)
+        let rect = CGRect(x: 38, y: y, width: 520, height: 40)
+        let attrs: [NSAttributedString.Key: Any] = [.font: font, .foregroundColor: UIColor.black]
+        let box = (line as NSString).boundingRect(with: CGSize(width: 520, height: 100),
+          options: [.usesLineFragmentOrigin], attributes: attrs, context: nil)
+        let height = max(16, ceil(box.height) + 4)
+        if y + height > 800 { ctx.beginPage(); y = 45 }
+        (line as NSString).draw(in: CGRect(x: rect.minX, y: y, width: rect.width, height: height), withAttributes: attrs)
+        y += height + (line.isEmpty ? 6 : 2)
+      }
+    }
+    try data.write(to: output, options: .atomic)
+    return output
   }
 }
