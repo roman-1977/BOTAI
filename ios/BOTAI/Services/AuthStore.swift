@@ -64,7 +64,10 @@ final class AuthStore {
     /// Only transport failures permit offline access; invalid or revoked auth never does.
     static func isTransportFailure(_ error: Error) -> Bool {
         let nsError = error as NSError
-        if nsError.domain == NSURLErrorDomain { return true }
+        if nsError.domain == NSURLErrorDomain {
+            let offlineCodes: Set<Int> = [-1009, -1005, -1001, -1004, -1003, -1006, -1018, -1020]
+            return offlineCodes.contains(nsError.code)
+        }
         if let underlying = nsError.userInfo[NSUnderlyingErrorKey] as? Error {
             return isTransportFailure(underlying)
         }

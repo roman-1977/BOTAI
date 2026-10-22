@@ -78,3 +78,7 @@ Source audit found `AuthStore.bootstrap()` non-missing-session error -> `didFail
 ### Offline account binding prototype — 2026-10-23
 
 `AuthStore.swift` adds Keychain-backed last verified UUID; only transport failure with cached UUID allows local-only access to exact account database; no cloud sync, no guest fallback. Binding cleared on confirmed missing session/successful sign-out, replaced on verified sign-in. 152/152 units PASS `/tmp/botai_offline_auth_guard_tests_20261023.log`. MUST test actual offline cold start, token expiration/revocation, account switching, Keychain behavior, and reconnect before release; this is not fully accepted. Do not touch user-owned project.pbxproj.
+
+### Offline error allowlist — 2026-10-23
+
+`AuthStore.isTransportFailure` now accepts only connectivity-related URL error codes; TLS trust/authentication/bad URL fail closed. Negative tests PASS (152/152 total), `/tmp/botai_offline_auth_allowlist_20261023.log`. Still test end-to-end offline Keychain cold launch and reconnect.

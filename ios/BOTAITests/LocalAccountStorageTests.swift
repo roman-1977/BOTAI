@@ -6,6 +6,9 @@ struct LocalAccountStorageTests {
     @Test @MainActor func offlineFallbackOnlyAcceptsTransportFailures() {
         #expect(AuthStore.isTransportFailure(URLError(.notConnectedToInternet)))
         #expect(AuthStore.isTransportFailure(URLError(.timedOut)))
+        #expect(!AuthStore.isTransportFailure(URLError(.serverCertificateUntrusted)))
+        #expect(!AuthStore.isTransportFailure(URLError(.userAuthenticationRequired)))
+        #expect(!AuthStore.isTransportFailure(URLError(.badURL)))
         #expect(!AuthStore.isTransportFailure(NSError(domain: "authentication", code: 401)))
         #expect(!AuthStore.isTransportFailure(NSError(domain: "storage", code: 1)))
     }
