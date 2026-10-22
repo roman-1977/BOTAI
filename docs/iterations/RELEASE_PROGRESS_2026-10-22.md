@@ -36,6 +36,10 @@ Audit found `GoalProgressService.reconcile` counted repeated questions in the de
 
 Added `StudyQuestionSelectionMatrixTests.allFormatsAndStrategiesPreserveUniqueQuestionIdentity` covering **mixed/cards/tests × automatic/all** with repeated question references. All six combinations return expected kinds and unique question IDs. **145/145 unit PASS** in 46 suites, `/tmp/botai_block1_matrix_units_20261022.log`. This is a unit matrix, **not** yet the full subject/topic/mixed UI matrix.
 
+### Opposite format fixture (choice-only) UI matrix
+
+Extended the real single-choice fixture to verify the opposite 18 availability states: topic/subject/all-subject × mixed/cards/tests × automatic/all. Mixed/tests enabled, cards disabled; launches choice and validates correct-answer feedback. **1/1 focused UI PASS**, `/tmp/botai_choice_scope_matrix_ui_20261022.log`. Together with card-only fixture this covers **36 states**, but not distinct subjects or a mixed-format catalog.
+
 ### Scope × format × strategy populated availability matrix
 
 Expanded a real populated card-only UI flow to assert **18 states** (3 scopes × 3 formats × 2 strategies): mixed/cards enabled, tests disabled; launched actual card. **1/1 UI PASS**, xcodebuild exit 0, `/tmp/botai_scope_format_strategy_ui_20261022.log`. Still pending distinct subjects and mixed choice/card catalog, offline, and complete E2E.

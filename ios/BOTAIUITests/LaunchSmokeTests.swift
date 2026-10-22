@@ -520,9 +520,20 @@ final class LaunchSmokeTests: XCTestCase {
         app.buttons["Дополнительные настройки"].tap()
         let format = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Формат")).firstMatch
         XCTAssertTrue(format.waitForExistence(timeout: 10))
-        format.tap()
-        app.buttons["Тесты"].tap()
-        XCTAssertTrue(topicLaunch.isEnabled)
+        let subjectLaunch = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Весь предмет")).firstMatch
+        let mixedLaunch = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Все предметы вперемешку")).firstMatch
+        let strategy = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Стратегия")).firstMatch
+        for strategyName in ["Все вопросы", "Выбирает система"] {
+            strategy.tap()
+            app.buttons[strategyName].tap()
+            for (formatName, enabled) in [("Вперемешку", true), ("Карточки", false), ("Тесты", true)] {
+                format.tap()
+                app.buttons[formatName].tap()
+                XCTAssertEqual(topicLaunch.isEnabled, enabled)
+                XCTAssertEqual(subjectLaunch.isEnabled, enabled)
+                XCTAssertEqual(mixedLaunch.isEnabled, enabled)
+            }
+        }
         topicLaunch.tap()
         let hcl = app.staticTexts["HCl — какая кислота?"]
         let h2so4 = app.staticTexts["H2SO4 — какая кислота?"]

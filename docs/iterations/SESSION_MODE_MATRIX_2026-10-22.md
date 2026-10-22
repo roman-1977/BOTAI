@@ -111,6 +111,11 @@ All scenarios are mandatory for MVP; this is a verification plan, not evidence o
 - Initial compile failures were incorrect test-only property access (`session` vs `sessionID`, `topicID` vs `attribution.topicID`); corrected. **143/143 unit PASS in 45 suites**, exit 0, `/tmp/botai_shared_topic_summary_units_20261022.log`.
 - This verifies repository persistence and reporting semantics; complete real UI answer→finish→summary for shared topics and backend RLS integration remain pending.
 
+### Choice-only scope × format × strategy UI checkpoint — 2026-10-22
+
+- Expanded real single-choice material UI test to cover the opposite **18 states** across topic/subject/all-subject × mixed/cards/tests × automatic/all: mixed/tests enabled; cards disabled. Then launches an actual choice question and checks correct-answer feedback. **Focused UI 1/1 PASS**, xcodebuild exit 0, `/tmp/botai_choice_scope_matrix_ui_20261022.log`.
+- Combined with card-only matrix, **36 enabled/disabled states** have now been verified across two isolated populated fixtures. This is not yet a single mixed-format catalog or distinct multi-subject fixture.
+
 ### Populated scope × format × strategy UI checkpoint — 2026-10-22
 
 - Expanded `testPopulatedCatalogStrategyAllAndAutomatic` to verify all **18 enabled/disabled row states**: three launch scopes (topic/subject/all), three formats (mixed/cards/tests), and two strategies (automatic/all) on real card-only material. Mixed/cards enabled; tests disabled for all scopes. Then starts a card successfully. **Focused UI 1/1 PASS**, xcodebuild exit 0, `/tmp/botai_scope_format_strategy_ui_20261022.log`; result bundle saved.
