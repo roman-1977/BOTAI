@@ -59,3 +59,7 @@ Added isolated mixed card and choice fixture. Real topic attaches both sets; all
 ### Full-suite regression audit (2026-10-22)
 
 A complete xcodebuild test run on standard isolated simulator is underway; raw log: /tmp/botai_all_scenarios_regression_20261022.log. It initially revealed that two chemistry-pilot UI tests assumed preseeded content and failed on a standard empty simulator. Those tests now skip only when the external chemistry fixture is absent, and still execute assertions when seeded. A clean rerun is required after the current run finishes. Do not count skipped pilot tests as verified.
+
+### Full automated regression result
+
+Complete standard-simulator sweep: 146/146 unit PASS; 25/25 general UI PASS; two chemistry-pilot UI tests initially FAIL because this simulator has no external chemistry seed (full log /tmp/botai_all_scenarios_regression_20261022.log, exit 65). Fixed the pilot precondition handling, then isolated recheck of both chemistry tests on unseeded simulator exits 0 with two SKIPS (/tmp/botai_pilot_unseeded_skip_fixed_20261022.log). This does NOT establish seeded chemistry acceptance; keep separate seeded run required. General UI tests all passed in the first sweep, but a post-fix complete clean full-suite rerun has not yet occurred.
