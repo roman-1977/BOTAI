@@ -11,6 +11,19 @@ final class StudyProfileRepository: @unchecked Sendable {
         }
     }
     func save(_ profile: StudyProfile) throws {
-        try database.dbQueue.write { db in try StudyProfileDBRecord(profile).save(db) }
+        try database.dbQueue.write { db in
+            try StudyProfileDBRecord(profile).save(db)
+            try db.execute(sql: "INSERT INTO studyPlanHistory(id,effectiveAt,payloadJSON) VALUES(?,?,?)",
+                arguments: [UUID().uuidString, profile.updatedAt, String(data: try JSONEncoder().encode(profile), encoding: .utf8)!])
+        }
+    }
+
+    func history() throws -> [StudyProfile] {
+        try database.dbQueue.read { db in
+            let rows = try Row.fetchAll(db, sql: "SELECT payloadJSON FROM studyPlanHistory ORDER BY effectiveAt")
+            return try rows.map { row in
+                try JSONDecoder().decode(StudyProfile.self, from: Data((row["payloadJSON"] as String).utf8))
+            }
+        }
     }
 }

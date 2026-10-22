@@ -115,3 +115,8 @@ Read this file, `docs/COURSES_AND_GOALS.md`, `docs/OPEN_QUESTIONS.md`, `AGENTS.m
 **Tests:** Extended `KnowledgeDeadlineForecastTests` with regression cases for old activity outside the window and lost mastery. Existing fixtures were updated to include three observation days. Targeted iPhone simulator run: **6/6 passed**, `TEST SUCCEEDED`, `/tmp/botai_forecast_rolling_final.log`. First targeted run exposed 3 outdated test expectations because the new minimum-observation rule is stricter; fixtures corrected and final run passed. A full `xcodebuild test` run was started, but the log reported an Xcode device-service error (`device is passcode protected` / `notification_proxy`), so full-suite result must not be considered verified until a clean retry.
 
 **Remaining:** historical schedule snapshots, minimum sample count/uncertainty bounds, knowledge regression visualizations, PDF visual QA and full-suite simulator regression. Forecast remains approximate.
+
+### 2026-10-22 — v14 report history
+Implementation: v14 studyPlanHistory saves profile revisions atomically; goalForecastSnapshots upserts one forecast per goal and local day on PDF export, with algorithm version, mastery and ETA. PDF reports textual first-to-last trend and uses historic plans when present.
+Tests: ReportingSnapshotPersistenceTests 2/2 passed; PDF recommendation tests 2/2 passed; chemistry Python tests 5/5 passed. Full suite not run.
+Limitations: snapshot trigger is PDF export, not automatic daily capture; no chart yet; pre-v14 historical plans are unknown.

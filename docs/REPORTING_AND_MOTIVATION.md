@@ -37,3 +37,7 @@ Verified `KnowledgeDeadlineForecastTests` 4/4 on simulator; PDF recommendation r
 ## Forecast v1.1 — rolling history and regressions
 
 The ETA now considers only the last 28 calendar days of knowledge-progress events and requires observations on at least **three distinct days**. The baseline includes last-known observations before the window, and changes inside the window are replayed per canonical knowledge ID. A negative or flat net change yields no projected completion date. Ancient activity is not extrapolated into the current rate. Six targeted Swift forecast tests passed. This is a conservative linear estimate, not a confidence-bounded forecast; sparse samples, plan revisions and PDF visual QA remain outstanding.
+
+## v14 snapshot history
+Study-plan revisions persist on every successful profile save. Forecast snapshots are upserted per goal and local day when a PDF is exported, recording ETA, mastery, rate and algorithm version. The PDF shows textual trend between saved forecasts and uses historical plan revisions when available. Before the first revision, plan/fact history is approximate. Automatic post-session capture and visual chart are pending.
+Verification: 2 Swift snapshot tests, 2 PDF tests, 5 Python tests passed.

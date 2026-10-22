@@ -183,9 +183,26 @@ struct GameHomeView: View {
   private var reportAction: some View {
     Button {
       do {
+        let today = Date()
+        for course in courses.courses {
+          for goal in course.goals where goal.state == .active {
+            let ids = Set(goal.questionSets.flatMap { ref -> [UUID] in
+              guard let content = materials.content(id: ref.materialID) else { return [] }
+              return StudyQuestionBuilder.questions(for: ref, content: content).map(\.knowledgeID)
+            })
+            guard !ids.isEmpty else { continue }
+            let forecast = KnowledgeDeadlineForecast.evaluate(goal: goal, knowledgeIDs: ids,
+              states: learning.knowledgeStates, history: learning.knowledgeHistory, now: today)
+            let day = ISO8601DateFormatter().string(from: Calendar.current.startOfDay(for: today))
+            _ = learning.saveForecast(.init(goalID: goal.id, day: day, calculatedAt: today,
+              forecastAt: forecast.estimatedCompletion, known: forecast.currentKnown,
+              target: forecast.requiredKnown, rate: forecast.observedPerDay, algorithmVersion: 2))
+          }
+        }
         reportURL = try StudyPDFReport.export(profile: profile.profile, sessions: learning.sessions,
           attempts: learning.attempts, knowledgeStates: learning.knowledgeStates,
-          courses: courses.courses, materials: materials, knowledgeHistory: learning.knowledgeHistory)
+          courses: courses.courses, materials: materials, knowledgeHistory: learning.knowledgeHistory,
+          planHistory: profile.history, forecastHistory: learning.forecastHistory)
       } catch { reportError = error.localizedDescription }
     } label: {
       Label("Расширенный отчёт · PDF", systemImage: "doc.richtext")
@@ -321,6 +338,7 @@ enum StudyPDFReport {
   @MainActor static func export(profile: StudyProfile, sessions: [StudySession], attempts: [Attempt],
                      knowledgeStates: [UUID: LearningState], courses: [StudyCourse],
                      materials: MaterialStore? = nil, knowledgeHistory: [LearningRepository.KnowledgeProgressEvent] = [],
+                     planHistory: [StudyProfile] = [], forecastHistory: [LearningRepository.ForecastSnapshot] = [],
                      now: Date = .now) throws -> URL {
     let calendar = Calendar.current
     let days = (0..<28).reversed().compactMap { calendar.date(byAdding: .day, value: -$0, to: calendar.startOfDay(for: now)) }
@@ -346,7 +364,10 @@ enum StudyPDFReport {
     var plannedTotal = 0
     var actualTotal = 0
     for day in days {
-      let planned = profile.minutes(for: calendar.component(.weekday, from: day))
+      // Use the schedule effective on this historical date, not today's edited plan.
+      let historicalProfile = planHistory.filter { $0.updatedAt < calendar.date(byAdding: .day, value: 1, to: day)! }
+        .max(by: { $0.updatedAt < $1.updatedAt })
+      let planned = (historicalProfile ?? profile).minutes(for: calendar.component(.weekday, from: day))
       let seconds = sessions.filter { calendar.isDate($0.startedAt, inSameDayAs: day) }.reduce(0) { $0 + $1.activeSeconds }
       let actual = seconds / 60
       let answers = attempts.filter { calendar.isDate($0.occurredAt, inSameDayAs: day) }.count
@@ -409,6 +430,14 @@ enum StudyPDFReport {
           let forecast = KnowledgeDeadlineForecast.evaluate(goal: goal, knowledgeIDs: knowledgeIDs,
             states: knowledgeStates, history: knowledgeHistory, now: now)
           lines.append(contentsOf: forecast.reportLines)
+          let snapshots = forecastHistory.filter { $0.goalID == goal.id }.sorted { $0.calculatedAt < $1.calculatedAt }
+          if let first = snapshots.first, let last = snapshots.last, snapshots.count >= 2 {
+            lines.append("История прогноза: \(snapshots.count) дней наблюдений; освоено \(first.known) → \(last.known).")
+            if let earlier = first.forecastAt, let later = last.forecastAt {
+              let change = calendar.dateComponents([.day], from: later, to: earlier).day ?? 0
+              lines.append(change >= 0 ? "Прогноз улучшился на \(change) дн." : "Прогноз ухудшился на \(abs(change)) дн.")
+            }
+          }
         }
       }
     }

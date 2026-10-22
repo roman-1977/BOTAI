@@ -142,6 +142,26 @@ final class AppDatabase: @unchecked Sendable {
             try db.create(index: "idx_knowledge_progress_date", on: "knowledgeProgressEvents", columns: ["occurredAt"])
             // Historical attempts predate knowledge-level snapshots. Never invent past mastery.
         }
+        migrator.registerMigration("v14_reporting_snapshots") { db in
+            try db.create(table: "studyPlanHistory") { t in
+                t.column("id", .text).primaryKey()
+                t.column("effectiveAt", .datetime).notNull()
+                t.column("payloadJSON", .text).notNull()
+            }
+            try db.create(index: "idx_study_plan_history_date", on: "studyPlanHistory", columns: ["effectiveAt"])
+            try db.create(table: "goalForecastSnapshots") { t in
+                t.column("goalID", .text).notNull()
+                t.column("day", .text).notNull()
+                t.column("calculatedAt", .datetime).notNull()
+                t.column("forecastAt", .datetime)
+                t.column("known", .integer).notNull()
+                t.column("target", .integer).notNull()
+                t.column("rate", .double)
+                t.column("algorithmVersion", .integer).notNull()
+                t.primaryKey(["goalID", "day"])
+            }
+            try db.create(index: "idx_goal_forecast_date", on: "goalForecastSnapshots", columns: ["calculatedAt"])
+        }
         return migrator
     }
 }

@@ -159,3 +159,6 @@ End of local database v1 contract.
 ### v13 — Knowledge progress event history
 
 `knowledgeProgressEvents(attemptID PRIMARY KEY, knowledgeID, occurredAt, streak, intervalDays, isKnown)` captures a canonical knowledge observation at each saved attempt, in the same transaction as the attempt/outbox. Chronological index on `occurredAt`. Historical attempts preceding v13 are **not** backfilled with invented mastery states. The local chemistry development reset deletes this table. Used as future evidence for knowledge-based progress forecasts.
+
+### v14 reporting tables
+studyPlanHistory(id, effectiveAt, payloadJSON) appends on profile save. goalForecastSnapshots(goalID, day, calculatedAt, forecastAt, known, target, rate, algorithmVersion) upserts on PDF export. Chemistry developer reset clears both. Pre-v14 plan history cannot be reconstructed.

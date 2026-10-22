@@ -7,6 +7,7 @@ final class LearningStore {
     private(set) var states: [UUID: LearningState] = [:]
     private(set) var knowledgeStates: [UUID: LearningState] = [:]
     private(set) var knowledgeHistory: [LearningRepository.KnowledgeProgressEvent] = []
+    private(set) var forecastHistory: [LearningRepository.ForecastSnapshot] = []
     private(set) var sessions: [StudySession] = []
     private(set) var questions: [StudyQuestion]
     private(set) var sessionTitle: String = "Обучение"
@@ -25,11 +26,22 @@ final class LearningStore {
                 states = saved.1
                 knowledgeStates = try repository.loadKnowledgeStates()
                 knowledgeHistory = try repository.knowledgeHistory()
+                forecastHistory = try repository.forecastSnapshots()
                 sessions = savedSessions
             } catch {
                 lastPersistenceError = error.localizedDescription
             }
         }
+    }
+
+    @discardableResult
+    func saveForecast(_ snapshot: LearningRepository.ForecastSnapshot) -> Bool {
+        guard let repository else { lastPersistenceError = "Локальное хранилище недоступно"; return false }
+        do { try repository.saveForecast(snapshot) }
+        catch { lastPersistenceError = error.localizedDescription; return false }
+        forecastHistory.removeAll { $0.goalID == snapshot.goalID && $0.day == snapshot.day }
+        forecastHistory.append(snapshot)
+        return true
     }
 
     func use(questions: [StudyQuestion], title: String = "Обучение", targetMinutes: Int = 0) { self.questions = questions; sessionTitle = title; sessionTargetMinutes = targetMinutes }

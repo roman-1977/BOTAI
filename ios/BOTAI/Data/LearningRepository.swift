@@ -47,6 +47,35 @@ final class LearningRepository: @unchecked Sendable {
         }
     }
 
+    struct ForecastSnapshot: Equatable {
+        let goalID: UUID
+        let day: String
+        let calculatedAt: Date
+        let forecastAt: Date?
+        let known: Int
+        let target: Int
+        let rate: Double?
+        let algorithmVersion: Int
+    }
+
+    func forecastSnapshots() throws -> [ForecastSnapshot] {
+        try database.dbQueue.read { db in
+            try Row.fetchAll(db, sql: "SELECT * FROM goalForecastSnapshots ORDER BY calculatedAt,goalID").compactMap { row in
+                guard let id = UUID(uuidString: row["goalID"]) else { return nil }
+                return ForecastSnapshot(goalID: id, day: row["day"], calculatedAt: row["calculatedAt"],
+                    forecastAt: row["forecastAt"], known: row["known"], target: row["target"],
+                    rate: row["rate"], algorithmVersion: row["algorithmVersion"])
+            }
+        }
+    }
+
+    func saveForecast(_ item: ForecastSnapshot) throws {
+        try database.dbQueue.write { db in
+            try db.execute(sql: "INSERT INTO goalForecastSnapshots(goalID,day,calculatedAt,forecastAt,known,target,rate,algorithmVersion) VALUES(?,?,?,?,?,?,?,?) ON CONFLICT(goalID,day) DO UPDATE SET calculatedAt=excluded.calculatedAt,forecastAt=excluded.forecastAt,known=excluded.known,target=excluded.target,rate=excluded.rate,algorithmVersion=excluded.algorithmVersion",
+                arguments: [item.goalID.uuidString,item.day,item.calculatedAt,item.forecastAt,item.known,item.target,item.rate,item.algorithmVersion])
+        }
+    }
+
     func record(_ attempt: Attempt, state: LearningState, question: StudyQuestion? = nil) throws {
         try database.dbQueue.write { db in
             let mapping = try RemoteQuestionMapping.fetchOne(db, key: attempt.questionID.uuidString)
