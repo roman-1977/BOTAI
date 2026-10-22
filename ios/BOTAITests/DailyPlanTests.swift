@@ -16,7 +16,7 @@ struct DailyPlanTests {
     }
 }
 
-struct RestDayAndPDFReportTests {
+@MainActor struct RestDayAndPDFReportTests {
     @Test @MainActor func zeroScheduledMinutesDoesNotBlockVoluntaryLearning() throws {
         let database = try AppDatabase()
         let materialID = UUID(), ruleID = UUID(), rowID = UUID()
@@ -50,7 +50,7 @@ struct RestDayAndPDFReportTests {
 }
 
 
-struct ForecastRecommendationPDFTests {
+@MainActor struct ForecastRecommendationPDFTests {
     @Test func underPlanSuggestsMorePractice() throws {
         let profile = StudyProfile(defaultDailyMinutes:30,customDays:[],updatedAt:.now)
         let url = try StudyPDFReport.export(profile:profile,sessions:[],attempts:[],knowledgeStates:[:],courses:[])
@@ -72,5 +72,57 @@ struct ForecastRecommendationPDFTests {
         let text = try #require(PDFDocument(url:url)?.string)
         #expect(text.contains("опережение плана"))
         #expect(text.contains("дополнительные занятия необязательны"))
+    }
+}
+
+struct KnowledgeDeadlineForecastTests {
+    private func goal(deadline: Date? = nil, target: Int = 90) -> LearningGoal {
+        LearningGoal(id: UUID(), title: "Химия", questionSets: [], masteryTarget: target, deadline: deadline, state: .active)
+    }
+    private func event(_ knowledge: UUID, daysAgo: Int, known: Bool, now: Date) -> LearningRepository.KnowledgeProgressEvent {
+        .init(attemptID: UUID(), knowledgeID: knowledge,
+              occurredAt: Calendar.current.date(byAdding: .day, value: -daysAgo, to: now)!, isKnown: known)
+    }
+    @Test func insufficientHistoryDoesNotInventDeadlineForecast() {
+        let now = Date()
+        let ids = Set((0..<10).map { _ in UUID() })
+        let result = KnowledgeDeadlineForecast.evaluate(goal: goal(deadline: now.addingTimeInterval(86400 * 20)),
+            knowledgeIDs: ids, states: [:], history: [], now: now)
+        #expect(result.estimatedCompletion == nil)
+        #expect(result.remaining == 9)
+        #expect(result.reportLines.joined().contains("Недостаточно истории"))
+    }
+    @Test func positiveMasteryGrowthPredictsAheadOfDeadline() {
+        let now = Date()
+        let ids = (0..<10).map { _ in UUID() }
+        let states = Dictionary(uniqueKeysWithValues: ids.prefix(3).map { ($0, LearningState(intervalDays: 20, streak: 5, nextDueAt: now)) })
+        let history = [event(ids[0],daysAgo: 10,known: false,now: now),
+                       event(ids[0],daysAgo: 8,known: true,now: now),
+                       event(ids[1],daysAgo: 5,known: true,now: now),
+                       event(ids[2],daysAgo: 0,known: true,now: now)]
+        let result = KnowledgeDeadlineForecast.evaluate(goal: goal(deadline: now.addingTimeInterval(86400 * 60)),
+            knowledgeIDs: Set(ids), states: states, history: history, now: now)
+        #expect(result.estimatedCompletion != nil)
+        #expect(result.observedPerDay != nil)
+        #expect(result.reportLines.joined().contains("опережение срока"))
+    }
+    @Test func slowMasteryGrowthRecommendsIncreasingPractice() {
+        let now = Date()
+        let ids = (0..<30).map { _ in UUID() }
+        let history = [event(ids[0],daysAgo: 10,known: false,now: now),
+                       event(ids[0],daysAgo: 0,known: true,now: now)]
+        let result = KnowledgeDeadlineForecast.evaluate(goal: goal(deadline: now.addingTimeInterval(86400 * 7)),
+            knowledgeIDs: Set(ids), states: [:], history: history, now: now)
+        #expect(result.reportLines.joined().contains("отставание от срока"))
+        #expect(result.reportLines.joined().contains("увеличить частоту"))
+    }
+    @Test func noObservedGrowthReturnsNoEta() {
+        let now = Date()
+        let id = UUID()
+        let result = KnowledgeDeadlineForecast.evaluate(goal: goal(deadline: now.addingTimeInterval(86400 * 20)),
+            knowledgeIDs: [id, UUID()], states: [:],
+            history: [event(id,daysAgo: 6,known: false,now: now),event(id,daysAgo: 0,known: false,now: now)], now: now)
+        #expect(result.estimatedCompletion == nil)
+        #expect(result.reportLines.joined().contains("Устойчивого прироста"))
     }
 }

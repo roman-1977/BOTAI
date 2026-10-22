@@ -185,7 +185,7 @@ struct GameHomeView: View {
       do {
         reportURL = try StudyPDFReport.export(profile: profile.profile, sessions: learning.sessions,
           attempts: learning.attempts, knowledgeStates: learning.knowledgeStates,
-          courses: courses.courses)
+          courses: courses.courses, materials: materials, knowledgeHistory: learning.knowledgeHistory)
       } catch { reportError = error.localizedDescription }
     } label: {
       Label("Расширенный отчёт · PDF", systemImage: "doc.richtext")
@@ -318,8 +318,9 @@ private struct PDFShareSheet: UIViewControllerRepresentable {
 
 /// PDF is rendered locally; no learning data is uploaded.
 enum StudyPDFReport {
-  static func export(profile: StudyProfile, sessions: [StudySession], attempts: [Attempt],
+  @MainActor static func export(profile: StudyProfile, sessions: [StudySession], attempts: [Attempt],
                      knowledgeStates: [UUID: LearningState], courses: [StudyCourse],
+                     materials: MaterialStore? = nil, knowledgeHistory: [LearningRepository.KnowledgeProgressEvent] = [],
                      now: Date = .now) throws -> URL {
     let calendar = Calendar.current
     let days = (0..<28).reversed().compactMap { calendar.date(byAdding: .day, value: -$0, to: calendar.startOfDay(for: now)) }
@@ -395,6 +396,22 @@ enum StudyPDFReport {
       lines.append("Прогноз достижения учебных целей: пока недостаточно истории изменения освоения.")
       lines.append("Текущий темп минут не равен скорости освоения знаний; прогноз готовности по дедлайну будет добавлен после накопления снимков прогресса.")
     }
+    if let materials {
+      lines.append("")
+      lines.append("ПРОГНОЗ ДОСТИЖЕНИЯ ЦЕЛЕЙ ПО ЗНАНИЯМ")
+      for course in courses {
+        for goal in course.goals where goal.state == .active {
+          let knowledgeIDs = Set(goal.questionSets.flatMap { ref -> [UUID] in
+            guard let content = materials.content(id: ref.materialID) else { return [] }
+            return StudyQuestionBuilder.questions(for: ref, content: content).map(\.knowledgeID)
+          })
+          guard !knowledgeIDs.isEmpty else { continue }
+          let forecast = KnowledgeDeadlineForecast.evaluate(goal: goal, knowledgeIDs: knowledgeIDs,
+            states: knowledgeStates, history: knowledgeHistory, now: now)
+          lines.append(contentsOf: forecast.reportLines)
+        }
+      }
+    }
     lines.append("Показатель освоения рассчитан по знаниям с сохранённым прогрессом, а не по всему учебному курсу.")
     let output = FileManager.default.temporaryDirectory.appendingPathComponent("BOTAI_Study_Report_\(UUID().uuidString).pdf")
     let renderer = UIGraphicsPDFRenderer(bounds: CGRect(x: 0, y: 0, width: 595, height: 842))
@@ -415,5 +432,88 @@ enum StudyPDFReport {
     }
     try data.write(to: output, options: .atomic)
     return output
+  }
+}
+
+
+/// Uses observed changes in unique mastered knowledge, not time-on-task.
+/// No historical events are inferred from migrated legacy attempts.
+enum KnowledgeDeadlineForecast {
+  struct Result {
+    let currentKnown: Int
+    let requiredKnown: Int
+    let remaining: Int
+    let observedPerDay: Double?
+    let estimatedCompletion: Date?
+    let reportLines: [String]
+  }
+
+  static func evaluate(goal: LearningGoal, knowledgeIDs: Set<UUID>,
+                       states: [UUID: LearningState],
+                       history: [LearningRepository.KnowledgeProgressEvent],
+                       now: Date = .now, calendar: Calendar = .current) -> Result {
+    let total = knowledgeIDs.count
+    let target = min(total, max(0, Int(ceil(Double(total) * Double(goal.masteryTarget) / 100.0))))
+    let known = knowledgeIDs.filter { states[$0]?.masteryLevel == .known }.count
+    let remaining = max(0, target - known)
+    let title = "Цель «\(goal.title)»: освоено \(known)/\(total), требуется \(target) (\(goal.masteryTarget)%)."
+    if remaining == 0 {
+      return .init(currentKnown: known, requiredKnown: target, remaining: 0,
+                   observedPerDay: nil, estimatedCompletion: now,
+                   reportLines: [title, "Цель по освоению достигнута."])
+    }
+    let relevant = history.filter { knowledgeIDs.contains($0.knowledgeID) && $0.occurredAt <= now }
+      .sorted { $0.occurredAt < $1.occurredAt }
+    guard let first = relevant.first, let last = relevant.last,
+          calendar.dateComponents([.day], from: calendar.startOfDay(for: first.occurredAt),
+                                  to: calendar.startOfDay(for: last.occurredAt)).day ?? 0 >= 2 else {
+      return .init(currentKnown: known, requiredKnown: target, remaining: remaining,
+                   observedPerDay: nil, estimatedCompletion: nil,
+                   reportLines: [title, "Недостаточно истории освоения для надёжного прогноза (нужны наблюдения минимум за 3 календарных дня)."])
+    }
+    // Replay each knowledge's most recent observed state at each boundary.
+    var baseline: [UUID: Bool] = [:]
+    var latest: [UUID: Bool] = [:]
+    let startDay = calendar.startOfDay(for: first.occurredAt)
+    for event in relevant {
+      latest[event.knowledgeID] = event.isKnown
+      if calendar.isDate(event.occurredAt, inSameDayAs: startDay) {
+        baseline[event.knowledgeID] = event.isKnown
+      }
+    }
+    let gained = latest.values.filter { $0 }.count - baseline.values.filter { $0 }.count
+    let elapsed = max(1, calendar.dateComponents([.day], from: startDay,
+                          to: calendar.startOfDay(for: last.occurredAt)).day ?? 1)
+    let rate = Double(gained) / Double(elapsed)
+    guard rate > 0 else {
+      return .init(currentKnown: known, requiredKnown: target, remaining: remaining,
+                   observedPerDay: rate, estimatedCompletion: nil,
+                   reportLines: [title, "Устойчивого прироста освоенных знаний пока нет. Рекомендуется чаще повторять сложные темы и проверить динамику через несколько дней."])
+    }
+    let neededDays = Int(ceil(Double(remaining) / rate))
+    guard neededDays < 36500, let predicted = calendar.date(byAdding: .day, value: neededDays, to: now) else {
+      return .init(currentKnown: known, requiredKnown: target, remaining: remaining,
+                   observedPerDay: rate, estimatedCompletion: nil,
+                   reportLines: [title, "Прогноз слишком далёкий; необходимо пересмотреть темп занятий."])
+    }
+    var lines = [title,
+      "Наблюдаемый прирост: \(String(format: "%.2f", rate)) знания/день; прогноз достижения: \(predicted.formatted(date: .abbreviated, time: .omitted))."]
+    if let deadline = goal.deadline {
+      let daysLeft = calendar.dateComponents([.day], from: calendar.startOfDay(for: now),
+                                             to: calendar.startOfDay(for: deadline)).day ?? 0
+      let lead = calendar.dateComponents([.day], from: calendar.startOfDay(for: predicted),
+                                         to: calendar.startOfDay(for: deadline)).day ?? 0
+      if lead >= 0 {
+        lines.append("Прогноз: опережение срока на \(lead) дн. Сохраняйте устойчивый темп.")
+      } else {
+        let neededRate = Double(remaining) / Double(max(1, daysLeft))
+        let multiplier = neededRate / rate
+        lines.append("Прогноз: отставание от срока на \(abs(lead)) дн. Для цели требуется около \(String(format: "%.2f", neededRate)) знания/день (\(String(format: "%.1f", multiplier))× текущего темпа).")
+        lines.append("Рекомендация: увеличить частоту или длительность занятий постепенно, сохраняя повторения; оценить эффект через неделю.")
+      }
+    }
+    lines.append("Прогноз ориентировочный: основан на наблюдаемом приросте, не гарантирует результат.")
+    return .init(currentKnown: known, requiredKnown: target, remaining: remaining,
+                 observedPerDay: rate, estimatedCompletion: predicted, reportLines: lines)
   }
 }

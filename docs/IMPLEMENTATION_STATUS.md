@@ -60,3 +60,5 @@ See `docs/iterations/V030_CHEMISTRY_PILOT.md` for authoritative milestones, veri
 2026-10-22: PDF now contains weekly pace lead/lag and concrete 15-minute-session recommendations; distinguishes time-plan projections from unavailable knowledge-readiness forecasts. Verified by 2 new PDFKit extraction tests (passed) plus 2 rest-day/PDF tests (passed). See `docs/REPORTING_AND_MOTIVATION.md`.
 
 2026-10-22: v13 immutable canonical knowledge-progress event history now persists atomically and survives app restart. 2 new Swift tests + 2 existing PDF forecast tests passed; 5 chemistry Python tests passed. Per-goal deadline ETA calculation and historical schedule snapshots still pending. See iteration log.
+
+2026-10-22: active-goal knowledge deadline projections now appear in the PDF: canonical unique knowledge denominator, observed mastery rate, approximate completion date, days ahead/behind deadline, required pace and study-frequency/duration recommendations. 4 new Swift forecast tests passed and 2 PDF regression tests passed. Forecast is explicitly preliminary; history starts at v13. See reporting spec and iteration log.
