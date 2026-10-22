@@ -92,6 +92,16 @@ struct LiveSupabaseSyncTests {
         let foreignRows: [LiveSummaryIdentity] = try await clientB.from("completed_session_summaries")
             .select("session_id,user_id").eq("session_id", value: session.id.uuidString).execute().value
         #expect(foreignRows.isEmpty)
+        // A different JWT must not insert a row owned by A (RLS WITH CHECK).
+        let forgedParent = LiveForgedSummary(user_id: accountA, session_id: UUID(),
+            started_at: session.startedAt, ended_at: session.endedAt,
+            active_seconds: 25, answered: 2, correct: 1)
+        do {
+            try await clientB.from("completed_session_summaries").insert(forgedParent).execute()
+            Issue.record("RLS allowed account B to insert a summary owned by account A")
+        } catch {
+            // Expected: the backend rejects foreign ownership.
+        }
         // Topic rows must be verified under the same account and remain idempotent.
         let topicPending = try repository.pendingTopicSessionSummaries()
         #expect(topicPending.isEmpty) // Parent must be ACKed before topic upload.
@@ -125,7 +135,36 @@ struct LiveSupabaseSyncTests {
             .select("session_id,user_id,course_id,section_id,topic_id,answered,correct")
             .eq("session_id", value: session.id.uuidString).execute().value
         #expect(foreignTopics.isEmpty)
+        let forgedTopic = LiveForgedTopic(user_id: accountA, session_id: session.id,
+            course_id: UUID(), section_id: UUID(), topic_id: UUID(),
+            answered: 1, correct: 1)
+        do {
+            try await clientB.from("completed_session_topic_aggregates").insert(forgedTopic).execute()
+            Issue.record("RLS allowed account B to insert a topic aggregate owned by account A")
+        } catch {
+            // Expected: the backend rejects foreign ownership.
+        }
     }
+}
+
+private struct LiveForgedSummary: Encodable {
+    let user_id: UUID
+    let session_id: UUID
+    let started_at: Date
+    let ended_at: Date
+    let active_seconds: Int
+    let answered: Int
+    let correct: Int
+}
+
+private struct LiveForgedTopic: Encodable {
+    let user_id: UUID
+    let session_id: UUID
+    let course_id: UUID
+    let section_id: UUID
+    let topic_id: UUID
+    let answered: Int
+    let correct: Int
 }
 
 private struct LiveTopicIdentity: Decodable {

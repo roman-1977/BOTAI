@@ -196,3 +196,5 @@ RC-06 readiness ledger reconciled 2026-10-23: `353f603` focused SQLite reconnect
 RC-06 hosted opt-in fixture expanded: verifies parent-first topic aggregate upload, attributed counts, idempotent topic ACK and cross-account topic RLS reads. It remains disabled until a confirmed disposable Supabase environment is available.
 
 RC-06 safety: hosted test now requires a separate explicit BOTAI_TEST_SUPABASE_URL and BOTAI_TEST_SUPABASE_PUBLISHABLE_KEY, refuses the app-configured Supabase URL/key, and refuses insecure non-loopback HTTP. Added deterministic negative configuration test; no hosted requests in routine suite.
+
+RC-06 live backend fixture now includes negative cross-account INSERT tests for both parent and topic aggregates (RLS WITH CHECK), in addition to SELECT isolation. These hosted assertions remain unexecuted until disposable Supabase is configured; local compilation only validates the fixture.
