@@ -75,3 +75,7 @@ The accepted sync contract is now **completed-session aggregates only**; detaile
 
 - Common selection helper now serves launch picker and daily planner; format and adaptive priority unit matrix added. Full iPhone 16e simulator regression: **139/139 unit + 16/16 standard UI PASS**, exit 0 (`/tmp/botai_selection_full_20261022.log`).
 - RC-08 standard suite PASS for this code; seeded chemistry suite must be rerun separately before final RC. RC-01/03/04 still PARTIAL/OPEN for cross-product UI acceptance and teacher guidance. Release **NOT RC**.
+
+## RC-06 latest verified checkpoint — 2026-10-23
+
+Status remains **PARTIAL**, not PASS. Signed simulator unit suite and 25/25 UI PASS at `820f07b` (`/tmp/botai_rc06_storage_guard_unit_20261023.log`, `/tmp/botai_rc06_storage_guard_ui_20261023.log`). Subsequent `353f603` adds a disk-backed cold-restart/offline-failure/reconnect/idempotent ACK fake-transport regression, 11/11 focused suite PASS (`/tmp/botai_rc06_reconnect_focused_20261023.log`). The actual migrations 0025/0026 and SQL RLS fixtures have already passed in disposable PostgreSQL 17 with a minimal auth shim; this is **not** a hosted Supabase Auth/PostgREST verification. Required before RC-06 PASS: controlled hosted development backend with two-account RLS, immutable conflict/idempotency and parent/topic ACK; real offline cold-start and reconnect with revoked/expired session; physical-device acceptance. Do not mutate production or disable host network without owner authorization.

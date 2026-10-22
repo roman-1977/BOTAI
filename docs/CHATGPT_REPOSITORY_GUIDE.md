@@ -47,13 +47,13 @@
 - Полная матрица scope × format × strategy, teacher-guided адаптация, миграции `0025`/`0026` и RLS в disposable Postgres, offline/reconnect, визуальная/accessibility-приёмка и Apple compliance остаются незакрытыми. **Статус NOT RC**.
 - Пользовательские изменения в `ios/BOTAI.xcodeproj/project.pbxproj` существуют отдельно: **не добавлять в коммит, не откатывать и не перезаписывать** без отдельного разрешения.
 
-### Актуальное состояние RC-06 на 2026-10-23 (дополнение к историческим тестам выше)
+### Актуальное состояние RC-06 на 2026-10-23 (заменяет исторические данные выше)
 
-- Последние подтверждённые коммиты: `8174ae1` (локальный выход при отказе удалённого logout), `c5748f6` (дифференцированная проверка изменений). Полные signed simulator 157 unit и 25 UI прошли для `8174ae1`; см. `docs/iterations/RC06_OFFLINE_LOGOUT_2026-10-23.md`.
-- **В процессе, не считать готовым:** изменение `ios/BOTAI/App/BOTAIApp.swift` — блокировать `RootTabView` при `storageFailure != nil` после первичного входа. Запущен последовательный тестовый процесс, PID `82041`, логи `/tmp/botai_rc06_storage_guard_unit_20261023.log` и `/tmp/botai_rc06_storage_guard_ui_20261023.log`. Он создаст коммит только после успешных тестов. Перед любыми изменениями сначала проверить `ps`, `git log`, логи и рабочее дерево; не запускать параллельный `xcodebuild`.
-- **Открытая приёмка:** реальный backend ACK, отзыв/истечение токена, восстановление сети и изоляция учётных записей на реальном сервисе; RC-06 не закрыт. Не отключать сеть хоста Mac, чтобы не оборвать Remote Desktop Commander.
-- **Правило проверки:** небольшие изменения — сборка и адресные тесты; полный unit/UI — на границе значимого этапа и перед релизом. См. `docs/iterations/DEVELOPMENT_HANDOFF_STANDARD.md`.
-- **Не трогать** незакоммиченный пользовательский `ios/BOTAI.xcodeproj/project.pbxproj`. Не запускать App Store/TestFlight без разрешения.
+- HEAD на момент сверки: `353f603` (SQLite cold-restart → offline upload failure → reconnect → one ACK). Предыдущий `820f07b` блокирует учебный экран при отказе account storage. Проверять HEAD заново, не полагаться на статический SHA.
+- **Подтверждено:** signed simulator full unit suite и 25/25 UI PASS для `820f07b`, логи `/tmp/botai_rc06_storage_guard_unit_20261023.log`, `/tmp/botai_rc06_storage_guard_ui_20261023.log`; последующий focused `SessionSummarySyncCoordinatorTests` 11/11 PASS для `353f603`, лог `/tmp/botai_rc06_reconnect_focused_20261023.log`.
+- **Подтверждено ранее:** миграции 0025/0026 и rollback-only RLS fixtures в изолированном PostgreSQL 17 с тестовым auth-uid shim; это НЕ hosted Supabase/PostgREST и НЕ доказательство реальной авторизации. Не повторять устаревшее утверждение выше, что PostgreSQL не тестировался.
+- **Открыто:** hosted development Supabase two-account RLS и серверные ACK, реальное отключение/восстановление сети с холодным запуском, expired/revoked session, проверка на физическом устройстве. RC-06 PARTIAL. Не применять миграции к production и не отключать сеть Mac без согласования.
+- **Тестовая дисциплина:** адресные проверки для локальных изменений; полный signed unit/UI на границе этапа. Пользовательский `ios/BOTAI.xcodeproj/project.pbxproj` не добавлять в коммит.
 
 ## 5. Рабочий цикл ChatGPT
 
