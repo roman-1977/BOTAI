@@ -70,3 +70,7 @@ Homebrew PostgreSQL 17 installed; isolated cluster at `/tmp/botai_pg17_rls_20261
 ### Additional PostgreSQL negative-permission tests — 2026-10-22
 
 New `backend/tests/completed_session_negative_permissions.sql` fixture PASS on disposable PostgreSQL 17; verifies forbidden DELETE, unauthenticated SELECT, orphan topic FK, invalid counts. `/tmp/botai_rls_negative_permissions_20261022.log`. Cluster stopped, no live database touched. Full hosted Supabase and physical offline/online tests still outstanding.
+
+### Offline auth cold-launch blocker — 2026-10-22
+
+Source audit found `AuthStore.bootstrap()` non-missing-session error -> `didFailBootstrap`, and `BOTAIApp` blocks RootTabView. This prevents reliable offline cold launch for previously authenticated users when session refresh requires network. Preserve strict account separation; do not replace identity with guest on network error. Design secure cached local identity and test offline cold launch, expired token, sign-out and switching before RC. Also 151/151 unit tests PASS including partial ACK retry, `/tmp/botai_partial_summary_retry_20261022.log`.

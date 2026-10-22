@@ -160,7 +160,7 @@ struct AttemptSyncCoordinatorTests {
 }
 
 private actor FakeSessionSummaryBackend: SessionSummaryBackendAPI {
-    enum Behavior: Sendable { case acknowledgeAll, acknowledgeNone, foreignID, duplicateID, fail }
+    enum Behavior: Sendable { case acknowledgeAll, acknowledgeFirst, acknowledgeNone, foreignID, duplicateID, fail }
     let behavior: Behavior
     private(set) var calls = 0
     private(set) var received: [CompletedSessionSummary] = []
@@ -170,6 +170,7 @@ private actor FakeSessionSummaryBackend: SessionSummaryBackendAPI {
         received = summaries
         switch behavior {
         case .acknowledgeAll: return summaries.map(\.sessionID)
+        case .acknowledgeFirst: return summaries.first.map { [$0.sessionID] } ?? []
         case .acknowledgeNone: return []
         case .foreignID: return [UUID()]
         case .duplicateID: return summaries.isEmpty ? [] : [summaries[0].sessionID, summaries[0].sessionID]
@@ -284,6 +285,26 @@ struct SessionSummarySyncCoordinatorTests {
             repository: repository, isCurrentAccount: { true })
         await #expect(throws: BOTAIBackendError.invalidAcknowledgement) { try await sync.flush() }
         #expect(try repository.pendingSessionSummaries().count == 1)
+    }
+
+    @Test func partialSummaryAcknowledgementRetriesOnlyUnconfirmedSession() async throws {
+        let (repository, first) = try setup()
+        let second = StudySession(id: UUID(), startedAt: .now, endedAt: .now,
+            activeSeconds: 10, answered: 1, correct: 1)
+        try repository.completeSession(first)
+        try repository.completeSession(second)
+        let partialBackend = FakeSessionSummaryBackend(.acknowledgeFirst)
+        let partial = SessionSummarySyncCoordinator(backend: partialBackend,
+            repository: repository, isCurrentAccount: { true })
+        #expect(try await partial.flush() == 1)
+        let remaining = try repository.pendingSessionSummaries()
+        #expect(remaining.count == 1)
+        let retryBackend = FakeSessionSummaryBackend(.acknowledgeAll)
+        let retry = SessionSummarySyncCoordinator(backend: retryBackend,
+            repository: repository, isCurrentAccount: { true })
+        #expect(try await retry.flush() == 1)
+        #expect(await retryBackend.received.map(\.sessionID) == remaining.map(\.sessionID))
+        #expect(try repository.pendingSessionSummaries().isEmpty)
     }
 
     @Test func duplicateSummaryAcknowledgementIsRejectedAndRemainsPending() async throws {
