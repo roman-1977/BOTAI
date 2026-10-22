@@ -4,11 +4,11 @@ import Supabase
 import Security
 
 /// Device-local account binding; never store a token or use the guest namespace as a fallback.
-private enum OfflineAccountBinding {
-    private static let service = "BOTAI.offline-account-binding"
+enum OfflineAccountBinding {
+    private static let defaultService = "BOTAI.offline-account-binding"
     private static let account = "last-verified-user"
 
-    static func read() -> UUID? {
+    static func read(service: String = defaultService) -> UUID? {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,
@@ -23,7 +23,8 @@ private enum OfflineAccountBinding {
         return UUID(uuidString: raw)
     }
 
-    static func save(_ id: UUID) {
+    @discardableResult
+    static func save(_ id: UUID, service: String = defaultService) -> OSStatus {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,
@@ -38,11 +39,12 @@ private enum OfflineAccountBinding {
         if status == errSecItemNotFound {
             var insertion = query
             attributes.forEach { insertion[$0.key] = $0.value }
-            _ = SecItemAdd(insertion as CFDictionary, nil)
+            return SecItemAdd(insertion as CFDictionary, nil)
         }
+        return status
     }
 
-    static func clear() {
+    static func clear(service: String = defaultService) {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,

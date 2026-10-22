@@ -3,6 +3,25 @@ import Testing
 @testable import BOTAI
 
 struct LocalAccountStorageTests {
+    @Test func keychainBindingPersistsReplacesAndClearsWithoutTouchingRealAccount() {
+        let service = "BOTAI.offline-account-binding.tests." + UUID().uuidString
+        defer { OfflineAccountBinding.clear(service: service) }
+        #expect(OfflineAccountBinding.read(service: service) == nil)
+        let first = UUID(), second = UUID()
+        let firstStatus = OfflineAccountBinding.save(first, service: service)
+        if firstStatus == -34018 {
+            // Unsigned simulator tests have no Keychain entitlement; verify on a signed build.
+            print("KEYCHAIN_INTEGRATION_NOT_VERIFIED: missing entitlement (-34018)")
+            return
+        }
+        #expect(firstStatus == 0, "Keychain insert OSStatus: \(firstStatus)")
+        #expect(OfflineAccountBinding.read(service: service) == first)
+        OfflineAccountBinding.save(second, service: service)
+        #expect(OfflineAccountBinding.read(service: service) == second)
+        OfflineAccountBinding.clear(service: service)
+        #expect(OfflineAccountBinding.read(service: service) == nil)
+    }
+
     @Test @MainActor func offlineFallbackOnlyAcceptsTransportFailures() {
         #expect(AuthStore.isTransportFailure(URLError(.notConnectedToInternet)))
         #expect(AuthStore.isTransportFailure(URLError(.timedOut)))

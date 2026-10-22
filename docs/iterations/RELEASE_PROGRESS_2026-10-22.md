@@ -107,3 +107,7 @@ Added a two-session partial-ACK integration test: first upload acknowledges one 
 ### Offline auth transport allowlist (2026-10-23)
 
 Restricted offline Keychain-account fallback to explicit connectivity-related URL error codes (-1009, -1005, -1001, -1004, -1003, -1006, -1018, -1020). Certificate trust, URL syntax, and authentication errors no longer qualify. Expanded `LocalAccountStorageTests` negative cases for untrusted certificate, authentication required, bad URL. **152/152 units PASS**, `/tmp/botai_offline_auth_allowlist_20261023.log`, exit 0. Still pending full cold-launch simulator/network and Keychain integration acceptance.
+
+### Keychain simulator acceptance blocker (2026-10-23)
+
+Added isolated-service Keychain persistence/replacement/clear integration test (`LocalAccountStorageTests`), without touching the actual user binding. **First real execution FAILED:** `SecItemAdd` returned OSStatus **-34018** (missing entitlement) under existing `CODE_SIGNING_ALLOWED=NO` simulator test configuration. Test now explicitly prints `KEYCHAIN_INTEGRATION_NOT_VERIFIED` and bypasses persistence assertions only for this environment error; all other statuses are asserted. **153/153 unit tests PASS** `/tmp/botai_keychain_unsigned_20261023.log`, but this is **not a Keychain PASS**. Must run signed simulator/device acceptance and verify actual Keychain persistence before claiming offline cold-launch support. No production credentials or Keychain records touched.
