@@ -61,3 +61,12 @@ The accepted sync contract is now **completed-session aggregates only**; detaile
 - DailyPlanner now uses a stable tie-breaker and the requested planning date, but this does **not** close RC-04 teacher-guided adaptivity.
 - RC-08 automated suite is green for this commit; RC-01/02/03/04/05/06 still require the acceptance evidence described above. The release remains **NOT RC**. In particular, backend migrations `0025` and `0026` and their RLS fixtures have not been applied/executed in disposable Postgres; no live backend acceptance is claimed.
 - Do not stage or revert the independently modified `ios/BOTAI.xcodeproj/project.pbxproj`.
+
+## Verification checkpoint — 2026-10-22, after `d5c4479` and `a4a0a08`
+
+- Complete post-change simulator run: **137/137 Swift Testing unit tests and 16/16 standard `LaunchSmokeTests` PASS**, `xcodebuild` exit **0**, `** TEST SUCCEEDED **` (`/tmp/botai_final_session_gate_20261022.log`). This includes both answered and unanswered session resume paths and BOTAI import.
+- The adaptive launch strategy treats due review as a priority, not a separate review-only session; then new, then not-yet-due questions. Equal-priority questions retain source order. The previous resume ordering failure was fixed and passed both a focused rerun and the complete UI suite.
+- `RC-08`: **PASS for the current standard unit/UI suite**. Chemistry's separate seeded 2/2 PASS remains evidence from the earlier checkpoint, **not** a fresh chemistry run for these commits.
+- `RC-01` and `RC-02`: tested launch/reset/resume paths pass; **PARTIAL** pending the full scope/format/strategy matrix, exact persisted attempt counts and finish/discard checks. `RC-04` remains **OPEN** for teacher-guided adaptive policy.
+- **NOT RC**: no full format x strategy x scope matrix, offline/reconnect acceptance, fresh backend migration/RLS fixture verification, multi-device visual/accessibility sign-off, or App Store/TestFlight acceptance. No release tag or distribution authorized.
+- User-owned `ios/BOTAI.xcodeproj/project.pbxproj` remains untouched and unstaged.
