@@ -62,3 +62,7 @@ Two disk-backed, restart-persistent fake-network integration tests now cover sum
 ### Duplicate ACK security regression — 2026-10-22
 
 Added duplicate-ACK rejection in both completed session and topic aggregate upload coordinators; malicious fake-backend tests confirm no local ACK on duplicate IDs. **150/150 BOTAITests PASS** `/tmp/botai_duplicate_ack_tests_20261022.log`. Still pending isolated PostgreSQL RLS migrations 0025/0026 and real network disruption tests.
+
+### Disposable PostgreSQL RLS checkpoint — 2026-10-22
+
+Homebrew PostgreSQL 17 installed; isolated cluster at `/tmp/botai_pg17_rls_20261022/data`, port 55439, **stopped after tests**. Exact migrations 0025/0026 and both rollback-only RLS fixtures executed successfully on genuine PostgreSQL using minimal local auth schema/uid shim. No live Supabase changes. This covers DB SQL and basic role-based isolation, NOT hosted Supabase Auth/PostgREST. Do not mistake shim for full Supabase. Next: real network disruptions, remaining RC gates. Preserve user-owned `ios/BOTAI.xcodeproj/project.pbxproj`.
