@@ -127,7 +127,7 @@ struct BOTAIApp: App {
                     return false
                 }
                 let repository = LearningRepository(database: database)
-                syncService = SyncService(repository: repository, mappings: RemoteQuestionMappingRepository(database: database))
+                syncService = authStore.userID.map { SyncService(repository: repository, mappings: RemoteQuestionMappingRepository(database: database), boundAccountID: $0) }
             }
             return true
         }
@@ -150,7 +150,7 @@ struct BOTAIApp: App {
             learningStore = LearningStore(repository: learningRepository)
             // Recreate sync with the exact database for the newly authenticated identity.
             // Guest mode never owns an authenticated sync service.
-            syncService = authStore.isAuthenticated ? SyncService(repository: learningRepository, mappings: RemoteQuestionMappingRepository(database: database)) : nil
+            syncService = authStore.isAuthenticated ? authStore.userID.map { SyncService(repository: learningRepository, mappings: RemoteQuestionMappingRepository(database: database), boundAccountID: $0) } : nil
             materialStore = MaterialStore(repository: MaterialRepository(database: database))
             courseStore = CourseStore(repository: CourseRepository(database: database))
             studyProfileStore = StudyProfileStore(repository: StudyProfileRepository(database: database))

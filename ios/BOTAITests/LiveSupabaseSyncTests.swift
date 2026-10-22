@@ -61,7 +61,7 @@ struct LiveSupabaseSyncTests {
         let oldAttempt = Attempt(id: UUID(), questionID: historical.id,
                                  occurredAt: .now, rating: .hard)
         try learning.record(oldAttempt, state: LearningState(), question: historical)
-        let sync = SyncService(client: client, repository: learning, mappings: mappings)
+        let sync = SyncService(client: client, repository: learning, mappings: mappings, boundAccountID: owner)
         await sync.flush(questions: [])
         #expect(try learning.outboxCount() == 0)
         #expect(try learning.load().0.map(\.id).contains(oldAttempt.id))

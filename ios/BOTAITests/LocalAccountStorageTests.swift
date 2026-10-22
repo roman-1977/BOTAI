@@ -37,6 +37,13 @@ struct LocalAccountStorageTests {
         #expect(!AuthStore.canRestoreSync(localAccount: nil, verifiedAccount: first))
     }
 
+    @Test func staleSyncServiceCannotUploadAfterAccountSwitchOrSignOut() {
+        let first = UUID(), second = UUID()
+        #expect(SyncService.canUpload(boundAccountID: first, authenticatedAccountID: first))
+        #expect(!SyncService.canUpload(boundAccountID: first, authenticatedAccountID: second))
+        #expect(!SyncService.canUpload(boundAccountID: first, authenticatedAccountID: nil))
+    }
+
     @Test @MainActor func offlineFallbackOnlyAcceptsTransportFailures() {
         #expect(AuthStore.isTransportFailure(URLError(.notConnectedToInternet)))
         #expect(AuthStore.isTransportFailure(URLError(.timedOut)))

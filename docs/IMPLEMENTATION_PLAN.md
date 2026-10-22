@@ -88,3 +88,8 @@ Chosen-topic sessions now override ambiguous shared-question ownership with the 
 ### Completed-session shared topic attribution — 2026-10-22
 
 Проверено сохранение двух завершённых занятий по одному вопросу с разными выбранными темами: **143/143 unit PASS**, `/tmp/botai_shared_topic_summary_units_20261022.log`. Следующий gate: полный UI ответ→завершение→отчёт и интеграция backend.
+
+
+### RC-06 account-bound sync hardening — 2026-10-23
+
+Bound every `SyncService` instance to its originating authenticated UUID. A stale task may no longer start aggregate uploads from an old account database under a newly signed-in account; identity is rechecked at coordinator checkpoints. See `docs/iterations/RC06_ACCOUNT_BOUND_SYNC_2026-10-23.md`. Added regression coverage for account match, switch and sign-out. RC-06 remains OPEN pending end-to-end offline cold launch, reconnect, revoked-session and multi-account acceptance tests; no release approval.

@@ -6,13 +6,15 @@ import Supabase
 actor SyncService {
     private let client: SupabaseClient
     private let repository: LearningRepository
+    private let boundAccountID: UUID
     private var flushInFlight = false
     private var pendingFlush = false
 
     init(client: SupabaseClient = SupabaseProvider.client, repository: LearningRepository,
-         mappings: RemoteQuestionMappingRepository) {
+         mappings: RemoteQuestionMappingRepository, boundAccountID: UUID) {
         self.client = client
         self.repository = repository
+        self.boundAccountID = boundAccountID
         // Keep the initializer compatible while the legacy mapping storage is retained.
         _ = mappings
     }
@@ -32,11 +34,18 @@ actor SyncService {
         flushInFlight = false
     }
 
+    /// An actor retained by an in-flight task may outlive a sign-out or account switch.
+    /// Never let its old local repository upload under a newly authenticated user.
+    static func canUpload(boundAccountID: UUID, authenticatedAccountID: UUID?) -> Bool {
+        boundAccountID == authenticatedAccountID
+    }
+
     private func performFlush() async {
-        guard let originalUserID = try? await client.auth.session.user.id else { return }
-        let accountCheck: @Sendable () async -> Bool = { [client] in
+        guard let originalUserID = try? await client.auth.session.user.id,
+              Self.canUpload(boundAccountID: boundAccountID, authenticatedAccountID: originalUserID) else { return }
+        let accountCheck: @Sendable () async -> Bool = { [client, boundAccountID] in
             guard let currentID = try? await client.auth.session.user.id else { return false }
-            return currentID == originalUserID
+            return currentID == originalUserID && currentID == boundAccountID
         }
         let coordinator = SessionSummarySyncCoordinator(
             backend: SupabaseBackendAPI(client: client), repository: repository,

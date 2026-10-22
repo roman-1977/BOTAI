@@ -102,3 +102,13 @@ Offline cold-start requires Keychain account UUID **and** matching Supabase SDK 
 ### Full signed UI regression completed — 2026-10-23
 
 `/tmp/botai_signed_full_regression_20261023.log`: exit 0, 25/25 UI PASS, 2 chemistry UI SKIP on unseeded standard simulator, runtime ~731s. This run started before persisted-session match hardening; latest change has 154/154 signed unit PASS. Still need end-to-end offline cold start/reconnect test and hosted integration. No pbxproj edits.
+
+
+### RC-06 account-bound sync hardening — 2026-10-23
+
+Bound every `SyncService` instance to its originating authenticated UUID. A stale task may no longer start aggregate uploads from an old account database under a newly signed-in account; identity is rechecked at coordinator checkpoints. See `docs/iterations/RC06_ACCOUNT_BOUND_SYNC_2026-10-23.md`. Added regression coverage for account match, switch and sign-out. RC-06 remains OPEN pending end-to-end offline cold launch, reconnect, revoked-session and multi-account acceptance tests; no release approval.
+
+
+### Verification for account-bound sync change
+
+Signed simulator: 155/155 unit, 25/25 standard UI, zero failures (`/tmp/botai_rc06_account_binding_full_20261023.log`). Remaining RC-06 end-to-end offline/reconnect/revocation and hosted backend gates OPEN. Continue in large completed blocks; never stage the user-modified Xcode project file.

@@ -166,3 +166,8 @@ See `docs/iterations/V030_CHEMISTRY_PILOT.md` for authoritative milestones, veri
 - **2026-10-22 shared-goal mastery bugfix:** both daily plan and goal completion reconcile now calculate unique `knowledgeID` denominator rather than duplicated question occurrences; regression verifies 50%/100%/empty. **144/144 unit PASS**, `/tmp/botai_goal_unique_mastery_units_20261022.log`. Full UI regression still running at this checkpoint.
 
 - **2026-10-22 block 1 regression:** standard **24/24 UI PASS** and previous **143/143 unit PASS**, `/tmp/botai_block1_full_regression_20261022.log`; Xcode xcresult save warning, raw test log authoritative. Latest post-change **145/145 unit PASS** `/tmp/botai_block1_matrix_units_20261022.log`; six format×strategy matrix cases covered in unit test, full scope×format×strategy UI remains pending.
+
+
+### RC-06 account-bound sync hardening — 2026-10-23
+
+Bound every `SyncService` instance to its originating authenticated UUID. A stale task may no longer start aggregate uploads from an old account database under a newly signed-in account; identity is rechecked at coordinator checkpoints. See `docs/iterations/RC06_ACCOUNT_BOUND_SYNC_2026-10-23.md`. Added regression coverage for account match, switch and sign-out. RC-06 remains OPEN pending end-to-end offline cold launch, reconnect, revoked-session and multi-account acceptance tests; no release approval.
