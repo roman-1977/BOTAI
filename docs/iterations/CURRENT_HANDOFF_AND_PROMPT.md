@@ -86,3 +86,7 @@ Source audit found `AuthStore.bootstrap()` non-missing-session error -> `didFail
 ### Keychain entitlement blocker — 2026-10-23
 
 Isolated Keychain integration test found `SecItemAdd` -34018 in unsigned simulator (`CODE_SIGNING_ALLOWED=NO`). Test reports `KEYCHAIN_INTEGRATION_NOT_VERIFIED` and does not assert persistence in that environment. 153/153 remaining unit tests PASS `/tmp/botai_keychain_unsigned_20261023.log`. Signed simulator or physical-device Keychain acceptance is a **release blocker**. Do not misreport 153 PASS as verified Keychain functionality.
+
+### Signed simulator Keychain acceptance — 2026-10-23
+
+Signed simulator test run succeeded with `GENERATE_INFOPLIST_FILE=YES CODE_SIGN_IDENTITY='-'` build overrides: 153/153 PASS, isolated Keychain persistence test PASS, `/tmp/botai_keychain_signed_sim2_20261023.log`. Previous -34018 was due to unsigned test host. No pbxproj modifications. Next verify app cold start with network loss/reconnect and account switching; device gate still open.
