@@ -50,7 +50,7 @@ struct BOTAIApp: App {
             let rows = ProcessInfo.processInfo.arguments.contains("-botai-seed-two-course-questions")
                 ? [["Кислота", "Acid"], ["Основание", "Base"]] : [["Кислота", "Acid"]]
             let table = ImportedTable(headers: ["Термин", "Значение"], rows: rows)
-            if !ProcessInfo.processInfo.arguments.contains("-botai-seed-choice-course-material") {
+            if !ProcessInfo.processInfo.arguments.contains("-botai-seed-choice-course-material") || ProcessInfo.processInfo.arguments.contains("-botai-seed-mixed-course-material") {
                 try? materials.saveCSV(title: "Учебный материал UI", table: table, mappings: [CardMapping(from: 0, to: 1)])
             }
             if ProcessInfo.processInfo.arguments.contains("-botai-seed-choice-course-material") {

@@ -130,3 +130,7 @@ All scenarios are mandatory for MVP; this is a verification plan, not evidence o
 
 - Same questionnaire in two real topics: topic A, topic B, whole subject, all-subject mixed quick start show equal nonzero question counts; no double counting. Then answer, finish, relaunch and enter other topic. **1/1 UI PASS** `/tmp/botai_scope_matrix_ui_20261022.log`.
 - Still missing the exhaustive scope×format×strategy UI matrix across distinct subject content and due/no-due states. Unit matrix already 145/145 PASS.
+
+### Mixed catalog acceptance (2026-10-22)
+
+UI fixture -botai-seed-mixed-course-material includes card and choice sets. New UI test validates all 18 enabled states across scope, format and strategy and checks choice feedback. 1/1 PASS /tmp/botai_mixed_catalog_ui_20261022.log. Multi-subject and full mixed-session completion still open.

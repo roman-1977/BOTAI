@@ -51,3 +51,7 @@ Expanded a real populated card-only UI flow to assert **18 states** (3 scopes ×
 ### Shared questionnaire — three launch scopes UI checkpoint
 
 The existing real two-topic UI E2E now checks **topic A = topic B = whole subject = all subjects mixed** question counts for the shared set; then answers, completes, relaunches, and opens the other topic. **Focused 1/1 UI PASS**, exit 0, `/tmp/botai_scope_matrix_ui_20261022.log`. This covers shared-set scope invariants, **not** a complete 3 scopes × 3 formats × 2 strategies E2E cross-product. Remaining: distinct subject fixtures, offline/reconnect, adaptive policy.
+
+### Mixed catalog UI checkpoint
+
+Added isolated mixed card and choice fixture. Real topic attaches both sets; all 18 scope x format x strategy combinations enabled, and test question feedback succeeds. Focused 1/1 UI PASS: /tmp/botai_mixed_catalog_ui_20261022.log. Distinct subject fixture and full mixed session still pending.
