@@ -92,3 +92,9 @@ All scenarios are mandatory for MVP; this is a verification plan, not evidence o
 - Added durable SQLite regression `SharedKnowledgeProgressTests.sharedQuestionInTwoTopicsKeepsOneMasteryAfterReopen`: answer in first topic, reopen store from second topic, verify same streak and one state, answer again, reopen first topic, verify two attempts and one shared state.
 - **141/141 Swift Testing unit PASS in 45 suites**, exit 0, `/tmp/botai_shared_knowledge_all_units_20261022.log`. An initial incorrectly scoped `-only-testing:BOTAITests/SharedKnowledgeProgressTests` ran **0 tests** and is not treated as evidence; reran entire `BOTAITests` target and verified test name in log.
 - Still pending: UI-level shared-question reuse across two actual topics, topic aggregate semantics, and full mode matrix.
+
+### Shared knowledge unique coverage checkpoint — 2026-10-22
+
+- Added `KnowledgeDeadlineForecastTests.sharedQuestionCountsInEachTopicButOnlyOnceForCombinedGoal`: a shared knowledge ID contributes to coverage of both topics, but combined subject goal uses the union (3 unique IDs, not 4), and mastery of the shared ID counts once globally.
+- **142/142 Swift Testing unit PASS (45 suites)**, exit 0, `/tmp/botai_shared_goal_all_units_20261022.log`. Last general UI 23/23 and seeded chemistry UI 2/2 were separate prior runs; no claim of a new full UI regression.
+- **Still open:** actual two-topic UI E2E and session attribution/aggregate correctness across mixed scope.

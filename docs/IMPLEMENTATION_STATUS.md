@@ -156,3 +156,5 @@ See `docs/iterations/V030_CHEMISTRY_PILOT.md` for authoritative milestones, veri
 - **2026-10-22 isolated chemistry gate:** disposable iPhone 16e simulator seeded via guarded script; 323 knowledge rows/102 materials/5 sections/1 goal; **2/2 chemistry UI PASS**, exit 0 (`/tmp/botai_chemistry_disposable_seeded_20261022.log`). Previous standard **140 unit + 23 UI PASS**. RC remains OPEN for other gates.
 
 - **2026-10-22 shared mastery regression:** one questionnaire referenced by multiple topics shares one durable `knowledgeID` mastery state; test confirms reopen/answer/reopen across topic contexts. **141/141 unit PASS** (`/tmp/botai_shared_knowledge_all_units_20261022.log`). General UI last 23/23 PASS; chemistry seeded 2/2 PASS (separate runs). UI E2E shared-topic flow remains pending.
+
+- **2026-10-22 unique coverage gate:** shared knowledge counted in each topic but once in combined subject forecast; **142/142 unit PASS** (`/tmp/botai_shared_goal_all_units_20261022.log`). Two-topic UI E2E remains OPEN.

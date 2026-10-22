@@ -87,6 +87,30 @@ struct KnowledgeDeadlineForecastTests {
         .init(attemptID: UUID(), knowledgeID: knowledge,
               occurredAt: Calendar.current.date(byAdding: .day, value: -daysAgo, to: now)!, isKnown: known)
     }
+    @Test func sharedQuestionCountsInEachTopicButOnlyOnceForCombinedGoal() {
+        let now = Date()
+        let shared = UUID(), firstOnly = UUID(), secondOnly = UUID()
+        // Two topics reuse one questionnaire. Their own coverage includes the shared
+        // knowledge, while the subject-wide goal takes a union, not a sum.
+        let firstTopic: Set<UUID> = [shared, firstOnly]
+        let secondTopic: Set<UUID> = [shared, secondOnly]
+        let combined = firstTopic.union(secondTopic)
+        let known = LearningState(intervalDays: 7, streak: 5, nextDueAt: now)
+        let states = [shared: known]
+        let full = goal(target: 100)
+        let first = KnowledgeDeadlineForecast.evaluate(goal: full, knowledgeIDs: firstTopic,
+            states: states, history: [], now: now)
+        let second = KnowledgeDeadlineForecast.evaluate(goal: full, knowledgeIDs: secondTopic,
+            states: states, history: [], now: now)
+        let subject = KnowledgeDeadlineForecast.evaluate(goal: full, knowledgeIDs: combined,
+            states: states, history: [], now: now)
+        #expect(first.currentKnown == 1 && second.currentKnown == 1)
+        #expect(first.requiredKnown == 2 && second.requiredKnown == 2)
+        #expect(subject.currentKnown == 1)
+        #expect(subject.requiredKnown == 3)
+        #expect(subject.remaining == 2)
+    }
+
     @Test func insufficientHistoryDoesNotInventDeadlineForecast() {
         let now = Date()
         let ids = Set((0..<10).map { _ in UUID() })

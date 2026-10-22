@@ -76,3 +76,7 @@ Chosen-topic sessions now override ambiguous shared-question ownership with the 
 ### Shared questionnaire semantics — 2026-10-22
 
 Владелец подтвердил: один опросник в разных темах освоен везде при освоении единого `knowledgeID`. Unit regression на durable reopen across topic contexts: **141/141 PASS**, `/tmp/botai_shared_knowledge_all_units_20261022.log`. Следующая проверка: UI E2E двух реальных тем и статистика уникального прогресса.
+
+### Shared unique coverage checkpoint — 2026-10-22
+
+Новый unit regression проверяет общий `knowledgeID` в двух темах и union для предмета: **142/142 PASS**, `/tmp/botai_shared_goal_all_units_20261022.log`. Осталось UI E2E на двух реальных темах и проверка агрегатов завершённой сессии.
