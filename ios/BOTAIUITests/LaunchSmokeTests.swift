@@ -306,6 +306,30 @@ import XCTest
 /// chemistry pilot script. Do not run this test on an unseeded simulator.
 @MainActor
 final class ChemistryPilotSmokeTests: XCTestCase {
+    func testChemistryStudyAnswerPersistsAfterRelaunch() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-botai-ui-testing"]
+        app.launch()
+        let study = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "УЧИТЬСЯ СЕГОДНЯ")).firstMatch
+        XCTAssertTrue(study.waitForExistence(timeout: 20), "Chemistry pilot study action missing")
+        XCTAssertTrue(study.isEnabled, "Chemistry pilot has no available questions")
+        study.tap()
+        let finish = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "ЗАВЕРШИТЬ ЗАНЯТИЕ")).firstMatch
+        XCTAssertTrue(finish.waitForExistence(timeout: 15), "Study session did not open")
+        // Complete a real recall question without depending on randomized question order.
+        let answer = app.buttons["ОТВЕТИЛ ЛЕГКО"]
+        if !answer.exists {
+            let card = app.staticTexts["Нажми на карточку, чтобы перевернуть"]
+            if card.exists { card.tap() }
+        }
+        XCTAssertTrue(answer.waitForExistence(timeout: 5), "Expected chemistry recall rating after flipping card")
+        answer.tap()
+        finish.tap()
+        app.terminate()
+        app.launch()
+        XCTAssertTrue(app.staticTexts["ПЛАН НА СЕГОДНЯ"].waitForExistence(timeout: 20))
+    }
+
     func testSeededChemistryCourseAndGoalAreVisible() throws {
         let app = XCUIApplication()
         app.launchArguments = ["-botai-ui-testing"]

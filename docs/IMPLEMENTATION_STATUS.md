@@ -82,3 +82,5 @@ See `docs/iterations/V030_CHEMISTRY_PILOT.md` for authoritative milestones, veri
 2026-10-22: PDF visual QA completed using a rendered 6-page, 8-goal/480-snapshot fixture. Pages 3–6 inspected: no clipping/overlap, chart lines and labels readable. PDF tests 4/4 passed after temporary QA code removal. Reporting milestone complete for tested scenarios.
 
 2026-10-22: chemistry pilot seeded into a copy of a real v14 simulator SQLite schema (323 rows, 102 materials, 204 rules, 5 sections, 1 goal; integrity ok). Isolated simulator UI smoke test passed for course and goal visibility. Reproducible script added; end-to-end session and cloud sync remain open.
+
+2026-10-22: chemistry pilot end-to-end UI recall smoke passed: open session, flip card, rate answer, finish, terminate/relaunch; isolated simulator SQLite inspection after first run found 1 attempt, 1 session and 1 knowledge history event. Multi-choice/full-session/sync remain pending.
