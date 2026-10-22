@@ -211,3 +211,40 @@ struct RemoteQuestionMappingTests {
         #expect(try reopened.mapping(for: UUID()) == nil)
     }
 }
+import Foundation
+import Testing
+@testable import BOTAI
+
+struct StudyQuestionAttributionTests {
+    @Test func sharedQuestionAcrossTopicsIsNotGuessed() {
+        let ref = CourseRuleReference(materialID: UUID(), ruleID: UUID())
+        let first = CourseTopic(id: UUID(), title: "First", questionSets: [ref])
+        let second = CourseTopic(id: UUID(), title: "Second", questionSets: [ref])
+        let section = CourseSection(id: UUID(), title: "Chapter", description: "", estimatedMinutes: nil,
+            topics: [first, second])
+        let course = StudyCourse(id: UUID(), title: "Subject", description: "", subject: "Science",
+            audience: "", estimatedMinutes: nil, author: nil, language: "ru", coverSymbol: "",
+            source: .created, sections: [section], goals: [], createdAt: .now, updatedAt: .now)
+        let question = StudyQuestion(id: UUID(), prompt: "Q", answer: "A", kind: .reveal,
+            choices: [], correctChoiceIndexes: [])
+        let resolved = StudyQuestionAttributionResolver.uniqueAttributions(
+            courses: [course], questionsByReference: [ref: [question]])
+        #expect(resolved[question.id] == nil)
+    }
+
+    @Test func uniquelyScopedQuestionKeepsStableIDs() {
+        let ref = CourseRuleReference(materialID: UUID(), ruleID: UUID())
+        let topic = CourseTopic(id: UUID(), title: "Topic", questionSets: [ref])
+        let section = CourseSection(id: UUID(), title: "Chapter", description: "", estimatedMinutes: nil,
+            topics: [topic])
+        let course = StudyCourse(id: UUID(), title: "Subject", description: "", subject: "Physics",
+            audience: "", estimatedMinutes: nil, author: nil, language: "ru", coverSymbol: "",
+            source: .created, sections: [section], goals: [], createdAt: .now, updatedAt: .now)
+        let question = StudyQuestion(id: UUID(), prompt: "Q", answer: "A", kind: .reveal,
+            choices: [], correctChoiceIndexes: [])
+        let resolved = StudyQuestionAttributionResolver.uniqueAttributions(
+            courses: [course], questionsByReference: [ref: [question]])
+        #expect(resolved[question.id] == StudyQuestionAttribution(
+            courseID: course.id, sectionID: section.id, topicID: topic.id))
+    }
+}

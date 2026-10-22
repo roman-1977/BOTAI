@@ -18,3 +18,35 @@ extension StudyCourse {
  enum CodingKeys:String,CodingKey { case id,title,description,subject,audience,estimatedMinutes,author,language,coverSymbol,source,sections,goals,createdAt,updatedAt }
  init(from decoder:Decoder)throws { let c=try decoder.container(keyedBy:CodingKeys.self);id=try c.decode(UUID.self,forKey:.id);title=try c.decode(String.self,forKey:.title);description=try c.decode(String.self,forKey:.description);subject=try c.decode(String.self,forKey:.subject);audience=try c.decode(String.self,forKey:.audience);estimatedMinutes=try c.decodeIfPresent(Int.self,forKey:.estimatedMinutes);author=try c.decodeIfPresent(String.self,forKey:.author);language=try c.decode(String.self,forKey:.language);coverSymbol=try c.decode(String.self,forKey:.coverSymbol);source=try c.decode(CourseSource.self,forKey:.source);sections=try c.decode([CourseSection].self,forKey:.sections);goals=try c.decodeIfPresent([LearningGoal].self,forKey:.goals) ?? [];createdAt=try c.decode(Date.self,forKey:.createdAt);updatedAt=try c.decode(Date.self,forKey:.updatedAt) }
 }
+
+/// Stable local attribution, independent of displayed titles and question text.
+/// Ambiguous references are intentionally unattributed rather than guessed.
+struct StudyQuestionAttribution: Codable, Equatable, Hashable, Sendable {
+    let courseID: UUID
+    let sectionID: UUID
+    let topicID: UUID
+}
+
+enum StudyQuestionAttributionResolver {
+    /// A reference may appear in multiple topics/courses; such questions are not assigned
+    /// to a single topic unless the session launcher provides explicit scope.
+    static func uniqueAttributions(
+        courses: [StudyCourse], questionsByReference: [CourseRuleReference: [StudyQuestion]]
+    ) -> [UUID: StudyQuestionAttribution] {
+        var candidates: [UUID: Set<StudyQuestionAttribution>] = [:]
+        for course in courses {
+            for section in course.sections {
+                for topic in section.topics {
+                    let attribution = StudyQuestionAttribution(
+                        courseID: course.id, sectionID: section.id, topicID: topic.id)
+                    for ref in topic.questionSets {
+                        for question in questionsByReference[ref] ?? [] {
+                            candidates[question.id, default: []].insert(attribution)
+                        }
+                    }
+                }
+            }
+        }
+        return candidates.compactMapValues { $0.count == 1 ? $0.first : nil }
+    }
+}
