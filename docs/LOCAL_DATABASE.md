@@ -155,3 +155,7 @@ End of local database v1 contract.
 ### v12 — Knowledge-level learning progress (2026-10-22)
 
 `knowledgeStates(knowledgeID PRIMARY KEY, intervalDays, streak, nextDueAt)` stores shared spaced-repetition state across multiple assessment modes. `attempts.knowledgeID` stores the canonical knowledge ID alongside the existing mode-specific `questionID` (used for sync/mapping). The migration backfills existing knowledge states and attempt IDs from the legacy question IDs. New writes update knowledge state, mode-specific state and outbox atomically. Existing legacy `learningStates` remains for compatibility. Development-only chemistry reset must delete `knowledgeStates` as well. See `docs/iterations/V030_CHEMISTRY_PILOT.md`.
+
+### v13 — Knowledge progress event history
+
+`knowledgeProgressEvents(attemptID PRIMARY KEY, knowledgeID, occurredAt, streak, intervalDays, isKnown)` captures a canonical knowledge observation at each saved attempt, in the same transaction as the attempt/outbox. Chronological index on `occurredAt`. Historical attempts preceding v13 are **not** backfilled with invented mastery states. The local chemistry development reset deletes this table. Used as future evidence for knowledge-based progress forecasts.

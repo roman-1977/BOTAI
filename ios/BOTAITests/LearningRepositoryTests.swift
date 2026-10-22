@@ -107,3 +107,31 @@ struct SharedKnowledgeProgressTests {
         #expect(try repository.loadKnowledgeStates()[id]?.streak == 1)
     }
 }
+
+struct KnowledgeProgressHistoryTests {
+    @Test @MainActor func historyPersistsMasteryTransitionsAndPreservesModeAttempts() throws {
+        let db = try AppDatabase()
+        let repo = LearningRepository(database: db)
+        let knowledge = UUID()
+        let first = StudyQuestion(id:UUID(),prompt:"Q",answer:"A",kind:.reveal,choices:[],correctChoiceIndexes:[],knowledgeID:knowledge)
+        let second = StudyQuestion(id:UUID(),prompt:"Q",answer:"A",kind:.singleChoice,choices:["A","B"],correctChoiceIndexes:[0],knowledgeID:knowledge)
+        let store = LearningStore(questions:[first,second],repository:repo)
+        #expect(store.record(question:first,rating:.good))
+        #expect(store.record(question:second,rating:.good))
+        let persisted = try repo.knowledgeHistory()
+        #expect(persisted.count == 2)
+        #expect(Set(persisted.map(\.knowledgeID)) == [knowledge])
+        #expect(Set(persisted.map(\.attemptID)).count == 2)
+        #expect(persisted.last?.isKnown == (store.knowledgeStates[knowledge]?.masteryLevel == .known))
+        let reopened = LearningStore(questions:[first,second],repository:repo)
+        #expect(reopened.knowledgeHistory == persisted)
+        #expect(reopened.attempts.count == 2)
+        #expect(try repo.outboxCount() == 2)
+    }
+
+    @Test func legacyAttemptsAreNotAssignedInventedHistoricalMastery() throws {
+        let db = try AppDatabase()
+        let repo = LearningRepository(database: db)
+        #expect(try repo.knowledgeHistory().isEmpty)
+    }
+}

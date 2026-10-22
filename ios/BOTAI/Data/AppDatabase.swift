@@ -130,6 +130,18 @@ final class AppDatabase: @unchecked Sendable {
             try db.execute(sql: "INSERT INTO knowledgeStates(knowledgeID,intervalDays,streak,nextDueAt) SELECT questionID,intervalDays,streak,nextDueAt FROM learningStates")
             try db.execute(sql: "UPDATE attempts SET knowledgeID = questionID WHERE knowledgeID IS NULL")
         }
+        migrator.registerMigration("v13_knowledge_history") { db in
+            try db.create(table: "knowledgeProgressEvents") { t in
+                t.column("attemptID", .text).primaryKey()
+                t.column("knowledgeID", .text).notNull()
+                t.column("occurredAt", .datetime).notNull()
+                t.column("streak", .integer).notNull()
+                t.column("intervalDays", .integer).notNull()
+                t.column("isKnown", .boolean).notNull()
+            }
+            try db.create(index: "idx_knowledge_progress_date", on: "knowledgeProgressEvents", columns: ["occurredAt"])
+            // Historical attempts predate knowledge-level snapshots. Never invent past mastery.
+        }
         return migrator
     }
 }

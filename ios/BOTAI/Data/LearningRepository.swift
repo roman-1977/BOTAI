@@ -28,6 +28,25 @@ final class LearningRepository: @unchecked Sendable {
         }
     }
 
+    struct KnowledgeProgressEvent: Equatable {
+        let attemptID: UUID
+        let knowledgeID: UUID
+        let occurredAt: Date
+        let isKnown: Bool
+    }
+
+    func knowledgeHistory() throws -> [KnowledgeProgressEvent] {
+        try database.dbQueue.read { db in
+            let rows = try Row.fetchAll(db, sql: "SELECT attemptID, knowledgeID, occurredAt, isKnown FROM knowledgeProgressEvents ORDER BY occurredAt, attemptID")
+            return rows.compactMap { row -> KnowledgeProgressEvent? in
+                guard let attemptID = UUID(uuidString: row["attemptID"]),
+                      let knowledgeID = UUID(uuidString: row["knowledgeID"]) else { return nil }
+                return KnowledgeProgressEvent(attemptID: attemptID, knowledgeID: knowledgeID,
+                                              occurredAt: row["occurredAt"], isKnown: row["isKnown"])
+            }
+        }
+    }
+
     func record(_ attempt: Attempt, state: LearningState, question: StudyQuestion? = nil) throws {
         try database.dbQueue.write { db in
             let mapping = try RemoteQuestionMapping.fetchOne(db, key: attempt.questionID.uuidString)
@@ -47,6 +66,7 @@ final class LearningRepository: @unchecked Sendable {
             let knowledgeID = question?.knowledgeID ?? attempt.questionID
             try db.execute(sql: "UPDATE attempts SET knowledgeID = ? WHERE id = ?", arguments: [knowledgeID.uuidString, attempt.id.uuidString])
             try db.execute(sql: "INSERT INTO knowledgeStates(knowledgeID,intervalDays,streak,nextDueAt) VALUES(?,?,?,?) ON CONFLICT(knowledgeID) DO UPDATE SET intervalDays=excluded.intervalDays,streak=excluded.streak,nextDueAt=excluded.nextDueAt", arguments: [knowledgeID.uuidString, state.intervalDays, state.streak, state.nextDueAt])
+            try db.execute(sql: "INSERT INTO knowledgeProgressEvents(attemptID,knowledgeID,occurredAt,streak,intervalDays,isKnown) VALUES(?,?,?,?,?,?)", arguments: [attempt.id.uuidString, knowledgeID.uuidString, attempt.occurredAt, state.streak, state.intervalDays, state.masteryLevel == .known])
             try OutboxRecord(id: UUID().uuidString, entityType: "attempt", entityID: attempt.id.uuidString, operation: "upsert", payloadVersion: 1, createdAt: .now, attemptCount: 0, nextRetryAt: nil, lastError: nil).insert(db)
         }
     }

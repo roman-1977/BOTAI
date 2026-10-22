@@ -58,3 +58,5 @@ See `docs/iterations/V030_CHEMISTRY_PILOT.md` for authoritative milestones, veri
 2026-10-22: fixed rest-day study restriction (schedule is motivational plan, not access control), switched home knowledge metrics to canonical knowledge states, and added a locally generated 28-day plan-vs-actual PDF report with share sheet. Targeted iOS simulator tests: 4/4 passed. PDF visual QA, full regression, historical schedule snapshots and topic-level analytics pending. See iteration log.
 
 2026-10-22: PDF now contains weekly pace lead/lag and concrete 15-minute-session recommendations; distinguishes time-plan projections from unavailable knowledge-readiness forecasts. Verified by 2 new PDFKit extraction tests (passed) plus 2 rest-day/PDF tests (passed). See `docs/REPORTING_AND_MOTIVATION.md`.
+
+2026-10-22: v13 immutable canonical knowledge-progress event history now persists atomically and survives app restart. 2 new Swift tests + 2 existing PDF forecast tests passed; 5 chemistry Python tests passed. Per-goal deadline ETA calculation and historical schedule snapshots still pending. See iteration log.

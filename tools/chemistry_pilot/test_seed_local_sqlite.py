@@ -13,7 +13,7 @@ class LocalSeedIntegrationTests(unittest.TestCase):
             db = Path(tmp) / "learning.sqlite"
             con = sqlite3.connect(db)
             schema = {
-                "attempts":"id TEXT", "learningStates":"questionID TEXT", "knowledgeStates":"knowledgeID TEXT", "syncOutbox":"id TEXT",
+                "attempts":"id TEXT", "learningStates":"questionID TEXT", "knowledgeStates":"knowledgeID TEXT", "knowledgeProgressEvents":"attemptID TEXT", "syncOutbox":"id TEXT",
                 "studySessions":"id TEXT", "remoteQuestionMappings":"localQuestionID TEXT",
                 "courses":"id TEXT,payloadJSON TEXT,updatedAt REAL",
                 "studyProfile":"id INTEGER,payloadJSON TEXT,updatedAt REAL",

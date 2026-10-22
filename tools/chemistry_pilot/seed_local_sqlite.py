@@ -46,7 +46,7 @@ def main():
     try:
         con.execute("PRAGMA foreign_keys=ON")
         tables = {x[0] for x in con.execute("SELECT name FROM sqlite_master WHERE type='table'")}
-        needed = {"attempts", "learningStates", "syncOutbox", "studySessions", "courses", "materials", "materialFields", "knowledgeRows", "questionRules", "studyProfile", "remoteQuestionMappings", "knowledgeStates"}
+        needed = {"attempts", "learningStates", "syncOutbox", "studySessions", "courses", "materials", "materialFields", "knowledgeRows", "questionRules", "studyProfile", "remoteQuestionMappings", "knowledgeStates", "knowledgeProgressEvents"}
         if not needed.issubset(tables):
             raise RuntimeError("SQLite migrations incomplete: " + str(sorted(needed - tables)))
         now = dt.datetime.now(dt.timezone.utc)
@@ -55,7 +55,7 @@ def main():
         sections = defaultdict(lambda: defaultdict(list))
         with con:
             # All deletes are deliberately scoped to learning data in the selected local account DB.
-            for table in ("syncOutbox", "remoteQuestionMappings", "attempts", "learningStates", "knowledgeStates", "studySessions", "courses", "studyProfile", "materialFields", "knowledgeRows", "questionRules", "materials"):
+            for table in ("syncOutbox", "remoteQuestionMappings", "attempts", "learningStates", "knowledgeStates", "knowledgeProgressEvents", "studySessions", "courses", "studyProfile", "materialFields", "knowledgeRows", "questionRules", "materials"):
                 con.execute(f'DELETE FROM "{table}"')
             for index, ((section, topic, name, correct_letter), rows) in enumerate(sorted(groups.items())):
                 mid, card_rule, choice_rule = uid("material:"+section+":"+topic+":"+name+":"+correct_letter), uid("card:"+section+":"+topic+":"+name+":"+correct_letter), uid("choice:"+section+":"+topic+":"+name+":"+correct_letter)

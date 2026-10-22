@@ -6,6 +6,7 @@ final class LearningStore {
     private(set) var attempts: [Attempt] = []
     private(set) var states: [UUID: LearningState] = [:]
     private(set) var knowledgeStates: [UUID: LearningState] = [:]
+    private(set) var knowledgeHistory: [LearningRepository.KnowledgeProgressEvent] = []
     private(set) var sessions: [StudySession] = []
     private(set) var questions: [StudyQuestion]
     private(set) var sessionTitle: String = "Обучение"
@@ -23,6 +24,7 @@ final class LearningStore {
                 attempts = saved.0
                 states = saved.1
                 knowledgeStates = try repository.loadKnowledgeStates()
+                knowledgeHistory = try repository.knowledgeHistory()
                 sessions = savedSessions
             } catch {
                 lastPersistenceError = error.localizedDescription
@@ -71,6 +73,8 @@ final class LearningStore {
             return false
         }
         attempts.append(attempt); states[question.id] = state; knowledgeStates[question.knowledgeID] = state
+        knowledgeHistory.append(.init(attemptID: attempt.id, knowledgeID: question.knowledgeID,
+                                      occurredAt: attempt.occurredAt, isKnown: state.masteryLevel == .known))
         lastPersistenceError = nil
         return true
     }
