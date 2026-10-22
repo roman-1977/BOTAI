@@ -100,3 +100,8 @@ See `docs/iterations/V030_CHEMISTRY_PILOT.md` for authoritative milestones, veri
 2026-10-22: RC 0.3.0 readiness audit created at `docs/releases/RC_0.3.0_READINESS.md`. Ten acceptance gates, evidence, risks and next executable steps; **NOT RC**. No release build or TestFlight verification.
 
 2026-10-22: owner directed autonomous **large-batch delivery to user-testable v0.3.0**, no repeated micro-approvals. Execution plan: `docs/iterations/USER_TESTING_READINESS_2026-10-22.md`.
+2026-10-22: full serial combined regression **105/105 unit + 14/14 UI PASS** (`/tmp/botai_user_testing_full_regression_20261022.log`), before new two-question fixture/test. New mid-session relaunch UI test running.
+
+- 2026-10-22: Fixed multi-question interrupted-session resume: SwiftUI `.sheet(item:)` carries immutable resume mode; new end-to-end UI test confirms the second question survives process relaunch (focused 1/1 PASS). Full regression pending.
+- 2026-10-22: Post-fix full simulator regression: 105 Swift Testing cases and all 15 standard UI tests PASS; combined run exit 65 because 2 chemistry-pilot UI tests require separately seeded data. Seeded chemistry test run pending.
+- 2026-10-22: Chemistry pilot verified separately on seeded disposable simulator DB: 2/2 UI tests PASS. Total verified: 105 Swift Testing + 15 standard UI + 2 seeded chemistry UI. Seed script now clears resumable session and pilot UI test handles mixed question formats.

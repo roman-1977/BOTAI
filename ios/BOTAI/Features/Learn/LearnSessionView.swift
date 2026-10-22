@@ -7,6 +7,7 @@ struct LearnSessionView: View {
   @Environment(\.scenePhase) private var scenePhase
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
   @State private var index = 0
+  @State private var didInitializeSession = false
   @State private var persistenceAlert = false
   @State private var revealed = false
   @State private var advancing = false
@@ -284,6 +285,9 @@ struct LearnSessionView: View {
     }.padding()
   }
   private func restoreOrCheckpoint() {
+    guard !didInitializeSession else { return }
+    // A scene-phase notification can arrive during sheet presentation. Never allow
+    // it to checkpoint the default cursor before the persisted cursor is restored.
     if resume, let snapshot = store.restoreResumableSession() {
       index = snapshot.nextIndex
       sessionID = snapshot.id
@@ -299,6 +303,7 @@ struct LearnSessionView: View {
     } else if !store.questions.isEmpty {
       checkpointQuestion()
     }
+    didInitializeSession = true
   }
 
   @discardableResult
@@ -372,6 +377,7 @@ struct LearnSessionView: View {
     dismiss()
   }
   private func handleScenePhase(_ phase: ScenePhase) {
+    guard didInitializeSession else { return }
     switch phase {
     case .active: if activeStartedAt == nil { activeStartedAt = Date() }
     case .inactive, .background:

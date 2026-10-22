@@ -281,6 +281,79 @@ final class LaunchSmokeTests: XCTestCase {
         XCTAssertFalse(app.staticTexts["ПРОДОЛЖИТЬ"].exists)
     }
 
+    func testResumeSecondQuestionAfterFirstAnswerAndRelaunch() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-botai-ui-testing", "-botai-reset-ui-test-data", "-botai-seed-course-material", "-botai-seed-two-course-questions"]
+        app.launch()
+        let courses = app.buttons["Мои курсы"]
+        XCTAssertTrue(courses.waitForExistence(timeout: 20))
+        courses.tap()
+        app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Создать курс")).firstMatch.tap()
+        let title = app.textFields["ЕГЭ Химия 2027"]
+        XCTAssertTrue(title.waitForExistence(timeout: 10))
+        title.tap()
+        title.typeText("Курс с разделом")
+        app.buttons["Создать"].tap()
+        let course = app.staticTexts["Курс с разделом"]
+        XCTAssertTrue(course.waitForExistence(timeout: 10))
+        course.tap()
+        app.buttons["Добавить раздел"].tap()
+        let section = app.textFields["Неорганическая химия"]
+        XCTAssertTrue(section.waitForExistence(timeout: 10))
+        section.tap()
+        section.typeText("Раздел проверки")
+        app.buttons["Добавить"].tap()
+        let sectionRow = app.staticTexts["Раздел проверки"]
+        XCTAssertTrue(sectionRow.waitForExistence(timeout: 10))
+        sectionRow.tap()
+        app.buttons["Добавить тему"].tap()
+        let topic = app.textFields["Например: Кислоты"]
+        XCTAssertTrue(topic.waitForExistence(timeout: 10))
+        topic.tap()
+        topic.typeText("Тема проверки")
+        app.buttons["Сохранить"].tap()
+        let topicRow = app.staticTexts["Тема проверки"]
+        XCTAssertTrue(topicRow.waitForExistence(timeout: 10))
+        topicRow.tap()
+        app.buttons["Выбрать опросники"].tap()
+        XCTAssertTrue(app.staticTexts["Учебный материал UI"].waitForExistence(timeout: 10))
+        app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "course-rule-")).firstMatch.tap()
+        app.buttons["Готово"].tap()
+        app.navigationBars["Тема проверки"].buttons.firstMatch.tap()
+        app.navigationBars["Раздел"].buttons.firstMatch.tap()
+        app.terminate()
+        app.launchArguments = ["-botai-ui-testing"]
+        app.launch()
+        let launch = app.buttons["primary-study-launch"]
+        XCTAssertTrue(launch.waitForExistence(timeout: 20))
+        launch.tap()
+        let topicLaunch = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Тема проверки")).firstMatch
+        XCTAssertTrue(topicLaunch.waitForExistence(timeout: 10))
+        topicLaunch.tap()
+        XCTAssertTrue(app.staticTexts["Кислота"].waitForExistence(timeout: 10))
+        app.staticTexts["Кислота"].tap()
+        let firstAnswer = app.buttons["ОТВЕТИЛ ЛЕГКО"]
+        XCTAssertTrue(firstAnswer.waitForExistence(timeout: 10))
+        firstAnswer.tap()
+        XCTAssertTrue(app.staticTexts["Основание"].waitForExistence(timeout: 10))
+        app.terminate()
+        app.launch()
+        let resume = app.buttons["primary-study-launch"]
+        XCTAssertTrue(resume.waitForExistence(timeout: 20))
+        XCTAssertTrue(app.staticTexts["ПРОДОЛЖИТЬ"].exists)
+        resume.tap()
+        XCTAssertTrue(app.staticTexts["Основание"].waitForExistence(timeout: 10))
+        XCTAssertFalse(app.staticTexts["Кислота"].exists)
+        app.staticTexts["Основание"].tap()
+        let answer = app.buttons["ОТВЕТИЛ ЛЕГКО"]
+        XCTAssertTrue(answer.waitForExistence(timeout: 10))
+        answer.tap()
+        XCTAssertTrue(app.staticTexts["ВОПРОСЫ ЗАКОНЧИЛИСЬ"].waitForExistence(timeout: 10))
+        app.buttons["ГОТОВО"].tap()
+        XCTAssertTrue(app.staticTexts["БОТАТЬ"].waitForExistence(timeout: 10))
+        XCTAssertFalse(app.staticTexts["ПРОДОЛЖИТЬ"].exists)
+    }
+
     func testCreateCourseSectionTopicAndGoal() throws {
         let app = XCUIApplication()
         app.launchArguments = ["-botai-ui-testing", "-botai-reset-ui-test-data", "-botai-seed-course-material"]
@@ -423,26 +496,33 @@ final class ChemistryPilotSmokeTests: XCTestCase {
         chemistry.tap()
         let finish = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "ЗАВЕРШИТЬ ЗАНЯТИЕ")).firstMatch
         XCTAssertTrue(finish.waitForExistence(timeout: 15), "Study session did not open")
-        // Complete a real recall question without depending on randomized question order.
-        let answer = app.buttons["ОТВЕТИЛ ЛЕГКО"]
-        if !answer.exists {
-            let card = app.staticTexts["Нажми на карточку, чтобы перевернуть"]
-            if card.exists { card.tap() }
-        }
-        XCTAssertTrue(answer.waitForExistence(timeout: 5), "Expected chemistry recall rating after flipping card")
-        answer.tap()
+        // The chemistry set contains recall and choice questions in randomized order.
+        // Complete either format instead of assuming every question is a flip card.
+        answerCurrentQuestion(app)
         XCTAssertTrue(app.otherElements["study-answered-1"].waitForExistence(timeout: 5), "First answer was not recorded")
-        // A second independent question verifies that the session advances after persistence.
-        let nextCard = app.staticTexts["Нажми на карточку, чтобы перевернуть"]
-        XCTAssertTrue(nextCard.waitForExistence(timeout: 5), "Next chemistry question did not appear")
-        nextCard.tap()
-        XCTAssertTrue(answer.waitForExistence(timeout: 5), "Second recall rating missing")
-        answer.tap()
+        answerCurrentQuestion(app)
         XCTAssertTrue(app.otherElements["study-answered-2"].waitForExistence(timeout: 5), "Second answer was not recorded")
         finish.tap()
         app.terminate()
         app.launch()
         XCTAssertTrue(app.staticTexts["ПЛАН НА СЕГОДНЯ"].waitForExistence(timeout: 20))
+    }
+
+    private func answerCurrentQuestion(_ app: XCUIApplication) {
+        let flip = app.staticTexts["Нажми на карточку, чтобы перевернуть"]
+        let recall = app.buttons["ОТВЕТИЛ ЛЕГКО"]
+        let know = app.buttons["ЗНАЮ"]
+        if flip.exists { flip.tap() }
+        if recall.exists { recall.tap(); return }
+        if know.exists { know.tap(); return }
+        // Single/multiple choice: selecting reveals the answer; a second tap advances.
+        let choices = app.buttons.matching(NSPredicate(format: "label MATCHES %@", "[1-6],.*"))
+        XCTAssertTrue(choices.firstMatch.waitForExistence(timeout: 5), "No answer control for current question")
+        choices.firstMatch.tap()
+        let confirm = app.buttons["ОТВЕТИТЬ"]
+        if confirm.exists { confirm.tap() }
+        XCTAssertTrue(choices.firstMatch.waitForExistence(timeout: 5), "Answer selection disappeared")
+        choices.firstMatch.tap()
     }
 
     func testSeededChemistryCourseAndGoalAreVisible() throws {

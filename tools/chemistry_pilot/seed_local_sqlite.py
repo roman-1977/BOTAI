@@ -55,8 +55,9 @@ def main():
         sections = defaultdict(lambda: defaultdict(list))
         with con:
             # All deletes are deliberately scoped to learning data in the selected local account DB.
-            for table in ("syncOutbox", "remoteQuestionMappings", "attempts", "learningStates", "knowledgeStates", "knowledgeProgressEvents", "goalForecastSnapshots", "studyPlanHistory", "studySessions", "courses", "studyProfile", "materialFields", "knowledgeRows", "questionRules", "materials"):
-                con.execute(f'DELETE FROM "{table}"')
+            for table in ("resumableStudySession", "syncOutbox", "remoteQuestionMappings", "attempts", "learningStates", "knowledgeStates", "knowledgeProgressEvents", "goalForecastSnapshots", "studyPlanHistory", "studySessions", "courses", "studyProfile", "materialFields", "knowledgeRows", "questionRules", "materials"):
+                if table in tables:
+                    con.execute(f'DELETE FROM "{table}"')
             for index, ((section, topic, name, correct_letter), rows) in enumerate(sorted(groups.items())):
                 mid, card_rule, choice_rule = uid("material:"+section+":"+topic+":"+name+":"+correct_letter), uid("card:"+section+":"+topic+":"+name+":"+correct_letter), uid("choice:"+section+":"+topic+":"+name+":"+correct_letter)
                 con.execute("INSERT INTO materials(id,title,subject,topic,description,author,kind,source,createdAt,updatedAt) VALUES(?,?,?,?,?,?,?,?,?,?)", (mid,name+" ["+correct_letter+"]","Химия",topic,section,"BOTAI Pilot","quiz","created",ts,ts))

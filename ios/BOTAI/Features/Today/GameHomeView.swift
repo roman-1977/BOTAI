@@ -23,8 +23,11 @@ struct GameHomeView: View {
   @Environment(MaterialStore.self) private var materials
   @Environment(CourseStore.self) private var courses
   @Environment(StudyProfileStore.self) private var profile
-  @State private var learn = false
-  @State private var resumeSession = false
+  private struct StudyPresentation: Identifiable {
+    let id = UUID()
+    let resume: Bool
+  }
+  @State private var studyPresentation: StudyPresentation?
   @State private var profileOpen = false
   @State private var materialsOpen = false
   @State private var coursesOpen = false
@@ -59,18 +62,17 @@ struct GameHomeView: View {
         SessionLaunchPicker(courses: courses.courses, materials: materials, learning: learning) { questions, title in
           learning.use(questions: questions, title: title, targetMinutes: plan.budgetMinutes)
           chooseSession = false
-          resumeSession = false
-          learn = true
+          studyPresentation = StudyPresentation(resume: false)
         }
       }.sheet(isPresented: Binding(get: { reportURL != nil }, set: { if !$0 { reportURL = nil } })) {
         if let url = reportURL { PDFShareSheet(url: url) }
       }.sheet(
-        isPresented: $learn,
+        item: $studyPresentation,
         onDismiss: {
           GoalProgressService.reconcile(courses: courses, materials: materials, learning: learning)
           captureForecasts()
         }
-      ) { LearnSessionView(resume: resumeSession) }.sheet(isPresented: $profileOpen) {
+      ) { presentation in LearnSessionView(resume: presentation.resume) }.sheet(isPresented: $profileOpen) {
         NavigationStack { ProfileView() }
       }.sheet(isPresented: $materialsOpen) { MaterialsHubView() }.sheet(isPresented: $coursesOpen) {
         CoursesView()
@@ -321,8 +323,7 @@ struct GameHomeView: View {
       Button {
         if learning.resumableSession?.canResume == true {
           _ = learning.restoreResumableSession()
-          resumeSession = true
-          learn = true
+          studyPresentation = StudyPresentation(resume: true)
         } else {
           chooseSession = true
         }
@@ -387,7 +388,7 @@ struct GameHomeView: View {
   }
   private func start(_ g: DailyStudyPlan.GoalPlan) {
     learning.use(questions: g.questions.shuffled(), title: g.title, targetMinutes: plan.budgetMinutes == 0 ? 0 : g.minutes)
-    learn = true
+    studyPresentation = StudyPresentation(resume: false)
   }
   private func timeText(_ seconds: Int) -> String {
     let m = seconds / 60

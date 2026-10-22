@@ -46,7 +46,10 @@ struct BOTAIApp: App {
         _learningStore = State(initialValue: LearningStore(repository: repository))
         let materials = MaterialStore(repository: materialRepository)
         if ProcessInfo.processInfo.arguments.contains("-botai-seed-course-material") {
-            let table = ImportedTable(headers: ["Термин", "Значение"], rows: [["Кислота", "Acid"]])
+            // Isolated UI fixture: optional second card exercises an interrupted multi-question session.
+            let rows = ProcessInfo.processInfo.arguments.contains("-botai-seed-two-course-questions")
+                ? [["Кислота", "Acid"], ["Основание", "Base"]] : [["Кислота", "Acid"]]
+            let table = ImportedTable(headers: ["Термин", "Значение"], rows: rows)
             try? materials.saveCSV(title: "Учебный материал UI", table: table, mappings: [CardMapping(from: 0, to: 1)])
         }
         _materialStore = State(initialValue: materials)
