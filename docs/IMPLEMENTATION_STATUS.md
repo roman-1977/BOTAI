@@ -1,3 +1,5 @@
+> **2026-10-22 format UI:** populated card-only catalog Tests→Cards filtering PASS; strategy UI and choice fixture pending.
+
 > **2026-10-22 populated UI:** topic/subject/mixed launch enablement and topic question display PASS in new isolated UI test; cross-product pending.
 
 > **2026-10-22 scope fix:** explicit topic attribution for shared question sets implemented; 140/140 unit PASS (`/tmp/botai_scope_attribution_unit_20261022.log`). Full regression 140/140 unit + 17/17 UI PASS (`/tmp/botai_topic_attribution_full_20261022.log`); **NOT RC**.

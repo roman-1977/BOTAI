@@ -48,3 +48,9 @@ All scenarios are mandatory for MVP; this is a verification plan, not evidence o
 - New isolated UI test `testPopulatedTopicAndSubjectLaunchAreEnabled`: creates course/section/topic, attaches a real seeded question set, verifies topic/subject/mixed launch rows enabled and launches the topic into a real question. **PASS** (`/tmp/botai_populated_scope_ui_retry_20261022.log`).
 - First test attempt failed because test navigation remained inside course editor; corrected test navigation, no product defect established.
 - Still pending: format × strategy populated-catalog UI cross-product and shared-set topic-result attribution end-to-end.
+
+### Populated format UI checkpoint — 2026-10-22
+
+- `testPopulatedCardOnlyCatalogDisablesTestsFormat`: with card-only material, Tests disables topic launch; switching to Cards re-enables it and launches a card. **PASS** (`/tmp/botai_populated_format_ui_retry_20261022.log`).
+- Initial run failed on exact accessibility lookup after Picker label changed; test corrected to retain a stable query. No product defect confirmed.
+- Remaining: both strategy choices in populated UI; genuine multiple-choice material fixture; topic-attribution persistence end-to-end.
