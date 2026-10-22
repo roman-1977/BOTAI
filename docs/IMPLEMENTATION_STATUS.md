@@ -78,3 +78,5 @@ See `docs/iterations/V030_CHEMISTRY_PILOT.md` for authoritative milestones, veri
 2026-10-22: Joint regression on commit 89d8192: Swift tests 102/102, UI tests 11/11, 0 failures, 205.28s; log `/tmp/botai_final_joint_oct22.log`. Manual multi-goal PDF visual inspection pending.
 
 2026-10-22: added PDF stress regression: eight goals, 480 daily snapshots, page-bound checks. ForecastChartPDFTests 4/4 passed. Human visual review of PDF chart strokes still pending.
+
+2026-10-22: PDF visual QA completed using a rendered 6-page, 8-goal/480-snapshot fixture. Pages 3–6 inspected: no clipping/overlap, chart lines and labels readable. PDF tests 4/4 passed after temporary QA code removal. Reporting milestone complete for tested scenarios.
