@@ -132,6 +132,11 @@ final class AuthStore {
         }
     }
 
+    /// A transport outage preserves local access; all other failures lock it.
+    static func mustLockOfflineStudy(after error: Error) -> Bool {
+        !isTransportFailure(error)
+    }
+
     /// Revalidate without hiding local study UI while the network is still unavailable.
     func reconnectOfflineSession() async -> Bool {
         guard isOfflineLocalSession else { return isAuthenticated }
@@ -139,7 +144,10 @@ final class AuthStore {
             let session = try await client.auth.session
             guard Self.canRestoreSync(localAccount: userID, verifiedAccount: session.user.id) else {
                 // Never silently switch the current offline study session to another account.
-                errorMessage = "Учётная запись изменилась. Перезапустите приложение."
+                isOfflineLocalSession = false
+                userID = nil
+                didFailBootstrap = true
+                errorMessage = "Учётная запись изменилась. Повторите авторизацию."
                 return false
             }
             isAuthenticated = true
@@ -148,7 +156,12 @@ final class AuthStore {
             errorMessage = nil
             return true
         } catch {
-            if !Self.isTransportFailure(error) {
+            if Self.mustLockOfflineStudy(after: error) {
+                // Fail closed on auth rejection, TLS failures, or unexpected server errors.
+                // A retry may revalidate the account; never keep local study unlocked.
+                isOfflineLocalSession = false
+                userID = nil
+                didFailBootstrap = true
                 errorMessage = "Не удалось подтвердить учётную запись."
             }
             return false

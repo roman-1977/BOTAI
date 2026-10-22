@@ -44,6 +44,15 @@ struct LocalAccountStorageTests {
         #expect(!SyncService.canUpload(boundAccountID: first, authenticatedAccountID: nil))
     }
 
+    @Test @MainActor func reconnectFailuresLockOfflineStudyExceptTransportOutage() {
+        #expect(!AuthStore.mustLockOfflineStudy(after: URLError(.notConnectedToInternet)))
+        #expect(!AuthStore.mustLockOfflineStudy(after: URLError(.timedOut)))
+        #expect(AuthStore.mustLockOfflineStudy(after: URLError(.serverCertificateUntrusted)))
+        #expect(AuthStore.mustLockOfflineStudy(after: URLError(.userAuthenticationRequired)))
+        #expect(AuthStore.mustLockOfflineStudy(after: NSError(domain: "auth", code: 401)))
+        #expect(AuthStore.mustLockOfflineStudy(after: NSError(domain: "backend", code: 503)))
+    }
+
     @Test @MainActor func offlineFallbackOnlyAcceptsTransportFailures() {
         #expect(AuthStore.isTransportFailure(URLError(.notConnectedToInternet)))
         #expect(AuthStore.isTransportFailure(URLError(.timedOut)))
