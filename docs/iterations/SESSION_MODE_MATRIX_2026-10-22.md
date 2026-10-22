@@ -78,3 +78,10 @@ All scenarios are mandatory for MVP; this is a verification plan, not evidence o
 - Xcode simulator full regression: **140/140 unit tests in 45 suites PASS**, **23/23 general UI tests PASS**, **0 failures**, `xcodebuild` exit **0** (`/tmp/botai_full_regression_20261022.log`, `** TEST SUCCEEDED **`).
 - Covers populated topic/subject/mixed launches, cards/tests formats, auto/all strategy controls, single-choice correct/incorrect feedback, multiple-choice submit/feedback, and resume across relaunch.
 - This is not a release-candidate approval: separate seeded chemistry UI suite, shared-set attribution end-to-end, complete scope × format × strategy coverage, offline/reconnect, backend migration/RLS, visual/accessibility, and Apple compliance remain outstanding.
+
+### Isolated chemistry regression — 2026-10-22
+
+- Created a fresh disposable iPhone 16e iOS 18.6 simulator `62B01BED-4A72-43B9-A02D-351D9E82EE7A`, initial unseeded UI test run failed as expected (2 tests, missing chemistry fixture).
+- Booted simulator, backed up only isolated UI-test SQLite to `.build/chemistry-pilot/ui-test-before-seed-20261022-214203.sqlite`, then ran `bash tools/chemistry_pilot/run_simulator_smoke.sh 62B01BED-4A72-43B9-A02D-351D9E82EE7A`. Seeded 323 knowledge rows, 102 materials, 5 sections and 1 goal.
+- **Seeded chemistry: 2/2 UI PASS, zero failures, exit 0, `TEST SUCCEEDED`**, `/tmp/botai_chemistry_disposable_seeded_20261022.log`. Standard regression previously **140/140 unit + 23/23 UI PASS**. These are separate, correctly isolated runs.
+- Next: remaining cross-product UI and shared-set attribution E2E; RC not approved.

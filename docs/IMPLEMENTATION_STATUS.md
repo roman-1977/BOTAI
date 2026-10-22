@@ -152,3 +152,5 @@ See `docs/iterations/V030_CHEMISTRY_PILOT.md` for authoritative milestones, veri
 - **Corrected owner decision 2026-10-22:** Defer only App Store publication and TestFlight upload until separately authorized. Continue development/testing. No new GitHub, Supabase or physical-device restrictions are implied; their existing safeguards and permissions remain unchanged.
 
 - **2026-10-22 regression checkpoint:** full simulator run **140/140 unit PASS (45 suites) + 23/23 general UI PASS**, 0 failures, exit 0 (`/tmp/botai_full_regression_20261022.log`). New populated-catalog and choice-feedback UI paths passed. Isolated chemistry seeded suite and remaining RC checks are separate; **not RC-ready**.
+
+- **2026-10-22 isolated chemistry gate:** disposable iPhone 16e simulator seeded via guarded script; 323 knowledge rows/102 materials/5 sections/1 goal; **2/2 chemistry UI PASS**, exit 0 (`/tmp/botai_chemistry_disposable_seeded_20261022.log`). Previous standard **140 unit + 23 UI PASS**. RC remains OPEN for other gates.
