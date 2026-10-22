@@ -1,3 +1,5 @@
+> **2026-10-22 choice UI:** incorrect single-choice and two-correct-answer multi-select UI scenarios PASS; full regression pending.
+
 > **2026-10-22 choice-format UI:** populated single-choice chemistry fixture, `Тесты` launch, correct selection and feedback PASS; wrong/multi-select paths pending.
 
 > **2026-10-22 strategy UI:** populated topic All→Automatic switching and launch PASS; actual prioritization unit-tested; multiple-choice UI pending.

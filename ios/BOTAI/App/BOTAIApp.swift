@@ -51,7 +51,7 @@ struct BOTAIApp: App {
                 ? [["Кислота", "Acid"], ["Основание", "Base"]] : [["Кислота", "Acid"]]
             let table = ImportedTable(headers: ["Термин", "Значение"], rows: rows)
             if !ProcessInfo.processInfo.arguments.contains("-botai-seed-choice-course-material") {
-            try? materials.saveCSV(title: "Учебный материал UI", table: table, mappings: [CardMapping(from: 0, to: 1)])
+                try? materials.saveCSV(title: "Учебный материал UI", table: table, mappings: [CardMapping(from: 0, to: 1)])
             }
             if ProcessInfo.processInfo.arguments.contains("-botai-seed-choice-course-material") {
                 var rule = DraftQuestionRule()
@@ -65,12 +65,20 @@ struct BOTAIApp: App {
                 distractor.fields = [2]
                 distractor.template = "{1}"
                 distractor.correct = false
-                rule.answers = [correct, distractor]
-                let choiceTable = ImportedTable(headers: ["Вопрос", "Ответ", "Неверный ответ"],
-                    rows: [["HCl — какая кислота?", "Соляная", "Серная"],
-                           ["H2SO4 — какая кислота?", "Серная", "Соляная"],
-                           ["HNO3 — какая кислота?", "Азотная", "Фосфорная"],
-                           ["H3PO4 — какая кислота?", "Фосфорная", "Азотная"]])
+                if ProcessInfo.processInfo.arguments.contains("-botai-seed-multichoice-course-material") {
+                    var secondCorrect = DraftAnswer()
+                    secondCorrect.fields = [3]
+                    secondCorrect.template = "{1}"
+                    secondCorrect.correct = true
+                    rule.answers = [correct, secondCorrect, distractor]
+                } else {
+                    rule.answers = [correct, distractor]
+                }
+                let choiceTable = ImportedTable(headers: ["Вопрос", "Ответ", "Неверный ответ", "Второй ответ"],
+                    rows: [["HCl — какая кислота?", "Соляная", "Серная", "Хлороводородная"],
+                           ["H2SO4 — какая кислота?", "Серная", "Соляная", "Сульфатная"],
+                           ["HNO3 — какая кислота?", "Азотная", "Фосфорная", "Нитратная"],
+                           ["H3PO4 — какая кислота?", "Фосфорная", "Азотная", "Ортофосфорная"]])
                 try? materials.saveCSV(title: "Тестовый материал UI", table: choiceTable,
                     ruleDrafts: [rule])
             }

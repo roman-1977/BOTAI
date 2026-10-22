@@ -66,3 +66,9 @@ All scenarios are mandatory for MVP; this is a verification plan, not evidence o
 - `testPopulatedChoiceOnlyTestsFormatAndAnswer`: isolated four-row chemistry fixture with generated single-choice questions (minimum four options), `Тесты` filter, topic launch, correct answer and feedback: **PASS** (`/tmp/botai_populated_choice_ui_retry4_20261022.log`).
 - Generator intentionally drops choice questions with fewer than four available options; the fixture includes enough source rows for distractor completion. Test handles shuffled question order.
 - Still pending: incorrect answer UI path, multiple-choice (multi-select) UI path, full regression after these fixture changes.
+
+### Incorrect and multi-select UI checkpoints — 2026-10-22
+
+- `testPopulatedChoiceIncorrectAnswerShowsFeedback`: wrong single-choice answer shows the correct-answer feedback — **PASS** (`/tmp/botai_wrong_choice_ui_20261022.log`).
+- `testPopulatedMultipleChoiceRequiresSubmit`: two correct answers, submit disabled before selection, enabled after selecting both, then multi-select feedback — **PASS** (`/tmp/botai_multichoice_ui_20261022.log`).
+- Both use isolated chemistry UI fixtures; generated choice questions require at least four options. Full suite regression remains to run.
