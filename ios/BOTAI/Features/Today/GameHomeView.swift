@@ -36,7 +36,7 @@ struct GameHomeView: View {
   var body: some View {
     NavigationStack {
       ZStack {
-        DigitalBackground()
+        Color(uiColor: .systemGroupedBackground).ignoresSafeArea()
         GeometryReader { geometry in
           Group {
             if dynamicTypeSize.isAccessibilitySize {
@@ -46,7 +46,8 @@ struct GameHomeView: View {
             }
           }.frame(width: geometry.size.width, height: geometry.size.height)
         }
-      }.toolbar(.hidden, for: .navigationBar).confirmationDialog(
+      }.foregroundStyle(Color.primary).tint(HomePalette.accent)
+        .toolbar(.hidden, for: .navigationBar).confirmationDialog(
         "Что изучать?", isPresented: $chooseGoal, titleVisibility: .visible
       ) {
         ForEach(plan.goals) { g in Button("\(g.title) · \(g.questions.count) вопросов") { start(g) }
@@ -78,7 +79,7 @@ struct GameHomeView: View {
       HStack(spacing: 8) {
         Button("Мои цели") { coursesOpen = true }
         Button("Отчёт PDF") { exportReport() }
-      }.buttonStyle(.bordered).tint(HomeTheme.accent).font(.caption)
+      }.buttonStyle(.bordered).tint(HomePalette.accent).font(.caption)
     }.padding(.horizontal, 14).padding(.bottom, 8)
   }
   private var motivationChart: some View {
@@ -89,14 +90,14 @@ struct GameHomeView: View {
     let latest = points.last
     return VStack(alignment: .leading, spacing: 5) {
       HStack {
-        Text("МОЙ ПУТЬ К ЦЕЛИ").font(.caption.bold()).foregroundStyle(HomeTheme.accent)
+        Text("МОЙ ПУТЬ К ЦЕЛИ").font(.caption.bold()).foregroundStyle(HomePalette.accent)
         Spacer()
         if let last = latest, let deadline = activeGoals.first(where: { $0.id == last.goalID })?.deadline,
            let predicted = last.forecastAt {
           let days = Calendar.current.dateComponents([.day], from: deadline, to: predicted).day ?? 0
           Text(days > 0 ? "Отставание: \(days) дн." : days < 0 ? "Опережение: \(-days) дн." : "По графику")
-            .font(.caption.bold()).foregroundStyle(days > 0 ? HomeTheme.warning : HomeTheme.success)
-        } else { Text("Прогноз после 3 дней занятий").font(.caption2).foregroundStyle(HomeTheme.muted) }
+            .font(.caption.bold()).foregroundStyle(days > 0 ? HomePalette.warning : HomePalette.success)
+        } else { Text("Прогноз после 3 дней занятий").font(.caption2).foregroundStyle(Color.secondary) }
       }
       GeometryReader { geo in
         let maxValue = max(1, points.map(\.target).max() ?? 1)
@@ -105,7 +106,7 @@ struct GameHomeView: View {
             let y = geo.size.height * 0.25
             path.move(to: CGPoint(x: 0, y: y))
             path.addLine(to: CGPoint(x: geo.size.width, y: y))
-          }.stroke(HomeTheme.accent.opacity(0.18), style: StrokeStyle(lineWidth: 1, dash: [4, 4]))
+          }.stroke(HomePalette.accent.opacity(0.18), style: StrokeStyle(lineWidth: 1, dash: [4, 4]))
           if points.count > 1 {
             Path { path in
               for (index, point) in points.enumerated() {
@@ -114,14 +115,14 @@ struct GameHomeView: View {
                 if index == 0 { path.move(to: CGPoint(x: x, y: y)) }
                 else { path.addLine(to: CGPoint(x: x, y: y)) }
               }
-            }.stroke(HomeTheme.success, style: StrokeStyle(lineWidth: 2.5, lineCap: .round, lineJoin: .round))
+            }.stroke(HomePalette.success, style: StrokeStyle(lineWidth: 2.5, lineCap: .round, lineJoin: .round))
           } else {
             Text("История освоения появится после занятий")
-              .font(.caption2).foregroundStyle(HomeTheme.muted)
+              .font(.caption2).foregroundStyle(Color.secondary)
           }
         }
       }.frame(height: 55)
-    }.padding(11).homeCard()
+    }.padding(11).lightHomeCard()
   }
   private func exportReport() {
     do {
@@ -134,7 +135,7 @@ struct GameHomeView: View {
   }
   private var topBar: some View {
     HStack {
-      Text("BOTAI").font(.title2.bold()).foregroundStyle(HomeTheme.accent)
+      Text("BOTAI").font(.title2.bold()).foregroundStyle(HomePalette.accent)
       Spacer()
       if learning.streak > 0 {
         Label("\(learning.streak) дн.", systemImage: "flame.fill").foregroundStyle(.orange)
@@ -177,14 +178,14 @@ struct GameHomeView: View {
   }
   private var todayDetails: some View {
     VStack(alignment: .leading, spacing: 4) {
-      Text("ПЛАН НА СЕГОДНЯ").font(.caption.bold()).foregroundStyle(HomeTheme.accent)
+      Text("ПЛАН НА СЕГОДНЯ").font(.caption.bold()).foregroundStyle(HomePalette.accent)
       Text(
         plan.budgetMinutes == 0
           ? "По плану отдых · заниматься можно" : "\(plan.budgetMinutes) минут на обучение"
-      ).font(.title2.bold()).foregroundStyle(.white).fixedSize(horizontal: false, vertical: true)
+      ).font(.title2.bold()).foregroundStyle(.primary).fixedSize(horizontal: false, vertical: true)
       Text(
         plan.goals.isEmpty ? emptyPlanText : "BOTAI распределил время между текущими целями."
-      ).font(.caption).foregroundStyle(HomeTheme.muted)
+      ).font(.caption).foregroundStyle(Color.secondary)
     }
   }
   private var todayProgressRing: some View {
@@ -192,9 +193,9 @@ struct GameHomeView: View {
       Circle().stroke(.white.opacity(0.1), lineWidth: 8)
       Circle().trim(
         from: 0, to: min(1, Double(todayMinutes) / Double(max(1, plan.budgetMinutes)))
-      ).stroke(HomeTheme.accent, style: StrokeStyle(lineWidth: 8, lineCap: .round))
+      ).stroke(HomePalette.accent, style: StrokeStyle(lineWidth: 8, lineCap: .round))
         .rotationEffect(.degrees(-90))
-      Text("\(todayMinutes)").font(.headline.bold()).foregroundStyle(.white)
+      Text("\(todayMinutes)").font(.headline.bold()).foregroundStyle(.primary)
     }.frame(width: 70, height: 70)
       .accessibilityElement(children: .ignore)
       .accessibilityLabel("Сегодня изучено \(todayMinutes) из \(plan.budgetMinutes) минут")
@@ -238,13 +239,13 @@ struct GameHomeView: View {
       } else {
         HStack(spacing: 8) { progressMetrics }
       }
-    }.padding(12).homeCard()
+    }.padding(12).lightHomeCard()
   }
   @ViewBuilder
   private var progressMetrics: some View {
-    HomeMetric(value: "\(learning.masteryPercent)%", label: "ОСВОЕНО")
-    HomeMetric(value: "\(learning.dueCount)", label: "ПОВТОРИТЬ")
-    HomeMetric(value: timeText(learning.analytics.totalSeconds), label: "ВСЕГО")
+    LightHomeMetric(value: "\(learning.masteryPercent)%", label: "ОСВОЕНО")
+    LightHomeMetric(value: "\(learning.dueCount)", label: "ПОВТОРИТЬ")
+    LightHomeMetric(value: timeText(learning.analytics.totalSeconds), label: "ВСЕГО")
   }
   /// Capture a daily snapshot after a study session and when exporting a report.
   /// Upsert by goal/day avoids duplicate snapshots from repeated visits.
@@ -302,14 +303,14 @@ struct GameHomeView: View {
           Image(systemName: "chevron.right")
         }.foregroundStyle(.white).padding(.horizontal, 14).frame(minHeight: 78).padding(.vertical, 6).background(
           LinearGradient(
-            colors: [HomeTheme.accent.opacity(0.9), .blue.opacity(0.88), .purple.opacity(0.7)],
+            colors: [HomePalette.accent, HomePalette.accent.opacity(0.88)],
             startPoint: .leading, endPoint: .trailing), in: RoundedRectangle(cornerRadius: 22))
       }.buttonStyle(.plain)
         .disabled(plan.questions.isEmpty)
         .accessibilityHint(plan.questions.isEmpty ? "Сначала выберите учебную цель" : "Начать занятия по плану")
       if plan.questions.isEmpty {
         Button(launchActionTitle) { coursesOpen = true }.buttonStyle(.bordered).tint(
-          HomeTheme.accent)
+          HomePalette.accent)
       }
     }
   }
@@ -704,5 +705,30 @@ enum KnowledgeDeadlineForecast {
     lines.append("Прогноз ориентировочный: окно последних 28 дней; основан на приросте устойчивых знаний, не гарантирует результат.")
     return .init(currentKnown: known, requiredKnown: target, remaining: remaining,
                  observedPerDay: rate, estimatedCompletion: predicted, reportLines: lines)
+  }
+}
+
+/// Home-only semantic palette; the learning game's dark HomeTheme is unchanged.
+private enum HomePalette {
+  static let accent = Color(red: 0.18, green: 0.43, blue: 0.79)
+  static let success = Color(red: 0.12, green: 0.55, blue: 0.36)
+  static let warning = Color(red: 0.65, green: 0.37, blue: 0.05)
+}
+private struct LightHomeMetric: View {
+  let value: String
+  let label: String
+  var body: some View {
+    VStack(spacing: 4) {
+      Text(value).font(.headline.bold()).foregroundStyle(.primary)
+      Text(label).font(.caption2.weight(.semibold)).foregroundStyle(HomePalette.accent)
+        .minimumScaleFactor(0.8).lineLimit(2)
+    }.frame(maxWidth: .infinity, minHeight: 58)
+      .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 12))
+  }
+}
+private extension View {
+  func lightHomeCard() -> some View {
+    background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 18))
+      .overlay(RoundedRectangle(cornerRadius: 18).stroke(Color.primary.opacity(0.07)))
   }
 }
