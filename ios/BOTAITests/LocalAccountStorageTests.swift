@@ -22,6 +22,21 @@ struct LocalAccountStorageTests {
         #expect(OfflineAccountBinding.read(service: service) == nil)
     }
 
+    @Test @MainActor func offlineIdentityAndReconnectPolicyMatrix() {
+        let first = UUID(), second = UUID()
+        let network = URLError(.notConnectedToInternet)
+        #expect(AuthStore.offlineIdentity(after: network, cachedAccount: first, persistedSessionAccount: first) == first)
+        #expect(AuthStore.offlineIdentity(after: network, cachedAccount: nil, persistedSessionAccount: first) == nil)
+        #expect(AuthStore.offlineIdentity(after: network, cachedAccount: first, persistedSessionAccount: nil) == nil)
+        #expect(AuthStore.offlineIdentity(after: network, cachedAccount: first, persistedSessionAccount: second) == nil)
+        #expect(AuthStore.offlineIdentity(after: URLError(.serverCertificateUntrusted), cachedAccount: first, persistedSessionAccount: first) == nil)
+        #expect(AuthStore.offlineIdentity(after: URLError(.userAuthenticationRequired), cachedAccount: first, persistedSessionAccount: first) == nil)
+        #expect(AuthStore.offlineIdentity(after: NSError(domain: "storage", code: 1), cachedAccount: first, persistedSessionAccount: first) == nil)
+        #expect(AuthStore.canRestoreSync(localAccount: first, verifiedAccount: first))
+        #expect(!AuthStore.canRestoreSync(localAccount: first, verifiedAccount: second))
+        #expect(!AuthStore.canRestoreSync(localAccount: nil, verifiedAccount: first))
+    }
+
     @Test @MainActor func offlineFallbackOnlyAcceptsTransportFailures() {
         #expect(AuthStore.isTransportFailure(URLError(.notConnectedToInternet)))
         #expect(AuthStore.isTransportFailure(URLError(.timedOut)))

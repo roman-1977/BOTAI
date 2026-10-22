@@ -94,3 +94,7 @@ Signed simulator test run succeeded with `GENERATE_INFOPLIST_FILE=YES CODE_SIGN_
 ### Reconnect fix — 2026-10-23
 
 `AuthStore.reconnectOfflineSession` requires restored Supabase user UUID to equal cached offline user. `BOTAIApp` on scene activation revalidates then restores sync service to the same isolated SQLite database. Signed-simulator 153/153 units PASS `/tmp/botai_offline_reconnect_20261023.log`. Add actual offline→online UI/integration coverage, including mismatched account and revoked session; do not call gate closed yet.
+
+### Secure offline binding matrix — 2026-10-23
+
+Offline cold-start requires Keychain account UUID **and** matching Supabase SDK `auth.currentSession?.user.id`, on recognized transport error only; no guest fallback. Same-account reconnection policy tested. 154/154 signed-simulator units PASS `/tmp/botai_offline_policy_matrix_20261023.log`. Full signed regression running in `/tmp/botai_signed_full_regression_20261023.log` (process 74148 at last check); check exit/status before claiming UI pass. Full offline→online cold-launch UI acceptance remains outstanding.

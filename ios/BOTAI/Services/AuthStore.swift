@@ -76,6 +76,18 @@ final class AuthStore {
         return false
     }
 
+    /// Pure policy shared by cold-launch and reconnection: an account mismatch
+    /// must never attach a sync client to a different local database.
+    static func canRestoreSync(localAccount: UUID?, verifiedAccount: UUID) -> Bool {
+        localAccount == verifiedAccount
+    }
+
+    static func offlineIdentity(after error: Error, cachedAccount: UUID?, persistedSessionAccount: UUID?) -> UUID? {
+        guard isTransportFailure(error), let cachedAccount,
+              cachedAccount == persistedSessionAccount else { return nil }
+        return cachedAccount
+    }
+
     var localIdentity: LocalAccountStorage.Identity {
         userID.map { .authenticated($0) } ?? .guest
     }
@@ -98,7 +110,11 @@ final class AuthStore {
             OfflineAccountBinding.save(session.user.id)
         } catch {
             isAuthenticated = false
-            if Self.isTransportFailure(error), let cached = OfflineAccountBinding.read() {
+            if let cached = Self.offlineIdentity(
+                after: error,
+                cachedAccount: OfflineAccountBinding.read(),
+                persistedSessionAccount: client.auth.currentSession?.user.id
+            ) {
                 // Local access to the exact previously verified account only. Never sync offline.
                 userID = cached
                 isOfflineLocalSession = true
@@ -121,7 +137,7 @@ final class AuthStore {
         guard isOfflineLocalSession else { return isAuthenticated }
         do {
             let session = try await client.auth.session
-            guard session.user.id == userID else {
+            guard Self.canRestoreSync(localAccount: userID, verifiedAccount: session.user.id) else {
                 // Never silently switch the current offline study session to another account.
                 errorMessage = "Учётная запись изменилась. Перезапустите приложение."
                 return false
