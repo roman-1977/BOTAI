@@ -206,3 +206,7 @@ An earlier attempted full run was invalidated by two concurrent xcodebuild proce
 Implemented v15 resumable-session persistence and restart UI test; full 14/14 `LaunchSmokeTests` passed before atomicity hardening (`/tmp/botai_resume_regression_20261022.log`). Subsequent atomic attempt+cursor transaction requires retest (`/tmp/botai_resume_atomic_ui_20261022.log`). See `docs/iterations/RESUMABLE_SESSION_2026-10-22.md` for exact status, risks and next steps. Do not include unrelated Xcode project changes in commits.
 
 Resumable session follow-up: post-atomic focused UI **2/2 PASS** and new unit **2/2 PASS**. See `docs/iterations/RESUMABLE_SESSION_2026-10-22.md`.
+
+### 2026-10-22 — RC readiness audit
+
+Added `docs/releases/RC_0.3.0_READINESS.md`: 10 gates with evidence and risk-ranked next tests. No code changes, no claim of RC. Preserve user Xcode project edit.
