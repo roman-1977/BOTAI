@@ -31,14 +31,12 @@ final class LaunchSmokeTests: XCTestCase {
         XCTAssertTrue(app.staticTexts["BOTAI"].exists)
     }
 
-    func testQuickStartModesOpenSubjectPicker() throws {
+    func testPrimaryStudyLaunchOpensSubjectPicker() throws {
         let app = XCUIApplication()
         app.launchArguments = ["-botai-ui-testing", "-botai-reset-ui-test-data"]
         app.launch()
         XCTAssertTrue(app.staticTexts["ПЛАН НА СЕГОДНЯ"].waitForExistence(timeout: 20))
-        XCTAssertTrue(app.buttons["Вперемешку"].exists)
-        XCTAssertTrue(app.buttons["Повторить"].exists)
-        let choose = app.buttons["Выбрать"]
+        let choose = app.buttons["primary-study-launch"]
         XCTAssertTrue(choose.exists)
         choose.tap()
         XCTAssertTrue(app.navigationBars["Что будем учить?"].waitForExistence(timeout: 10))

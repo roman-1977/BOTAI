@@ -83,56 +83,12 @@ struct GameHomeView: View {
       todayCard
       progressCard
       launch
-      quickStartModes
       motivationInsight
       HStack(spacing: 8) {
         Button("Мои цели") { coursesOpen = true }
         Button("Отчёт PDF") { exportReport() }
       }.buttonStyle(.bordered).tint(HomePalette.accent).font(.caption)
     }.padding(.horizontal, 14).padding(.bottom, 8)
-  }
-  private var quickStartModes: some View {
-    HStack(spacing: 7) {
-      Button { launchAllSubjects() } label: {
-        Label("Вперемешку", systemImage: "shuffle").frame(maxWidth: .infinity)
-      }.disabled(allCourseQuestions.isEmpty)
-      Button { launchDueReviews() } label: {
-        Label("Повторить", systemImage: "arrow.clockwise").frame(maxWidth: .infinity)
-      }.disabled(dueCourseQuestions.isEmpty)
-      Button { chooseSession = true } label: {
-        Label("Выбрать", systemImage: "square.grid.2x2").frame(maxWidth: .infinity)
-      }
-    }.font(.caption.bold()).buttonStyle(.bordered).tint(HomePalette.accent)
-      .accessibilityIdentifier("home-quick-start")
-  }
-  private var allCourseQuestions: [StudyQuestion] {
-    courses.courses.flatMap { course in
-      course.sections.flatMap { section in
-        section.topics.flatMap { topic in
-          topic.questionSets.flatMap { ref -> [StudyQuestion] in
-            guard let content = materials.content(id: ref.materialID) else { return [] }
-            return StudyQuestionBuilder.questions(for: ref, content: content)
-          }
-        }
-      }
-    }
-  }
-  private var dueCourseQuestions: [StudyQuestion] {
-    allCourseQuestions.filter { question in
-      guard let state = learning.knowledgeStates[question.knowledgeID] else { return false }
-      return state.nextDueAt <= .now
-    }
-  }
-  private func launchAllSubjects() {
-    launchQuestions(allCourseQuestions, title: "Все предметы вперемешку")
-  }
-  private func launchDueReviews() {
-    launchQuestions(dueCourseQuestions, title: "Повторение")
-  }
-  private func launchQuestions(_ questions: [StudyQuestion], title: String) {
-    guard !questions.isEmpty else { return }
-    learning.use(questions: questions.shuffled(), title: title, targetMinutes: plan.budgetMinutes)
-    learn = true
   }
   private var motivationInsight: some View {
     let due = learning.dueCount
@@ -361,14 +317,14 @@ struct GameHomeView: View {
   private var launch: some View {
     VStack(spacing: 9) {
       Button {
-        startPlan()
+        chooseSession = true
       } label: {
         HStack(spacing: 12) {
           Image(systemName: "play.fill").font(.title2).foregroundStyle(.white).frame(
             width: 52, height: 52
           ).background(.white.opacity(0.16), in: Circle())
           VStack(alignment: .leading, spacing: 3) {
-            Text("УЧИТЬСЯ СЕГОДНЯ").font(.headline).lineLimit(2)
+            Text("БОТАТЬ").font(.headline).lineLimit(2)
             Text(launchSubtitle).font(.caption).opacity(0.72).lineLimit(3)
           }
           Spacer()
@@ -378,8 +334,8 @@ struct GameHomeView: View {
             colors: [HomePalette.accent, HomePalette.accent.opacity(0.88)],
             startPoint: .leading, endPoint: .trailing), in: RoundedRectangle(cornerRadius: 22))
       }.buttonStyle(.plain)
-        .disabled(plan.questions.isEmpty)
-        .accessibilityHint(plan.questions.isEmpty ? "Сначала выберите учебную цель" : "Начать занятия по плану")
+        .accessibilityIdentifier("primary-study-launch")
+        .accessibilityHint("Настроить и начать занятие")
       if plan.questions.isEmpty {
         Button(launchActionTitle) { coursesOpen = true }.buttonStyle(.bordered).tint(
           HomePalette.accent)
