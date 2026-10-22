@@ -71,4 +71,10 @@ All scenarios are mandatory for MVP; this is a verification plan, not evidence o
 
 - `testPopulatedChoiceIncorrectAnswerShowsFeedback`: wrong single-choice answer shows the correct-answer feedback — **PASS** (`/tmp/botai_wrong_choice_ui_20261022.log`).
 - `testPopulatedMultipleChoiceRequiresSubmit`: two correct answers, submit disabled before selection, enabled after selecting both, then multi-select feedback — **PASS** (`/tmp/botai_multichoice_ui_20261022.log`).
-- Both use isolated chemistry UI fixtures; generated choice questions require at least four options. Full suite regression remains to run.
+- Both use isolated chemistry UI fixtures; generated choice questions require at least four options. Full suite regression subsequently PASSED.
+
+### Full regression checkpoint — 2026-10-22
+
+- Xcode simulator full regression: **140/140 unit tests in 45 suites PASS**, **23/23 general UI tests PASS**, **0 failures**, `xcodebuild` exit **0** (`/tmp/botai_full_regression_20261022.log`, `** TEST SUCCEEDED **`).
+- Covers populated topic/subject/mixed launches, cards/tests formats, auto/all strategy controls, single-choice correct/incorrect feedback, multiple-choice submit/feedback, and resume across relaunch.
+- This is not a release-candidate approval: separate seeded chemistry UI suite, shared-set attribution end-to-end, complete scope × format × strategy coverage, offline/reconnect, backend migration/RLS, visual/accessibility, and Apple compliance remain outstanding.
