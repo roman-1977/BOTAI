@@ -248,3 +248,35 @@ struct StudyQuestionAttributionTests {
             courseID: course.id, sectionID: section.id, topicID: topic.id))
     }
 }
+
+struct SessionTopicAccumulatorTests {
+    @Test func mixedTopicsAndUnknownAnswersAreCountedWithoutGuessing() {
+        let first = StudyQuestionAttribution(courseID: UUID(), sectionID: UUID(), topicID: UUID())
+        let second = StudyQuestionAttribution(courseID: UUID(), sectionID: UUID(), topicID: UUID())
+        var accumulator = SessionTopicAccumulator()
+        accumulator.record(correct: true, attribution: first)
+        accumulator.record(correct: false, attribution: second)
+        accumulator.record(correct: false, attribution: first)
+        accumulator.record(correct: true, attribution: nil)
+        #expect(accumulator.answered == 4)
+        #expect(accumulator.correct == 2)
+        #expect(accumulator.unattributedAnswered == 1)
+        #expect(accumulator.unattributedCorrect == 1)
+        #expect(accumulator.buckets[first]?.answered == 2)
+        #expect(accumulator.buckets[first]?.correct == 1)
+        #expect(accumulator.buckets[second]?.answered == 1)
+        #expect(accumulator.buckets[second]?.correct == 0)
+        #expect(accumulator.breakdown.count == 2)
+    }
+
+    @Test func checkpointRoundTripPreservesExactBuckets() throws {
+        let attribution = StudyQuestionAttribution(courseID: UUID(), sectionID: UUID(), topicID: UUID())
+        var accumulator = SessionTopicAccumulator()
+        accumulator.record(correct: true, attribution: attribution)
+        accumulator.record(correct: false, attribution: nil)
+        let restored = try JSONDecoder().decode(SessionTopicAccumulator.self,
+            from: JSONEncoder().encode(accumulator))
+        #expect(restored == accumulator)
+        #expect(restored.answered == 2)
+    }
+}

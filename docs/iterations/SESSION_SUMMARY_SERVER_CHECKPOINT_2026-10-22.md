@@ -43,3 +43,7 @@ The current `StudyQuestion` model contains `id`, `knowledgeID`, content and answ
 ## Attribution resolver checkpoint
 
 Added `StudyQuestionAttribution` (stable course/section/topic UUIDs) and `StudyQuestionAttributionResolver.uniqueAttributions`. It maps locally generated questions to unique course/topic references; questions reused across different topics are intentionally left unattributed instead of misclassified. Added tests for both unique and ambiguous references. This is **only a preparatory local resolver**, not yet wired into session launch, answer-time checkpoints or server summary schema. Existing summaries still contain overall counts only. Xcode test run `/tmp/botai_attribution_tests_20261022.log`: **115/115 passed** (unit suites). Full UI regression remains running separately and must not be reported as passed.
+
+## Local mixed-session accumulator
+
+Implemented `SessionTopicAccumulator`: records answer-time counts into stable course/section/topic buckets, with a separate unattributed bucket for ambiguous or missing provenance. Supports deterministic breakdown order and Codable persistence; does not include question IDs or content. Tests cover mixed topics, unknown attribution and serialization round-trip. **This is a domain primitive only**: not yet connected to the active session checkpoint, launch resolver or backend migration. Do not claim server breakdown is implemented. Focused Xcode run `/tmp/botai_topic_aggregates_20261022.log` passed. The earlier full UI regression has reported failure; inspect log and diagnose separately.

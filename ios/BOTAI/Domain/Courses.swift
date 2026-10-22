@@ -50,3 +50,42 @@ enum StudyQuestionAttributionResolver {
         return candidates.compactMapValues { $0.count == 1 ? $0.first : nil }
     }
 }
+
+/// One aggregate bucket for a completed session. No answer or question identifier is transmitted.
+struct SessionTopicAggregate: Codable, Equatable, Sendable {
+    let attribution: StudyQuestionAttribution
+    var answered: Int
+    var correct: Int
+}
+
+/// Local answer-time accumulator. Attribution is captured when the answer is recorded;
+/// later course edits must not silently reclassify historical attempts.
+struct SessionTopicAccumulator: Codable, Equatable, Sendable {
+    private(set) var buckets: [StudyQuestionAttribution: SessionTopicAggregate] = [:]
+    private(set) var unattributedAnswered = 0
+    private(set) var unattributedCorrect = 0
+
+    mutating func record(correct: Bool, attribution: StudyQuestionAttribution?) {
+        guard let attribution else {
+            unattributedAnswered += 1
+            if correct { unattributedCorrect += 1 }
+            return
+        }
+        var bucket = buckets[attribution] ?? SessionTopicAggregate(
+            attribution: attribution, answered: 0, correct: 0)
+        bucket.answered += 1
+        if correct { bucket.correct += 1 }
+        buckets[attribution] = bucket
+    }
+
+    var answered: Int { buckets.values.reduce(unattributedAnswered) { $0 + $1.answered } }
+    var correct: Int { buckets.values.reduce(unattributedCorrect) { $0 + $1.correct } }
+    var breakdown: [SessionTopicAggregate] {
+        buckets.values.sorted {
+            ($0.attribution.courseID.uuidString, $0.attribution.sectionID.uuidString,
+             $0.attribution.topicID.uuidString) <
+            ($1.attribution.courseID.uuidString, $1.attribution.sectionID.uuidString,
+             $1.attribution.topicID.uuidString)
+        }
+    }
+}
