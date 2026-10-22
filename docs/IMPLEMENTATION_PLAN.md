@@ -56,3 +56,7 @@ This section supersedes the historical “in progress” labels above. **Goal: l
 ### Checkpoint — shared selection and deterministic tests, 2026-10-22
 
 Unified `StudyQuestionSelection` is implemented in `DailyPlanner.swift` and reused by `GameHomeView.swift`. New unit matrix covers formats, duplicate IDs, both strategies, due/new/future priority and no-due fallback. **139/139 unit + 16/16 standard UI PASS** on iPhone 16e simulator (`/tmp/botai_selection_full_20261022.log`). **Still OPEN:** full UI cross-product, disabled empty launch, answer persistence per format and chemistry seeded rerun. Next: extend targeted UI acceptance without relying on source-only assertions.
+
+### Empty-library UI checkpoint — 2026-10-22
+
+Empty-catalog quick-start disabled-state and no-spurious-session UI test **PASS** (`/tmp/botai_empty_catalog_ui_20261022.log`). Still to verify populated scope/format matrix and format-specific empty states; run full suite after these additions.

@@ -31,3 +31,8 @@ All scenarios are mandatory for MVP; this is a verification plan, not evidence o
 - New deterministic Swift Testing cases cover all three formats, empty input, repeated IDs, both strategies, due-weak/new/future priorities, stable ties, and no-due fallback.
 - **139/139 unit PASS and 16/16 standard UI PASS**, complete simulator command exit 0 (`/tmp/botai_selection_full_20261022.log`, iPhone 16e simulator `33176212-1247-4722-B8F4-4E53438502E4`). Separately seeded chemistry UI was **not rerun** after this change.
 - **Remaining matrix gaps:** explicit subject/topic/all × format × strategy UI scenarios, disabled zero-eligible rows, per-format persisted answers, and account/offline/reconnect coverage. These are not implicitly closed by the green suite.
+
+### Empty-catalog UI checkpoint — 2026-10-22
+
+- Added `LaunchSmokeTests.testEmptyCatalogLaunchCannotCreateSessionAcrossFormats`: an empty library disables the mixed quick-start row before and after opening advanced settings, and closing the picker does not create a resumable session. **Focused UI PASS** (`/tmp/botai_empty_catalog_ui_20261022.log`, exit 0).
+- This is **not** exhaustive format-by-format empty-state coverage; it verifies the empty catalog and settings disclosure only. Subject/topic populated UI paths and format-specific disabled rows remain open.

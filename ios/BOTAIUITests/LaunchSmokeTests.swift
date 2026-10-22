@@ -80,6 +80,25 @@ final class LaunchSmokeTests: XCTestCase {
         XCTAssertTrue(app.navigationBars["Что будем учить?"].exists)
     }
 
+    func testEmptyCatalogLaunchCannotCreateSessionAcrossFormats() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-botai-ui-testing", "-botai-reset-ui-test-data"]
+        app.launch()
+        let choose = app.buttons["primary-study-launch"]
+        XCTAssertTrue(choose.waitForExistence(timeout: 20))
+        choose.tap()
+        XCTAssertTrue(app.navigationBars["Что будем учить?"].waitForExistence(timeout: 10))
+        let mixedLaunch = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Все предметы вперемешку")).firstMatch
+        XCTAssertTrue(mixedLaunch.exists)
+        XCTAssertFalse(mixedLaunch.isEnabled)
+        app.buttons["Дополнительные настройки"].tap()
+        XCTAssertTrue(app.staticTexts["Формат"].waitForExistence(timeout: 5))
+        XCTAssertFalse(mixedLaunch.isEnabled)
+        app.buttons["Закрыть"].tap()
+        XCTAssertTrue(app.staticTexts["ПЛАН НА СЕГОДНЯ"].exists)
+        XCTAssertFalse(app.staticTexts["ПРОДОЛЖИТЬ"].exists)
+    }
+
     func testPrimaryScreensVisualBaseline() throws {
         let app = XCUIApplication()
         app.launchArguments = ["-botai-ui-testing", "-botai-reset-ui-test-data"]
