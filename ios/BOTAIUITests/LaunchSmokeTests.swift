@@ -6,6 +6,23 @@ final class LaunchSmokeTests: XCTestCase {
         continueAfterFailure = false
     }
 
+    func testExtendedPDFReportOpensSystemShareSheet() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-botai-ui-testing", "-botai-reset-ui-test-data"]
+        app.launch()
+        let report = app.buttons["Расширенный отчёт · PDF"]
+        XCTAssertTrue(report.waitForExistence(timeout: 20))
+        if !report.isHittable { app.swipeUp() }
+        report.tap()
+        XCTAssertFalse(app.alerts["Не удалось создать PDF"].exists)
+        // The share sheet is hosted by UIActivityViewController, not a custom preview.
+        XCTAssertTrue(app.otherElements["ActivityListView"].waitForExistence(timeout: 12)
+            || app.buttons["Закрыть"].exists
+            || app.buttons["Close"].exists
+            || app.staticTexts["Copy"].exists)
+        captureScreen(app, name: "05-Extended-PDF-Share")
+    }
+
     func testFreshLaunchShowsStudyHome() throws {
         let app = XCUIApplication()
         app.launchArguments += ["-botai-ui-testing", "-botai-reset-ui-test-data"]

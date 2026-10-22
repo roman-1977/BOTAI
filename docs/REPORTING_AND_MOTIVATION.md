@@ -41,3 +41,6 @@ The ETA now considers only the last 28 calendar days of knowledge-progress event
 ## v14 snapshot history
 Study-plan revisions persist on every successful profile save. Forecast snapshots are upserted per goal and local day when a PDF is exported, recording ETA, mastery, rate and algorithm version. The PDF shows textual trend between saved forecasts and uses historical plan revisions when available. Before the first revision, plan/fact history is approximate. Automatic post-session capture and visual chart are pending.
 Verification: 2 Swift snapshot tests, 2 PDF tests, 5 Python tests passed.
+
+## UI regression and automatic capture (2026-10-22)
+On dismissal of a learning session, the home screen records updated goal forecasts. PDF export also updates the same-day snapshot. Repeated captures overwrite the same goal/day row. A UI test opens the actual PDF system share sheet; it passed alongside home, visual-baseline, and storage-isolation UI tests (4/4 on simulator). History still needs a chart, and capture from all non-home learning flows is not yet guaranteed.

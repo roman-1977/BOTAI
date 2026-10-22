@@ -58,6 +58,7 @@ struct GameHomeView: View {
         isPresented: $learn,
         onDismiss: {
           GoalProgressService.reconcile(courses: courses, materials: materials, learning: learning)
+          captureForecasts()
         }
       ) { LearnSessionView() }.sheet(isPresented: $profileOpen) {
         NavigationStack { ProfileView() }
@@ -180,25 +181,31 @@ struct GameHomeView: View {
     HomeMetric(value: "\(learning.dueCount)", label: "ПОВТОРИТЬ")
     HomeMetric(value: timeText(learning.analytics.totalSeconds), label: "ВСЕГО")
   }
+  /// Capture a daily snapshot after a study session and when exporting a report.
+  /// Upsert by goal/day avoids duplicate snapshots from repeated visits.
+  private func captureForecasts() {
+    let today = Date()
+    for course in courses.courses {
+      for goal in course.goals where goal.state == .active {
+        let ids = Set(goal.questionSets.flatMap { ref -> [UUID] in
+          guard let content = materials.content(id: ref.materialID) else { return [] }
+          return StudyQuestionBuilder.questions(for: ref, content: content).map(\.knowledgeID)
+        })
+        guard !ids.isEmpty else { continue }
+        let forecast = KnowledgeDeadlineForecast.evaluate(goal: goal, knowledgeIDs: ids,
+          states: learning.knowledgeStates, history: learning.knowledgeHistory, now: today)
+        let day = ISO8601DateFormatter().string(from: Calendar.current.startOfDay(for: today))
+        _ = learning.saveForecast(.init(goalID: goal.id, day: day, calculatedAt: today,
+          forecastAt: forecast.estimatedCompletion, known: forecast.currentKnown,
+          target: forecast.requiredKnown, rate: forecast.observedPerDay, algorithmVersion: 2))
+      }
+    }
+  }
+
   private var reportAction: some View {
     Button {
       do {
-        let today = Date()
-        for course in courses.courses {
-          for goal in course.goals where goal.state == .active {
-            let ids = Set(goal.questionSets.flatMap { ref -> [UUID] in
-              guard let content = materials.content(id: ref.materialID) else { return [] }
-              return StudyQuestionBuilder.questions(for: ref, content: content).map(\.knowledgeID)
-            })
-            guard !ids.isEmpty else { continue }
-            let forecast = KnowledgeDeadlineForecast.evaluate(goal: goal, knowledgeIDs: ids,
-              states: learning.knowledgeStates, history: learning.knowledgeHistory, now: today)
-            let day = ISO8601DateFormatter().string(from: Calendar.current.startOfDay(for: today))
-            _ = learning.saveForecast(.init(goalID: goal.id, day: day, calculatedAt: today,
-              forecastAt: forecast.estimatedCompletion, known: forecast.currentKnown,
-              target: forecast.requiredKnown, rate: forecast.observedPerDay, algorithmVersion: 2))
-          }
-        }
+        captureForecasts()
         reportURL = try StudyPDFReport.export(profile: profile.profile, sessions: learning.sessions,
           attempts: learning.attempts, knowledgeStates: learning.knowledgeStates,
           courses: courses.courses, materials: materials, knowledgeHistory: learning.knowledgeHistory,

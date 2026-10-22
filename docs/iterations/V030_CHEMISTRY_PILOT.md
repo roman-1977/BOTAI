@@ -120,3 +120,8 @@ Read this file, `docs/COURSES_AND_GOALS.md`, `docs/OPEN_QUESTIONS.md`, `AGENTS.m
 Implementation: v14 studyPlanHistory saves profile revisions atomically; goalForecastSnapshots upserts one forecast per goal and local day on PDF export, with algorithm version, mastery and ETA. PDF reports textual first-to-last trend and uses historic plans when present.
 Tests: ReportingSnapshotPersistenceTests 2/2 passed; PDF recommendation tests 2/2 passed; chemistry Python tests 5/5 passed. Full suite not run.
 Limitations: snapshot trigger is PDF export, not automatic daily capture; no chart yet; pre-v14 historical plans are unknown.
+
+### 2026-10-22 — UI regression and post-session forecast capture
+Implementation: forecast snapshots now update after dismissal of a learning session as well as on PDF export, upserted by goal/day. Added UI test that opens the PDF share sheet and retains a screenshot attachment.
+Tests: 4/4 targeted UI tests passed on iPhone 16 Pro Max iOS 18.6 (PDF share, fresh home, primary-screen screenshots, storage isolation across relaunch). Log /tmp/botai_ui_regression_oct22.log. PDF share test also passed separately after auto-capture change. Full UI and Swift suites not yet rerun.
+Remaining: capture when study completes outside the home session dismissal, proper PDF chart and automated visual inspection.

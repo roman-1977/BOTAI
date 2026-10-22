@@ -66,3 +66,5 @@ See `docs/iterations/V030_CHEMISTRY_PILOT.md` for authoritative milestones, veri
 2026-10-22: deadline forecast tightened to rolling 28-day observed mastery, three distinct activity days and net regression-aware growth. Six targeted simulator tests passed. Full regression attempt encountered Xcode device-service/passcode error and remains unverified; see iteration log.
 
 2026-10-22: v14 study-plan and forecast snapshots, PDF textual trend, historical plan lookup. Tests 2 snapshot + 2 PDF + 5 Python passed. Automatic daily capture and PDF graph pending.
+
+2026-10-22: post-session forecast capture added, UI test verifies PDF share sheet. Four selected UI tests passed on iPhone 16 Pro Max simulator (fresh home, baseline screens, isolated relaunch, PDF share). Full suite pending.
