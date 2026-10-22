@@ -71,3 +71,39 @@ struct MissingLearningStorageTests {
         #expect(store.lastPersistenceError != nil)
     }
 }
+
+struct SharedKnowledgeProgressTests {
+    @Test @MainActor func bothModesAdvanceSameDurableKnowledgeState() throws {
+        let db = try AppDatabase()
+        let repository = LearningRepository(database: db)
+        let knowledgeID = UUID()
+        let card = StudyQuestion(id: UUID(), prompt: "HCl?", answer: "Соляная", kind: .reveal,
+                                 choices: [], correctChoiceIndexes: [], knowledgeID: knowledgeID)
+        let choice = StudyQuestion(id: UUID(), prompt: "HCl?", answer: "Соляная", kind: .singleChoice,
+                                   choices: ["Соляная", "Азотная", "Серная", "Угольная"], correctChoiceIndexes: [0], knowledgeID: knowledgeID)
+        let store = LearningStore(questions: [card, choice], repository: repository)
+        #expect(store.record(question: card, rating: .good))
+        #expect(store.record(question: choice, rating: .good))
+        #expect(store.knowledgeStates.count == 1)
+        #expect(store.knowledgeStates[knowledgeID]?.streak == 2)
+        let restored = LearningStore(questions: [card, choice], repository: repository)
+        #expect(restored.knowledgeStates[knowledgeID]?.streak == 2)
+        #expect(restored.attempts.count == 2)
+        #expect(Set(restored.attempts.map(\.questionID)) == Set([card.id, choice.id]))
+        let persistedKnowledgeIDs = try db.dbQueue.read { db in
+            try String.fetchAll(db, sql: "SELECT knowledgeID FROM attempts ORDER BY occurredAt")
+        }
+        #expect(Set(persistedKnowledgeIDs) == [knowledgeID.uuidString])
+        #expect(try repository.outboxCount() == 2)
+    }
+
+    @Test func legacyProgressIsBackfilledDuringMigration() throws {
+        let db = try AppDatabase()
+        let repository = LearningRepository(database: db)
+        let id = UUID()
+        let attempt = Attempt(id: UUID(), questionID: id, occurredAt: .now, rating: .good)
+        let state = LearningState(intervalDays: 1, streak: 1, nextDueAt: .now)
+        try repository.record(attempt, state: state)
+        #expect(try repository.loadKnowledgeStates()[id]?.streak == 1)
+    }
+}

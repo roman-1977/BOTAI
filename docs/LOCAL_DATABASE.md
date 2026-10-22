@@ -151,3 +151,7 @@ This keeps the MVP simple while preserving a path to cache optimization later.
 
 End of local database v1 contract.
 
+
+### v12 — Knowledge-level learning progress (2026-10-22)
+
+`knowledgeStates(knowledgeID PRIMARY KEY, intervalDays, streak, nextDueAt)` stores shared spaced-repetition state across multiple assessment modes. `attempts.knowledgeID` stores the canonical knowledge ID alongside the existing mode-specific `questionID` (used for sync/mapping). The migration backfills existing knowledge states and attempt IDs from the legacy question IDs. New writes update knowledge state, mode-specific state and outbox atomically. Existing legacy `learningStates` remains for compatibility. Development-only chemistry reset must delete `knowledgeStates` as well. See `docs/iterations/V030_CHEMISTRY_PILOT.md`.

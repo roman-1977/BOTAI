@@ -18,6 +18,16 @@ final class LearningRepository: @unchecked Sendable {
         }
     }
 
+    func loadKnowledgeStates() throws -> [UUID: LearningState] {
+        try database.dbQueue.read { db in
+            let rows = try Row.fetchAll(db, sql: "SELECT knowledgeID, intervalDays, streak, nextDueAt FROM knowledgeStates")
+            return Dictionary(uniqueKeysWithValues: rows.compactMap { row -> (UUID, LearningState)? in
+                guard let id = UUID(uuidString: row["knowledgeID"]) else { return nil }
+                return (id, LearningState(intervalDays: row["intervalDays"], streak: row["streak"], nextDueAt: row["nextDueAt"]))
+            })
+        }
+    }
+
     func record(_ attempt: Attempt, state: LearningState, question: StudyQuestion? = nil) throws {
         try database.dbQueue.write { db in
             let mapping = try RemoteQuestionMapping.fetchOne(db, key: attempt.questionID.uuidString)
@@ -34,6 +44,9 @@ final class LearningRepository: @unchecked Sendable {
                         ($0.kind == .reveal ? "self_check" : "unsupported")
                 }).insert(db)
             try LocalLearningStateRecord(questionID: attempt.questionID.uuidString, intervalDays: state.intervalDays, streak: state.streak, nextDueAt: state.nextDueAt).save(db)
+            let knowledgeID = question?.knowledgeID ?? attempt.questionID
+            try db.execute(sql: "UPDATE attempts SET knowledgeID = ? WHERE id = ?", arguments: [knowledgeID.uuidString, attempt.id.uuidString])
+            try db.execute(sql: "INSERT INTO knowledgeStates(knowledgeID,intervalDays,streak,nextDueAt) VALUES(?,?,?,?) ON CONFLICT(knowledgeID) DO UPDATE SET intervalDays=excluded.intervalDays,streak=excluded.streak,nextDueAt=excluded.nextDueAt", arguments: [knowledgeID.uuidString, state.intervalDays, state.streak, state.nextDueAt])
             try OutboxRecord(id: UUID().uuidString, entityType: "attempt", entityID: attempt.id.uuidString, operation: "upsert", payloadVersion: 1, createdAt: .now, attemptCount: 0, nextRetryAt: nil, lastError: nil).insert(db)
         }
     }

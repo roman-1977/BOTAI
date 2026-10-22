@@ -5,6 +5,7 @@ import Observation
 final class LearningStore {
     private(set) var attempts: [Attempt] = []
     private(set) var states: [UUID: LearningState] = [:]
+    private(set) var knowledgeStates: [UUID: LearningState] = [:]
     private(set) var sessions: [StudySession] = []
     private(set) var questions: [StudyQuestion]
     private(set) var sessionTitle: String = "Обучение"
@@ -21,6 +22,7 @@ final class LearningStore {
                 let savedSessions = try repository.sessions()
                 attempts = saved.0
                 states = saved.1
+                knowledgeStates = try repository.loadKnowledgeStates()
                 sessions = savedSessions
             } catch {
                 lastPersistenceError = error.localizedDescription
@@ -56,7 +58,7 @@ final class LearningStore {
     @discardableResult
     func record(question: StudyQuestion, rating: RecallRating) -> Bool {
         let attempt = Attempt(id: UUID(), questionID: question.id, occurredAt: .now, rating: rating)
-        var state = states[question.id] ?? LearningState(); state.apply(rating)
+        var state = knowledgeStates[question.knowledgeID] ?? LearningState(); state.apply(rating)
         // Never report an answer as saved if the durable local write failed.
         // Otherwise the UI advances while the sync outbox silently loses the event.
         guard let repository else {
@@ -68,7 +70,7 @@ final class LearningStore {
             lastPersistenceError = error.localizedDescription
             return false
         }
-        attempts.append(attempt); states[question.id] = state
+        attempts.append(attempt); states[question.id] = state; knowledgeStates[question.knowledgeID] = state
         lastPersistenceError = nil
         return true
     }

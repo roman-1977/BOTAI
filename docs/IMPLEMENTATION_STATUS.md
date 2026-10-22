@@ -52,3 +52,5 @@ See `docs/PRE_REFACTOR_AUDIT_2026-10-21.md` for the original audit and proposed 
 ### v0.3.0 chemistry pilot (2026-10-22, in progress)
 
 See `docs/iterations/V030_CHEMISTRY_PILOT.md` for authoritative milestones, verification and handoff. A deterministic 323-question developer fixture and guarded local SQLite seed exist (not yet installed into running app). `StudyQuestion.knowledgeID` now links both assessment modes at the presentation model level; persistence/mastery remain keyed by mode-specific IDs and need migration. Targeted simulator tests: 2/2 passed; fixture tests: 5/5 passed. No live account reset or production Supabase changes.
+
+2026-10-22 checkpoint: v12 `knowledgeStates` migration and durable knowledge-level attempt recording implemented; adaptive planner/goal mastery read canonical knowledge progress. Targeted Swift simulator tests 2/2 passed, chemistry fixture tests 5/5 passed. Legacy mode-specific states remain for compatibility; dashboard and full simulator integration pending. Details: `docs/iterations/V030_CHEMISTRY_PILOT.md`.

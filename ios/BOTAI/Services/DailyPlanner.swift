@@ -7,7 +7,7 @@ enum DailyPlanner {
    var cs:[Candidate]=[]
    for c in courses { for g in c.goals where g.state == .active {
      let qs=g.questionSets.flatMap{ref -> [StudyQuestion] in guard let content=materials.content(id:ref.materialID) else{return []};return StudyQuestionBuilder.questions(for:ref,content:content)}
-     guard !qs.isEmpty else{continue};let known=qs.filter{learning.states[$0.id]?.masteryLevel == .known}.count;let mastery=Int((Double(known)/Double(qs.count)*100).rounded());guard mastery < g.masteryTarget else{continue}
+     guard !qs.isEmpty else{continue};let known=qs.filter{learning.knowledgeStates[$0.knowledgeID]?.masteryLevel == .known}.count;let mastery=Int((Double(known)/Double(qs.count)*100).rounded());guard mastery < g.masteryTarget else{continue}
      let days=max(1,g.deadline.map{Calendar.current.dateComponents([.day],from:date,to:$0).day ?? 1} ?? 30);let deficit=Double(g.masteryTarget-mastery)/100.0;let urgency=deficit/Double(days)
      cs.append(.init(course:c,goal:g,questions:qs,mastery:mastery,urgency:urgency))
    }}
@@ -23,7 +23,7 @@ enum DailyPlanner {
    while result.count<count && groups.contains(where:{!$0.isEmpty}) { let i=cursor % groups.count;if !groups[i].isEmpty { result.append(groups[i].removeFirst()) };cursor += 1 }
    return result
  }
- @MainActor private static func priority(_ q:StudyQuestion,_ l:LearningStore)->Int { guard let s=l.states[q.id] else{return 100};if s.nextDueAt <= .now{return 80-s.streak*5};return 20-s.streak }
+ @MainActor private static func priority(_ q:StudyQuestion,_ l:LearningStore)->Int { guard let s=l.knowledgeStates[q.knowledgeID] else{return 100};if s.nextDueAt <= .now{return 80-s.streak*5};return 20-s.streak }
 }
 
 @MainActor enum GoalProgressService {
@@ -31,7 +31,7 @@ enum DailyPlanner {
   for original in store.courses { var course=original;var changed=false
    for i in course.goals.indices where course.goals[i].state == .active {
     let g=course.goals[i];let qs=g.questionSets.flatMap{ref -> [StudyQuestion] in guard let c=materials.content(id:ref.materialID) else{return []};return StudyQuestionBuilder.questions(for:ref,content:c)}
-    guard !qs.isEmpty else{continue};let known=qs.filter{learning.states[$0.id]?.masteryLevel == .known}.count;let mastery=Int((Double(known)/Double(qs.count)*100).rounded())
+    guard !qs.isEmpty else{continue};let known=qs.filter{learning.knowledgeStates[$0.knowledgeID]?.masteryLevel == .known}.count;let mastery=Int((Double(known)/Double(qs.count)*100).rounded())
     if mastery >= g.masteryTarget { course.goals[i].state = .completed;changed=true }
    }
    if changed { store.save(course) }

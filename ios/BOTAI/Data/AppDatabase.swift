@@ -118,6 +118,18 @@ final class AppDatabase: @unchecked Sendable {
                 t.add(column: "snapshotKind", .text)
             }
         }
+        migrator.registerMigration("v12_knowledge_progress") { db in
+            try db.create(table: "knowledgeStates") { t in
+                t.column("knowledgeID", .text).primaryKey()
+                t.column("intervalDays", .integer).notNull()
+                t.column("streak", .integer).notNull()
+                t.column("nextDueAt", .datetime).notNull()
+            }
+            try db.alter(table: "attempts") { t in t.add(column: "knowledgeID", .text) }
+            // Existing cards remain their own canonical knowledge until explicitly linked.
+            try db.execute(sql: "INSERT INTO knowledgeStates(knowledgeID,intervalDays,streak,nextDueAt) SELECT questionID,intervalDays,streak,nextDueAt FROM learningStates")
+            try db.execute(sql: "UPDATE attempts SET knowledgeID = questionID WHERE knowledgeID IS NULL")
+        }
         return migrator
     }
 }
