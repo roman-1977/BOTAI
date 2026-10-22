@@ -1,11 +1,47 @@
 import SwiftUI
 import ZIPFoundation
+import Network
+
+/// Observe connectivity restoration even when the app never leaves the foreground.
+/// Reachability is only a retry signal; Supabase must still verify the account.
+@MainActor @Observable
+final class ConnectivityRetrySignal {
+    private let monitor = NWPathMonitor()
+    private let queue = DispatchQueue(label: "BOTAI.connectivity-monitor")
+    private(set) var restorationCount = 0
+    private var wasUnavailable = false
+    private var started = false
+
+    static func shouldRetry(previouslyUnavailable: Bool, nowAvailable: Bool) -> Bool {
+        previouslyUnavailable && nowAvailable
+    }
+
+    func start() {
+        guard !started else { return }
+        started = true
+        monitor.pathUpdateHandler = { [weak self] path in
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                if path.status == .satisfied {
+                    if Self.shouldRetry(previouslyUnavailable: self.wasUnavailable, nowAvailable: true) {
+                        self.restorationCount += 1
+                    }
+                    self.wasUnavailable = false
+                } else {
+                    self.wasUnavailable = true
+                }
+            }
+        }
+        monitor.start(queue: queue)
+    }
+}
 
 @main
 struct BOTAIApp: App {
     @Environment(\.scenePhase) private var scenePhase
     @State private var learningStore: LearningStore
     @State private var authStore = AuthStore()
+    @State private var connectivity = ConnectivityRetrySignal()
     @State private var materialStore: MaterialStore
     @State private var courseStore: CourseStore
     @State private var studyProfileStore: StudyProfileStore
@@ -201,6 +237,7 @@ struct BOTAIApp: App {
                 .environment(courseStore)
                 .environment(studyProfileStore)
                 .task {
+                    connectivity.start()
                     await authStore.bootstrap()
                     didResolveInitialIdentity = !authStore.didFailBootstrap && switchStorageIfNeeded()
                     if didResolveInitialIdentity, let syncService {
@@ -209,6 +246,17 @@ struct BOTAIApp: App {
                 }
                 .onChange(of: scenePhase) { _, phase in
                     guard phase == .active, didResolveInitialIdentity else { return }
+                    Task {
+                        if authStore.isOfflineLocalSession {
+                            guard await authStore.reconnectOfflineSession() else { return }
+                            guard switchStorageIfNeeded() else { return }
+                        }
+                        guard let syncService else { return }
+                        await syncService.flush(questions: learningStore.questions)
+                    }
+                }
+                .onChange(of: connectivity.restorationCount) { _, _ in
+                    guard didResolveInitialIdentity else { return }
                     Task {
                         if authStore.isOfflineLocalSession {
                             guard await authStore.reconnectOfflineSession() else { return }

@@ -44,6 +44,12 @@ struct LocalAccountStorageTests {
         #expect(!SyncService.canUpload(boundAccountID: first, authenticatedAccountID: nil))
     }
 
+    @Test @MainActor func connectivityRestorationRetriesOnlyAfterObservedOutage() {
+        #expect(!ConnectivityRetrySignal.shouldRetry(previouslyUnavailable: false, nowAvailable: true))
+        #expect(!ConnectivityRetrySignal.shouldRetry(previouslyUnavailable: true, nowAvailable: false))
+        #expect(ConnectivityRetrySignal.shouldRetry(previouslyUnavailable: true, nowAvailable: true))
+    }
+
     @Test @MainActor func reconnectFailuresLockOfflineStudyExceptTransportOutage() {
         #expect(!AuthStore.mustLockOfflineStudy(after: URLError(.notConnectedToInternet)))
         #expect(!AuthStore.mustLockOfflineStudy(after: URLError(.timedOut)))
