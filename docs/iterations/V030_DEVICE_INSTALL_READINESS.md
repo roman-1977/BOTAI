@@ -21,3 +21,12 @@ Do not automatically install over `com.roman1977.botai` on a physical device: an
 5. Run final full regression and tag candidate only after physical-device acceptance.
 
 The app is **buildable and signed for iPhone**, not yet validated as installed or ready for App Store distribution.
+
+## Physical-device read-only inventory and backup (2026-10-22)
+
+- `devicectl device info apps` confirms **BOTAI 0.1.0 (build 1)** is already installed on connected `My Precious` (iPhone 17 Pro Max). Do not overwrite without confirming data migration and user acceptance.
+- `devicectl device info files` confirms an existing `Library/Application Support/BOTAI/learning.sqlite` (~116 KB), last modified 2026-10-22 00:00 device-local time. No sidecar `-wal` or `-shm` was shown in the listing.
+- Copied SQLite file **read-only** from the device to the Mac, outside Git: `~/BOTAI-device-backups/2026-10-22-My-Precious/learning.sqlite`. `sqlite3 PRAGMA integrity_check` returned **ok**. This is a point-in-time file copy, **not a complete iPhone backup**; app preferences/keychain and any concurrent database writes are not covered. Preserve this copy privately; do not commit it.
+- The database has legacy tables (attempts, courses, learningStates, studySessions, etc.) but lacks new v12–v14 reporting tables. Installing current build will trigger migrations and may change on-device data. No installation, migration, or deletion performed.
+- Attempts to copy the `Documents` and `Library/Preferences` directories directly failed due to missing destination directories. No data on the device was changed.
+- **Hold:** before installing, explicitly confirm that `My Precious` is the intended device and that replacing its BOTAI 0.1.0 installation is acceptable. Prefer an additional full encrypted device backup for rollback. A safer alternative is a separately identified test bundle ID, which would not replace existing BOTAI, but would require provisioning and may not share existing data.
