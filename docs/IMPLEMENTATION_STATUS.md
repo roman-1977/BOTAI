@@ -74,3 +74,5 @@ See `docs/iterations/V030_CHEMISTRY_PILOT.md` for authoritative milestones, veri
 2026-10-22: complete 11-test UI suite passed on serial retry, 0 failures (192s). Previously failing Edit Course test passed both in isolation and full retry. Potential intermittent timing issue, not reproduced; see iteration log.
 
 2026-10-22: added second PDF history chart for predicted deadline deviation (+late/-early), with missing-ETA gaps. 101/101 full Swift tests passed before new chart test; updated chart tests 3/3 passed.
+
+2026-10-22: Joint regression on commit 89d8192: Swift tests 102/102, UI tests 11/11, 0 failures, 205.28s; log `/tmp/botai_final_joint_oct22.log`. Manual multi-goal PDF visual inspection pending.
