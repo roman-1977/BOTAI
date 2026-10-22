@@ -35,3 +35,8 @@ enum BOTAIBackendError: Error, Equatable {
     case incompatibleSchemaVersion
     case invalidAcknowledgement
 }
+
+/// Separate from legacy per-answer transport. Only completed-session aggregates cross the wire.
+protocol SessionSummaryBackendAPI: Sendable {
+    func uploadSessionSummaries(_ summaries: [CompletedSessionSummary]) async throws -> [UUID]
+}

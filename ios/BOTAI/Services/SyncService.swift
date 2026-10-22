@@ -40,6 +40,11 @@ actor SyncService {
             guard let currentID = try? await client.auth.session.user.id else { return false }
             return currentID == originalUserID
         }
+        let summaryCoordinator = SessionSummarySyncCoordinator(
+            backend: SupabaseBackendAPI(client: client), repository: repository,
+            isCurrentAccount: accountCheck)
+        _ = try? await summaryCoordinator.flush()
+        // Legacy attempt pipeline retained temporarily for migration compatibility.
         // Only publish questions with durable pending attempts and known local content.
         if let pending = try? repository.pendingOutbox() {
             let ids = Set(pending.filter { $0.entityType == "attempt" }.compactMap {

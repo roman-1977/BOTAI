@@ -78,3 +78,63 @@ struct SupabaseBackendAPI: BOTAIBackendAPI {
         return BOTAIUploadAttemptsResponse(schemaVersion: 1, acknowledgedIDs: Array(confirmed))
     }
 }
+
+
+extension SupabaseBackendAPI: SessionSummaryBackendAPI {
+    private struct SessionSummaryRow: Encodable {
+        let user_id: UUID
+        let session_id: UUID
+        let started_at: Date
+        let ended_at: Date
+        let active_seconds: Int
+        let answered: Int
+        let correct: Int
+        init(_ summary: CompletedSessionSummary, userID: UUID) {
+            user_id = userID
+            session_id = summary.sessionID
+            started_at = summary.startedAt
+            ended_at = summary.endedAt
+            active_seconds = summary.activeSeconds
+            answered = summary.answered
+            correct = summary.correct
+        }
+    }
+    private struct StoredSummaryRow: Decodable {
+        let session_id: UUID
+        let started_at: Date
+        let ended_at: Date
+        let active_seconds: Int
+        let answered: Int
+        let correct: Int
+    }
+
+    func uploadSessionSummaries(_ summaries: [CompletedSessionSummary]) async throws -> [UUID] {
+        guard !summaries.isEmpty else { return [] }
+        let userID = try await client.auth.session.user.id
+        let rows = summaries.map { SessionSummaryRow($0, userID: userID) }
+        guard try await client.auth.session.user.id == userID else {
+            throw BOTAIBackendError.invalidAcknowledgement
+        }
+        try await client.from("completed_session_summaries")
+            .upsert(rows, onConflict: "user_id,session_id", ignoreDuplicates: true).execute()
+        guard try await client.auth.session.user.id == userID else {
+            throw BOTAIBackendError.invalidAcknowledgement
+        }
+        let stored: [StoredSummaryRow] = try await client.from("completed_session_summaries")
+            .select("session_id,started_at,ended_at,active_seconds,answered,correct")
+            .in("session_id", values: summaries.map(\.sessionID.uuidString)).execute().value
+        guard try await client.auth.session.user.id == userID else {
+            throw BOTAIBackendError.invalidAcknowledgement
+        }
+        let expected = Dictionary(uniqueKeysWithValues: summaries.map { ($0.sessionID, $0) })
+        return stored.compactMap { row in
+            guard let summary = expected[row.session_id],
+                abs(summary.startedAt.timeIntervalSince(row.started_at)) < 0.001,
+                abs(summary.endedAt.timeIntervalSince(row.ended_at)) < 0.001,
+                summary.activeSeconds == row.active_seconds,
+                summary.answered == row.answered,
+                summary.correct == row.correct else { return nil }
+            return row.session_id
+        }
+    }
+}

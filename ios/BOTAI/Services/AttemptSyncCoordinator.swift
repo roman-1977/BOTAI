@@ -34,3 +34,37 @@ actor AttemptSyncCoordinator {
         return try repository.acknowledgeUploadedAttempts(request: request, response: response)
     }
 }
+import Foundation
+
+/// Auth-scoped, retryable upload of immutable completed-session aggregates.
+actor SessionSummarySyncCoordinator {
+    private let backend: any SessionSummaryBackendAPI
+    private let repository: LearningRepository
+    private let isCurrentAccount: @Sendable () async -> Bool
+    private var inFlight = false
+
+    init(backend: any SessionSummaryBackendAPI, repository: LearningRepository,
+         isCurrentAccount: @escaping @Sendable () async -> Bool) {
+        self.backend = backend
+        self.repository = repository
+        self.isCurrentAccount = isCurrentAccount
+    }
+
+    @discardableResult
+    func flush() async throws -> Int {
+        guard !inFlight else { return 0 }
+        inFlight = true
+        defer { inFlight = false }
+        guard await isCurrentAccount() else { return 0 }
+        let pending = try repository.pendingSessionSummaries()
+        guard !pending.isEmpty, await isCurrentAccount() else { return 0 }
+        let acknowledged = try await backend.uploadSessionSummaries(pending)
+        guard await isCurrentAccount() else { return 0 }
+        let pendingIDs = Set(pending.map(\.sessionID))
+        guard Set(acknowledged).isSubset(of: pendingIDs) else {
+            throw BOTAIBackendError.invalidAcknowledgement
+        }
+        try repository.acknowledgeSessionSummaries(acknowledged)
+        return acknowledged.count
+    }
+}
