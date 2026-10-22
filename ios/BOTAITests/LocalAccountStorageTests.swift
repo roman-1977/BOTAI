@@ -30,6 +30,27 @@ struct LocalAccountStorageTests {
         }
     }
 
+    @Test func pendingSessionAggregatesNeverCrossAccountDatabaseBoundaries() throws {
+        let fm = FileManager.default
+        let support = fm.temporaryDirectory.appendingPathComponent("botai-summary-isolation-" + UUID().uuidString)
+        defer { try? fm.removeItem(at: support) }
+        let first = LocalAccountStorage.Identity.authenticated(UUID())
+        let second = LocalAccountStorage.Identity.authenticated(UUID())
+        let firstFolder = LocalAccountStorage.directory(for: first, support: support)
+        let secondFolder = LocalAccountStorage.directory(for: second, support: support)
+        try fm.createDirectory(at: firstFolder, withIntermediateDirectories: true)
+        try fm.createDirectory(at: secondFolder, withIntermediateDirectories: true)
+        let firstRepository = LearningRepository(database: try AppDatabase(path: firstFolder.appendingPathComponent("learning.sqlite").path))
+        let secondRepository = LearningRepository(database: try AppDatabase(path: secondFolder.appendingPathComponent("learning.sqlite").path))
+        let session = StudySession(id: UUID(), startedAt: .now, endedAt: .now, activeSeconds: 1, answered: 1, correct: 1)
+        try firstRepository.completeSession(session)
+        #expect(try firstRepository.pendingSessionSummaries().map(\.sessionID) == [session.id])
+        #expect(try secondRepository.pendingSessionSummaries().isEmpty)
+        #expect(try secondRepository.pendingTopicSessionSummaries().isEmpty)
+        let reopenedFirst = LearningRepository(database: try AppDatabase(path: firstFolder.appendingPathComponent("learning.sqlite").path))
+        #expect(try reopenedFirst.pendingSessionSummaries().map(\.sessionID) == [session.id])
+    }
+
     @Test func databaseOpenFailureDoesNotReplaceExistingNonDatabaseFile() throws {
         let fm = FileManager.default
         let folder = fm.temporaryDirectory.appendingPathComponent("botai-corrupt-db-" + UUID().uuidString)
