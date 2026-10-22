@@ -348,6 +348,41 @@ struct CompletedSessionTopicPersistenceTests {
         #expect(try repository.pendingSessionSummaries().count == 1)
     }
 
+    @Test func sharedQuestionSessionReportsSelectedTopicWithoutSplittingMastery() throws {
+        let repository = LearningRepository(database: try AppDatabase())
+        let sharedKnowledge = UUID()
+        let question = StudyQuestion(id: UUID(), prompt: "HCl?", answer: "Соляная",
+            kind: .reveal, choices: [], correctChoiceIndexes: [], knowledgeID: sharedKnowledge)
+        let courseID = UUID(), sectionID = UUID()
+        let firstTopic = CourseTopic(id: UUID(), title: "First", questionSets: [])
+        let secondTopic = CourseTopic(id: UUID(), title: "Second", questionSets: [])
+        let firstAttribution = StudyQuestionAttributionResolver.selectedTopicAttributions(
+            courseID: courseID, sectionID: sectionID, topic: firstTopic, questions: [question])
+        let secondAttribution = StudyQuestionAttributionResolver.selectedTopicAttributions(
+            courseID: courseID, sectionID: sectionID, topic: secondTopic, questions: [question])
+        #expect(firstAttribution[question.id]?.topicID == firstTopic.id)
+        #expect(secondAttribution[question.id]?.topicID == secondTopic.id)
+        let firstSessionID = UUID(), secondSessionID = UUID()
+        for (sessionID, attribution) in [(firstSessionID, firstAttribution),
+                                         (secondSessionID, secondAttribution)] {
+            var accumulator = SessionTopicAccumulator()
+            accumulator.record(correct: true, attribution: attribution[question.id])
+            try repository.completeSession(StudySession(id: sessionID, startedAt: .now,
+                endedAt: .now, activeSeconds: 12, answered: 1, correct: 1), topics: accumulator)
+        }
+        let summaries = try repository.pendingSessionSummaries()
+        #expect(summaries.count == 2)
+        let bySession = Dictionary(uniqueKeysWithValues: summaries.map { ($0.sessionID, $0) })
+        #expect(bySession[firstSessionID]?.topicBreakdown?.first?.attribution.topicID == firstTopic.id)
+        #expect(bySession[secondSessionID]?.topicBreakdown?.first?.attribution.topicID == secondTopic.id)
+        #expect(bySession[firstSessionID]?.unattributedAnswered == 0)
+        #expect(bySession[secondSessionID]?.unattributedAnswered == 0)
+        #expect(bySession[firstSessionID]?.topicBreakdown?.first?.answered == 1)
+        #expect(bySession[secondSessionID]?.topicBreakdown?.first?.answered == 1)
+        // Topic-scoped reporting never creates another durable mastery key.
+        #expect(try repository.loadKnowledgeStates().isEmpty)
+    }
+
     @Test func mismatchedCountsAreRejected() throws {
         let repository = LearningRepository(database: try AppDatabase())
         var topics = SessionTopicAccumulator()

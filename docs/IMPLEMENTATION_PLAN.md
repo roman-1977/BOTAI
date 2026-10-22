@@ -84,3 +84,7 @@ Chosen-topic sessions now override ambiguous shared-question ownership with the 
 ### Two-topic shared questionnaire UI checkpoint — 2026-10-22
 
 Реальный UI-сценарий двух тем с одним опросником: **1/1 PASS**, `/tmp/botai_shared_two_topics_ui_20261022.log`, subject question count deduplicated. Не проверено ещё завершение сессии с правильным topic breakdown и shared mastery в UI.
+
+### Completed-session shared topic attribution — 2026-10-22
+
+Проверено сохранение двух завершённых занятий по одному вопросу с разными выбранными темами: **143/143 unit PASS**, `/tmp/botai_shared_topic_summary_units_20261022.log`. Следующий gate: полный UI ответ→завершение→отчёт и интеграция backend.

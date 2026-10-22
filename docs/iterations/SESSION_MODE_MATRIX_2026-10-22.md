@@ -104,3 +104,9 @@ All scenarios are mandatory for MVP; this is a verification plan, not evidence o
 - Added `LaunchSmokeTests.testSharedQuestionSetInTwoTopicsIsNotDuplicatedForSubject`: via actual UI creates a course/section and two topics, assigns the **same seeded question set** to each, checks both topic launch rows and whole-subject row enabled, asserts identical nonzero question counts for each topic and subject (union, not sum), then launches the second topic and sees a real question.
 - **Focused UI 1/1 PASS**, `xcodebuild` exit 0, `/tmp/botai_shared_two_topics_ui_20261022.log`. Unit target last **142/142 PASS**; prior general UI **23/23 PASS**, seeded chemistry **2/2 PASS**.
 - This UI case proves shared-set launch/counts, **not** completed-session summary/attribution or actual mastered-state visibility in both topic screens. Those remain open; do not overclaim.
+
+### Completed shared-question session attribution — 2026-10-22
+
+- Added `CompletedSessionTopicPersistenceTests.sharedQuestionSessionReportsSelectedTopicWithoutSplittingMastery`: two completed sessions with the **same question ID and knowledge ID**, explicitly launched in different topics, persist two separate topic breakdowns with the correct chosen topic, each one answer, no unattributed answers; reporting itself creates no extra mastery state.
+- Initial compile failures were incorrect test-only property access (`session` vs `sessionID`, `topicID` vs `attribution.topicID`); corrected. **143/143 unit PASS in 45 suites**, exit 0, `/tmp/botai_shared_topic_summary_units_20261022.log`.
+- This verifies repository persistence and reporting semantics; complete real UI answer→finish→summary for shared topics and backend RLS integration remain pending.
