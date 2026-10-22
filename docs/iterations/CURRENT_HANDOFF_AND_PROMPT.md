@@ -98,3 +98,7 @@ Signed simulator test run succeeded with `GENERATE_INFOPLIST_FILE=YES CODE_SIGN_
 ### Secure offline binding matrix — 2026-10-23
 
 Offline cold-start requires Keychain account UUID **and** matching Supabase SDK `auth.currentSession?.user.id`, on recognized transport error only; no guest fallback. Same-account reconnection policy tested. 154/154 signed-simulator units PASS `/tmp/botai_offline_policy_matrix_20261023.log`. Full signed regression running in `/tmp/botai_signed_full_regression_20261023.log` (process 74148 at last check); check exit/status before claiming UI pass. Full offline→online cold-launch UI acceptance remains outstanding.
+
+### Full signed UI regression completed — 2026-10-23
+
+`/tmp/botai_signed_full_regression_20261023.log`: exit 0, 25/25 UI PASS, 2 chemistry UI SKIP on unseeded standard simulator, runtime ~731s. This run started before persisted-session match hardening; latest change has 154/154 signed unit PASS. Still need end-to-end offline cold start/reconnect test and hosted integration. No pbxproj edits.
