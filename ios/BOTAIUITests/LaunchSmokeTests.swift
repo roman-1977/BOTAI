@@ -31,6 +31,22 @@ final class LaunchSmokeTests: XCTestCase {
         XCTAssertTrue(app.staticTexts["BOTAI"].exists)
     }
 
+    func testQuickStartModesOpenSubjectPicker() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-botai-ui-testing", "-botai-reset-ui-test-data"]
+        app.launch()
+        XCTAssertTrue(app.staticTexts["ПЛАН НА СЕГОДНЯ"].waitForExistence(timeout: 20))
+        XCTAssertTrue(app.buttons["Вперемешку"].exists)
+        XCTAssertTrue(app.buttons["Повторить"].exists)
+        let choose = app.buttons["Выбрать"]
+        XCTAssertTrue(choose.exists)
+        choose.tap()
+        XCTAssertTrue(app.navigationBars["Что будем учить?"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["Все предметы вперемешку"].exists)
+        app.buttons["Закрыть"].tap()
+        XCTAssertTrue(app.staticTexts["ПЛАН НА СЕГОДНЯ"].exists)
+    }
+
     func testPrimaryScreensVisualBaseline() throws {
         let app = XCUIApplication()
         app.launchArguments = ["-botai-ui-testing", "-botai-reset-ui-test-data"]
