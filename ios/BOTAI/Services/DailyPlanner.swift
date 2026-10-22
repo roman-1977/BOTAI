@@ -36,7 +36,8 @@ enum DailyPlanner {
    var cs:[Candidate]=[]
    for c in courses { for g in c.goals where g.state == .active {
      let qs=g.questionSets.flatMap{ref -> [StudyQuestion] in guard let content=materials.content(id:ref.materialID) else{return []};return StudyQuestionBuilder.questions(for:ref,content:content)}
-     guard !qs.isEmpty else{continue};let known=qs.filter{learning.knowledgeStates[$0.knowledgeID]?.masteryLevel == .known}.count;let mastery=Int((Double(known)/Double(qs.count)*100).rounded());guard mastery < g.masteryTarget else{continue}
+     guard !qs.isEmpty else{continue}
+    let mastery = GoalProgressService.masteryPercentage(questions: qs, states: learning.knowledgeStates);guard mastery < g.masteryTarget else{continue}
      let days=max(1,g.deadline.map{Calendar.current.dateComponents([.day],from:date,to:$0).day ?? 1} ?? 30);let deficit=Double(g.masteryTarget-mastery)/100.0;let urgency=deficit/Double(days)
      cs.append(.init(course:c,goal:g,questions:qs,mastery:mastery,urgency:urgency))
    }}
@@ -58,11 +59,18 @@ enum DailyPlanner {
 }
 
 @MainActor enum GoalProgressService {
+ static func masteryPercentage(questions: [StudyQuestion], states: [UUID: LearningState]) -> Int {
+  let ids = Set(questions.map(\.knowledgeID))
+  guard !ids.isEmpty else { return 0 }
+  let known = ids.filter { states[$0]?.masteryLevel == .known }.count
+  return Int((Double(known) / Double(ids.count) * 100).rounded())
+ }
  static func reconcile(courses store:CourseStore,materials:MaterialStore,learning:LearningStore) {
   for original in store.courses { var course=original;var changed=false
    for i in course.goals.indices where course.goals[i].state == .active {
     let g=course.goals[i];let qs=g.questionSets.flatMap{ref -> [StudyQuestion] in guard let c=materials.content(id:ref.materialID) else{return []};return StudyQuestionBuilder.questions(for:ref,content:c)}
-    guard !qs.isEmpty else{continue};let known=qs.filter{learning.knowledgeStates[$0.knowledgeID]?.masteryLevel == .known}.count;let mastery=Int((Double(known)/Double(qs.count)*100).rounded())
+    guard !qs.isEmpty else{continue}
+    let mastery = masteryPercentage(questions: qs, states: learning.knowledgeStates)
     if mastery >= g.masteryTarget { course.goals[i].state = .completed;changed=true }
    }
    if changed { store.save(course) }

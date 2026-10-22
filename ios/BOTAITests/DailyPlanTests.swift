@@ -3,6 +3,24 @@ import PDFKit
 import Testing
 @testable import BOTAI
 
+@MainActor struct SharedGoalMasteryTests {
+    @Test func repeatedKnowledgeDoesNotInflateGoalCompletion() {
+        let shared = UUID(), other = UUID()
+        let first = StudyQuestion(id: UUID(), prompt: "Shared A", answer: "A", kind: .reveal,
+            choices: [], correctChoiceIndexes: [], knowledgeID: shared)
+        let reused = StudyQuestion(id: UUID(), prompt: "Shared B", answer: "A", kind: .pair,
+            choices: [], correctChoiceIndexes: [], knowledgeID: shared)
+        let distinct = StudyQuestion(id: UUID(), prompt: "Other", answer: "B", kind: .reveal,
+            choices: [], correctChoiceIndexes: [], knowledgeID: other)
+        let known = LearningState(intervalDays: 10, streak: 5, nextDueAt: .now)
+        #expect(GoalProgressService.masteryPercentage(questions: [first, reused, distinct],
+            states: [shared: known]) == 50)
+        #expect(GoalProgressService.masteryPercentage(questions: [first, reused],
+            states: [shared: known]) == 100)
+        #expect(GoalProgressService.masteryPercentage(questions: [], states: [shared: known]) == 0)
+    }
+}
+
 struct DailyPlanTests {
     @Test func progressIsCappedAtOne() {
         let plan = DailyPlan(completed: 12, recommended: 10, habitMinimum: 5, due: 0, weak: 0, new: 0)

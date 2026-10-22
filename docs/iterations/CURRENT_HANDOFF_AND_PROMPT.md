@@ -44,3 +44,5 @@ xcodebuild -project ios/BOTAI.xcodeproj -scheme BOTAI -destination 'platform=iOS
 ### Block-oriented execution and release progress — 2026-10-22
 
 Owner requested work in **substantial blocks** with overall release progress, not per-test updates. Current release ledger: `docs/iterations/RELEASE_PROGRESS_2026-10-22.md`; authoritative gates `docs/releases/RC_0.3.0_READINESS.md`. Previous 70% is subjective, not measured; always report blockers and verified gates. Two-topic UI extended through answer/finish/relaunch PASS (`/tmp/botai_shared_two_topics_answer_finish_20261022.log`); full post-change regression started (`/tmp/botai_block1_full_regression_20261022.log`).
+
+- Goal mastery calculation now uses unique knowledge IDs in both `DailyPlanner.make` and `GoalProgressService.reconcile`, test `SharedGoalMasteryTests`; **144/144 unit PASS**, `/tmp/botai_goal_unique_mastery_units_20261022.log`. Full standard UI regression started before this fix; if needed rerun UI affected flows after commit.

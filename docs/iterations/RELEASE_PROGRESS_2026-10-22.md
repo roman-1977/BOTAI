@@ -27,3 +27,7 @@ The previously communicated **70%** was a *subjective estimate*, not a verified 
 1. Block completion and accepted functionality (with test log and commit).
 2. Overall release readiness: current RC gates, P0 blockers and evidence, with estimate clearly labelled.
 3. Next block and outstanding decisions/permissions. Do not announce release or 100% before all mandatory gates are closed.
+
+### Goal mastery denominator fix (in progress)
+
+Audit found `GoalProgressService.reconcile` counted repeated questions in the denominator when a goal references shared knowledge through multiple question sets. Changed the calculation to a union of `knowledgeID` and added a regression covering 50% versus an erroneous 67%, 100%, and empty input. **Post-change 144/144 unit PASS** in 46 suites (`/tmp/botai_goal_unique_mastery_units_20261022.log`). No claim that this resolves teacher-guided adaptivity.

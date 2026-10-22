@@ -162,3 +162,5 @@ See `docs/iterations/V030_CHEMISTRY_PILOT.md` for authoritative milestones, veri
 - **2026-10-22 two-topic UI:** actual course/section/two topics referencing one seeded set; topic counts equal whole-subject unique count; second topic launches real question. **Focused 1/1 UI PASS**, `/tmp/botai_shared_two_topics_ui_20261022.log`. Full standard UI suite not rerun after this addition. Completed-session shared attribution still OPEN.
 
 - **2026-10-22 shared completed-session topic attribution:** two sessions sharing one question persist separate selected-topic breakdowns; **143/143 unit PASS** (`/tmp/botai_shared_topic_summary_units_20261022.log`). UI end-to-end answer-to-summary remains open.
+
+- **2026-10-22 shared-goal mastery bugfix:** both daily plan and goal completion reconcile now calculate unique `knowledgeID` denominator rather than duplicated question occurrences; regression verifies 50%/100%/empty. **144/144 unit PASS**, `/tmp/botai_goal_unique_mastery_units_20261022.log`. Full UI regression still running at this checkpoint.
