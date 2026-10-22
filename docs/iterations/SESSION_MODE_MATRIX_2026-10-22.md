@@ -110,3 +110,8 @@ All scenarios are mandatory for MVP; this is a verification plan, not evidence o
 - Added `CompletedSessionTopicPersistenceTests.sharedQuestionSessionReportsSelectedTopicWithoutSplittingMastery`: two completed sessions with the **same question ID and knowledge ID**, explicitly launched in different topics, persist two separate topic breakdowns with the correct chosen topic, each one answer, no unattributed answers; reporting itself creates no extra mastery state.
 - Initial compile failures were incorrect test-only property access (`session` vs `sessionID`, `topicID` vs `attribution.topicID`); corrected. **143/143 unit PASS in 45 suites**, exit 0, `/tmp/botai_shared_topic_summary_units_20261022.log`.
 - This verifies repository persistence and reporting semantics; complete real UI answer→finish→summary for shared topics and backend RLS integration remain pending.
+
+### Three-scope shared-set UI checkpoint — 2026-10-22
+
+- Same questionnaire in two real topics: topic A, topic B, whole subject, all-subject mixed quick start show equal nonzero question counts; no double counting. Then answer, finish, relaunch and enter other topic. **1/1 UI PASS** `/tmp/botai_scope_matrix_ui_20261022.log`.
+- Still missing the exhaustive scope×format×strategy UI matrix across distinct subject content and due/no-due states. Unit matrix already 145/145 PASS.

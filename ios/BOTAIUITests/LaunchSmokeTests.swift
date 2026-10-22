@@ -352,16 +352,22 @@ final class LaunchSmokeTests: XCTestCase {
         let first = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Тема первая")).firstMatch
         let second = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Тема вторая")).firstMatch
         let subject = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Весь предмет")).firstMatch
+        let mixed = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Все предметы вперемешку")).firstMatch
         XCTAssertTrue(first.waitForExistence(timeout: 10))
         XCTAssertTrue(second.isEnabled)
         XCTAssertTrue(subject.isEnabled)
+        XCTAssertTrue(mixed.isEnabled)
         // The subject must contain the union of knowledge, not the sum of two references.
         let firstCount = Int(first.label.split(separator: " ").last ?? "")
         let secondCount = Int(second.label.split(separator: " ").last ?? "")
         let subjectCount = Int(subject.label.split(separator: " ").last ?? "")
+        let mixedCount = Int(mixed.label.split(separator: " ").last ?? "")
         XCTAssertNotNil(firstCount)
         XCTAssertEqual(firstCount, secondCount)
         XCTAssertEqual(firstCount, subjectCount)
+        XCTAssertEqual(firstCount, mixedCount)
+        // With the same questionnaire attached twice, all three launch scopes
+        // must show the same unique question count.
         second.tap()
         XCTAssertTrue(app.staticTexts["Кислота"].waitForExistence(timeout: 10))
         app.staticTexts["Кислота"].tap()
