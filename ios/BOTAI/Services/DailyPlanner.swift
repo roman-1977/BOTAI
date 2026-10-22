@@ -13,17 +13,24 @@ enum DailyPlanner {
    }}
    guard !cs.isEmpty else{return .init(date:date,budgetMinutes:budget,goals:[])}
    let total=max(0.0001,cs.reduce(0){$0+$1.urgency});var remaining=max(1,budget);var plans:[DailyStudyPlan.GoalPlan]=[]
-   for (i,x) in cs.sorted(by:{$0.urgency>$1.urgency}).enumerated(){let mins=i==cs.count-1 ? remaining:max(5,Int((Double(budget)*x.urgency/total).rounded()));let allocated=min(remaining,mins);remaining-=allocated;let count=min(x.questions.count,max(1,allocated*2));let selected=adaptiveQuestions(goal:x.goal,materials:materials,learning:learning,count:count);plans.append(.init(id:x.goal.id,courseID:x.course.id,goalID:x.goal.id,title:x.goal.title,minutes:allocated,questions:selected,mastery:x.mastery,target:x.goal.masteryTarget,deadline:x.goal.deadline));if remaining<=0{break}}
+   for (i,x) in cs.sorted(by:{$0.urgency>$1.urgency}).enumerated(){let mins=i==cs.count-1 ? remaining:max(5,Int((Double(budget)*x.urgency/total).rounded()));let allocated=min(remaining,mins);remaining-=allocated;let count=min(x.questions.count,max(1,allocated*2));let selected=adaptiveQuestions(goal:x.goal,materials:materials,learning:learning,count:count,date:date);plans.append(.init(id:x.goal.id,courseID:x.course.id,goalID:x.goal.id,title:x.goal.title,minutes:allocated,questions:selected,mastery:x.mastery,target:x.goal.masteryTarget,deadline:x.goal.deadline));if remaining<=0{break}}
    return .init(date:date,budgetMinutes:budget,goals:plans)
  }
 
- @MainActor private static func adaptiveQuestions(goal:LearningGoal,materials:MaterialStore,learning:LearningStore,count:Int)->[StudyQuestion] {
-   var groups=goal.questionSets.compactMap{ref -> [StudyQuestion]? in guard let c=materials.content(id:ref.materialID) else{return nil};let qs=StudyQuestionBuilder.questions(for:ref,content:c).shuffled().sorted{priority($0,learning)>priority($1,learning)};return qs.isEmpty ? nil:qs}
-   groups.shuffle();var result:[StudyQuestion]=[];var cursor=0
+ @MainActor private static func adaptiveQuestions(goal:LearningGoal,materials:MaterialStore,learning:LearningStore,count:Int,date:Date)->[StudyQuestion] {
+   var groups=goal.questionSets.compactMap{ref -> [StudyQuestion]? in
+     guard let c=materials.content(id:ref.materialID) else{return nil}
+     let qs=StudyQuestionBuilder.questions(for:ref,content:c).sorted { lhs,rhs in
+       let left=priority(lhs,learning,date:date),right=priority(rhs,learning,date:date)
+       return left == right ? lhs.id.uuidString < rhs.id.uuidString : left > right
+     }
+     return qs.isEmpty ? nil:qs
+   }
+   var result:[StudyQuestion]=[];var cursor=0
    while result.count<count && groups.contains(where:{!$0.isEmpty}) { let i=cursor % groups.count;if !groups[i].isEmpty { result.append(groups[i].removeFirst()) };cursor += 1 }
    return result
  }
- @MainActor private static func priority(_ q:StudyQuestion,_ l:LearningStore)->Int { guard let s=l.knowledgeStates[q.knowledgeID] else{return 100};if s.nextDueAt <= .now{return 80-s.streak*5};return 20-s.streak }
+ @MainActor private static func priority(_ q:StudyQuestion,_ l:LearningStore,date:Date)->Int { guard let s=l.knowledgeStates[q.knowledgeID] else{return 100};if s.nextDueAt <= date{return 80-s.streak*5};return 20-s.streak }
 }
 
 @MainActor enum GoalProgressService {

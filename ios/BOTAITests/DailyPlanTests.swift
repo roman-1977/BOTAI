@@ -37,6 +37,10 @@ struct DailyPlanTests {
         #expect(plan.budgetMinutes == 0)
         #expect(plan.questions.count == 1)
         #expect(plan.goals.count == 1)
+        let secondPlan = DailyPlanner.make(courses:[course],materials:MaterialStore(repository:MaterialRepository(database:database)),
+            learning:LearningStore(questions:[],repository:LearningRepository(database:database)),profile:profile,
+            date:plan.date)
+        #expect(plan.questions.map(\.id) == secondPlan.questions.map(\.id))
     }
 
     @Test func extendedReportProducesNonemptyPDFOnRestDays() throws {
