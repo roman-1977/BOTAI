@@ -52,3 +52,12 @@ The accepted sync contract is now **completed-session aggregates only**; detaile
 ## Owner decision — 2026-10-22: publication deferred
 
 **App Store submission and TestFlight upload are deferred until separate owner approval.** Continue normal development and testing. This decision does not change existing permissions for GitHub, Supabase, or physical-device testing. This readiness checklist is informational and is not authorization for App Store or TestFlight distribution.
+
+## Verification checkpoint — 2026-10-22, after `944a12b`
+
+- Latest unit regression: **137/137 PASS** (`/tmp/botai_adaptive_verified_20261022.log`).
+- Standard UI regression: **15/15 PASS** (`/tmp/botai_release_ui_20261022.log`), including resumed sessions, advanced launch reset, importer, and home baseline.
+- Chemistry UI regression: **2/2 PASS** (`/tmp/botai_chemistry_rc_20261022.log`) with isolated seeded simulator database. The combined unseeded UI run failed the two chemistry tests because the fixture was absent; this is not evidence of a functional regression. Keep both suites isolated.
+- DailyPlanner now uses a stable tie-breaker and the requested planning date, but this does **not** close RC-04 teacher-guided adaptivity.
+- RC-08 automated suite is green for this commit; RC-01/02/03/04/05/06 still require the acceptance evidence described above. The release remains **NOT RC**. In particular, backend migrations `0025` and `0026` and their RLS fixtures have not been applied/executed in disposable Postgres; no live backend acceptance is claimed.
+- Do not stage or revert the independently modified `ios/BOTAI.xcodeproj/project.pbxproj`.
