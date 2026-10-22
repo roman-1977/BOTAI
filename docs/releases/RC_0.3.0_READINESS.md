@@ -48,3 +48,7 @@ Date: 2026-10-22. Branch: `feature/v0.3.0-chemistry-pilot`. Baseline implementat
 ### RC-06 product decision update (2026-10-22)
 
 The accepted sync contract is now **completed-session aggregates only**; detailed question attempts and spaced repetition stay local. The previously proposed expansion of server choice-question publication is **cancelled**. RC-06 remains PARTIAL until durable completion-only summary sync, migration, RLS, retries, and tests are implemented. Authoritative plan: `docs/iterations/SESSION_SUMMARY_SYNC_DECISION_2026-10-22.md`.
+
+## Owner decision — 2026-10-22: publication deferred
+
+**NOT A RELEASE TRACK AT PRESENT.** BOTAI remains in local development and testing. No App Store submission, TestFlight upload, public release, GitHub push, production migration or physical-device installation without separate explicit owner authorization. This readiness checklist is informational and must not be interpreted as approval to advance to distribution. Prioritize local functional completeness, automated regression, simulator UX and disposable database verification.

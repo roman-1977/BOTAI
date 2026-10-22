@@ -128,3 +128,5 @@ See `docs/iterations/V030_CHEMISTRY_PILOT.md` for authoritative milestones, veri
 - 2026-10-22: General UI 15/15 PASS, isolated seeded chemistry UI 2/2 PASS; terminal answer checkpoint survives until completed-session transaction; targeted recovery tests 2/2 PASS.
 
 - 2026-10-22: Restored Mac access, strengthened atomic final-answer crash test, aligned existing checkpoint expectations with retained terminal cursor. Full unit regression 136/136 PASS (44 suites). Targeted UI resume verification in progress.
+
+- **Accepted owner decision 2026-10-22:** LOCAL DEVELOPMENT/TESTING ONLY. No App Store publication, TestFlight upload, public release, GitHub push, live Supabase migrations, or installation on the physical iPhone without explicit separate authorization. Release-readiness work is informational; focus on local MVP implementation and simulator testing.
