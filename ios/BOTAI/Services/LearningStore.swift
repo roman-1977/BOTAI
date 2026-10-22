@@ -15,7 +15,7 @@ struct ResumableStudySession: Codable, Equatable {
     var attributionByQuestion: [UUID: StudyQuestionAttribution]? = nil
     var topicAccumulator: SessionTopicAccumulator? = nil
 
-    var canResume: Bool { !questions.isEmpty && questions.indices.contains(nextIndex) }
+    var canResume: Bool { !questions.isEmpty && (questions.indices.contains(nextIndex) || (nextIndex == questions.count && answered > 0)) }
 }
 
 @MainActor @Observable

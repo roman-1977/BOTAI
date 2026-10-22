@@ -291,6 +291,7 @@ struct LearnSessionView: View {
     // it to checkpoint the default cursor before the persisted cursor is restored.
     if resume, let snapshot = store.restoreResumableSession() {
       index = snapshot.nextIndex
+      finished = snapshot.nextIndex == snapshot.questions.count
       sessionID = snapshot.id
       sessionStartedAt = snapshot.startedAt
       sessionAnswered = snapshot.answered

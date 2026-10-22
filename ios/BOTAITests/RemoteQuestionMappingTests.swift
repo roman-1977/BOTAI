@@ -380,3 +380,34 @@ struct TopicUploadQueueTests {
         #expect(try repository.pendingTopicSessionSummaries().isEmpty)
     }
 }
+
+struct TerminalSessionCrashRecoveryTests {
+    @Test func finalAnswerCheckpointRemainsDurableUntilCompletion() throws {
+        let repository = LearningRepository(database: try AppDatabase())
+        let question = StudyQuestion(id: UUID(), prompt: "Prompt", answer: "Answer", kind: .reveal, choices: [], correctChoiceIndexes: [])
+        let attribution = StudyQuestionAttribution(courseID: UUID(), sectionID: UUID(), topicID: UUID())
+        var topics = SessionTopicAccumulator()
+        topics.record(correct: true, attribution: attribution)
+        let sessionID = UUID()
+        let checkpoint = ResumableStudySession(id: sessionID, startedAt: .now,
+            title: "Chemistry", targetMinutes: 5, questions: [question], nextIndex: 1,
+            answered: 1, correct: 1, activeSeconds: 3,
+            attributionByQuestion: [question.id: attribution], topicAccumulator: topics)
+        #expect(checkpoint.canResume)
+        try repository.saveResumableSession(checkpoint)
+        #expect(try repository.loadResumableSession() == checkpoint)
+        let summary = StudySession(id: sessionID, startedAt: checkpoint.startedAt,
+            endedAt: .now, activeSeconds: 3, answered: 1, correct: 1)
+        try repository.completeSession(summary, topics: topics)
+        #expect(try repository.loadResumableSession() == nil)
+        #expect(try repository.pendingSessionSummaries().first?.topicBreakdown == topics.breakdown)
+    }
+
+    @Test func cursorBeyondEndIsNotResumable() throws {
+        let question = StudyQuestion(id: UUID(), prompt: "Prompt", answer: "Answer", kind: .reveal, choices: [], correctChoiceIndexes: [])
+        let snapshot = ResumableStudySession(id: UUID(), startedAt: .now,
+            title: "Bad cursor", targetMinutes: 0, questions: [question], nextIndex: 2,
+            answered: 1, correct: 1, activeSeconds: 0)
+        #expect(!snapshot.canResume)
+    }
+}
