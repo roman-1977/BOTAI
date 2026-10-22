@@ -280,7 +280,7 @@ struct LearnSessionView: View {
       Text("ВОПРОСЫ ЗАКОНЧИЛИСЬ").font(.largeTitle.bold()).foregroundStyle(.white)
       Text("Сегодня: \(answeredToday) вопросов · \(studySecondsToday/60) мин").font(.title3.bold())
         .foregroundStyle(HomeTheme.accent)
-      Button("ГОТОВО") { dismiss() }.buttonStyle(.borderedProminent).controlSize(.large)
+      Button("ГОТОВО") { finishSession() }.buttonStyle(.borderedProminent).controlSize(.large)
       Spacer()
     }.padding()
   }
@@ -367,9 +367,11 @@ struct LearnSessionView: View {
     store.saveSession(.init(id:sessionID,startedAt:sessionStartedAt,endedAt:.now,activeSeconds:sessionActiveSeconds,answered:sessionAnswered,correct:sessionCorrect))
   }
   private func finishSession() {
-    guard !store.questions.isEmpty, index < store.questions.count else { dismiss(); return }
-    countQuestionTime()
-    guard persistSession() else {
+    guard !store.questions.isEmpty else { dismiss(); return }
+    if !finished { countQuestionTime() }
+    let summary = StudySession(id: sessionID, startedAt: sessionStartedAt, endedAt: .now,
+        activeSeconds: sessionActiveSeconds, answered: sessionAnswered, correct: sessionCorrect)
+    guard store.completeSession(summary) else {
       persistenceAlert = true
       return
     }

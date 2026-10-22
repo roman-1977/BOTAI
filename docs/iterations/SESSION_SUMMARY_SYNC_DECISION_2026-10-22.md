@@ -23,3 +23,11 @@ Decision date: 2026-10-22. Status: **accepted product direction; not implemented
 ## Explicit non-goals for this iteration
 
 No new full-question answer snapshots, no server publication of answer options just to upload attempts, no automatic cross-device restoration of per-question repetition state, no TestFlight claim without acceptance checks.
+
+## Implementation checkpoint — local durable completion (2026-10-22)
+
+- Added SQLite `v16_completed_session_summaries` with a unique `sessionID`, JSON aggregate and nullable upload ACK timestamp; migration is additive, does not erase existing attempts or legacy outbox.
+- `LearningRepository.completeSession` atomically persists the final local session and inserts the immutable pending aggregate only once. Interim `saveSession` and app backgrounding do not create pending summary events.
+- Both explicit `ЗАВЕРШИТЬ ЗАНЯТИЕ` and result-screen `ГОТОВО` use the completion path. Persistence failure blocks dismiss and surfaces the existing error alert.
+- Added local idempotency/aggregate-only test. Focused `RemoteQuestionMappingTests` passed (`/tmp/botai_completed_summary_local_tests_20261022.log`).
+- **Still outstanding:** server schema/API/RLS, network uploader and ACK, subject/topic breakdowns, legacy attempt-outbox retirement, comprehensive UI/migration/reconnect tests. Do not claim end-to-end summary sync is implemented.

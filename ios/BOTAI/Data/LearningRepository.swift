@@ -127,6 +127,27 @@ final class LearningRepository: @unchecked Sendable {
         }
     }
 
+    /// Completion is idempotent and committed with the final local session record.
+    /// No network activity occurs here; a later uploader can consume pending rows.
+    func completeSession(_ session: StudySession) throws {
+        try database.dbQueue.write { db in
+            try StudySessionDBRecord(session).save(db)
+            let json = String(decoding: try JSONEncoder().encode(CompletedSessionSummary(session: session)), as: UTF8.self)
+            try db.execute(sql: "INSERT INTO completedSessionSummaries(sessionID,summaryJSON,createdAt) VALUES(?,?,?) ON CONFLICT(sessionID) DO NOTHING",
+                arguments: [session.id.uuidString, json, Date()])
+        }
+    }
+
+    func pendingSessionSummaries() throws -> [CompletedSessionSummary] {
+        try database.dbQueue.read { db in
+            let rows = try Row.fetchAll(db, sql: "SELECT summaryJSON FROM completedSessionSummaries WHERE uploadedAt IS NULL ORDER BY createdAt,sessionID")
+            return try rows.map { row in
+                let json: String = row["summaryJSON"]
+                return try JSONDecoder().decode(CompletedSessionSummary.self, from: Data(json.utf8))
+            }
+        }
+    }
+
     func sessions() throws -> [StudySession] { try database.dbQueue.read { db in try StudySessionDBRecord.order(Column("startedAt")).fetchAll(db).compactMap(\.domain) } }
     func saveSession(_ session: StudySession) throws { try database.dbQueue.write { db in try StudySessionDBRecord(session).save(db) } }
 

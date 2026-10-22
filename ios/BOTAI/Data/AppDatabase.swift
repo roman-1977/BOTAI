@@ -171,6 +171,14 @@ final class AppDatabase: @unchecked Sendable {
                 t.column("updatedAt", .datetime).notNull()
             }
         }
+        migrator.registerMigration("v16_completed_session_summaries") { db in
+            try db.create(table: "completedSessionSummaries") { t in
+                t.column("sessionID", .text).primaryKey()
+                t.column("summaryJSON", .text).notNull()
+                t.column("createdAt", .datetime).notNull()
+                t.column("uploadedAt", .datetime)
+            }
+        }
         return migrator
     }
 }

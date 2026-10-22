@@ -9,6 +9,25 @@ struct StudySession: Identifiable, Sendable, Equatable {
     var correct: Int
 }
 
+/// Upload contract: aggregate counts only; no question text, IDs or individual answers.
+struct CompletedSessionSummary: Codable, Sendable, Equatable {
+    let sessionID: UUID
+    let startedAt: Date
+    let endedAt: Date
+    let activeSeconds: Int
+    let answered: Int
+    let correct: Int
+
+    init(session: StudySession) {
+        sessionID = session.id
+        startedAt = session.startedAt
+        endedAt = session.endedAt
+        activeSeconds = session.activeSeconds
+        answered = session.answered
+        correct = session.correct
+    }
+}
+
 enum MasteryLevel: Int, Sendable, CaseIterable { case unseen, learning, reinforcing, known }
 
 struct LearningAnalytics: Sendable, Equatable {

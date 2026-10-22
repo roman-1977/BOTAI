@@ -87,6 +87,25 @@ struct RemoteQuestionMappingTests {
         #expect(try learning.load().0.map(\.id) == [attempt.id])
     }
 
+    @Test func completedSessionSummaryIsDurableIdempotentAndAggregateOnly() throws {
+        let database = try AppDatabase()
+        let learning = LearningRepository(database: database)
+        let id = UUID()
+        let first = StudySession(id: id, startedAt: .now, endedAt: .now,
+            activeSeconds: 120, answered: 5, correct: 4)
+        try learning.saveSession(first)
+        #expect(try learning.pendingSessionSummaries().isEmpty)
+        try learning.completeSession(first)
+        try learning.completeSession(first)
+        let summaries = try learning.pendingSessionSummaries()
+        #expect(summaries.count == 1)
+        #expect(summaries.first?.sessionID == id)
+        #expect(summaries.first?.answered == 5)
+        #expect(summaries.first?.correct == 4)
+        #expect(summaries.first?.activeSeconds == 120)
+        #expect(try learning.sessions().count == 1)
+    }
+
     @Test func recordedAttemptRetainsOriginalQuestionContent() throws {
         let database = try AppDatabase()
         let learning = LearningRepository(database: database)

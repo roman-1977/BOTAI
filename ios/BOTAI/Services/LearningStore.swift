@@ -103,6 +103,19 @@ final class LearningStore {
         if let i=sessions.firstIndex(where:{$0.id == session.id}) { sessions[i]=session } else { sessions.append(session) }
         return true
     }
+    @discardableResult
+    func completeSession(_ session: StudySession) -> Bool {
+        guard let repository else {
+            lastPersistenceError = "Локальное хранилище недоступно"
+            return false
+        }
+        do { try repository.completeSession(session); lastPersistenceError = nil }
+        catch { lastPersistenceError = error.localizedDescription; return false }
+        if let i = sessions.firstIndex(where: { $0.id == session.id }) { sessions[i] = session }
+        else { sessions.append(session) }
+        return true
+    }
+
     var analytics: LearningAnalytics { LearningAnalytics(sessions:sessions,attempts:attempts,states:states) }
     var knownCount:Int { knowledgeStates.values.filter{$0.masteryLevel == .known}.count }
     var masteryPercent:Int { knowledgeStates.isEmpty ? 0 : Int((Double(knownCount)/Double(knowledgeStates.count)*100).rounded()) }
