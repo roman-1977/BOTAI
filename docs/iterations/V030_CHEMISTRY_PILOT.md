@@ -172,3 +172,15 @@ Reviewed `docs/PRODUCT.md`: original UX requires mission→challenge→feedback�
 ### 2026-10-22 — Home palette alignment
 
 `docs/UI_SPEC.md` specifies white/neutral surfaces, one primary blue action, green for success and restrained orange/red for semantic warnings, while Learn keeps its dark digital game surface. Applied home-only `HomePalette` with system grouped backgrounds and dynamic primary/secondary text; retained shared `HomeTheme` for Learn/Library/Courses to avoid unintended regressions. Removed multicolor home CTA gradient. Simulator build `BUILD SUCCEEDED` (`/tmp/botai_light_home_build.log`). Physical-device acceptance and visual screen-fit remain pending; no iPhone install.
+
+### 2026-10-22 — Session launch decision correction and verification
+
+**Source of truth:** `docs/UI_SPEC.md` (accepted): one primary `БОТАТЬ` action, or `ПРОДОЛЖИТЬ` for a resumable local session; Learn retains its dark game language. The earlier proposed launch flow further separates session scope (topic/subject/mixed), format (cards/test/mixed) and strategy (learn/review). Do not replace that with three competing home shortcuts.
+
+**Implemented:** `GameHomeView.swift` now has a single primary `БОТАТЬ` button opening `SessionLaunchPicker`; topic, subject, mixed-all-subjects and due-review choices exist as first-stage options. Removed the temporary `Вперемешку`/`Повторить`/`Выбрать` home shortcuts. No schema migration.
+
+**Verification:** branch `feature/v0.3.0-chemistry-pilot`, commit `d269aab`; `xcodebuild` on iPhone 16e iOS 18.6 Simulator, `CODE_SIGNING_ALLOWED=NO`, serial UI test `LaunchSmokeTests.testPrimaryStudyLaunchOpensSubjectPicker`: **1/1 passed**, log `/tmp/botai_agreed_launch_ui_retry.log`. Initial test failed because the primary composite SwiftUI button was not exposed under its visible text; added a stable `primary-study-launch` accessibility identifier and reran successfully. Prior `testQuickStartModesOpenSubjectPicker` passed before correction but tested the now-rejected design. Earlier light-home build passed (`/tmp/botai_light_home_build.log`), motivation build passed (`/tmp/botai_motivation_build.log`). **No full regression suite on current HEAD, no manual small/large-screen layout QA, no real-device install.**
+
+**Not done:** format/strategy selection at launch; persist last configuration; interrupted-session restoration at the same question; genuine time-normalized goal plot; visual verification that all standard-size home content fits without scrolling. Existing test for the picker verifies opening and dismissal only, not a full subject/topic launch. Next executable step: implement format/strategy and persisted launch preferences with unit/UI coverage; then durable session resume and its relaunch test.
+
+**Data safety:** user-owned `ios/BOTAI.xcodeproj/project.pbxproj` remains modified and unstaged; do not reset or commit. Physical iPhone untouched. No push performed.
