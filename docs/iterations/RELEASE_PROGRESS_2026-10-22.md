@@ -63,3 +63,11 @@ A complete xcodebuild test run on standard isolated simulator is underway; raw l
 ### Full automated regression result
 
 Complete standard-simulator sweep: 146/146 unit PASS; 25/25 general UI PASS; two chemistry-pilot UI tests initially FAIL because this simulator has no external chemistry seed (full log /tmp/botai_all_scenarios_regression_20261022.log, exit 65). Fixed the pilot precondition handling, then isolated recheck of both chemistry tests on unseeded simulator exits 0 with two SKIPS (/tmp/botai_pilot_unseeded_skip_fixed_20261022.log). This does NOT establish seeded chemistry acceptance; keep separate seeded run required. General UI tests all passed in the first sweep, but a post-fix complete clean full-suite rerun has not yet occurred.
+
+### Clean comprehensive automated regression — 2026-10-22
+
+**PASS**: serial full xcodebuild run on isolated standard iPhone 16e simulator: **146/146 unit**, **25/25 standard UI PASS**, **2 chemistry-pilot UI SKIP** (fixture intentionally absent), exit **0**, `** TEST SUCCEEDED **`. Evidence: `/tmp/botai_full_clean_regression_20261022.log` (724 s). The earlier red run with 2 chemistry fixture failures was superseded by this post-fix green run; skipped tests are not counted as passes.
+
+**PASS separately**: prepared the dedicated disposable chemistry simulator (`62B01BED-4A72-43B9-A02D-351D9E82EE7A`) using local-only fixture script after backing up its UI-test SQLite database. Chemistry fixture validates 323 knowledge questions, 102 materials and 5 sections. **2/2 seeded chemistry UI PASS**, exit **0**, `/tmp/botai_seeded_chemistry_acceptance_20261022.log`. The five Python seed/integrity tests also **5/5 PASS**, `/tmp/botai_chemistry_seed_python_20261022.log`.
+
+**RC-08 standard and seeded chemistry automated regression: PASS for this revision.** This is not a claim that all manual, hardware, security, accessibility or offline/reconnect acceptance scenarios passed. RC-04 teacher guidance and RC-06 disposable Postgres RLS remain open. No production deployment, release tag, TestFlight upload, or push.
