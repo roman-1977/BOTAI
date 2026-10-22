@@ -54,3 +54,9 @@ All scenarios are mandatory for MVP; this is a verification plan, not evidence o
 - `testPopulatedCardOnlyCatalogDisablesTestsFormat`: with card-only material, Tests disables topic launch; switching to Cards re-enables it and launches a card. **PASS** (`/tmp/botai_populated_format_ui_retry_20261022.log`).
 - Initial run failed on exact accessibility lookup after Picker label changed; test corrected to retain a stable query. No product defect confirmed.
 - Remaining: both strategy choices in populated UI; genuine multiple-choice material fixture; topic-attribution persistence end-to-end.
+
+### Populated strategy UI checkpoint — 2026-10-22
+
+- `testPopulatedCatalogStrategyAllAndAutomatic`: populated topic allows switching `All questions` → `System chooses`, remains launchable, opens actual question. **PASS** (`/tmp/botai_populated_strategy_ui_20261022.log`).
+- UI verifies controls and launch, while ordering/priority differences are covered by `StudyQuestionSelectionMatrixTests` unit tests.
+- Remaining: real multiple-choice UI fixture and shared-set topic-attribution end-to-end.

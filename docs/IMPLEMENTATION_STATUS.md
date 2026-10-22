@@ -1,3 +1,5 @@
+> **2026-10-22 strategy UI:** populated topic All→Automatic switching and launch PASS; actual prioritization unit-tested; multiple-choice UI pending.
+
 > **2026-10-22 format UI:** populated card-only catalog Tests→Cards filtering PASS; strategy UI and choice fixture pending.
 
 > **2026-10-22 populated UI:** topic/subject/mixed launch enablement and topic question display PASS in new isolated UI test; cross-product pending.
