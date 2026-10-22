@@ -83,6 +83,7 @@ struct LearnSessionView: View {
       Spacer(minLength: 0)
       CoverageRing(seen: seenToday.count, total: store.questions.count)
     }.padding(.horizontal, 14).padding(.top, 10).padding(.bottom, 8)
+      .accessibilityIdentifier("study-answered-\(answeredToday)")
   }
   private var topicBadge: some View {
     HStack(alignment: .top, spacing: 8) {

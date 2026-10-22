@@ -84,3 +84,5 @@ See `docs/iterations/V030_CHEMISTRY_PILOT.md` for authoritative milestones, veri
 2026-10-22: chemistry pilot seeded into a copy of a real v14 simulator SQLite schema (323 rows, 102 materials, 204 rules, 5 sections, 1 goal; integrity ok). Isolated simulator UI smoke test passed for course and goal visibility. Reproducible script added; end-to-end session and cloud sync remain open.
 
 2026-10-22: chemistry pilot end-to-end UI recall smoke passed: open session, flip card, rate answer, finish, terminate/relaunch; isolated simulator SQLite inspection after first run found 1 attempt, 1 session and 1 knowledge history event. Multi-choice/full-session/sync remain pending.
+
+2026-10-22: WARNING: chemistry UI reported two answered questions and XCTest passed, but inspected simulator SQLite increased attempts only 3→4 and newest session answered=1. Possible test container mismatch or real persistence bug. Blocker: reconcile test target container and on-disk DB before accepting multi-question session.

@@ -324,6 +324,14 @@ final class ChemistryPilotSmokeTests: XCTestCase {
         }
         XCTAssertTrue(answer.waitForExistence(timeout: 5), "Expected chemistry recall rating after flipping card")
         answer.tap()
+        XCTAssertTrue(app.otherElements["study-answered-1"].waitForExistence(timeout: 5), "First answer was not recorded")
+        // A second independent question verifies that the session advances after persistence.
+        let nextCard = app.staticTexts["Нажми на карточку, чтобы перевернуть"]
+        XCTAssertTrue(nextCard.waitForExistence(timeout: 5), "Next chemistry question did not appear")
+        nextCard.tap()
+        XCTAssertTrue(answer.waitForExistence(timeout: 5), "Second recall rating missing")
+        answer.tap()
+        XCTAssertTrue(app.otherElements["study-answered-2"].waitForExistence(timeout: 5), "Second answer was not recorded")
         finish.tap()
         app.terminate()
         app.launch()
