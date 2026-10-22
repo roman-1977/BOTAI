@@ -4,7 +4,7 @@ Date: 2026-10-22. Branch: `feature/v0.3.0-chemistry-pilot`. Baseline implementat
 
 ## Evidence and boundaries
 
-- Local-first learning, account-scoped GRDB, v15 resumable-session snapshot, atomic answer+cursor: implemented. Last full `LaunchSmokeTests` before atomic change: **14/14 PASS** (`/tmp/botai_resume_regression_20261022.log`). After atomic change: focused UI **2/2 PASS** (`/tmp/botai_resume_atomic_ui_20261022.log`), focused unit **2/2 PASS** (`/tmp/botai_resume_unit_20261022.log`). This is **not** a complete post-change regression.
+- Local-first learning, account-scoped GRDB, v15 resumable-session snapshot, atomic answer+cursor: implemented. Last full `LaunchSmokeTests` before atomic change: **14/14 PASS** (`/tmp/botai_resume_regression_20261022.log`). After atomic change: focused UI **2/2 PASS** (`/tmp/botai_resume_atomic_ui_20261022.log`), focused unit **2/2 PASS** (`/tmp/botai_resume_unit_20261022.log`). Full subsequent verification: **105/105 Swift Testing, 15/15 standard UI, 2/2 separately seeded chemistry UI PASS** (2026-10-22; `docs/iterations/USER_TESTING_READINESS_2026-10-22.md`).
 - Live Supabase development checks dated 2026-10-21: 11/11 RLS checks and explicitly enabled `LiveSupabaseSyncTests` passed per `docs/STAGE6_SYNC_VERIFICATION.md`. Coverage limited to supported text publishing/attempts. Choice and media/LaTeX attempts currently stay local. Do not claim all modes cloud-synced.
 - `docs/MVP_ACCEPTANCE.md` describes implemented verticals but is not a signed-off acceptance test report. Product decisions in `docs/UI_SPEC.md` and iteration logs take precedence over outdated status prose.
 - No real iPhone/TestFlight/Apple review acceptance has been verified in this audit. User-owned `ios/BOTAI.xcodeproj/project.pbxproj` is modified independently and must not be staged or reverted.
@@ -20,7 +20,7 @@ Date: 2026-10-22. Branch: `feature/v0.3.0-chemistry-pilot`. Baseline implementat
 | RC-05 | Home light theme fits one standard iPhone screen without scrolling; full-width half-height chart, pace/lag and CTA correct; Learn dark; VoiceOver/Dynamic Type adequate | UNVERIFIED visually | Screenshot/measure on small/standard/large simulators and actual device; accessibility audit |
 | RC-06 | Offline launch, answers, relaunch, migration, reconnect and no duplicated attempts; sync support explicitly documented for every MVP format | PARTIAL | Offline/reconnect integration tests, schema migration upgrade, RLS, unsupported format policy |
 | RC-07 | Import/author/edit/private/public and moderation/report/block/deletion workflows satisfy App Review constraints | PARTIAL | Test user flows and moderator operations; review `docs/APPLE_REVIEW_CHECKLIST.md` |
-| RC-08 | Full post-change unit/integration/UI and chemistry smoke suite green, no test-fixture contamination | NOT RUN in full | Serial full test run plus isolated seeded chemistry smoke, record exact commands/results |
+| RC-08 | Full post-change unit/integration/UI and chemistry smoke suite green, no test-fixture contamination | PASS for committed resume changes (`b09f6ea`): 105 unit + 15 standard UI + 2 seeded chemistry UI | Rerun after any further code changes; chemistry requires separate seeded DB |
 | RC-09 | Signing, bundle/version/build, privacy policy, data disclosures, age rating, screenshots, App Store metadata and TestFlight install | NOT VERIFIED | Apple Developer/App Store Connect setup and physical-device acceptance |
 | RC-10 | Documentation, migration/rollback and handoff reproducible; no secrets or unrelated edits in RC commit | PARTIAL | Update affected specs, review clean diff, handoff and release notes; tag only after gates |
 
@@ -35,7 +35,7 @@ Date: 2026-10-22. Branch: `feature/v0.3.0-chemistry-pilot`. Baseline implementat
 1. **High:** server publication currently excludes choice and media/LaTeX attempt paths; offline and multi-device behavior may diverge.
 2. **High:** teacher-guided adaptive strategy not fully implemented; product behavior must be specified before claiming learning quality acceptance.
 3. **High:** public UGC/moderation/account deletion and Apple compliance require operational checks, not just schema presence.
-4. **Medium:** only single-unanswered-question UI restart verified; multi-question cursor is unit-tested.
+4. **Resolved for tested paths:** two-question resume and unanswered-question resume both passed end-to-end UI tests.
 5. **Medium:** home screen no-scroll visual gate and accessibility unverified across devices.
 
 ## Handoff / exact next action
