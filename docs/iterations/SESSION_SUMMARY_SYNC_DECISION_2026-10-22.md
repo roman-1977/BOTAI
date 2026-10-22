@@ -31,3 +31,7 @@ No new full-question answer snapshots, no server publication of answer options j
 - Both explicit `ЗАВЕРШИТЬ ЗАНЯТИЕ` and result-screen `ГОТОВО` use the completion path. Persistence failure blocks dismiss and surfaces the existing error alert.
 - Added local idempotency/aggregate-only test. Focused `RemoteQuestionMappingTests` passed (`/tmp/botai_completed_summary_local_tests_20261022.log`).
 - **Still outstanding:** server schema/API/RLS, network uploader and ACK, subject/topic breakdowns, legacy attempt-outbox retirement, comprehensive UI/migration/reconnect tests. Do not claim end-to-end summary sync is implemented.
+
+## Server schema and local ACK checkpoint (2026-10-22)
+
+Append-only server migration `0025_completed_session_summaries.sql` written but **not applied**. Local ACK repository and idempotency tests added; 9/9 focused tests passed. See `SESSION_SUMMARY_SERVER_CHECKPOINT_2026-10-22.md` for security constraints and remaining gates.

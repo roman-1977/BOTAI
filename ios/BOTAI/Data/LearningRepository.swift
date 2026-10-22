@@ -138,6 +138,16 @@ final class LearningRepository: @unchecked Sendable {
         }
     }
 
+    /// Acknowledgement is idempotent; unknown IDs are ignored. Never discard history.
+    func acknowledgeSessionSummaries(_ ids: [UUID], at date: Date = .now) throws {
+        try database.dbQueue.write { db in
+            for id in Set(ids) {
+                try db.execute(sql: "UPDATE completedSessionSummaries SET uploadedAt = ? WHERE sessionID = ? AND uploadedAt IS NULL",
+                    arguments: [date, id.uuidString])
+            }
+        }
+    }
+
     func pendingSessionSummaries() throws -> [CompletedSessionSummary] {
         try database.dbQueue.read { db in
             let rows = try Row.fetchAll(db, sql: "SELECT summaryJSON FROM completedSessionSummaries WHERE uploadedAt IS NULL ORDER BY createdAt,sessionID")
