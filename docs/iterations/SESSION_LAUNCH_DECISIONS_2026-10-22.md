@@ -14,4 +14,4 @@ Next work: design durable session snapshot keyed by stable question identifiers 
 
 ## Release and testing boundary — accepted 2026-10-22
 
-**Current project phase: LOCAL DEVELOPMENT AND TESTING ONLY.** Do not publish BOTAI to the App Store, upload builds to TestFlight, create a public release, push to remote GitHub, deploy Supabase migrations, or touch the physical iPhone unless the owner explicitly authorizes the particular action. Run tests locally on the Mac and disposable iOS simulators; use isolated test databases and preserve user data. Release-readiness documentation is for future planning, not authorization to publish. Continue implementing and testing the accepted MVP without treating App Store submission as the current milestone.
+**Current decision: no App Store publication and no TestFlight upload until separate owner approval.** Continue normal development, local testing and other project workflows under their existing permissions and safeguards. This decision imposes no new restrictions on GitHub, Supabase, or physical-device testing. Release-readiness documentation is informational, not authorization to publish.

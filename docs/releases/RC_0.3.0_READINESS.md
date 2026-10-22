@@ -51,4 +51,4 @@ The accepted sync contract is now **completed-session aggregates only**; detaile
 
 ## Owner decision — 2026-10-22: publication deferred
 
-**NOT A RELEASE TRACK AT PRESENT.** BOTAI remains in local development and testing. No App Store submission, TestFlight upload, public release, GitHub push, production migration or physical-device installation without separate explicit owner authorization. This readiness checklist is informational and must not be interpreted as approval to advance to distribution. Prioritize local functional completeness, automated regression, simulator UX and disposable database verification.
+**App Store submission and TestFlight upload are deferred until separate owner approval.** Continue normal development and testing. This decision does not change existing permissions for GitHub, Supabase, or physical-device testing. This readiness checklist is informational and is not authorization for App Store or TestFlight distribution.
