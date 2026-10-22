@@ -112,6 +112,7 @@ final class LearningStore {
         }
         do { try repository.completeSession(session); lastPersistenceError = nil }
         catch { lastPersistenceError = error.localizedDescription; return false }
+        resumableSession = nil
         if let i = sessions.firstIndex(where: { $0.id == session.id }) { sessions[i] = session }
         else { sessions.append(session) }
         completedSessionSignal += 1

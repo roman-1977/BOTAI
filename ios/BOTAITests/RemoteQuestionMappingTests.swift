@@ -87,6 +87,22 @@ struct RemoteQuestionMappingTests {
         #expect(try learning.load().0.map(\.id) == [attempt.id])
     }
 
+    @Test func completionAtomicallyRemovesResumableSession() throws {
+        let repository = LearningRepository(database: try AppDatabase())
+        let question = StudyQuestion(id: UUID(), prompt: "Example", answer: "Answer", kind: .reveal, choices: [], correctChoiceIndexes: [])
+        let session = StudySession(id: UUID(), startedAt: .now, endedAt: .now,
+            activeSeconds: 15, answered: 1, correct: 1)
+        try repository.saveResumableSession(ResumableStudySession(id: session.id,
+            startedAt: session.startedAt, title: "Test", targetMinutes: 1,
+            questions: [question], nextIndex: 0, answered: 0, correct: 0, activeSeconds: 0))
+        #expect(try repository.loadResumableSession() != nil)
+        try repository.completeSession(session)
+        #expect(try repository.loadResumableSession() == nil)
+        #expect(try repository.pendingSessionSummaries().count == 1)
+        try repository.completeSession(session)
+        #expect(try repository.pendingSessionSummaries().count == 1)
+    }
+
     @Test func sessionSummaryAcknowledgementIsIdempotent() throws {
         let learning = LearningRepository(database: try AppDatabase())
         let id = UUID()

@@ -375,7 +375,6 @@ struct LearnSessionView: View {
       persistenceAlert = true
       return
     }
-    guard store.checkpoint(nil) else { persistenceAlert = true; return }
     dismiss()
   }
   private func handleScenePhase(_ phase: ScenePhase) {

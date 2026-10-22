@@ -35,3 +35,7 @@ No new full-question answer snapshots, no server publication of answer options j
 ## Server schema and local ACK checkpoint (2026-10-22)
 
 Append-only server migration `0025_completed_session_summaries.sql` written but **not applied**. Local ACK repository and idempotency tests added; 9/9 focused tests passed. See `SESSION_SUMMARY_SERVER_CHECKPOINT_2026-10-22.md` for security constraints and remaining gates.
+
+## Legacy transmission retirement (2026-10-22)
+
+Active `SyncService` sends completed-session aggregates **only**. Old per-attempt data stays in local SQLite but is never transmitted by active sync. Completion and clearing the resumable checkpoint are atomic. See `SESSION_SUMMARY_SERVER_CHECKPOINT_2026-10-22.md`.

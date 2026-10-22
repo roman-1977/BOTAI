@@ -1,90 +1,49 @@
 import Foundation
 import Supabase
 
-/// Server uploads require an authoritative question and question-version mapping.
-/// Until that mapping exists, local attempts remain durable in the outbox.
+/// Uploads only aggregate statistics of completed sessions.
+/// Legacy per-answer outbox remains on disk but is deliberately never transmitted.
 actor SyncService {
     private let client: SupabaseClient
     private let repository: LearningRepository
-    private let mappings: RemoteQuestionMappingRepository
     private var flushInFlight = false
-    private var pendingFlushQuestions: [StudyQuestion]?
+    private var pendingFlush = false
 
     init(client: SupabaseClient = SupabaseProvider.client, repository: LearningRepository,
          mappings: RemoteQuestionMappingRepository) {
         self.client = client
         self.repository = repository
-        self.mappings = mappings
+        // Keep the initializer compatible while the legacy mapping storage is retained.
+        _ = mappings
     }
 
     func flush(questions: [StudyQuestion]) async {
-        // A new coordinator is created per call; guard at the service boundary too.
+        // Retain caller compatibility. No question content or identifiers go to the server.
+        _ = questions
         if flushInFlight {
-            // Do not lose a sync request made while the previous upload is awaiting network IO.
-            pendingFlushQuestions = questions
+            pendingFlush = true
             return
         }
         flushInFlight = true
-        await performFlush(questions: questions)
-        while let queued = pendingFlushQuestions {
-            pendingFlushQuestions = nil
-            await performFlush(questions: queued)
-        }
+        repeat {
+            pendingFlush = false
+            await performFlush()
+        } while pendingFlush
         flushInFlight = false
     }
 
-    private func performFlush(questions: [StudyQuestion]) async {
-        // Capture the actual authenticated Supabase identity, not a caller-supplied UUID.
+    private func performFlush() async {
         guard let originalUserID = try? await client.auth.session.user.id else { return }
         let accountCheck: @Sendable () async -> Bool = { [client] in
             guard let currentID = try? await client.auth.session.user.id else { return false }
             return currentID == originalUserID
         }
-        let summaryCoordinator = SessionSummarySyncCoordinator(
+        let coordinator = SessionSummarySyncCoordinator(
             backend: SupabaseBackendAPI(client: client), repository: repository,
             isCurrentAccount: accountCheck)
-        _ = try? await summaryCoordinator.flush()
-        // Legacy attempt pipeline retained temporarily for migration compatibility.
-        // Only publish questions with durable pending attempts and known local content.
-        if let pending = try? repository.pendingOutbox() {
-            let ids = Set(pending.filter { $0.entityType == "attempt" }.compactMap {
-                try? repository.attempt(id: $0.entityID)?.questionID
-            })
-            let publisher = RemoteQuestionPublisher(client: client, mappings: mappings,
-                                                    isCurrentAccount: accountCheck)
-            // Historical attempts publish from their immutable answer-time snapshot.
-            // Use the attempt UUID as the mapping key to avoid mutating the current card.
-            if let snapshots = try? repository.unpublishedSnapshots() {
-                for snapshot in snapshots {
-                    guard await accountCheck() else { return }
-                    if (try? mappings.mapping(for: snapshot.attemptID)) == nil {
-                        _ = try? await publisher.publish(snapshot.question)
-                    }
-                    if let mapping = try? mappings.mapping(for: snapshot.attemptID),
-                       let remoteID = UUID(uuidString: mapping.remoteQuestionID),
-                       let versionID = UUID(uuidString: mapping.remoteQuestionVersionID),
-                       await accountCheck() {
-                        try? repository.pinPublishedSnapshot(attemptID: snapshot.attemptID,
-                            remoteQuestionID: remoteID, versionID: versionID)
-                    }
-                }
-            }
-            for question in questions where ids.contains(question.id.uuidString) {
-                guard await accountCheck() else { return }
-                if (try? mappings.mapping(for: question.id)) == nil {
-                    _ = try? await publisher.publish(question)
-                }
-            }
-        }
-        let backend = SupabaseBackendAPI(client: client)
-        let coordinator = AttemptSyncCoordinator(backend: backend, repository: repository,
-            isCurrentAccount: { [client] in
-                guard let currentID = try? await client.auth.session.user.id else { return false }
-                return currentID == originalUserID
-            })
         _ = try? await coordinator.flush()
     }
-
+    /// Legacy local outbox serialization only; no attempt uploads are scheduled.
     static func remoteResult(for rating: RecallRating) -> String {
         switch rating {
         case .again: "incorrect"
@@ -92,4 +51,5 @@ actor SyncService {
         case .good: "correct"
         }
     }
+
 }

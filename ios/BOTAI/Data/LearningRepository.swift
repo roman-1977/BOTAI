@@ -132,6 +132,9 @@ final class LearningRepository: @unchecked Sendable {
     func completeSession(_ session: StudySession) throws {
         try database.dbQueue.write { db in
             try StudySessionDBRecord(session).save(db)
+            // Completion and resume removal are one durable transaction.
+            // An app crash cannot resurrect a session whose summary is queued.
+            try db.execute(sql: "DELETE FROM resumableStudySession WHERE slot = 1")
             let json = String(decoding: try JSONEncoder().encode(CompletedSessionSummary(session: session)), as: UTF8.self)
             try db.execute(sql: "INSERT INTO completedSessionSummaries(sessionID,summaryJSON,createdAt) VALUES(?,?,?) ON CONFLICT(sessionID) DO NOTHING",
                 arguments: [session.id.uuidString, json, Date()])
