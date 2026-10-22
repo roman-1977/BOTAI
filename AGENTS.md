@@ -1,5 +1,7 @@
 # BOTAI — AI Development Context
 
+> **Обязательная карта проекта для ChatGPT:** `docs/CHATGPT_REPOSITORY_GUIDE.md`. Перед изменениями прочитать её, текущий план (`docs/IMPLEMENTATION_PLAN.md`), статус (`docs/IMPLEMENTATION_STATUS.md`) и RC-чеклист (`docs/releases/RC_0.3.0_READINESS.md`). Исторический раздел «Current phase» ниже не является актуальным статусом v0.3.0.
+
 Этот файл предназначен для AI-инструментов, работающих с репозиторием.
 
 ## Product
