@@ -300,3 +300,23 @@ final class LaunchSmokeTests: XCTestCase {
         XCTAssertTrue(app.staticTexts["BOTAI UI Fixture"].waitForExistence(timeout: 10))
     }
 }
+import XCTest
+
+/// Runs against a dedicated simulator's BOTAI-UITests database seeded by the
+/// chemistry pilot script. Do not run this test on an unseeded simulator.
+@MainActor
+final class ChemistryPilotSmokeTests: XCTestCase {
+    func testSeededChemistryCourseAndGoalAreVisible() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-botai-ui-testing"]
+        app.launch()
+        XCTAssertTrue(app.staticTexts["ПЛАН НА СЕГОДНЯ"].waitForExistence(timeout: 20))
+        XCTAssertTrue(app.buttons["Мои курсы"].waitForExistence(timeout: 10))
+        app.buttons["Мои курсы"].tap()
+        XCTAssertTrue(app.staticTexts["ЕГЭ — Химия 2027"].waitForExistence(timeout: 15))
+        app.staticTexts["ЕГЭ — Химия 2027"].tap()
+        XCTAssertTrue(app.staticTexts["5 разделов"].waitForExistence(timeout: 10))
+        app.buttons["Цели"].tap()
+        XCTAssertTrue(app.staticTexts["Освоить 90% химии к 31 декабря"].waitForExistence(timeout: 10))
+    }
+}
