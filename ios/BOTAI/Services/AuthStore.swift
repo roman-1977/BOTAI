@@ -199,15 +199,20 @@ final class AuthStore {
     }
 
     func signOut() async {
-        do {
-            try await client.auth.signOut()
+        // Supabase clears its persisted session before calling the remote logout endpoint.
+        // Even when that request fails offline, local study access must end immediately.
+        defer {
             OfflineAccountBinding.clear()
             userID = nil
             isAuthenticated = false
             isOfflineLocalSession = false
+        }
+        do {
+            try await client.auth.signOut()
             errorMessage = nil
         } catch {
-            errorMessage = error.localizedDescription
+            // Remote token revocation may be pending, but local sign-out is unconditional.
+            errorMessage = "Выход на устройстве выполнен. Не удалось завершить серверную сессию."
         }
     }
 }
