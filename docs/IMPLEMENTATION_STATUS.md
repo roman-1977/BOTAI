@@ -194,3 +194,5 @@ RC-06 readiness ledger reconciled 2026-10-23: `353f603` focused SQLite reconnect
 2026-10-23 RC-06: obsolete opt-in live test that assumed legacy per-attempt uploads replaced with aggregate-only, two-anonymous-account, duplicate-ACK and cross-account read-isolation hosted Supabase fixture. Requires BOTH BOTAI_RUN_LIVE_SYNC=1 and BOTAI_DISPOSABLE_SUPABASE_CONFIRMED=1; never run without owner-confirmed disposable backend. This is test scaffolding, not evidence of hosted verification.
 
 RC-06 hosted opt-in fixture expanded: verifies parent-first topic aggregate upload, attributed counts, idempotent topic ACK and cross-account topic RLS reads. It remains disabled until a confirmed disposable Supabase environment is available.
+
+RC-06 safety: hosted test now requires a separate explicit BOTAI_TEST_SUPABASE_URL and BOTAI_TEST_SUPABASE_PUBLISHABLE_KEY, refuses the app-configured Supabase URL/key, and refuses insecure non-loopback HTTP. Added deterministic negative configuration test; no hosted requests in routine suite.

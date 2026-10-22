@@ -137,3 +137,5 @@ RC-06 authoritative handoff refresh 2026-10-23: latest verified `353f603` 11/11 
 RC-06 live acceptance harness updated: `ios/BOTAITests/LiveSupabaseSyncTests.swift` no longer tests obsolete legacy attempt publishing. Hosted aggregate-only fixture is gated by BOTH `BOTAI_RUN_LIVE_SYNC=1` and `BOTAI_DISPOSABLE_SUPABASE_CONFIRMED=1`; do not enable without disposable backend approval and 0025/0026 migration. Local compile-only run must not be represented as hosted PASS.
 
 RC-06 hosted fixture now checks both completed-session parent and topic aggregate rows with two-account read isolation; remains explicitly opt-in. See `LiveSupabaseSyncTests.swift` and its two required environment guards.
+
+Hosted RC-06 harness security: four environment variables required (BOTAI_RUN_LIVE_SYNC, BOTAI_DISPOSABLE_SUPABASE_CONFIRMED, BOTAI_TEST_SUPABASE_URL, BOTAI_TEST_SUPABASE_PUBLISHABLE_KEY). Rejects app-configured production backend. Never run on a non-disposable project; confirm migrations and anonymous auth before enabling.

@@ -20,19 +20,54 @@ private final class LiveTestSessionStorage: AuthLocalStorage, @unchecked Sendabl
 /// Explicitly opt-in only on a disposable development Supabase project where migrations
 /// 0025 and 0026 have been applied. Never run against the production project.
 struct LiveSupabaseSyncTests {
-    private func makeClient() -> SupabaseClient {
-        SupabaseClient(supabaseURL: SupabaseConfiguration.projectURL,
-                       supabaseKey: SupabaseConfiguration.publishableKey,
+    /// Never use the app's configured backend for destructive integration fixtures.
+    /// Explicit disposable URL and public key must be provided by the test operator.
+    private func makeClient(url: URL, key: String) -> SupabaseClient {
+        SupabaseClient(supabaseURL: url, supabaseKey: key,
                        options: SupabaseClientOptions(auth: .init(storage: LiveTestSessionStorage())))
+    }
+
+    static func disposableBackendURL(environment: [String: String]) -> URL? {
+        guard environment["BOTAI_RUN_LIVE_SYNC"] == "1",
+              environment["BOTAI_DISPOSABLE_SUPABASE_CONFIRMED"] == "1",
+              let raw = environment["BOTAI_TEST_SUPABASE_URL"],
+              let url = URL(string: raw),
+              url.scheme == "https" || (url.scheme == "http" && url.host == "127.0.0.1"),
+              url.host != SupabaseConfiguration.projectURL.host,
+              url.user == nil, url.password == nil, url.query == nil, url.fragment == nil,
+              url.path.isEmpty || url.path == "/",
+              let key = environment["BOTAI_TEST_SUPABASE_PUBLISHABLE_KEY"],
+              !key.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+              key != SupabaseConfiguration.publishableKey else { return nil }
+        return url
+    }
+
+    @Test func rejectsProductionAndIncompleteLiveConfiguration() {
+        let flags = ["BOTAI_RUN_LIVE_SYNC": "1",
+                     "BOTAI_DISPOSABLE_SUPABASE_CONFIRMED": "1",
+                     "BOTAI_TEST_SUPABASE_PUBLISHABLE_KEY": "disposable-public-key"]
+        #expect(Self.disposableBackendURL(environment: flags) == nil)
+        #expect(Self.disposableBackendURL(environment: flags.merging(
+            ["BOTAI_TEST_SUPABASE_URL": SupabaseConfiguration.projectURL.absoluteString],
+            uniquingKeysWith: { _, new in new })) == nil)
+        #expect(Self.disposableBackendURL(environment: flags.merging(
+            ["BOTAI_TEST_SUPABASE_URL": "http://example.com"],
+            uniquingKeysWith: { _, new in new })) == nil)
+        #expect(Self.disposableBackendURL(environment: flags.merging(
+            ["BOTAI_TEST_SUPABASE_URL": "http://127.0.0.1:54321"],
+            uniquingKeysWith: { _, new in new })) != nil)
+        #expect(Self.disposableBackendURL(environment: flags.merging(
+            ["BOTAI_TEST_SUPABASE_URL": "https://disposable.example.org"],
+            uniquingKeysWith: { _, new in new })) != nil)
     }
 
     @Test func aggregateOnlyIdempotentUploadAndTwoAccountIsolation() async throws {
         // Require two explicit opt-ins to avoid mutating a configured production project.
         let environment = ProcessInfo.processInfo.environment
-        guard environment["BOTAI_RUN_LIVE_SYNC"] == "1",
-              environment["BOTAI_DISPOSABLE_SUPABASE_CONFIRMED"] == "1" else { return }
-        let clientA = makeClient()
-        let clientB = makeClient()
+        guard let url = Self.disposableBackendURL(environment: environment),
+              let key = environment["BOTAI_TEST_SUPABASE_PUBLISHABLE_KEY"] else { return }
+        let clientA = makeClient(url: url, key: key)
+        let clientB = makeClient(url: url, key: key)
         let accountA = try await clientA.auth.signInAnonymously().user.id
         let accountB = try await clientB.auth.signInAnonymously().user.id
         #expect(accountA != accountB)
