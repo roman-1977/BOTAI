@@ -23,6 +23,7 @@ struct LearnSessionView: View {
   @State private var sessionStartedAt = Date()
   @State private var sessionAnswered = 0
   @State private var sessionCorrect = 0
+  @State private var topicAccumulator = SessionTopicAccumulator()
   @State private var sessionActiveSeconds = 0
   @State private var wrongToday = 0
   @State private var seenToday: Set<UUID> = []
@@ -295,6 +296,7 @@ struct LearnSessionView: View {
       sessionAnswered = snapshot.answered
       sessionCorrect = snapshot.correct
       sessionActiveSeconds = snapshot.activeSeconds
+      topicAccumulator = snapshot.topicAccumulator ?? SessionTopicAccumulator()
       answeredToday = snapshot.answered
       correctToday = snapshot.correct
       wrongToday = max(0, snapshot.answered - snapshot.correct)
@@ -312,7 +314,8 @@ struct LearnSessionView: View {
     return store.checkpoint(.init(id: sessionID, startedAt: sessionStartedAt,
       title: store.sessionTitle, targetMinutes: store.sessionTargetMinutes,
       questions: store.questions, nextIndex: index, answered: sessionAnswered,
-      correct: sessionCorrect, activeSeconds: sessionActiveSeconds))
+      correct: sessionCorrect, activeSeconds: sessionActiveSeconds,
+      attributionByQuestion: store.attributionByQuestion, topicAccumulator: topicAccumulator))
   }
 
   private func submit(_ rating: RecallRating) {
@@ -322,14 +325,18 @@ struct LearnSessionView: View {
     if let start = activeStartedAt { elapsed += Date().timeIntervalSince(start) }
     let nextSeconds = sessionActiveSeconds + max(0, Int(elapsed))
     let nextIndex = index + 1
+    var nextTopics = topicAccumulator
+    nextTopics.record(correct: rating == .good, attribution: store.attributionByQuestion[question.id])
     let next = ResumableStudySession(id: sessionID, startedAt: sessionStartedAt,
       title: store.sessionTitle, targetMinutes: store.sessionTargetMinutes,
       questions: store.questions, nextIndex: nextIndex, answered: sessionAnswered + 1,
-      correct: sessionCorrect + (rating == .good ? 1 : 0), activeSeconds: nextSeconds)
+      correct: sessionCorrect + (rating == .good ? 1 : 0), activeSeconds: nextSeconds,
+      attributionByQuestion: store.attributionByQuestion, topicAccumulator: nextTopics)
     guard store.record(question: question, rating: rating, advancingTo: next) else {
       persistenceAlert = true
       return
     }
+    topicAccumulator = nextTopics
     countQuestionTime()
     answeredToday += 1
     sessionAnswered += 1

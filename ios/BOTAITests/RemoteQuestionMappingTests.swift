@@ -280,3 +280,35 @@ struct SessionTopicAccumulatorTests {
         #expect(restored.answered == 2)
     }
 }
+
+struct SessionAttributionCheckpointTests {
+    @Test func answerTimeBucketsSurviveSQLiteResume() throws {
+        let repository = LearningRepository(database: try AppDatabase())
+        let question = StudyQuestion(id: UUID(), prompt: "Q", answer: "A", kind: .reveal,
+            choices: [], correctChoiceIndexes: [])
+        let attribution = StudyQuestionAttribution(courseID: UUID(), sectionID: UUID(), topicID: UUID())
+        var accumulator = SessionTopicAccumulator()
+        accumulator.record(correct: true, attribution: attribution)
+        let snapshot = ResumableStudySession(id: UUID(), startedAt: .now, title: "Session",
+            targetMinutes: 5, questions: [question], nextIndex: 0, answered: 1, correct: 1,
+            activeSeconds: 12, attributionByQuestion: [question.id: attribution],
+            topicAccumulator: accumulator)
+        try repository.saveResumableSession(snapshot)
+        let restored = try #require(try repository.loadResumableSession())
+        #expect(restored.attributionByQuestion == [question.id: attribution])
+        #expect(restored.topicAccumulator == accumulator)
+        #expect(restored.topicAccumulator?.answered == restored.answered)
+    }
+
+    @Test func oldCheckpointWithoutAttributionStillDecodes() throws {
+        let question = StudyQuestion(id: UUID(), prompt: "Q", answer: "A", kind: .reveal,
+            choices: [], correctChoiceIndexes: [])
+        let old = ResumableStudySession(id: UUID(), startedAt: .now, title: "Old",
+            targetMinutes: 1, questions: [question], nextIndex: 0, answered: 0,
+            correct: 0, activeSeconds: 0)
+        let data = try JSONEncoder().encode(old)
+        let restored = try JSONDecoder().decode(ResumableStudySession.self, from: data)
+        #expect(restored.attributionByQuestion == nil)
+        #expect(restored.topicAccumulator == nil)
+    }
+}

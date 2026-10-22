@@ -59,8 +59,9 @@ struct GameHomeView: View {
         }
         Button("Отмена", role: .cancel) {}
       }.sheet(isPresented: $chooseSession) {
-        SessionLaunchPicker(courses: courses.courses, materials: materials, learning: learning) { questions, title in
-          learning.use(questions: questions, title: title, targetMinutes: plan.budgetMinutes)
+        SessionLaunchPicker(courses: courses.courses, materials: materials, learning: learning) { questions, title, attribution in
+          learning.use(questions: questions, title: title, targetMinutes: plan.budgetMinutes,
+            attributionByQuestion: attribution)
           chooseSession = false
           studyPresentation = StudyPresentation(resume: false)
         }
@@ -779,7 +780,7 @@ private struct SessionLaunchPicker: View {
   let courses: [StudyCourse]
   let materials: MaterialStore
   let learning: LearningStore
-  let start: ([StudyQuestion], String) -> Void
+  let start: ([StudyQuestion], String, [UUID: StudyQuestionAttribution]) -> Void
   // Every NEW session starts from system defaults. Resuming an existing session
   // must retain that session's original configuration instead.
   @State private var format = "mixed"
@@ -860,7 +861,14 @@ private struct SessionLaunchPicker: View {
       selected = candidates
     }
     return Button {
-      start(selected, title)
+      let selectedIDs = Set(selected.map(\.id))
+      let references = Dictionary(uniqueKeysWithValues: Set(refs).map { ref in
+        (ref, questions([ref]))
+      })
+      let attribution = StudyQuestionAttributionResolver.uniqueAttributions(
+        courses: courses, questionsByReference: references)
+        .filter { selectedIDs.contains($0.key) }
+      start(selected, title, attribution)
     } label: {
       HStack {
         Text(title)

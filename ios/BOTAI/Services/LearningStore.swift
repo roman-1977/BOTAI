@@ -12,6 +12,8 @@ struct ResumableStudySession: Codable, Equatable {
     var answered: Int
     var correct: Int
     var activeSeconds: Int
+    var attributionByQuestion: [UUID: StudyQuestionAttribution]? = nil
+    var topicAccumulator: SessionTopicAccumulator? = nil
 
     var canResume: Bool { !questions.isEmpty && questions.indices.contains(nextIndex) }
 }
@@ -27,6 +29,7 @@ final class LearningStore {
     private(set) var completedSessionSignal = 0
     private(set) var questions: [StudyQuestion]
     private(set) var sessionTitle: String = "Обучение"
+    private(set) var attributionByQuestion: [UUID: StudyQuestionAttribution] = [:]
     private(set) var sessionTargetMinutes: Int = 0
     private(set) var resumableSession: ResumableStudySession?
     private let repository: LearningRepository?
@@ -63,7 +66,7 @@ final class LearningStore {
         return true
     }
 
-    func use(questions: [StudyQuestion], title: String = "Обучение", targetMinutes: Int = 0) { self.questions = questions; sessionTitle = title; sessionTargetMinutes = targetMinutes }
+    func use(questions: [StudyQuestion], title: String = "Обучение", targetMinutes: Int = 0, attributionByQuestion: [UUID: StudyQuestionAttribution] = [:]) { self.questions = questions; sessionTitle = title; sessionTargetMinutes = targetMinutes; self.attributionByQuestion = attributionByQuestion }
 
     @discardableResult
     func checkpoint(_ snapshot: ResumableStudySession?) -> Bool {
@@ -81,7 +84,7 @@ final class LearningStore {
 
     func restoreResumableSession() -> ResumableStudySession? {
         guard let snapshot = resumableSession, snapshot.canResume else { return nil }
-        use(questions: snapshot.questions, title: snapshot.title, targetMinutes: snapshot.targetMinutes)
+        use(questions: snapshot.questions, title: snapshot.title, targetMinutes: snapshot.targetMinutes, attributionByQuestion: snapshot.attributionByQuestion ?? [:])
         return snapshot
     }
 
