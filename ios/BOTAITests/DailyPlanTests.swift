@@ -311,6 +311,27 @@ struct StudyQuestionSelectionMatrixTests {
             knowledgeStates: [:], now: .now).map(\.kind) == [.singleChoice, .multipleChoice])
     }
 
+    @Test func allFormatsAndStrategiesPreserveUniqueQuestionIdentity() {
+        let now = Date(timeIntervalSince1970: 1_700_000_000)
+        let questions = [question(.reveal), question(.pair),
+                         question(.singleChoice), question(.multipleChoice)]
+        let source = questions + questions + [questions[1]]
+        for strategy in [StudyQuestionSelection.Strategy.automatic, .all] {
+            for (format, expectedKinds) in [
+                (StudyQuestionSelection.Format.mixed,
+                    [StudyQuestion.Kind.reveal, .pair, .singleChoice, .multipleChoice]),
+                (.cards, [.reveal, .pair]),
+                (.tests, [.singleChoice, .multipleChoice])
+            ] {
+                let selected = StudyQuestionSelection.select(source, format: format,
+                    strategy: strategy, knowledgeStates: [:], now: now)
+                #expect(selected.count == expectedKinds.count)
+                #expect(Set(selected.map(\.id)).count == selected.count)
+                #expect(Set(selected.map(\.kind)) == Set(expectedKinds))
+            }
+        }
+    }
+
     @Test func dueWeakThenNewThenNotDueWithStableTies() {
         let now = Date(timeIntervalSince1970: 1_700_000_000)
         let future = now.addingTimeInterval(86400)

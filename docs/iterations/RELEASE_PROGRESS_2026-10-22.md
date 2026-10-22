@@ -20,7 +20,7 @@ The previously communicated **70%** was a *subjective estimate*, not a verified 
 - Completed sessions report the *selected* topic; reporting does not fork mastery.
 - Unit tests: 143/143 PASS (`/tmp/botai_shared_topic_summary_units_20261022.log`).
 - Two-topic UI test originally 1/1 PASS (`/tmp/botai_shared_two_topics_ui_20261022.log`). Extended UI now answers in topic B, completes, relaunches, starts topic A, 1/1 PASS (`/tmp/botai_shared_two_topics_answer_finish_20261022.log`). This does **not** directly inspect durable mastery in the UI or remote upload.
-- Full post-change unit + standard UI regression: `/tmp/botai_block1_full_regression_20261022.log` — pending outcome at document creation; update after completion.
+- Full standard UI regression **24/24 PASS**, and 143/143 unit PASS (run started before latest unit-only changes), `xcodebuild` exit 0: `/tmp/botai_block1_full_regression_20261022.log`. **Caveat:** Xcode emitted a result-bundle saving error (`mkstemp: No such file or directory`) despite test success; preserve raw log and rerun before RC if xcresult bundle required. Post-change 145/145 unit PASS (`/tmp/botai_block1_matrix_units_20261022.log`).
 
 ## Reporting format after each block
 
@@ -31,3 +31,7 @@ The previously communicated **70%** was a *subjective estimate*, not a verified 
 ### Goal mastery denominator fix (in progress)
 
 Audit found `GoalProgressService.reconcile` counted repeated questions in the denominator when a goal references shared knowledge through multiple question sets. Changed the calculation to a union of `knowledgeID` and added a regression covering 50% versus an erroneous 67%, 100%, and empty input. **Post-change 144/144 unit PASS** in 46 suites (`/tmp/botai_goal_unique_mastery_units_20261022.log`). No claim that this resolves teacher-guided adaptivity.
+
+### Scope × format × strategy matrix (unit checkpoint)
+
+Added `StudyQuestionSelectionMatrixTests.allFormatsAndStrategiesPreserveUniqueQuestionIdentity` covering **mixed/cards/tests × automatic/all** with repeated question references. All six combinations return expected kinds and unique question IDs. **145/145 unit PASS** in 46 suites, `/tmp/botai_block1_matrix_units_20261022.log`. This is a unit matrix, **not** yet the full subject/topic/mixed UI matrix.
