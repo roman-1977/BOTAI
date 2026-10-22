@@ -862,7 +862,9 @@ private struct SessionLaunchPicker: View {
     }
     return Button {
       let selectedIDs = Set(selected.map(\.id))
-      let references = Dictionary(uniqueKeysWithValues: Set(refs).map { ref in
+      // Resolve against the full course catalog: a selected topic may reuse a question
+      // in another topic, and must not claim exclusive ownership of that question.
+      let references = Dictionary(uniqueKeysWithValues: Set(allRefs).map { ref in
         (ref, questions([ref]))
       })
       let attribution = StudyQuestionAttributionResolver.uniqueAttributions(

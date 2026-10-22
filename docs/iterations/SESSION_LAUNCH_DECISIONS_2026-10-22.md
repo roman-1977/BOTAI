@@ -15,3 +15,5 @@ Next work: design durable session snapshot keyed by stable question identifiers 
 ## Release and testing boundary — accepted 2026-10-22
 
 **Current decision: no App Store publication and no TestFlight upload until separate owner approval.** Continue normal development, local testing and other project workflows under their existing permissions and safeguards. This decision imposes no new restrictions on GitHub, Supabase, or physical-device testing. Release-readiness documentation is informational, not authorization to publish.
+
+2026-10-22 scope audit: fixed `SessionLaunchPicker.launchRow` attribution resolution to consider **all** course references rather than only the selected topic/subject. A question reused by another topic must remain unattributed, even when the user launches a single topic; otherwise its aggregate could be falsely assigned. Existing shared-question and unique-question resolver tests exercise this invariant. Full unit suite 137/137 PASS (`/tmp/botai_full_attribution_scope_20261022.log`). Adaptive teacher-guidance integration is still pending; do not label due-first baseline as full adaptive strategy.
