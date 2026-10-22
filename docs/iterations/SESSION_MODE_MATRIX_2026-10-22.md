@@ -111,6 +111,11 @@ All scenarios are mandatory for MVP; this is a verification plan, not evidence o
 - Initial compile failures were incorrect test-only property access (`session` vs `sessionID`, `topicID` vs `attribution.topicID`); corrected. **143/143 unit PASS in 45 suites**, exit 0, `/tmp/botai_shared_topic_summary_units_20261022.log`.
 - This verifies repository persistence and reporting semantics; complete real UI answer→finish→summary for shared topics and backend RLS integration remain pending.
 
+### Populated scope × format × strategy UI checkpoint — 2026-10-22
+
+- Expanded `testPopulatedCatalogStrategyAllAndAutomatic` to verify all **18 enabled/disabled row states**: three launch scopes (topic/subject/all), three formats (mixed/cards/tests), and two strategies (automatic/all) on real card-only material. Mixed/cards enabled; tests disabled for all scopes. Then starts a card successfully. **Focused UI 1/1 PASS**, xcodebuild exit 0, `/tmp/botai_scope_format_strategy_ui_20261022.log`; result bundle saved.
+- This is an **availability matrix with card-only fixture**, not a completed mixed-format multi-subject full E2E; distinct subjects, actual choice format cross-product, offline and resume remain open.
+
 ### Three-scope shared-set UI checkpoint — 2026-10-22
 
 - Same questionnaire in two real topics: topic A, topic B, whole subject, all-subject mixed quick start show equal nonzero question counts; no double counting. Then answer, finish, relaunch and enter other topic. **1/1 UI PASS** `/tmp/botai_scope_matrix_ui_20261022.log`.
