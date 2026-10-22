@@ -191,6 +191,20 @@ private actor SuspendedSessionSummaryBackend: SessionSummaryBackendAPI {
     func resume() { continuation?.resume(); continuation = nil }
 }
 
+private actor RecoveringSessionBackend: SessionSummaryBackendAPI {
+    private var online = false
+    private(set) var calls = 0
+    private(set) var acceptedIDs: Set<UUID> = []
+
+    func reconnect() { online = true }
+    func uploadSessionSummaries(_ summaries: [CompletedSessionSummary]) async throws -> [UUID] {
+        calls += 1
+        guard online else { throw BOTAIBackendError.invalidAcknowledgement }
+        for summary in summaries { acceptedIDs.insert(summary.sessionID) }
+        return summaries.map(\.sessionID)
+    }
+}
+
 struct SessionSummarySyncCoordinatorTests {
     private func setup() throws -> (LearningRepository, StudySession) {
         let repository = LearningRepository(database: try AppDatabase())
@@ -237,6 +251,41 @@ struct SessionSummarySyncCoordinatorTests {
         let restarted = LearningRepository(database: try AppDatabase(path: path))
         #expect(try restarted.pendingSessionSummaries().isEmpty)
         #expect(try restarted.sessions().count == 1)
+    }
+
+    @Test func offlineRestartReconnectAndRepeatedRetryNeverDuplicateSession() async throws {
+        let folder = FileManager.default.temporaryDirectory
+            .appendingPathComponent("botai-rc06-reconnect-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: folder) }
+        let path = folder.appendingPathComponent("learning.sqlite").path
+        let session = StudySession(id: UUID(), startedAt: .now, endedAt: .now,
+            activeSeconds: 123, answered: 3, correct: 2)
+        do {
+            let local = LearningRepository(database: try AppDatabase(path: path))
+            try local.completeSession(session)
+            #expect(try local.pendingSessionSummaries().map(\.sessionID) == [session.id])
+        }
+        // Cold relaunch while offline: network failure must not ACK local data.
+        let backend = RecoveringSessionBackend()
+        do {
+            let offline = LearningRepository(database: try AppDatabase(path: path))
+            let sync = SessionSummarySyncCoordinator(backend: backend, repository: offline,
+                isCurrentAccount: { true })
+            await #expect(throws: BOTAIBackendError.invalidAcknowledgement) { try await sync.flush() }
+            #expect(try offline.pendingSessionSummaries().map(\.sessionID) == [session.id])
+        }
+        // A second cold relaunch and restored network uploads exactly one immutable aggregate.
+        let reopened = LearningRepository(database: try AppDatabase(path: path))
+        await backend.reconnect()
+        let recovered = SessionSummarySyncCoordinator(backend: backend, repository: reopened,
+            isCurrentAccount: { true })
+        #expect(try await recovered.flush() == 1)
+        #expect(try await recovered.flush() == 0)
+        #expect(try reopened.pendingSessionSummaries().isEmpty)
+        #expect(try reopened.sessions().map(\.id) == [session.id])
+        #expect(await backend.acceptedIDs == Set([session.id]))
+        #expect(await backend.calls == 2)
     }
 
     @Test func unfinishedSessionIsNeverUploaded() async throws {

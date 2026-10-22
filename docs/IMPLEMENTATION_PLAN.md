@@ -112,3 +112,5 @@ Local identity and offline binding are now always cleared on sign-out even when 
 
 ### Verification cadence (approved 2026-10-23)
 Use targeted build + affected unit/UI tests for localized changes; run full signed unit/UI regression at completion of substantial milestones and before release. Auth/storage/sync require focused failure and isolation coverage. Record exact test evidence per commit; see `docs/iterations/DEVELOPMENT_HANDOFF_STANDARD.md`.
+
+RC-06 (2026-10-23): deterministic SQLite cold-relaunch → offline failure → reconnect → idempotent ACK regression added. Next acceptance: opt-in development Supabase integration with migrations 0025/0026 and two-user RLS; no production migration or host-network interruption without explicit authorization.

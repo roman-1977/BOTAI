@@ -19,3 +19,9 @@ Signed final build: unit suite PASS `/tmp/botai_rc06_signout_20261023.log`; 25/2
 The root view previously selected `RootTabView` when initial identity resolution was complete, even if a subsequent account database reopen failed. The guard now requires `storageFailure == nil`, ensuring that a failed per-account storage rebind cannot expose a stale study view. The existing storage-error retry screen is shown instead. This is a fail-closed UI guard, not a substitute for live backend isolation tests.
 
 Signed simulator unit suite and 25/25 UI tests PASS. Logs: `/tmp/botai_rc06_storage_guard_unit_20261023.log`, `/tmp/botai_rc06_storage_guard_ui_20261023.log`.
+
+## RC-06 deterministic reconnection regression (2026-10-23)
+
+Added a provider-neutral, SQLite-backed integration regression that completes a session, cold-reopens the database while offline, verifies a failed network request cannot acknowledge/delete the aggregate, cold-reopens again, reconnects, and verifies exactly one server-accepted aggregate despite repeated flushes. This is a deterministic fake transport test; **not** evidence of a live Supabase ACK or real radio/network interruption. The existing signed full 157 unit + 25 UI run is the baseline for the preceding security fix; use focused tests for this localized test-only addition.
+
+Focused signed simulator test PASS: `/tmp/botai_rc06_reconnect_focused_20261023.log`.
