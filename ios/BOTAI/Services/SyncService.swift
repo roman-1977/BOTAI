@@ -42,6 +42,10 @@ actor SyncService {
             backend: SupabaseBackendAPI(client: client), repository: repository,
             isCurrentAccount: accountCheck)
         _ = try? await coordinator.flush()
+        let topicCoordinator = TopicAggregateSyncCoordinator(
+            backend: SupabaseBackendAPI(client: client), repository: repository,
+            isCurrentAccount: accountCheck)
+        _ = try? await topicCoordinator.flush()
     }
     /// Legacy local outbox serialization only; no attempt uploads are scheduled.
     static func remoteResult(for rating: RecallRating) -> String {

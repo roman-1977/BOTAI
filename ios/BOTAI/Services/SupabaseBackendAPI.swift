@@ -138,3 +138,80 @@ extension SupabaseBackendAPI: SessionSummaryBackendAPI {
         }
     }
 }
+
+extension SupabaseBackendAPI: TopicAggregateBackendAPI {
+    private struct TopicAggregateRow: Encodable {
+        let user_id: UUID
+        let session_id: UUID
+        let course_id: UUID
+        let section_id: UUID
+        let topic_id: UUID
+        let answered: Int
+        let correct: Int
+    }
+    private struct StoredTopicAggregateRow: Decodable {
+        let session_id: UUID
+        let course_id: UUID
+        let section_id: UUID
+        let topic_id: UUID
+        let answered: Int
+        let correct: Int
+    }
+
+    func uploadTopicAggregates(_ summaries: [CompletedSessionSummary]) async throws -> [UUID] {
+        guard !summaries.isEmpty else { return [] }
+        let userID = try await client.auth.session.user.id
+        let uniqueIDs = Set(summaries.map(\.sessionID))
+        guard uniqueIDs.count == summaries.count else { throw BOTAIBackendError.invalidAcknowledgement }
+        var rows: [TopicAggregateRow] = []
+        for summary in summaries {
+            guard let breakdown = summary.topicBreakdown, !breakdown.isEmpty else { continue }
+            let attributed = breakdown.reduce(0) { $0 + $1.answered }
+            let correct = breakdown.reduce(0) { $0 + $1.correct }
+            guard attributed + (summary.unattributedAnswered ?? 0) == summary.answered,
+                  correct + (summary.unattributedCorrect ?? 0) == summary.correct,
+                  breakdown.allSatisfy({ $0.answered > 0 && $0.correct >= 0 && $0.correct <= $0.answered }) else {
+                throw BOTAIBackendError.invalidAcknowledgement
+            }
+            for bucket in breakdown {
+                rows.append(.init(user_id: userID, session_id: summary.sessionID,
+                    course_id: bucket.attribution.courseID,
+                    section_id: bucket.attribution.sectionID,
+                    topic_id: bucket.attribution.topicID,
+                    answered: bucket.answered, correct: bucket.correct))
+            }
+        }
+        guard !rows.isEmpty else { return [] }
+        guard try await client.auth.session.user.id == userID else {
+            throw BOTAIBackendError.invalidAcknowledgement
+        }
+        try await client.from("completed_session_topic_aggregates")
+            .upsert(rows, onConflict: "user_id,session_id,course_id,section_id,topic_id",
+                ignoreDuplicates: true).execute()
+        guard try await client.auth.session.user.id == userID else {
+            throw BOTAIBackendError.invalidAcknowledgement
+        }
+        let stored: [StoredTopicAggregateRow] = try await client.from("completed_session_topic_aggregates")
+            .select("session_id,course_id,section_id,topic_id,answered,correct")
+            .in("session_id", values: summaries.map(\.sessionID.uuidString)).execute().value
+        guard try await client.auth.session.user.id == userID else {
+            throw BOTAIBackendError.invalidAcknowledgement
+        }
+        let expected = Dictionary(grouping: rows, by: \.session_id)
+        let actual = Dictionary(grouping: stored, by: \.session_id)
+        return summaries.compactMap { summary in
+            guard let requested = expected[summary.sessionID],
+                  let verified = actual[summary.sessionID],
+                  requested.count == verified.count else { return nil }
+            let allMatch = requested.allSatisfy { item in
+                verified.contains { stored in
+                    stored.course_id == item.course_id &&
+                    stored.section_id == item.section_id &&
+                    stored.topic_id == item.topic_id &&
+                    stored.answered == item.answered && stored.correct == item.correct
+                }
+            }
+            return allMatch ? summary.sessionID : nil
+        }
+    }
+}

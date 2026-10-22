@@ -68,3 +68,35 @@ actor SessionSummarySyncCoordinator {
         return acknowledged.count
     }
 }
+
+/// Runs after parent session upload; topic ACK is independently durable.
+actor TopicAggregateSyncCoordinator {
+    private let backend: any TopicAggregateBackendAPI
+    private let repository: LearningRepository
+    private let isCurrentAccount: @Sendable () async -> Bool
+    private var inFlight = false
+
+    init(backend: any TopicAggregateBackendAPI, repository: LearningRepository,
+         isCurrentAccount: @escaping @Sendable () async -> Bool) {
+        self.backend = backend
+        self.repository = repository
+        self.isCurrentAccount = isCurrentAccount
+    }
+
+    @discardableResult
+    func flush() async throws -> Int {
+        guard !inFlight else { return 0 }
+        inFlight = true
+        defer { inFlight = false }
+        guard await isCurrentAccount() else { return 0 }
+        let pending = try repository.pendingTopicSessionSummaries()
+        guard !pending.isEmpty, await isCurrentAccount() else { return 0 }
+        let acknowledged = try await backend.uploadTopicAggregates(pending)
+        guard await isCurrentAccount() else { return 0 }
+        guard Set(acknowledged).isSubset(of: Set(pending.map(\.sessionID))) else {
+            throw BOTAIBackendError.invalidAcknowledgement
+        }
+        try repository.acknowledgeTopicSessionSummaries(acknowledged)
+        return acknowledged.count
+    }
+}

@@ -40,3 +40,8 @@ enum BOTAIBackendError: Error, Equatable {
 protocol SessionSummaryBackendAPI: Sendable {
     func uploadSessionSummaries(_ summaries: [CompletedSessionSummary]) async throws -> [UUID]
 }
+
+protocol TopicAggregateBackendAPI: Sendable {
+    /// Return session IDs only when every attributed topic row was verified.
+    func uploadTopicAggregates(_ summaries: [CompletedSessionSummary]) async throws -> [UUID]
+}

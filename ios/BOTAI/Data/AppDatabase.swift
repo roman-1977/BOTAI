@@ -179,6 +179,11 @@ final class AppDatabase: @unchecked Sendable {
                 t.column("uploadedAt", .datetime)
             }
         }
+        migrator.registerMigration("v17_topic_aggregate_ack") { db in
+            try db.alter(table: "completedSessionSummaries") { table in
+                table.add(column: "topicsUploadedAt", .datetime)
+            }
+        }
         return migrator
     }
 }

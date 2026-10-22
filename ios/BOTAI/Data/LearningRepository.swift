@@ -164,6 +164,34 @@ final class LearningRepository: @unchecked Sendable {
         }
     }
 
+    /// Topic ACK is independent of parent ACK: a partial network failure cannot
+    /// discard an unsent breakdown after the parent summary was acknowledged.
+    func pendingTopicSessionSummaries() throws -> [CompletedSessionSummary] {
+        try database.dbQueue.read { db in
+            let rows = try Row.fetchAll(db, sql: """
+                SELECT summaryJSON FROM completedSessionSummaries
+                WHERE uploadedAt IS NOT NULL AND topicsUploadedAt IS NULL
+                ORDER BY createdAt, sessionID
+                """)
+            return try rows.compactMap { row -> CompletedSessionSummary? in
+                let json: String = row["summaryJSON"]
+                let summary = try JSONDecoder().decode(CompletedSessionSummary.self, from: Data(json.utf8))
+                return summary.topicBreakdown?.isEmpty == false ? summary : nil
+            }
+        }
+    }
+
+    func acknowledgeTopicSessionSummaries(_ ids: [UUID], at date: Date = .now) throws {
+        try database.dbQueue.write { db in
+            for id in Set(ids) {
+                try db.execute(sql: """
+                    UPDATE completedSessionSummaries SET topicsUploadedAt = ?
+                    WHERE sessionID = ? AND uploadedAt IS NOT NULL AND topicsUploadedAt IS NULL
+                    """, arguments: [date, id.uuidString])
+            }
+        }
+    }
+
     func sessions() throws -> [StudySession] { try database.dbQueue.read { db in try StudySessionDBRecord.order(Column("startedAt")).fetchAll(db).compactMap(\.domain) } }
     func saveSession(_ session: StudySession) throws { try database.dbQueue.write { db in try StudySessionDBRecord(session).save(db) } }
 

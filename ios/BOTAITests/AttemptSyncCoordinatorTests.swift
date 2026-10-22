@@ -294,3 +294,86 @@ struct SessionSummarySyncCoordinatorTests {
         #expect(try repository.pendingSessionSummaries().isEmpty)
     }
 }
+
+private actor FakeTopicAggregateBackend: TopicAggregateBackendAPI {
+    enum Behavior: Sendable { case all, none, foreign, failure }
+    let behavior: Behavior
+    private(set) var calls = 0
+    init(_ behavior: Behavior) { self.behavior = behavior }
+    func uploadTopicAggregates(_ summaries: [CompletedSessionSummary]) async throws -> [UUID] {
+        calls += 1
+        switch behavior {
+        case .all: return summaries.map(\.sessionID)
+        case .none: return []
+        case .foreign: return [UUID()]
+        case .failure: throw BOTAIBackendError.invalidAcknowledgement
+        }
+    }
+}
+
+struct TopicAggregateSyncCoordinatorTests {
+    private func setup() throws -> (LearningRepository, UUID) {
+        let repository = LearningRepository(database: try AppDatabase())
+        let attribution = StudyQuestionAttribution(courseID: UUID(), sectionID: UUID(), topicID: UUID())
+        var topics = SessionTopicAccumulator()
+        topics.record(correct: true, attribution: attribution)
+        let session = StudySession(id: UUID(), startedAt: .now, endedAt: .now,
+            activeSeconds: 12, answered: 1, correct: 1)
+        try repository.completeSession(session, topics: topics)
+        return (repository, session.id)
+    }
+
+    @Test func waitsUntilParentSummaryAcknowledged() async throws {
+        let (repository, _) = try setup()
+        let backend = FakeTopicAggregateBackend(.all)
+        let coordinator = TopicAggregateSyncCoordinator(backend: backend,
+            repository: repository, isCurrentAccount: { true })
+        #expect(try await coordinator.flush() == 0)
+        #expect(await backend.calls == 0)
+    }
+
+    @Test func successfulTopicUploadIsAcknowledgedExactlyOnce() async throws {
+        let (repository, id) = try setup()
+        try repository.acknowledgeSessionSummaries([id])
+        let backend = FakeTopicAggregateBackend(.all)
+        let coordinator = TopicAggregateSyncCoordinator(backend: backend,
+            repository: repository, isCurrentAccount: { true })
+        #expect(try await coordinator.flush() == 1)
+        #expect(try await coordinator.flush() == 0)
+        #expect(await backend.calls == 1)
+        #expect(try repository.pendingTopicSessionSummaries().isEmpty)
+    }
+
+    @Test func absentAckPreservesQueueForRetry() async throws {
+        let (repository, id) = try setup()
+        try repository.acknowledgeSessionSummaries([id])
+        let coordinator = TopicAggregateSyncCoordinator(backend: FakeTopicAggregateBackend(.none),
+            repository: repository, isCurrentAccount: { true })
+        #expect(try await coordinator.flush() == 0)
+        #expect(try repository.pendingTopicSessionSummaries().count == 1)
+        let retry = TopicAggregateSyncCoordinator(backend: FakeTopicAggregateBackend(.all),
+            repository: repository, isCurrentAccount: { true })
+        #expect(try await retry.flush() == 1)
+    }
+
+    @Test func foreignAckIsRejected() async throws {
+        let (repository, id) = try setup()
+        try repository.acknowledgeSessionSummaries([id])
+        let coordinator = TopicAggregateSyncCoordinator(backend: FakeTopicAggregateBackend(.foreign),
+            repository: repository, isCurrentAccount: { true })
+        await #expect(throws: BOTAIBackendError.invalidAcknowledgement) {
+            try await coordinator.flush()
+        }
+        #expect(try repository.pendingTopicSessionSummaries().count == 1)
+    }
+
+    @Test func inactiveAccountNeverUploads() async throws {
+        let (repository, id) = try setup()
+        try repository.acknowledgeSessionSummaries([id])
+        let backend = FakeTopicAggregateBackend(.all)
+        let coordinator = TopicAggregateSyncCoordinator(backend: backend,
+            repository: repository, isCurrentAccount: { false })
+        #expect(try await coordinator.flush() == 0)
+        #expect(await backend.calls == 0)
+    }
+}

@@ -351,3 +351,32 @@ struct CompletedSessionTopicPersistenceTests {
         #expect(decoded.topicBreakdown == nil)
     }
 }
+
+struct TopicUploadQueueTests {
+    @Test func topicQueueWaitsForParentAndAcknowledgesSeparately() throws {
+        let repository = LearningRepository(database: try AppDatabase())
+        let attribution = StudyQuestionAttribution(courseID: UUID(), sectionID: UUID(), topicID: UUID())
+        var topics = SessionTopicAccumulator()
+        topics.record(correct: true, attribution: attribution)
+        let session = StudySession(id: UUID(), startedAt: .now, endedAt: .now,
+            activeSeconds: 10, answered: 1, correct: 1)
+        try repository.completeSession(session, topics: topics)
+        #expect(try repository.pendingTopicSessionSummaries().isEmpty)
+        try repository.acknowledgeSessionSummaries([session.id])
+        #expect(try repository.pendingSessionSummaries().isEmpty)
+        #expect(try repository.pendingTopicSessionSummaries().map(\.sessionID) == [session.id])
+        try repository.acknowledgeTopicSessionSummaries([UUID()])
+        #expect(try repository.pendingTopicSessionSummaries().count == 1)
+        try repository.acknowledgeTopicSessionSummaries([session.id, session.id])
+        #expect(try repository.pendingTopicSessionSummaries().isEmpty)
+    }
+
+    @Test func legacySummaryDoesNotBlockTopicQueue() throws {
+        let repository = LearningRepository(database: try AppDatabase())
+        let session = StudySession(id: UUID(), startedAt: .now, endedAt: .now,
+            activeSeconds: 0, answered: 0, correct: 0)
+        try repository.completeSession(session)
+        try repository.acknowledgeSessionSummaries([session.id])
+        #expect(try repository.pendingTopicSessionSummaries().isEmpty)
+    }
+}
