@@ -17,53 +17,55 @@ private final class LiveTestSessionStorage: AuthLocalStorage, @unchecked Sendabl
     }
 }
 
+/// Explicitly opt-in only on a disposable development Supabase project where migrations
+/// 0025 and 0026 have been applied. Never run against the production project.
 struct LiveSupabaseSyncTests {
-    @Test func publishesUploadsAcknowledgesAndRetriesAgainstDevelopmentServer() async throws {
-        // Opt in via BOTAI_RUN_LIVE_SYNC=1 in the Xcode test scheme.
-        // Routine local tests must not depend on an external server.
-        guard ProcessInfo.processInfo.environment["BOTAI_RUN_LIVE_SYNC"] == "1" else { return }
-        let client = SupabaseClient(supabaseURL: SupabaseConfiguration.projectURL,
-                                    supabaseKey: SupabaseConfiguration.publishableKey,
-                                    options: SupabaseClientOptions(auth: .init(storage: LiveTestSessionStorage())))
-        let session = try await client.auth.signInAnonymously()
-        let owner = session.user.id
-        let database = try AppDatabase()
-        let learning = LearningRepository(database: database)
-        let mappings = RemoteQuestionMappingRepository(database: database)
-        let question = StudyQuestion(id: UUID(), prompt: "BOTAI live sync \(UUID())",
-                                     answer: "Verified", kind: .pair,
-                                     choices: [], correctChoiceIndexes: [])
-        let attempt = Attempt(id: UUID(), questionID: question.id, occurredAt: .now, rating: .good)
-        try learning.record(attempt, state: LearningState(), question: question)
-        let check: @Sendable () async -> Bool = {
-            (try? await client.auth.session.user.id) == owner
-        }
-        let publisher = RemoteQuestionPublisher(client: client, mappings: mappings,
-                                                isCurrentAccount: check)
-        #expect(try await client.auth.session.user.id == owner)
-        #expect(try await publisher.publish(question))
-        #expect(try await publisher.publish(question))
-        let backend = SupabaseBackendAPI(client: client)
-        let request = try learning.mappedUploadBatch()
-        #expect(request.attempts.count == 1)
-        let response = try await backend.uploadAttempts(request)
-        #expect(response.acknowledgedIDs == [attempt.id])
-        let retry = try await backend.uploadAttempts(request)
-        #expect(retry.acknowledgedIDs == [attempt.id])
-        #expect(try learning.acknowledgeUploadedAttempts(request: request, response: response) == 1)
-        #expect(try learning.outboxCount() == 0)
-        #expect(try learning.load().0.map(\.id) == [attempt.id])
-
-        // A pending attempt survives without a current card or remote mapping.
-        let historical = StudyQuestion(id: UUID(), prompt: "Historical BOTAI \(UUID())",
-                                       answer: "Original answer", kind: .reveal,
-                                       choices: [], correctChoiceIndexes: [])
-        let oldAttempt = Attempt(id: UUID(), questionID: historical.id,
-                                 occurredAt: .now, rating: .hard)
-        try learning.record(oldAttempt, state: LearningState(), question: historical)
-        let sync = SyncService(client: client, repository: learning, mappings: mappings, boundAccountID: owner)
-        await sync.flush(questions: [])
-        #expect(try learning.outboxCount() == 0)
-        #expect(try learning.load().0.map(\.id).contains(oldAttempt.id))
+    private func makeClient() -> SupabaseClient {
+        SupabaseClient(supabaseURL: SupabaseConfiguration.projectURL,
+                       supabaseKey: SupabaseConfiguration.publishableKey,
+                       options: SupabaseClientOptions(auth: .init(storage: LiveTestSessionStorage())))
     }
+
+    @Test func aggregateOnlyIdempotentUploadAndTwoAccountIsolation() async throws {
+        // Require two explicit opt-ins to avoid mutating a configured production project.
+        let environment = ProcessInfo.processInfo.environment
+        guard environment["BOTAI_RUN_LIVE_SYNC"] == "1",
+              environment["BOTAI_DISPOSABLE_SUPABASE_CONFIRMED"] == "1" else { return }
+        let clientA = makeClient()
+        let clientB = makeClient()
+        let accountA = try await clientA.auth.signInAnonymously().user.id
+        let accountB = try await clientB.auth.signInAnonymously().user.id
+        #expect(accountA != accountB)
+
+        let repository = LearningRepository(database: try AppDatabase())
+        let session = StudySession(id: UUID(), startedAt: .now, endedAt: .now,
+                                   activeSeconds: 25, answered: 2, correct: 1)
+        try repository.completeSession(session)
+        let adapter = SupabaseBackendAPI(client: clientA)
+        let summary = try #require(repository.pendingSessionSummaries().first)
+        #expect(try await adapter.uploadSessionSummaries([summary]) == [session.id])
+        // Server-side unique key must make the identical retry safe.
+        #expect(try await adapter.uploadSessionSummaries([summary]) == [session.id])
+        let ownerRows: [LiveSummaryIdentity] = try await clientA.from("completed_session_summaries")
+            .select("session_id,user_id").eq("session_id", value: session.id.uuidString).execute().value
+        #expect(ownerRows.count == 1)
+        #expect(ownerRows.first?.user_id == accountA)
+        let foreignRows: [LiveSummaryIdentity] = try await clientB.from("completed_session_summaries")
+            .select("session_id,user_id").eq("session_id", value: session.id.uuidString).execute().value
+        #expect(foreignRows.isEmpty)
+        // Local history remains after ACK; individual attempts are not uploaded.
+        let coordinator = SessionSummarySyncCoordinator(backend: adapter,
+            repository: repository, isCurrentAccount: {
+                (try? await clientA.auth.session.user.id) == accountA
+            })
+        #expect(try await coordinator.flush() == 1)
+        #expect(try await coordinator.flush() == 0)
+        #expect(try repository.sessions().count == 1)
+        #expect(try repository.pendingSessionSummaries().isEmpty)
+    }
+}
+
+private struct LiveSummaryIdentity: Decodable {
+    let session_id: UUID
+    let user_id: UUID
 }

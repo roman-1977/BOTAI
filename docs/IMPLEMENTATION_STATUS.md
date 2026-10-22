@@ -190,3 +190,5 @@ Local identity and offline binding are now always cleared on sign-out even when 
 RC-06 follow-up (2026-10-23): root study UI now fails closed if per-account storage reopen fails after initial bootstrap; signed simulator regression pending. See `docs/iterations/RC06_OFFLINE_LOGOUT_2026-10-23.md`.
 
 RC-06 readiness ledger reconciled 2026-10-23: `353f603` focused SQLite reconnect 11/11 PASS; `820f07b` full signed unit + 25/25 UI PASS; disposable PostgreSQL RLS previously PASS (auth shim). Hosted Supabase and real network/device gates remain OPEN. See `docs/releases/RC_0.3.0_READINESS.md`.
+
+2026-10-23 RC-06: obsolete opt-in live test that assumed legacy per-attempt uploads replaced with aggregate-only, two-anonymous-account, duplicate-ACK and cross-account read-isolation hosted Supabase fixture. Requires BOTH BOTAI_RUN_LIVE_SYNC=1 and BOTAI_DISPOSABLE_SUPABASE_CONFIRMED=1; never run without owner-confirmed disposable backend. This is test scaffolding, not evidence of hosted verification.

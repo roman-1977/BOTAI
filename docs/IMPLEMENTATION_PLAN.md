@@ -114,3 +114,5 @@ Local identity and offline binding are now always cleared on sign-out even when 
 Use targeted build + affected unit/UI tests for localized changes; run full signed unit/UI regression at completion of substantial milestones and before release. Auth/storage/sync require focused failure and isolation coverage. Record exact test evidence per commit; see `docs/iterations/DEVELOPMENT_HANDOFF_STANDARD.md`.
 
 RC-06 (2026-10-23): deterministic SQLite cold-relaunch → offline failure → reconnect → idempotent ACK regression added. Next acceptance: opt-in development Supabase integration with migrations 0025/0026 and two-user RLS; no production migration or host-network interruption without explicit authorization.
+
+RC-06 hosted acceptance harness: `LiveSupabaseSyncTests.aggregateOnlyIdempotentUploadAndTwoAccountIsolation` verifies server ACK, duplicate retry and cross-user RLS read on disposable Supabase. Keep disabled until test project and migrations 0025/0026 are explicitly confirmed; extend with topic ACK and revoked token tests. Routine focused compile/tests do not exercise the hosted service.
