@@ -10,7 +10,7 @@ final class LaunchSmokeTests: XCTestCase {
         let app = XCUIApplication()
         app.launchArguments = ["-botai-ui-testing", "-botai-reset-ui-test-data"]
         app.launch()
-        let report = app.buttons["Расширенный отчёт · PDF"]
+        let report = app.buttons["Отчёт PDF"]
         XCTAssertTrue(report.waitForExistence(timeout: 20))
         if !report.isHittable { app.swipeUp() }
         report.tap()
@@ -266,9 +266,13 @@ final class LaunchSmokeTests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Активная"].waitForExistence(timeout: 10))
         app.navigationBars["Курс с разделом"].buttons.firstMatch.tap()
         app.navigationBars["Мои курсы"].buttons.firstMatch.tap()
-        let launch = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "УЧИТЬСЯ СЕГОДНЯ")).firstMatch
+        let launch = app.buttons["primary-study-launch"]
         XCTAssertTrue(launch.waitForExistence(timeout: 10))
         launch.tap()
+        XCTAssertTrue(app.navigationBars["Что будем учить?"].waitForExistence(timeout: 10))
+        let topicLaunch = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Тема проверки")).firstMatch
+        XCTAssertTrue(topicLaunch.waitForExistence(timeout: 10))
+        topicLaunch.tap()
         XCTAssertTrue(app.staticTexts["Кислота"].waitForExistence(timeout: 10))
         app.staticTexts["Кислота"].tap()
         let answer = app.buttons["ОТВЕТИЛ ЛЕГКО"]
