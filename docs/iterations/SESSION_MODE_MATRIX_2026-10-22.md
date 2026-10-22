@@ -3,16 +3,16 @@
 All scenarios are mandatory for MVP; this is a verification plan, not evidence of passing tests.
 
 ## Dimensions
-- Scope: all subjects mixed; one subject; one topic; review quick start; user daily-goal quick start.
+- Scope: all subjects mixed; one subject; one topic; user daily-goal quick start.
 - Format: mixed (reveal/pair/single-choice/multiple-choice), cards only (reveal/pair), tests only (single/multiple choice).
-- Strategy: automatic, all, review; review quick start overrides selected strategy.
+- Strategy: automatic (due first, then new, then not-yet-due reinforcement), all (source order). Review is a priority within automatic strategy, not a separate launch mode.
 - Data: populated, no eligible format, no due items, some due items, duplicate references across topics, offline, resumed session.
 
 ## Expected invariants
 1. Fresh session picker defaults to mixed format and automatic strategy; reopening resets temporary overrides.
 2. Changing format filters out ineligible kinds; zero eligible questions disables the launch row; no empty session is created.
-3. Review includes only due questions and disables launch when none are due; quick review does not silently include new cards.
-4. All includes all eligible questions, regardless of due date. Automatic puts due before non-due; full teacher-guided adaptive policy is still pending.
+3. Absence of due questions must never block starting a session with eligible new or reinforcement questions. No separate review-only quick start.
+4. All includes all eligible questions in source order. Automatic prioritizes due (weakest first), then new, then not-yet-due; equal-priority questions retain source order. Full teacher-guided adaptive policy remains pending.
 5. Topic scope must not leak questions from other topics; subject scope contains only that subject's topics; all-subject scope covers the catalog.
 6. An existing session resumes with its original ordered questions, answers and format; no new picker setting changes an in-progress session.
 7. Multiple-choice requires exact correct set; single-choice one correct answer; reveal/pair record answers once, including relaunch after answering.
