@@ -76,11 +76,27 @@ struct GameHomeView: View {
       todayCard
       progressCard
       launch
+      motivationInsight
       HStack(spacing: 8) {
         Button("Мои цели") { coursesOpen = true }
         Button("Отчёт PDF") { exportReport() }
       }.buttonStyle(.bordered).tint(HomePalette.accent).font(.caption)
     }.padding(.horizontal, 14).padding(.bottom, 8)
+  }
+  private var motivationInsight: some View {
+    let due = learning.dueCount
+    let completed = learning.completedToday
+    let message: String = due > 0
+      ? "К повторению: \(due). Начни с них — это поможет закрепить знания."
+      : completed > 0
+        ? "Сегодня отвечено на \(completed) вопросов. Отличная работа!"
+        : "Даже короткое занятие сегодня поможет сохранить темп."
+    return HStack(spacing: 7) {
+      Image(systemName: due > 0 ? "arrow.clockwise.circle" : "sparkle")
+        .foregroundStyle(HomePalette.accent)
+      Text(message).font(.caption).foregroundStyle(.secondary).lineLimit(2)
+      Spacer(minLength: 0)
+    }.accessibilityElement(children: .combine)
   }
   private var motivationChart: some View {
     let selectedGoalID = activeGoals.first?.id
@@ -102,11 +118,16 @@ struct GameHomeView: View {
       GeometryReader { geo in
         let maxValue = max(1, points.map(\.target).max() ?? 1)
         ZStack {
-          Path { path in
-            let y = geo.size.height * 0.25
-            path.move(to: CGPoint(x: 0, y: y))
-            path.addLine(to: CGPoint(x: geo.size.width, y: y))
-          }.stroke(HomePalette.accent.opacity(0.18), style: StrokeStyle(lineWidth: 1, dash: [4, 4]))
+          if let first = points.first, let last = points.last, points.count > 1 {
+            let days = max(1, Calendar.current.dateComponents([.day], from: first.calculatedAt, to: last.calculatedAt).day ?? 1)
+            let deadline = activeGoals.first(where: { $0.id == selectedGoalID })?.deadline
+            let daysToDeadline = max(1, deadline.map { Calendar.current.dateComponents([.day], from: first.calculatedAt, to: $0).day ?? 1 } ?? days)
+            let expected = min(Double(last.target), Double(first.known) + Double(last.target - first.known) * Double(days) / Double(daysToDeadline))
+            Path { path in
+              path.move(to: CGPoint(x: 0, y: geo.size.height * (1 - CGFloat(first.known) / CGFloat(maxValue))))
+              path.addLine(to: CGPoint(x: geo.size.width, y: geo.size.height * (1 - CGFloat(expected) / CGFloat(maxValue))))
+            }.stroke(HomePalette.accent, style: StrokeStyle(lineWidth: 1.5, dash: [4, 4]))
+          }
           if points.count > 1 {
             Path { path in
               for (index, point) in points.enumerated() {
@@ -174,7 +195,7 @@ struct GameHomeView: View {
           todayProgressRing
         }
       }
-    }.padding(16).homeCard()
+    }.padding(12).lightHomeCard()
   }
   private var todayDetails: some View {
     VStack(alignment: .leading, spacing: 4) {
@@ -190,7 +211,7 @@ struct GameHomeView: View {
   }
   private var todayProgressRing: some View {
     ZStack {
-      Circle().stroke(.white.opacity(0.1), lineWidth: 8)
+      Circle().stroke(HomePalette.accent.opacity(0.12), lineWidth: 8)
       Circle().trim(
         from: 0, to: min(1, Double(todayMinutes) / Double(max(1, plan.budgetMinutes)))
       ).stroke(HomePalette.accent, style: StrokeStyle(lineWidth: 8, lineCap: .round))
