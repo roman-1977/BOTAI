@@ -394,7 +394,9 @@ struct TerminalSessionCrashRecoveryTests {
             answered: 1, correct: 1, activeSeconds: 3,
             attributionByQuestion: [question.id: attribution], topicAccumulator: topics)
         #expect(checkpoint.canResume)
-        try repository.saveResumableSession(checkpoint)
+        let attempt = Attempt(id: UUID(), questionID: question.id, occurredAt: .now, rating: .good)
+        try repository.record(attempt, state: LearningState(), question: question, nextSession: checkpoint)
+        #expect(try repository.load().0.map(\.id) == [attempt.id])
         #expect(try repository.loadResumableSession() == checkpoint)
         let summary = StudySession(id: sessionID, startedAt: checkpoint.startedAt,
             endedAt: .now, activeSeconds: 3, answered: 1, correct: 1)

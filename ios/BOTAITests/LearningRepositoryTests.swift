@@ -185,7 +185,10 @@ struct ResumableStudySessionTests {
         #expect(reopened.record(question: questions[1], rating: .again, advancingTo: afterLast))
         let completed = LearningStore(questions: [], repository: repository)
         #expect(completed.attempts.count == 2)
-        #expect(completed.resumableSession == nil)
+        #expect(completed.resumableSession == afterLast)
+        #expect(try repository.loadResumableSession() == afterLast)
+        let summary = StudySession(id: id, startedAt: started, endedAt: .now, activeSeconds: 0, answered: 2, correct: 1)
+        #expect(completed.completeSession(summary))
         #expect(try repository.loadResumableSession() == nil)
     }
 }
