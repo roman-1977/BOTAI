@@ -108,12 +108,12 @@ final class LearningStore {
         return true
     }
     @discardableResult
-    func completeSession(_ session: StudySession) -> Bool {
+    func completeSession(_ session: StudySession, topics: SessionTopicAccumulator? = nil) -> Bool {
         guard let repository else {
             lastPersistenceError = "Локальное хранилище недоступно"
             return false
         }
-        do { try repository.completeSession(session); lastPersistenceError = nil }
+        do { try repository.completeSession(session, topics: topics); lastPersistenceError = nil }
         catch { lastPersistenceError = error.localizedDescription; return false }
         resumableSession = nil
         if let i = sessions.firstIndex(where: { $0.id == session.id }) { sessions[i] = session }

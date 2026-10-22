@@ -378,7 +378,8 @@ struct LearnSessionView: View {
     if !finished { countQuestionTime() }
     let summary = StudySession(id: sessionID, startedAt: sessionStartedAt, endedAt: .now,
         activeSeconds: sessionActiveSeconds, answered: sessionAnswered, correct: sessionCorrect)
-    guard store.completeSession(summary) else {
+    guard store.completeSession(summary, topics: topicAccumulator.answered == summary.answered &&
+        topicAccumulator.correct == summary.correct ? topicAccumulator : nil) else {
       persistenceAlert = true
       return
     }

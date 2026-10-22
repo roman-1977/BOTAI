@@ -312,3 +312,42 @@ struct SessionAttributionCheckpointTests {
         #expect(restored.topicAccumulator == nil)
     }
 }
+
+struct CompletedSessionTopicPersistenceTests {
+    @Test func completedSummaryRetainsMixedBuckets() throws {
+        let repository = LearningRepository(database: try AppDatabase())
+        let attribution = StudyQuestionAttribution(courseID: UUID(), sectionID: UUID(), topicID: UUID())
+        var topics = SessionTopicAccumulator()
+        topics.record(correct: true, attribution: attribution)
+        topics.record(correct: false, attribution: nil)
+        let session = StudySession(id: UUID(), startedAt: .now, endedAt: .now,
+            activeSeconds: 30, answered: 2, correct: 1)
+        try repository.completeSession(session, topics: topics)
+        let saved = try #require(repository.pendingSessionSummaries().first)
+        #expect(saved.topicBreakdown == topics.breakdown)
+        #expect(saved.unattributedAnswered == 1)
+        #expect(saved.unattributedCorrect == 0)
+        try repository.completeSession(session, topics: topics)
+        #expect(try repository.pendingSessionSummaries().count == 1)
+    }
+
+    @Test func mismatchedCountsAreRejected() throws {
+        let repository = LearningRepository(database: try AppDatabase())
+        var topics = SessionTopicAccumulator()
+        topics.record(correct: true, attribution: nil)
+        let session = StudySession(id: UUID(), startedAt: .now, endedAt: .now,
+            activeSeconds: 30, answered: 2, correct: 1)
+        #expect(throws: BOTAIBackendError.invalidAcknowledgement.self) {
+            try repository.completeSession(session, topics: topics)
+        }
+        #expect(try repository.pendingSessionSummaries().isEmpty)
+    }
+
+    @Test func oldSummaryStillDecodes() throws {
+        let session = StudySession(id: UUID(), startedAt: .now, endedAt: .now,
+            activeSeconds: 3, answered: 0, correct: 0)
+        let data = try JSONEncoder().encode(CompletedSessionSummary(session: session))
+        let decoded = try JSONDecoder().decode(CompletedSessionSummary.self, from: data)
+        #expect(decoded.topicBreakdown == nil)
+    }
+}

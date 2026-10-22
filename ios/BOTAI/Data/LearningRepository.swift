@@ -129,13 +129,16 @@ final class LearningRepository: @unchecked Sendable {
 
     /// Completion is idempotent and committed with the final local session record.
     /// No network activity occurs here; a later uploader can consume pending rows.
-    func completeSession(_ session: StudySession) throws {
+    func completeSession(_ session: StudySession, topics: SessionTopicAccumulator? = nil) throws {
+        if let topics, (topics.answered != session.answered || topics.correct != session.correct) {
+            throw BOTAIBackendError.invalidAcknowledgement
+        }
         try database.dbQueue.write { db in
             try StudySessionDBRecord(session).save(db)
             // Completion and resume removal are one durable transaction.
             // An app crash cannot resurrect a session whose summary is queued.
             try db.execute(sql: "DELETE FROM resumableStudySession WHERE slot = 1")
-            let json = String(decoding: try JSONEncoder().encode(CompletedSessionSummary(session: session)), as: UTF8.self)
+            let json = String(decoding: try JSONEncoder().encode(CompletedSessionSummary(session: session, topics: topics)), as: UTF8.self)
             try db.execute(sql: "INSERT INTO completedSessionSummaries(sessionID,summaryJSON,createdAt) VALUES(?,?,?) ON CONFLICT(sessionID) DO NOTHING",
                 arguments: [session.id.uuidString, json, Date()])
         }

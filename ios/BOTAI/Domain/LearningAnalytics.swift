@@ -17,14 +17,20 @@ struct CompletedSessionSummary: Codable, Sendable, Equatable {
     let activeSeconds: Int
     let answered: Int
     let correct: Int
+    let topicBreakdown: [SessionTopicAggregate]?
+    let unattributedAnswered: Int?
+    let unattributedCorrect: Int?
 
-    init(session: StudySession) {
+    init(session: StudySession, topics: SessionTopicAccumulator? = nil) {
         sessionID = session.id
         startedAt = session.startedAt
         endedAt = session.endedAt
         activeSeconds = session.activeSeconds
         answered = session.answered
         correct = session.correct
+        topicBreakdown = topics?.breakdown
+        unattributedAnswered = topics?.unattributedAnswered
+        unattributedCorrect = topics?.unattributedCorrect
     }
 }
 
