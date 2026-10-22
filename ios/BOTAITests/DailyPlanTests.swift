@@ -110,6 +110,7 @@ struct KnowledgeDeadlineForecastTests {
         let now = Date()
         let ids = (0..<30).map { _ in UUID() }
         let history = [event(ids[0],daysAgo: 10,known: false,now: now),
+                       event(ids[0],daysAgo: 5,known: false,now: now),
                        event(ids[0],daysAgo: 0,known: true,now: now)]
         let result = KnowledgeDeadlineForecast.evaluate(goal: goal(deadline: now.addingTimeInterval(86400 * 7)),
             knowledgeIDs: Set(ids), states: [:], history: history, now: now)
@@ -121,8 +122,33 @@ struct KnowledgeDeadlineForecastTests {
         let id = UUID()
         let result = KnowledgeDeadlineForecast.evaluate(goal: goal(deadline: now.addingTimeInterval(86400 * 20)),
             knowledgeIDs: [id, UUID()], states: [:],
-            history: [event(id,daysAgo: 6,known: false,now: now),event(id,daysAgo: 0,known: false,now: now)], now: now)
+            history: [event(id,daysAgo: 6,known: false,now: now),event(id,daysAgo: 3,known: false,now: now),event(id,daysAgo: 0,known: false,now: now)], now: now)
         #expect(result.estimatedCompletion == nil)
         #expect(result.reportLines.joined().contains("Устойчивого прироста"))
+    }
+}
+
+extension KnowledgeDeadlineForecastTests {
+    @Test func oldActivityOutsideRollingWindowDoesNotProduceFalseEta() {
+        let now = Date()
+        let id = UUID()
+        let events = [event(id,daysAgo: 120,known: false,now: now),
+                      event(id,daysAgo: 90,known: true,now: now),
+                      event(id,daysAgo: 60,known: true,now: now)]
+        let result = KnowledgeDeadlineForecast.evaluate(goal: goal(deadline: now.addingTimeInterval(86400 * 30)),
+            knowledgeIDs: [id,UUID()], states: [:], history: events, now: now)
+        #expect(result.estimatedCompletion == nil)
+        #expect(result.reportLines.joined().contains("Недостаточно истории"))
+    }
+    @Test func masteryRegressionPreventsOptimisticEta() {
+        let now = Date()
+        let id = UUID()
+        let events = [event(id,daysAgo: 10,known: true,now: now),
+                      event(id,daysAgo: 5,known: false,now: now),
+                      event(id,daysAgo: 0,known: false,now: now)]
+        let result = KnowledgeDeadlineForecast.evaluate(goal: goal(deadline: now.addingTimeInterval(86400 * 30)),
+            knowledgeIDs: [id,UUID()], states: [:], history: events, now: now)
+        #expect(result.estimatedCompletion == nil)
+        #expect(result.observedPerDay ?? 1 <= 0)
     }
 }

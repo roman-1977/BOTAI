@@ -462,27 +462,25 @@ enum KnowledgeDeadlineForecast {
                    observedPerDay: nil, estimatedCompletion: now,
                    reportLines: [title, "Цель по освоению достигнута."])
     }
+    // A rolling 28-day window avoids treating old bursts as the current pace.
+    // Require activity on at least three separate calendar days before forecasting.
+    let windowStart = calendar.date(byAdding: .day, value: -27, to: calendar.startOfDay(for: now))!
     let relevant = history.filter { knowledgeIDs.contains($0.knowledgeID) && $0.occurredAt <= now }
       .sorted { $0.occurredAt < $1.occurredAt }
-    guard let first = relevant.first, let last = relevant.last,
-          calendar.dateComponents([.day], from: calendar.startOfDay(for: first.occurredAt),
-                                  to: calendar.startOfDay(for: last.occurredAt)).day ?? 0 >= 2 else {
+    let recent = relevant.filter { $0.occurredAt >= windowStart }
+    let observationDays = Set(recent.map { calendar.startOfDay(for: $0.occurredAt) })
+    guard observationDays.count >= 3, let first = recent.first, let last = recent.last else {
       return .init(currentKnown: known, requiredKnown: target, remaining: remaining,
                    observedPerDay: nil, estimatedCompletion: nil,
-                   reportLines: [title, "Недостаточно истории освоения для надёжного прогноза (нужны наблюдения минимум за 3 календарных дня)."])
+                   reportLines: [title, "Недостаточно истории освоения для прогноза (нужны занятия минимум в 3 разных дня за последние 28 дней)."])
     }
-    // Replay each knowledge's most recent observed state at each boundary.
+    // Snapshot at window start, including states last observed before the window.
     var baseline: [UUID: Bool] = [:]
-    var latest: [UUID: Bool] = [:]
-    let startDay = calendar.startOfDay(for: first.occurredAt)
-    for event in relevant {
-      latest[event.knowledgeID] = event.isKnown
-      if calendar.isDate(event.occurredAt, inSameDayAs: startDay) {
-        baseline[event.knowledgeID] = event.isKnown
-      }
-    }
+    for event in relevant where event.occurredAt < windowStart { baseline[event.knowledgeID] = event.isKnown }
+    var latest = baseline
+    for event in recent { latest[event.knowledgeID] = event.isKnown }
     let gained = latest.values.filter { $0 }.count - baseline.values.filter { $0 }.count
-    let elapsed = max(1, calendar.dateComponents([.day], from: startDay,
+    let elapsed = max(1, calendar.dateComponents([.day], from: calendar.startOfDay(for: first.occurredAt),
                           to: calendar.startOfDay(for: last.occurredAt)).day ?? 1)
     let rate = Double(gained) / Double(elapsed)
     guard rate > 0 else {
@@ -512,7 +510,7 @@ enum KnowledgeDeadlineForecast {
         lines.append("Рекомендация: увеличить частоту или длительность занятий постепенно, сохраняя повторения; оценить эффект через неделю.")
       }
     }
-    lines.append("Прогноз ориентировочный: основан на наблюдаемом приросте, не гарантирует результат.")
+    lines.append("Прогноз ориентировочный: окно последних 28 дней; основан на приросте устойчивых знаний, не гарантирует результат.")
     return .init(currentKnown: known, requiredKnown: target, remaining: remaining,
                  observedPerDay: rate, estimatedCompletion: predicted, reportLines: lines)
   }
