@@ -1,5 +1,34 @@
 import Foundation
 
+enum StudyQuestionSelection {
+  enum Format { case mixed, cards, tests }
+  enum Strategy { case automatic, all }
+
+  static func select(_ questions: [StudyQuestion], format: Format = .mixed,
+                     strategy: Strategy = .automatic,
+                     knowledgeStates: [UUID: LearningState], now: Date) -> [StudyQuestion] {
+    var seen = Set<UUID>()
+    let eligible = questions.filter { question in
+      guard seen.insert(question.id).inserted else { return false }
+      switch format {
+      case .mixed: return true
+      case .cards: return question.kind == .reveal || question.kind == .pair
+      case .tests: return question.kind == .singleChoice || question.kind == .multipleChoice
+      }
+    }
+    guard strategy == .automatic else { return eligible }
+    return eligible.sorted {
+      priority($0, states: knowledgeStates, now: now) > priority($1, states: knowledgeStates, now: now)
+    }
+  }
+
+  private static func priority(_ question: StudyQuestion, states: [UUID: LearningState], now: Date) -> Int {
+    guard let state = states[question.knowledgeID] else { return 100 }
+    if state.nextDueAt <= now { return 300 - min(max(state.streak, 0), 20) * 5 }
+    return 30 - min(max(state.streak, 0), 20)
+  }
+}
+
 enum DailyPlanner {
  @MainActor static func make(courses:[StudyCourse],materials:MaterialStore,learning:LearningStore,profile:StudyProfile,date:Date = .now)->DailyStudyPlan {
    let weekday=Calendar.current.component(.weekday,from:date),budget=profile.minutes(for:weekday)
@@ -24,19 +53,7 @@ enum DailyPlanner {
      guard let content=materials.content(id:ref.materialID) else{return []}
      return StudyQuestionBuilder.questions(for:ref,content:content)
    }
-   var seen=Set<UUID>()
-   let unique=all.filter { seen.insert($0.id).inserted }
-   return Array(unique.sorted { lhs,rhs in
-     let left=priority(lhs,learning,date:date),right=priority(rhs,learning,date:date)
-     return left > right // Preserve authored order within each priority tier
-   }.prefix(count))
- }
- @MainActor private static func priority(_ q:StudyQuestion,_ l:LearningStore,date:Date)->Int {
-   guard let state=l.knowledgeStates[q.knowledgeID] else { return 100 }
-   // Due cards are urgent; previously failed cards (streak == 0) outrank
-   // well-practised ones. New cards follow, then not-yet-due reinforcement.
-   if state.nextDueAt <= date { return 200 - min(state.streak,20) * 5 }
-   return 30 - min(state.streak,20)
+   return Array(StudyQuestionSelection.select(all, knowledgeStates: learning.knowledgeStates, now: date).prefix(count))
  }
 }
 

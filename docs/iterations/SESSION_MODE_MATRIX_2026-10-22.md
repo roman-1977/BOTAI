@@ -24,3 +24,10 @@ All scenarios are mandatory for MVP; this is a verification plan, not evidence o
 - Existing unit: card generation, local learning persistence, attribution and sync queue.
 - Missing automated matrix: format x strategy x scope with due/no-due, all four answer UIs, disabled empty-state rows, resumed mixed-format session.
 - Gate: RC-01/03/04/06 remain PARTIAL/OPEN until missing scenarios are implemented and executed.
+
+## Implementation and regression checkpoint — 2026-10-22
+
+- Shared pure `StudyQuestionSelection.select` now powers both the session launcher and daily planner, with consistent mixed/cards/tests filtering, automatic/all ordering, duplicate-ID elimination, due-weak → new → not-yet-due priorities, and stable ties. The former duplicate filtering paths were consolidated.
+- New deterministic Swift Testing cases cover all three formats, empty input, repeated IDs, both strategies, due-weak/new/future priorities, stable ties, and no-due fallback.
+- **139/139 unit PASS and 16/16 standard UI PASS**, complete simulator command exit 0 (`/tmp/botai_selection_full_20261022.log`, iPhone 16e simulator `33176212-1247-4722-B8F4-4E53438502E4`). Separately seeded chemistry UI was **not rerun** after this change.
+- **Remaining matrix gaps:** explicit subject/topic/all × format × strategy UI scenarios, disabled zero-eligible rows, per-format persisted answers, and account/offline/reconnect coverage. These are not implicitly closed by the green suite.

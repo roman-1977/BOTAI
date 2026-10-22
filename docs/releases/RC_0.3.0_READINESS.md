@@ -70,3 +70,8 @@ The accepted sync contract is now **completed-session aggregates only**; detaile
 - `RC-01` and `RC-02`: tested launch/reset/resume paths pass; **PARTIAL** pending the full scope/format/strategy matrix, exact persisted attempt counts and finish/discard checks. `RC-04` remains **OPEN** for teacher-guided adaptive policy.
 - **NOT RC**: no full format x strategy x scope matrix, offline/reconnect acceptance, fresh backend migration/RLS fixture verification, multi-device visual/accessibility sign-off, or App Store/TestFlight acceptance. No release tag or distribution authorized.
 - User-owned `ios/BOTAI.xcodeproj/project.pbxproj` remains untouched and unstaged.
+
+## Verification checkpoint — shared selection, 2026-10-22
+
+- Common selection helper now serves launch picker and daily planner; format and adaptive priority unit matrix added. Full iPhone 16e simulator regression: **139/139 unit + 16/16 standard UI PASS**, exit 0 (`/tmp/botai_selection_full_20261022.log`).
+- RC-08 standard suite PASS for this code; seeded chemistry suite must be rerun separately before final RC. RC-01/03/04 still PARTIAL/OPEN for cross-product UI acceptance and teacher guidance. Release **NOT RC**.

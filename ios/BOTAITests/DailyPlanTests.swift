@@ -246,3 +246,46 @@ extension ForecastChartPDFTests {
     }
   }
 }
+
+struct StudyQuestionSelectionMatrixTests {
+    private func question(_ kind: StudyQuestion.Kind, _ id: UUID = UUID()) -> StudyQuestion {
+        StudyQuestion(id: id, prompt: "Prompt", answer: "Answer", kind: kind,
+                      choices: [], correctChoiceIndexes: [])
+    }
+
+    @Test func formatMatrixAndDuplicateQuestionIDs() {
+        let questions = [question(.reveal), question(.pair), question(.singleChoice), question(.multipleChoice)]
+        for (format, expected) in [
+            (StudyQuestionSelection.Format.mixed, 4), (.cards, 2), (.tests, 2)
+        ] {
+            let result = StudyQuestionSelection.select(questions + [questions[0]], format: format,
+                strategy: .all, knowledgeStates: [:], now: .now)
+            #expect(result.count == expected)
+            #expect(Set(result.map(\.id)).count == result.count)
+        }
+        #expect(StudyQuestionSelection.select(questions, format: .cards,
+            knowledgeStates: [:], now: .now).map(\.kind) == [.reveal, .pair])
+        #expect(StudyQuestionSelection.select(questions, format: .tests,
+            knowledgeStates: [:], now: .now).map(\.kind) == [.singleChoice, .multipleChoice])
+    }
+
+    @Test func dueWeakThenNewThenNotDueWithStableTies() {
+        let now = Date(timeIntervalSince1970: 1_700_000_000)
+        let future = now.addingTimeInterval(86400)
+        let dueStrong = question(.reveal), newA = question(.pair), futureCard = question(.singleChoice)
+        let dueWeak = question(.multipleChoice), newB = question(.reveal)
+        let source = [futureCard, newA, dueStrong, newB, dueWeak]
+        let states: [UUID: LearningState] = [
+            dueStrong.knowledgeID: LearningState(intervalDays: 3, streak: 4, nextDueAt: now),
+            dueWeak.knowledgeID: LearningState(intervalDays: 0, streak: 0, nextDueAt: now),
+            futureCard.knowledgeID: LearningState(intervalDays: 7, streak: 3, nextDueAt: future)
+        ]
+        let selected = StudyQuestionSelection.select(source, knowledgeStates: states, now: now)
+        #expect(selected.map(\.id) == [dueWeak.id, dueStrong.id, newA.id, newB.id, futureCard.id])
+        #expect(StudyQuestionSelection.select(source, strategy: .all,
+            knowledgeStates: states, now: now).map(\.id) == source.map(\.id))
+        #expect(StudyQuestionSelection.select([newA, newB], knowledgeStates: [:], now: now)
+            .map(\.id) == [newA.id, newB.id])
+        #expect(StudyQuestionSelection.select([], knowledgeStates: [:], now: now).isEmpty)
+    }
+}

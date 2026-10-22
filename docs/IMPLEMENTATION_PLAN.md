@@ -52,3 +52,7 @@ This section supersedes the historical “in progress” labels above. **Goal: l
 | P1 | Handoff and RC signoff | Updated docs, reproducible migration/rollback, clean scoped commit, owner acceptance | **IN PROGRESS** |
 
 **Execution order:** (1) close deterministic session-mode tests; (2) finish adaptive policy and tests; (3) disposable-backend/offline sync verification; (4) device visual/accessibility checks; (5) full isolated regressions; (6) privacy/moderation and release checklist. Re-evaluate remaining gaps after each gate; no RC tag until mandatory gates pass or owner explicitly scopes them out.
+
+### Checkpoint — shared selection and deterministic tests, 2026-10-22
+
+Unified `StudyQuestionSelection` is implemented in `DailyPlanner.swift` and reused by `GameHomeView.swift`. New unit matrix covers formats, duplicate IDs, both strategies, due/new/future priority and no-due fallback. **139/139 unit + 16/16 standard UI PASS** on iPhone 16e simulator (`/tmp/botai_selection_full_20261022.log`). **Still OPEN:** full UI cross-product, disabled empty launch, answer persistence per format and chemistry seeded rerun. Next: extend targeted UI acceptance without relying on source-only assertions.
