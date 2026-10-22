@@ -98,3 +98,9 @@ All scenarios are mandatory for MVP; this is a verification plan, not evidence o
 - Added `KnowledgeDeadlineForecastTests.sharedQuestionCountsInEachTopicButOnlyOnceForCombinedGoal`: a shared knowledge ID contributes to coverage of both topics, but combined subject goal uses the union (3 unique IDs, not 4), and mastery of the shared ID counts once globally.
 - **142/142 Swift Testing unit PASS (45 suites)**, exit 0, `/tmp/botai_shared_goal_all_units_20261022.log`. Last general UI 23/23 and seeded chemistry UI 2/2 were separate prior runs; no claim of a new full UI regression.
 - **Still open:** actual two-topic UI E2E and session attribution/aggregate correctness across mixed scope.
+
+### Two real topics, one shared questionnaire — UI checkpoint 2026-10-22
+
+- Added `LaunchSmokeTests.testSharedQuestionSetInTwoTopicsIsNotDuplicatedForSubject`: via actual UI creates a course/section and two topics, assigns the **same seeded question set** to each, checks both topic launch rows and whole-subject row enabled, asserts identical nonzero question counts for each topic and subject (union, not sum), then launches the second topic and sees a real question.
+- **Focused UI 1/1 PASS**, `xcodebuild` exit 0, `/tmp/botai_shared_two_topics_ui_20261022.log`. Unit target last **142/142 PASS**; prior general UI **23/23 PASS**, seeded chemistry **2/2 PASS**.
+- This UI case proves shared-set launch/counts, **not** completed-session summary/attribution or actual mastered-state visibility in both topic screens. Those remain open; do not overclaim.

@@ -158,3 +158,5 @@ See `docs/iterations/V030_CHEMISTRY_PILOT.md` for authoritative milestones, veri
 - **2026-10-22 shared mastery regression:** one questionnaire referenced by multiple topics shares one durable `knowledgeID` mastery state; test confirms reopen/answer/reopen across topic contexts. **141/141 unit PASS** (`/tmp/botai_shared_knowledge_all_units_20261022.log`). General UI last 23/23 PASS; chemistry seeded 2/2 PASS (separate runs). UI E2E shared-topic flow remains pending.
 
 - **2026-10-22 unique coverage gate:** shared knowledge counted in each topic but once in combined subject forecast; **142/142 unit PASS** (`/tmp/botai_shared_goal_all_units_20261022.log`). Two-topic UI E2E remains OPEN.
+
+- **2026-10-22 two-topic UI:** actual course/section/two topics referencing one seeded set; topic counts equal whole-subject unique count; second topic launches real question. **Focused 1/1 UI PASS**, `/tmp/botai_shared_two_topics_ui_20261022.log`. Full standard UI suite not rerun after this addition. Completed-session shared attribution still OPEN.

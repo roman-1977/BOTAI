@@ -80,3 +80,7 @@ Chosen-topic sessions now override ambiguous shared-question ownership with the 
 ### Shared unique coverage checkpoint — 2026-10-22
 
 Новый unit regression проверяет общий `knowledgeID` в двух темах и union для предмета: **142/142 PASS**, `/tmp/botai_shared_goal_all_units_20261022.log`. Осталось UI E2E на двух реальных темах и проверка агрегатов завершённой сессии.
+
+### Two-topic shared questionnaire UI checkpoint — 2026-10-22
+
+Реальный UI-сценарий двух тем с одним опросником: **1/1 PASS**, `/tmp/botai_shared_two_topics_ui_20261022.log`, subject question count deduplicated. Не проверено ещё завершение сессии с правильным topic breakdown и shared mastery в UI.

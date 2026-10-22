@@ -306,6 +306,66 @@ final class LaunchSmokeTests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Кислота"].waitForExistence(timeout: 10))
     }
 
+    func testSharedQuestionSetInTwoTopicsIsNotDuplicatedForSubject() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-botai-ui-testing", "-botai-reset-ui-test-data", "-botai-seed-course-material"]
+        app.launch()
+        XCTAssertTrue(app.buttons["Мои курсы"].waitForExistence(timeout: 20))
+        app.buttons["Мои курсы"].tap()
+        app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Создать курс")).firstMatch.tap()
+        let title = app.textFields["ЕГЭ Химия 2027"]
+        XCTAssertTrue(title.waitForExistence(timeout: 10))
+        title.tap()
+        title.typeText("Курс с общим опросником")
+        app.buttons["Создать"].tap()
+        app.staticTexts["Курс с общим опросником"].tap()
+        app.buttons["Добавить раздел"].tap()
+        let section = app.textFields["Неорганическая химия"]
+        XCTAssertTrue(section.waitForExistence(timeout: 10))
+        section.tap()
+        section.typeText("Раздел проверки")
+        app.buttons["Добавить"].tap()
+        app.staticTexts["Раздел проверки"].tap()
+        for name in ["Тема первая", "Тема вторая"] {
+            app.buttons["Добавить тему"].tap()
+            let field = app.textFields["Например: Кислоты"]
+            XCTAssertTrue(field.waitForExistence(timeout: 10))
+            field.tap()
+            field.typeText(name)
+            app.buttons["Сохранить"].tap()
+            let row = app.staticTexts[name]
+            XCTAssertTrue(row.waitForExistence(timeout: 10))
+            row.tap()
+            app.buttons["Выбрать опросники"].tap()
+            XCTAssertTrue(app.staticTexts["Учебный материал UI"].waitForExistence(timeout: 10))
+            app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "course-rule-")).firstMatch.tap()
+            app.buttons["Готово"].tap()
+            app.navigationBars[name].buttons.firstMatch.tap()
+        }
+        app.navigationBars["Раздел"].buttons.firstMatch.tap()
+        app.navigationBars["Курс с общим опросником"].buttons.firstMatch.tap()
+        app.navigationBars["Мои курсы"].buttons.firstMatch.tap()
+        let launch = app.buttons["primary-study-launch"]
+        XCTAssertTrue(launch.waitForExistence(timeout: 10))
+        launch.tap()
+        XCTAssertTrue(app.navigationBars["Что будем учить?"].waitForExistence(timeout: 10))
+        let first = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Тема первая")).firstMatch
+        let second = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Тема вторая")).firstMatch
+        let subject = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Весь предмет")).firstMatch
+        XCTAssertTrue(first.waitForExistence(timeout: 10))
+        XCTAssertTrue(second.isEnabled)
+        XCTAssertTrue(subject.isEnabled)
+        // The subject must contain the union of knowledge, not the sum of two references.
+        let firstCount = Int(first.label.split(separator: " ").last ?? "")
+        let secondCount = Int(second.label.split(separator: " ").last ?? "")
+        let subjectCount = Int(subject.label.split(separator: " ").last ?? "")
+        XCTAssertNotNil(firstCount)
+        XCTAssertEqual(firstCount, secondCount)
+        XCTAssertEqual(firstCount, subjectCount)
+        second.tap()
+        XCTAssertTrue(app.staticTexts["Кислота"].waitForExistence(timeout: 10))
+    }
+
     func testPopulatedCatalogStrategyAllAndAutomatic() throws {
         let app = XCUIApplication()
         app.launchArguments = ["-botai-ui-testing", "-botai-reset-ui-test-data", "-botai-seed-course-material"]
