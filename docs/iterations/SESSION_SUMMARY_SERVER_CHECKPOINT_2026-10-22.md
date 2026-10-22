@@ -67,3 +67,5 @@ Local SQLite migration `v17_topic_aggregate_ack` adds nullable `topicsUploadedAt
 Focused checks: topic queue 2/2 (`/tmp/botai_topic_queue_20261022.log`), transport build plus existing coordinator 9/9 (`/tmp/botai_topic_transport_20261022.log`), dedicated fake-backend topic coordinator 7/7 (`/tmp/botai_topic_coordinator_20261022.log`). Pending: full regression, real two-user RLS and parent/topic end-to-end test in disposable backend, handling server conflict with differing immutable row values, surfacing nonfatal sync errors.
 
 2026-10-22: Both aggregate transports now reject duplicate keys before upsert. Unit regression: 131/131 PASS, /tmp/botai_unit_regression_20261022.log. UI regression running in /tmp/botai_ui_regression_20261022.log. RLS SQL tests remain unexecuted without a disposable backend.
+
+2026-10-22: Added targeted topic-sync concurrency tests for account changes during an upload, overlapping flushes, and network failure; awaiting focused execution after full UI regression. Full UI regression log: /tmp/botai_ui_regression_20261022.log.

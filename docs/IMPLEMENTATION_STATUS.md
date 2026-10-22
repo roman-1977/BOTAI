@@ -120,3 +120,5 @@ See `docs/iterations/V030_CHEMISTRY_PILOT.md` for authoritative milestones, veri
 - 2026-10-22: Implemented local v17 independent topic ACK queue and authenticated topic aggregate transport with verified readback, retry-safe parent-before-topic ordering, and 7/7 new coordinator tests. Supabase 0025/0026 still unapplied; no live server validation.
 
 - 2026-10-22: Duplicate-key guards added; 131/131 unit tests PASS; full UI regression pending.
+
+- 2026-10-22: Added topic-sync concurrency regression tests (account switch, duplicate flush, backend failure); execution pending completion of UI suite.

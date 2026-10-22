@@ -377,3 +377,77 @@ struct TopicAggregateSyncCoordinatorTests {
         #expect(await backend.calls == 0)
     }
 }
+
+private actor SuspendedTopicAggregateBackend: TopicAggregateBackendAPI {
+    private var continuation: CheckedContinuation<Void, Never>?
+    private var didStart = false
+    private(set) var calls = 0
+    func uploadTopicAggregates(_ summaries: [CompletedSessionSummary]) async throws -> [UUID] {
+        calls += 1
+        didStart = true
+        await withCheckedContinuation { continuation = $0 }
+        return summaries.map(\.sessionID)
+    }
+    func started() -> Bool { didStart }
+    func resume() { continuation?.resume(); continuation = nil }
+}
+
+struct TopicAggregateConcurrencyTests {
+    private func setup() throws -> (LearningRepository, UUID) {
+        let repository = LearningRepository(database: try AppDatabase())
+        let attribution = StudyQuestionAttribution(courseID: UUID(), sectionID: UUID(), topicID: UUID())
+        var topics = SessionTopicAccumulator()
+        topics.record(correct: true, attribution: attribution)
+        let session = StudySession(id: UUID(), startedAt: .now, endedAt: .now,
+            activeSeconds: 9, answered: 1, correct: 1)
+        try repository.completeSession(session, topics: topics)
+        try repository.acknowledgeSessionSummaries([session.id])
+        return (repository, session.id)
+    }
+
+    @Test func accountSwitchDuringTopicUploadLeavesPendingQueue() async throws {
+        let (repository, _) = try setup()
+        let backend = SuspendedTopicAggregateBackend()
+        let gate = AccountGate()
+        let coordinator = TopicAggregateSyncCoordinator(backend: backend,
+            repository: repository, isCurrentAccount: { await gate.isActive() })
+        let task = Task { try await coordinator.flush() }
+        for _ in 0..<1000 {
+            if await backend.started() { break }
+            await Task.yield()
+        }
+        #expect(await backend.started())
+        await gate.deactivate()
+        await backend.resume()
+        #expect(try await task.value == 0)
+        #expect(try repository.pendingTopicSessionSummaries().count == 1)
+    }
+
+    @Test func concurrentTopicFlushesOnlySendOnce() async throws {
+        let (repository, _) = try setup()
+        let backend = SuspendedTopicAggregateBackend()
+        let coordinator = TopicAggregateSyncCoordinator(backend: backend,
+            repository: repository, isCurrentAccount: { true })
+        let task = Task { try await coordinator.flush() }
+        for _ in 0..<1000 {
+            if await backend.started() { break }
+            await Task.yield()
+        }
+        #expect(await backend.started())
+        #expect(try await coordinator.flush() == 0)
+        await backend.resume()
+        #expect(try await task.value == 1)
+        #expect(await backend.calls == 1)
+        #expect(try repository.pendingTopicSessionSummaries().isEmpty)
+    }
+
+    @Test func networkFailurePreservesTopicQueue() async throws {
+        let (repository, _) = try setup()
+        let coordinator = TopicAggregateSyncCoordinator(backend: FakeTopicAggregateBackend(.failure),
+            repository: repository, isCurrentAccount: { true })
+        await #expect(throws: BOTAIBackendError.invalidAcknowledgement) {
+            try await coordinator.flush()
+        }
+        #expect(try repository.pendingTopicSessionSummaries().count == 1)
+    }
+}
