@@ -30,6 +30,16 @@ struct StudyQuestionAttribution: Codable, Equatable, Hashable, Sendable {
 enum StudyQuestionAttributionResolver {
     /// A reference may appear in multiple topics/courses; such questions are not assigned
     /// to a single topic unless the session launcher provides explicit scope.
+    /// An explicitly selected topic is authoritative even when its question set is
+    /// also referenced elsewhere. Mixed/subject launches still use uniqueAttributions.
+    static func selectedTopicAttributions(
+        courseID: UUID, sectionID: UUID, topic: CourseTopic, questions: [StudyQuestion]
+    ) -> [UUID: StudyQuestionAttribution] {
+        let attribution = StudyQuestionAttribution(
+            courseID: courseID, sectionID: sectionID, topicID: topic.id)
+        return Dictionary(uniqueKeysWithValues: Set(questions.map(\.id)).map { ($0, attribution) })
+    }
+
     static func uniqueAttributions(
         courses: [StudyCourse], questionsByReference: [CourseRuleReference: [StudyQuestion]]
     ) -> [UUID: StudyQuestionAttribution] {

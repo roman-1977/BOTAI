@@ -36,3 +36,9 @@ All scenarios are mandatory for MVP; this is a verification plan, not evidence o
 
 - Added `LaunchSmokeTests.testEmptyCatalogLaunchCannotCreateSessionAcrossFormats`: an empty library disables the mixed quick-start row before and after opening advanced settings, and closing the picker does not create a resumable session. **Focused UI PASS** (`/tmp/botai_empty_catalog_ui_20261022.log`, exit 0).
 - This is **not** exhaustive format-by-format empty-state coverage; it verifies the empty catalog and settings disclosure only. Subject/topic populated UI paths and format-specific disabled rows remain open.
+
+### Explicit topic attribution checkpoint — 2026-10-22
+
+- Fixed shared-question attribution: an explicit topic launch now records all selected question IDs against that chosen course/section/topic, even when another topic references the same question set. Subject/mixed launch retains ambiguity-safe `uniqueAttributions` behavior.
+- Added deterministic `explicitTopicOverridesSharedQuestionAmbiguity` test, including duplicate input and empty selection. **140/140 unit PASS** (`/tmp/botai_scope_attribution_unit_20261022.log`, exit 0).
+- **Pending:** full UI regression after this change and UI test for choosing a populated topic that shares a question set.

@@ -232,6 +232,23 @@ struct StudyQuestionAttributionTests {
         #expect(resolved[question.id] == nil)
     }
 
+    @Test func explicitTopicOverridesSharedQuestionAmbiguity() {
+        let ref = CourseRuleReference(materialID: UUID(), ruleID: UUID())
+        let first = CourseTopic(id: UUID(), title: "First", questionSets: [ref])
+        let second = CourseTopic(id: UUID(), title: "Second", questionSets: [ref])
+        let question = StudyQuestion(id: UUID(), prompt: "Q", answer: "A", kind: .reveal,
+            choices: [], correctChoiceIndexes: [])
+        let courseID = UUID(), sectionID = UUID()
+        let selected = StudyQuestionAttributionResolver.selectedTopicAttributions(
+            courseID: courseID, sectionID: sectionID, topic: second, questions: [question, question])
+        #expect(selected.count == 1)
+        #expect(selected[question.id] == StudyQuestionAttribution(
+            courseID: courseID, sectionID: sectionID, topicID: second.id))
+        #expect(selected[question.id]?.topicID != first.id)
+        #expect(StudyQuestionAttributionResolver.selectedTopicAttributions(
+            courseID: courseID, sectionID: sectionID, topic: second, questions: []).isEmpty)
+    }
+
     @Test func uniquelyScopedQuestionKeepsStableIDs() {
         let ref = CourseRuleReference(materialID: UUID(), ruleID: UUID())
         let topic = CourseTopic(id: UUID(), title: "Topic", questionSets: [ref])

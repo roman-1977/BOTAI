@@ -827,7 +827,8 @@ private struct SessionLaunchPicker: View {
               refs: course.sections.flatMap { $0.topics.flatMap(\.questionSets) })
             ForEach(course.sections) { section in
               ForEach(section.topics) { topic in
-                launchRow(topic.title, refs: topic.questionSets)
+                launchRow(topic.title, refs: topic.questionSets,
+                  selectedTopic: (course.id, section.id, topic))
               }
             }
           }
@@ -837,7 +838,8 @@ private struct SessionLaunchPicker: View {
         .toolbar { Button("Закрыть") { dismiss() } }
     }
   }
-  private func launchRow(_ title: String, refs: [CourseRuleReference]) -> some View {
+  private func launchRow(_ title: String, refs: [CourseRuleReference],
+    selectedTopic: (UUID, UUID, CourseTopic)? = nil) -> some View {
     let selected = StudyQuestionSelection.select(
       questions(refs),
       format: format == "cards" ? .cards : format == "tests" ? .tests : .mixed,
@@ -854,7 +856,11 @@ private struct SessionLaunchPicker: View {
       let attribution = StudyQuestionAttributionResolver.uniqueAttributions(
         courses: courses, questionsByReference: references)
         .filter { selectedIDs.contains($0.key) }
-      start(selected, title, attribution)
+      let scopedAttribution = selectedTopic.map { courseID, sectionID, topic in
+        StudyQuestionAttributionResolver.selectedTopicAttributions(
+          courseID: courseID, sectionID: sectionID, topic: topic, questions: selected)
+      } ?? attribution
+      start(selected, title, scopedAttribution)
     } label: {
       HStack {
         Text(title)

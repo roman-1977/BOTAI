@@ -60,3 +60,7 @@ Unified `StudyQuestionSelection` is implemented in `DailyPlanner.swift` and reus
 ### Empty-library UI checkpoint — 2026-10-22
 
 Empty-catalog quick-start disabled-state and no-spurious-session UI test **PASS** (`/tmp/botai_empty_catalog_ui_20261022.log`). Still to verify populated scope/format matrix and format-specific empty states; run full suite after these additions.
+
+### Explicit topic attribution — 2026-10-22
+
+Chosen-topic sessions now override ambiguous shared-question ownership with the explicit course/section/topic selection; mixed/subject sessions retain conservative unique ownership. 140/140 unit tests PASS. Full UI rerun and populated scope cross-product remain pending.

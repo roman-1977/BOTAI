@@ -1,3 +1,5 @@
+> **2026-10-22 scope fix:** explicit topic attribution for shared question sets implemented; 140/140 unit PASS (`/tmp/botai_scope_attribution_unit_20261022.log`). Full UI rerun pending; **NOT RC**.
+
 > **2026-10-22 additional focused UI:** empty-library launch disabled/no accidental session **PASS** (`/tmp/botai_empty_catalog_ui_20261022.log`); full regression after this UI-only change pending.
 
 > **Latest v0.3.0 verification (2026-10-22):** Shared format/strategy selection for launcher and daily planner, deterministic matrix unit tests, **139/139 unit + 16/16 standard UI PASS** (`/tmp/botai_selection_full_20261022.log`, exit 0). Full cross-product UI matrix and seeded chemistry rerun remain outstanding; **NOT RC**.
