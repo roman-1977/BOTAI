@@ -20,3 +20,7 @@ Date: 2026-10-22. Scope: RC-03, RC-06, RC-07. Status: **in progress, not accepte
 ## Release constraint
 
 Do not mark RC-06 PASS, advertise cloud sync for all four formats, or publish to TestFlight while these gates remain open. The 122 verified tests in the preceding iteration cover the existing supported paths, not the missing choice/media sync feature.
+
+## Superseding product decision — 2026-10-22
+
+**The choice/attempt publication plan above is superseded and must not be implemented as written.** Accepted direction: local per-question learning history; server receives aggregate statistics **only after session completion**. See `SESSION_SUMMARY_SYNC_DECISION_2026-10-22.md` for the authoritative architecture and migration/testing plan. Existing implementation has not yet been replaced.

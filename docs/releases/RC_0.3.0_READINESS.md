@@ -44,3 +44,7 @@ Date: 2026-10-22. Branch: `feature/v0.3.0-chemistry-pilot`. Baseline implementat
 2. Run serial full UI regression and existing BOTAITests on iPhone 16e simulator (`33176212-1247-4722-B8F4-4E53438502E4`) with `CODE_SIGNING_ALLOWED=NO`; separately run guarded chemistry fixture script `tools/chemistry_pilot/run_simulator_smoke.sh` on disposable simulator only.
 3. Audit format/strategy selection and adaptive planning against accepted decisions; turn findings into concrete tests and fix plan.
 4. Keep `docs/IMPLEMENTATION_STATUS.md` and active iteration log synchronized. Preserve user-owned `project.pbxproj`. Do not touch physical iPhone or production data without authorization.
+
+### RC-06 product decision update (2026-10-22)
+
+The accepted sync contract is now **completed-session aggregates only**; detailed question attempts and spaced repetition stay local. The previously proposed expansion of server choice-question publication is **cancelled**. RC-06 remains PARTIAL until durable completion-only summary sync, migration, RLS, retries, and tests are implemented. Authoritative plan: `docs/iterations/SESSION_SUMMARY_SYNC_DECISION_2026-10-22.md`.
