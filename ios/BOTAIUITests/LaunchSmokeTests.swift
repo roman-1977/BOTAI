@@ -324,10 +324,13 @@ final class ChemistryPilotSmokeTests: XCTestCase {
         let app = XCUIApplication()
         app.launchArguments = ["-botai-ui-testing"]
         app.launch()
-        let study = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "УЧИТЬСЯ СЕГОДНЯ")).firstMatch
-        XCTAssertTrue(study.waitForExistence(timeout: 20), "Chemistry pilot study action missing")
-        XCTAssertTrue(study.isEnabled, "Chemistry pilot has no available questions")
+        let study = app.buttons["primary-study-launch"]
+        XCTAssertTrue(study.waitForExistence(timeout: 20), "Primary study action missing")
         study.tap()
+        XCTAssertTrue(app.navigationBars["Что будем учить?"].waitForExistence(timeout: 10))
+        let chemistry = app.staticTexts["Весь предмет · Химия"]
+        XCTAssertTrue(chemistry.waitForExistence(timeout: 10), "Chemistry subject is unavailable")
+        chemistry.tap()
         let finish = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "ЗАВЕРШИТЬ ЗАНЯТИЕ")).firstMatch
         XCTAssertTrue(finish.waitForExistence(timeout: 15), "Study session did not open")
         // Complete a real recall question without depending on randomized question order.
