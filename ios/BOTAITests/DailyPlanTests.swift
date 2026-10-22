@@ -152,3 +152,26 @@ extension KnowledgeDeadlineForecastTests {
         #expect(result.observedPerDay ?? 1 <= 0)
     }
 }
+
+@MainActor struct ForecastChartPDFTests {
+  @Test func historyAddsChartPageWithReadableText() throws {
+    let goalID = UUID()
+    let now = Date()
+    let first = LearningRepository.ForecastSnapshot(goalID:goalID,day:"2026-10-19",calculatedAt:now.addingTimeInterval(-86400 * 3),forecastAt:nil,known:2,target:10,rate:0.1,algorithmVersion:2)
+    let last = LearningRepository.ForecastSnapshot(goalID:goalID,day:"2026-10-22",calculatedAt:now,forecastAt:nil,known:5,target:10,rate:0.3,algorithmVersion:2)
+    let profile = StudyProfile(defaultDailyMinutes:30,customDays:[],updatedAt:now)
+    let url = try StudyPDFReport.export(profile:profile,sessions:[],attempts:[],knowledgeStates:[:],courses:[],forecastHistory:[first,last],now:now)
+    defer { try? FileManager.default.removeItem(at:url) }
+    let pdf = try #require(PDFDocument(url:url))
+    #expect(pdf.pageCount >= 2)
+    #expect(pdf.string?.contains("ИСТОРИЯ ПРОГНОЗОВ") == true)
+    #expect(pdf.string?.contains("освоено 2 → 5") == true)
+  }
+
+  @Test func noHistoryDoesNotAddEmptyChartPage() throws {
+    let url = try StudyPDFReport.export(profile:.standard,sessions:[],attempts:[],knowledgeStates:[:],courses:[])
+    defer { try? FileManager.default.removeItem(at:url) }
+    let pdf = try #require(PDFDocument(url:url))
+    #expect(pdf.string?.contains("ИСТОРИЯ ПРОГНОЗОВ") == false)
+  }
+}

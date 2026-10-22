@@ -44,3 +44,6 @@ Verification: 2 Swift snapshot tests, 2 PDF tests, 5 Python tests passed.
 
 ## UI regression and automatic capture (2026-10-22)
 On dismissal of a learning session, the home screen records updated goal forecasts. PDF export also updates the same-day snapshot. Repeated captures overwrite the same goal/day row. A UI test opens the actual PDF system share sheet; it passed alongside home, visual-baseline, and storage-isolation UI tests (4/4 on simulator). History still needs a chart, and capture from all non-home learning flows is not yet guaranteed.
+
+## PDF vector trend chart (2026-10-22)
+When at least two daily forecast snapshots exist, the PDF now appends a vector line chart of known knowledge against snapshot dates for each goal, plus first/latest numeric labels. The pages are merged with PDFKit. Dedicated PDFKit tests 2/2 passed. Forecast date evolution remains described in text; this chart plots knowledge count, not ETA. Full UI suite is being investigated after an existing Edit Course test failed.

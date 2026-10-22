@@ -1,5 +1,6 @@
 import SwiftUI
 import UIKit
+import PDFKit
 
 /// Semantic palette for the existing dark learning/home experience.
 /// Components should use roles rather than scattering literal RGB values.
@@ -419,11 +420,6 @@ enum StudyPDFReport {
     } else {
       lines.append("Запланированного времени нет. Занятия по желанию — дополнительный результат.")
     }
-    let activeDeadlines = courses.flatMap(\.goals).filter { $0.state == .active && $0.deadline != nil }
-    if !activeDeadlines.isEmpty {
-      lines.append("Прогноз достижения учебных целей: пока недостаточно истории изменения освоения.")
-      lines.append("Текущий темп минут не равен скорости освоения знаний; прогноз готовности по дедлайну будет добавлен после накопления снимков прогресса.")
-    }
     if let materials {
       lines.append("")
       lines.append("ПРОГНОЗ ДОСТИЖЕНИЯ ЦЕЛЕЙ ПО ЗНАНИЯМ")
@@ -464,6 +460,63 @@ enum StudyPDFReport {
         if y + height > 800 { ctx.beginPage(); y = 45 }
         (line as NSString).draw(in: CGRect(x: rect.minX, y: y, width: rect.width, height: height), withAttributes: attrs)
         y += height + (line.isEmpty ? 6 : 2)
+      }
+    }
+    // Add a dedicated visual history page only when at least two daily observations exist.
+    let grouped = Dictionary(grouping: forecastHistory, by: \.goalID)
+    let chartGroups = grouped.values.filter { $0.count >= 2 }
+    if !chartGroups.isEmpty {
+      let chartRenderer = UIGraphicsPDFRenderer(bounds: CGRect(x: 0, y: 0, width: 595, height: 842))
+      let chartData = chartRenderer.pdfData { ctx in
+        ctx.beginPage()
+        let title = "ИСТОРИЯ ПРОГНОЗОВ — ДИНАМИКА ОСВОЕНИЯ"
+        (title as NSString).draw(at: CGPoint(x: 38, y: 42), withAttributes: [.font: UIFont.boldSystemFont(ofSize: 15)])
+        var top: CGFloat = 95
+        for snapshots in chartGroups.sorted(by: { ($0.first?.goalID.uuidString ?? "") < ($1.first?.goalID.uuidString ?? "") }) {
+          if top + 165 > 800 { ctx.beginPage(); top = 55 }
+          let ordered = snapshots.sorted { $0.calculatedAt < $1.calculatedAt }
+          guard let first = ordered.first, let last = ordered.last else { continue }
+          let label = courses.flatMap(\.goals).first(where: { $0.id == first.goalID })?.title ?? "Учебная цель"
+          ("\(label) · освоено \(first.known) → \(last.known)" as NSString).draw(at: CGPoint(x: 38, y: top),
+            withAttributes: [.font: UIFont.systemFont(ofSize: 11)])
+          let origin = CGPoint(x: 50, y: top + 115)
+          let width: CGFloat = 490, height: CGFloat = 75
+          let maxKnown = max(1, ordered.map { max($0.target, $0.known) }.max() ?? 1)
+          let dates = ordered.map(\.calculatedAt)
+          let span = max(1, dates.last!.timeIntervalSince(dates.first!))
+          let context = ctx.cgContext
+          context.setStrokeColor(UIColor.systemGray.cgColor)
+          context.setLineWidth(0.5)
+          context.move(to: CGPoint(x: origin.x, y: origin.y - height))
+          context.addLine(to: origin)
+          context.addLine(to: CGPoint(x: origin.x + width, y: origin.y))
+          context.strokePath()
+          context.setStrokeColor(UIColor.systemBlue.cgColor)
+          context.setLineWidth(2)
+          for (index, item) in ordered.enumerated() {
+            let x = origin.x + width * CGFloat(item.calculatedAt.timeIntervalSince(dates.first!) / span)
+            let y = origin.y - height * CGFloat(item.known) / CGFloat(maxKnown)
+            if index == 0 { context.move(to: CGPoint(x: x, y: y)) }
+            else { context.addLine(to: CGPoint(x: x, y: y)) }
+          }
+          context.strokePath()
+          ("\(first.calculatedAt.formatted(date: .numeric, time: .omitted))" as NSString).draw(at: CGPoint(x: origin.x, y: origin.y + 5),
+            withAttributes: [.font: UIFont.systemFont(ofSize: 8)])
+          ("\(last.calculatedAt.formatted(date: .numeric, time: .omitted))" as NSString).draw(at: CGPoint(x: origin.x + width - 75, y: origin.y + 5),
+            withAttributes: [.font: UIFont.systemFont(ofSize: 8)])
+          top += 165
+        }
+      }
+      // Merge the text report and chart pages without rasterizing either document.
+      if let original = PDFDocument(data: data), let chart = PDFDocument(data: chartData) {
+        while let page = chart.page(at: 0) {
+          chart.removePage(at: 0)
+          original.insert(page, at: original.pageCount)
+        }
+        if let combined = original.dataRepresentation() {
+          try combined.write(to: output, options: .atomic)
+          return output
+        }
       }
     }
     try data.write(to: output, options: .atomic)
