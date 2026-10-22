@@ -199,3 +199,46 @@ extension ForecastChartPDFTests {
     #expect(pdf.string?.contains("последний:") == true)
   }
 }
+
+extension ForecastChartPDFTests {
+  @Test func manyGoalsLongHistoryFitWithinPageBounds() throws {
+    let now = Date()
+    let goals = (0..<8).map { index in
+      LearningGoal(id: UUID(), title: "Цель №\(index)", questionSets: [],
+        masteryTarget: 90, deadline: now.addingTimeInterval(86400 * 30), state: .active)
+    }
+    let course = StudyCourse(id: UUID(), title: "Курс", description: "", subject: "Физика",
+      audience: "ЕГЭ", estimatedMinutes: nil, author: nil, language: "ru",
+      coverSymbol: "book", source: .created, sections: [], goals: goals,
+      createdAt: now, updatedAt: now)
+    var snapshots: [LearningRepository.ForecastSnapshot] = []
+    for goal in goals {
+      for index in 0..<60 {
+        let observedAt = now.addingTimeInterval(Double(index - 59) * 86400)
+        let predictedAt = now.addingTimeInterval(Double(50 - index / 2) * 86400)
+        let item = LearningRepository.ForecastSnapshot(goalID: goal.id, day: "day-\(index)",
+          calculatedAt: observedAt, forecastAt: predictedAt,
+          known: index, target: 60, rate: 0.4, algorithmVersion: 2)
+        snapshots.append(item)
+      }
+    }
+    let url = try StudyPDFReport.export(profile: .standard, sessions: [], attempts: [],
+      knowledgeStates: [:], courses: [course], forecastHistory: snapshots, now: now)
+    defer { try? FileManager.default.removeItem(at: url) }
+    let pdf = try #require(PDFDocument(url: url))
+    #expect(pdf.pageCount >= 4)
+    let allText = pdf.string ?? ""
+    for index in 0..<8 { #expect(allText.contains("Цель №\(index)")) }
+    for pageIndex in 0..<pdf.pageCount {
+      guard let page = pdf.page(at: pageIndex) else { continue }
+      let pageBounds = page.bounds(for: .mediaBox)
+      for selection in (page.selection(for: pageBounds)?.selectionsByLine() ?? []) {
+        let bounds = selection.bounds(for: page)
+        #expect(bounds.minX >= -2)
+        #expect(bounds.minY >= -2)
+        #expect(bounds.maxX <= pageBounds.maxX + 2)
+        #expect(bounds.maxY <= pageBounds.maxY + 2)
+      }
+    }
+  }
+}

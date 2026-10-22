@@ -139,3 +139,6 @@ Tests: full Swift `BOTAITests` suite passed **101/101** on iPhone 16 Pro Max bef
 
 ### 2026-10-22 — Joint regression on 89d8192
 Ran `xcodebuild test` (scheme BOTAI, iOS Simulator 2322A47B-83E7-42FE-A708-5F1CFA018DBC, serial execution, code signing disabled). Results: **102/102 Swift tests passed**, **11/11 UI tests passed**, `TEST SUCCEEDED`, 205.28s total. Full log `/tmp/botai_final_joint_oct22.log`. This confirms the combined suite on commit 89d8192. Visual manual inspection of the generated multi-goal PDF remains outstanding; PDFKit extraction tests do not prove absence of overlapping graphics.
+
+### 2026-10-22 — Long-history PDF layout stress test
+Added a dedicated PDFKit regression with eight goals and 60 forecast snapshots per goal (480 observations). It verifies multi-page pagination, that all eight goal labels survive text extraction, and that extracted line bounding rectangles remain within page media boxes. `ForecastChartPDFTests` passed 4/4 on iPhone 16e simulator, log `/tmp/botai_pdf_stress_oct22.log`. This checks text bounds but is not a human visual inspection of graph strokes or collision between adjacent graphs. Joint regression before this test was 102 Swift + 11 UI tests passed.
