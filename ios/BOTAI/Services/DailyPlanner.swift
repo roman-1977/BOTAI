@@ -28,10 +28,16 @@ enum DailyPlanner {
    let unique=all.filter { seen.insert($0.id).inserted }
    return Array(unique.sorted { lhs,rhs in
      let left=priority(lhs,learning,date:date),right=priority(rhs,learning,date:date)
-     return left == right ? lhs.id.uuidString < rhs.id.uuidString : left > right
+     return left > right // Preserve authored order within each priority tier
    }.prefix(count))
  }
- @MainActor private static func priority(_ q:StudyQuestion,_ l:LearningStore,date:Date)->Int { guard let s=l.knowledgeStates[q.knowledgeID] else{return 100};if s.nextDueAt <= date{return 80-s.streak*5};return 20-s.streak }
+ @MainActor private static func priority(_ q:StudyQuestion,_ l:LearningStore,date:Date)->Int {
+   guard let state=l.knowledgeStates[q.knowledgeID] else { return 100 }
+   // Due cards are urgent; previously failed cards (streak == 0) outrank
+   // well-practised ones. New cards follow, then not-yet-due reinforcement.
+   if state.nextDueAt <= date { return 200 - min(state.streak,20) * 5 }
+   return 30 - min(state.streak,20)
+ }
 }
 
 @MainActor enum GoalProgressService {

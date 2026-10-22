@@ -838,21 +838,27 @@ private struct SessionLaunchPicker: View {
     }
   }
   private func launchRow(_ title: String, refs: [CourseRuleReference]) -> some View {
-    let candidates = questions(refs).filter { question in
+    var seen = Set<UUID>()
+    let candidates = questions(refs).filter { seen.insert($0.id).inserted }.filter { question in
       switch format {
       case "cards": return question.kind == .reveal || question.kind == .pair
       case "tests": return question.kind == .singleChoice || question.kind == .multipleChoice
       default: return true
       }
     }
-    let due = candidates.filter {
-      guard let state = learning.knowledgeStates[$0.knowledgeID] else { return false }
-      return state.nextDueAt <= .now
-    }
     let selected: [StudyQuestion]
-    if strategy == "auto" && !due.isEmpty {
-      let dueIDs = Set(due.map(\.id))
-      selected = due + candidates.filter { !dueIDs.contains($0.id) }
+    if strategy == "auto" {
+      let now = Date.now
+      let knowledgeStates = learning.knowledgeStates
+      selected = candidates.sorted { lhs, rhs in
+        func rank(_ question: StudyQuestion) -> Int {
+          guard let state = knowledgeStates[question.knowledgeID] else { return 100 }
+          if state.nextDueAt <= now { return 200 - min(state.streak, 20) * 5 }
+          return 30 - min(state.streak, 20)
+        }
+        let left = rank(lhs), right = rank(rhs)
+        return left > right // Stable sort preserves authored question order for equal priority
+      }
     } else {
       selected = candidates
     }
