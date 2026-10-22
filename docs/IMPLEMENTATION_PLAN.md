@@ -41,15 +41,17 @@ This section supersedes the historical “in progress” labels above. **Goal: l
 
 | Priority | Work package | Exit criteria / proof | State |
 |---|---|---|---|
-| P0 | Session launch, ordering and resume | All new-session scope choices; temporary format/strategy settings; due-first and equal-priority ordering; atomic resume; unit and UI regression | **Implemented; 137 unit + 16 standard UI PASS**. Full cross-product matrix pending |
-| P0 | Automated session acceptance matrix | Deterministic tests for all/topic/subject × mixed/cards/tests × auto/all, no-due, empty format, duplicates, persisted attempts and restart | **OPEN** — see `SESSION_MODE_MATRIX_2026-10-22.md` |
-| P0 | Adaptive teacher-guided planning | Document teacher inputs, weakness/urgency/pace scoring and tie rules; implement and test deterministic selection without a review-only mode | **OPEN** |
-| P0 | Completed-session summary sync | Disposable Postgres migration `0025`/`0026`, RLS and idempotent retry tests, offline/reconnect and account isolation; question-level attempts remain local | **PARTIAL / backend acceptance pending** |
-| P0 | Small/standard/large iPhone visual/accessibility audit | Home no-scroll, compact full-width chart, theme, VoiceOver, Dynamic Type, Reduce Motion evidence | **OPEN** |
-| P0 | Final regression gate | Unit + standard UI + separately seeded chemistry UI after final code changes; no fixture contamination | **Standard 137+16 PASS; chemistry last 2/2 earlier checkpoint** |
-| P1 | Public content and Apple policy | Author/edit/publish, moderation/report/block, account deletion, privacy disclosures and operational tests | **PARTIAL** |
-| P1 | Distribution readiness | Signing, versioning, screenshots, privacy metadata, real-device checks, TestFlight install | **NOT VERIFIED; no distribution authorized** |
-| P1 | Handoff and RC signoff | Updated docs, reproducible migration/rollback, clean scoped commit, owner acceptance | **IN PROGRESS** |
+| Priority | Work package | Verified progress and real remainder | State |
+|---|---|---|---|
+| P0 | Session launch, ordering, resume | Topic/subject/all, mixed/cards/tests, automatic/all, durable cursor and reset verified; 36 card/choice and 18 mixed availability states. Distinct-subject exhaustive E2E not evidenced | **IMPLEMENTED / acceptance PARTIAL** |
+| P0 | Automated session matrix | Card-only 18, choice-only 18, mixed-catalog 18 availability states; actual launch/feedback and shared-set tests PASS. Exhaustive full-session multi-subject E2E remains | **SUBSTANTIALLY TESTED / edge matrix pending** |
+| P0 | Teacher-guided adaptive planning | Due-first, new/future fallback, stable tie and date handling implemented. Teacher inputs, difficulty/pace/weakness scoring remain unimplemented | **OPEN — functional gap** |
+| P0 | Completed-session aggregate sync | Disk-backed retry/ACK, offline Keychain, account isolation, PostgreSQL migrations 0025/0026 and 3 RLS fixtures PASS. Owner accepts deferring hosted/device gates; not a live-backend PASS | **LOCAL ACCEPTANCE COMPLETE / external deferred** |
+| P0 | Visual/accessibility audit | Small/standard/large iPhone, home no-scroll, chart, VoiceOver, Dynamic Type and Reduce Motion evidence still missing | **OPEN** |
+| P0 | Final regression | At `95cd330`: signed 159/159 unit + 25/25 UI PASS; separate seeded chemistry 2/2 PASS at earlier checkpoint. Rerun after final code changes | **CURRENT PASS / final rerun pending** |
+| P1 | Public content and Apple policy | Authoring, moderation, reports, block, deletion and privacy operational acceptance not fully verified | **PARTIAL** |
+| P1 | Distribution readiness | Local simulator Release build exists; signing, metadata, device and TestFlight not verified; publication explicitly deferred | **DEFERRED** |
+| P1 | Handoff and RC signoff | Per-commit evidence exists; current summary reconciled at `95cd330`; final signoff pending | **IN PROGRESS** |
 
 **Execution order:** (1) close deterministic session-mode tests; (2) finish adaptive policy and tests; (3) disposable-backend/offline sync verification; (4) device visual/accessibility checks; (5) full isolated regressions; (6) privacy/moderation and release checklist. Re-evaluate remaining gaps after each gate; no RC tag until mandatory gates pass or owner explicitly scopes them out.
 

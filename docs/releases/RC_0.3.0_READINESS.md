@@ -1,6 +1,6 @@
 # BOTAI v0.3.0 — Release Candidate readiness audit
 
-Date: 2026-10-22. Branch: `feature/v0.3.0-chemistry-pilot`. Baseline implementation: `a19a376`. Status: **NOT RC / audit only**. No release tag, archive, TestFlight upload or push.
+Date: 2026-10-22. Branch: `feature/v0.3.0-chemistry-pilot`. Baseline implementation: `a19a376`. Status: **NOT RC / reconciled 2026-10-23**. No release tag, archive, TestFlight upload or push.
 
 ## Evidence and boundaries
 
@@ -13,16 +13,16 @@ Date: 2026-10-22. Branch: `feature/v0.3.0-chemistry-pilot`. Baseline implementat
 
 | ID | Gate / measurable acceptance | Current state | Next executable verification |
 |---|---|---|---|
-| RC-01 | Starting session defaults to system strategy; manual subject/topic/mixed, format and review overrides work without persisting transient choices; resume preserves original settings | PARTIAL | UI test each launch path and resume with different formats; inspect session strategy implementation |
-| RC-02 | Multi-question restart resumes exact ordered next question, counts each answer once; background and explicit finish semantics are clear | PARTIAL | End-to-end 2+ question relaunch test, finish/discard test, crash/rollback and account-isolation tests |
-| RC-03 | Reveal, pair, single and multiple choice, empty-column card generation and imported chemistry content behave correctly | PARTIAL | Run existing card-generation and chemistry fixtures; test full session in all four modes |
-| RC-04 | Adaptive selection, due scheduling, goal priorities, teacher guidance and difficulty follow agreed product rules | OPEN — spec/implementation gap | Compare code to accepted rules, define deterministic scenario tests; do not imply full teacher-guided algorithm exists |
-| RC-05 | Home light theme fits one standard iPhone screen without scrolling; full-width half-height chart, pace/lag and CTA correct; Learn dark; VoiceOver/Dynamic Type adequate | UNVERIFIED visually | Screenshot/measure on small/standard/large simulators and actual device; accessibility audit |
-| RC-06 | Offline launch, answers, relaunch, migration, reconnect and no duplicated attempts; sync support explicitly documented for every MVP format | PARTIAL | Offline/reconnect integration tests, schema migration upgrade, RLS, unsupported format policy |
-| RC-07 | Import/author/edit/private/public and moderation/report/block/deletion workflows satisfy App Review constraints | PARTIAL | Test user flows and moderator operations; review `docs/APPLE_REVIEW_CHECKLIST.md` |
-| RC-08 | Full post-change unit/integration/UI and chemistry smoke suite green, no test-fixture contamination | PASS for committed resume changes (`b09f6ea`): 105 unit + 15 standard UI + 2 seeded chemistry UI | Rerun after any further code changes; chemistry requires separate seeded DB |
-| RC-09 | Signing, bundle/version/build, privacy policy, data disclosures, age rating, screenshots, App Store metadata and TestFlight install | NOT VERIFIED | Apple Developer/App Store Connect setup and physical-device acceptance |
-| RC-10 | Documentation, migration/rollback and handoff reproducible; no secrets or unrelated edits in RC commit | PARTIAL | Update affected specs, review clean diff, handoff and release notes; tag only after gates |
+| RC-01 | Session launch, scope, format, strategy, reset and resume | **IMPLEMENTED / broad tested; final acceptance PARTIAL** | 36 card/choice availability states + 18 mixed catalog states, real launch, resume, shared scopes PASS. Distinct multi-subject and exhaustive end-to-end matrix not verified |
+| RC-02 | Durable session resume and atomic answers | **IMPLEMENTED / tested; edge acceptance PARTIAL** | Answered/unanswered relaunch and persistence PASS; explicit discard/background/crash/account matrix not fully evidenced |
+| RC-03 | Cards, pair, single/multiple choice, chemistry | **IMPLEMENTED / tested; final acceptance PARTIAL** | Choice feedback, multiple choice, mixed fixture, separately seeded chemistry 2/2 PASS; exhaustive end-to-end across formats not evidenced |
+| RC-04 | Teacher-guided adaptive planning | **OPEN — genuine functional gap** | Due/new/not-due, deterministic tie and date logic PASS; teacher priorities/targets/difficulty/pace integration not implemented |
+| RC-05 | Home visual and accessibility on devices | **OPEN — unverified** | Multi-size no-scroll, Dynamic Type, VoiceOver, Reduce Motion and device sign-off pending |
+| RC-06 | Offline account and aggregate-only sync | **LOCAL GATES PASS / owner accepted deferred external checks** | Signed Keychain, durable restart/retry/ACK, SQL RLS 3/3, account isolation, 159 units + 25 UI PASS at `95cd330`. Hosted Supabase and real device/network not tested; never claim full external PASS |
+| RC-07 | UGC authoring/publication/moderation/privacy | **PARTIAL — operational checks pending** | Verify actual author/edit/publish, report/block, moderator and deletion workflows; do not infer from schema |
+| RC-08 | Standard + seeded chemistry regression | **PASS at last verified checkpoints** | `95cd330`: 159/159 unit + 25/25 standard UI; seeded chemistry 2/2 from prior isolated run. Repeat final regression after subsequent functional changes |
+| RC-09 | Signed distribution and App Store assets | **DEFERRED by owner / not verified** | No TestFlight/App Store upload authorized; simulator Release build previously PASS, not an IPA |
+| RC-10 | Reproducible docs, migrations, handoff | **PARTIAL — reconciliation underway** | SQL runner and commits exist; keep live status synchronized, verify scoped clean release handoff |
 
 ## Prioritization
 
