@@ -332,6 +332,26 @@ struct StudyQuestionSelectionMatrixTests {
         }
     }
 
+    @MainActor @Test func sharedKnowledgeAcrossFormatsUsesOneMasteryState() {
+        let now = Date(timeIntervalSince1970: 1_700_000_000)
+        let shared = UUID()
+        let card = StudyQuestion(id: UUID(), prompt: "Card", answer: "A", kind: .reveal,
+            choices: [], correctChoiceIndexes: [], knowledgeID: shared)
+        let choice = StudyQuestion(id: UUID(), prompt: "Choice", answer: "A", kind: .singleChoice,
+            choices: [], correctChoiceIndexes: [], knowledgeID: shared)
+        let fresh = question(.pair)
+        let source = [fresh, choice, card]
+        let due = [shared: LearningState(intervalDays: 3, streak: 1, nextDueAt: now)]
+        #expect(StudyQuestionSelection.select(source, knowledgeStates: due, now: now).map(\.id)
+            == [choice.id, card.id, fresh.id])
+        #expect(StudyQuestionSelection.select(source, format: .cards,
+            knowledgeStates: due, now: now).map(\.id) == [card.id, fresh.id])
+        #expect(StudyQuestionSelection.select(source, format: .tests,
+            knowledgeStates: due, now: now).map(\.id) == [choice.id])
+        #expect(GoalProgressService.masteryPercentage(questions: source,
+            states: [shared: LearningState(intervalDays: 4, streak: 5, nextDueAt: now)]) == 50)
+    }
+
     @Test func dueWeakThenNewThenNotDueWithStableTies() {
         let now = Date(timeIntervalSince1970: 1_700_000_000)
         let future = now.addingTimeInterval(86400)

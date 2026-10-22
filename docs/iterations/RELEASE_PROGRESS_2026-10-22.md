@@ -36,6 +36,10 @@ Audit found `GoalProgressService.reconcile` counted repeated questions in the de
 
 Added `StudyQuestionSelectionMatrixTests.allFormatsAndStrategiesPreserveUniqueQuestionIdentity` covering **mixed/cards/tests × automatic/all** with repeated question references. All six combinations return expected kinds and unique question IDs. **145/145 unit PASS** in 46 suites, `/tmp/botai_block1_matrix_units_20261022.log`. This is a unit matrix, **not** yet the full subject/topic/mixed UI matrix.
 
+### Cross-format shared mastery regression
+
+A card and a choice question with different question IDs but the same knowledgeID share due priority and mastery while remaining separately selectable in their formats. Goal mastery counts their shared knowledge once. **146/146 unit PASS**, `/tmp/botai_shared_format_mastery_units_20261022.log`. Full mixed-format UI fixture remains pending.
+
 ### Opposite format fixture (choice-only) UI matrix
 
 Extended the real single-choice fixture to verify the opposite 18 availability states: topic/subject/all-subject × mixed/cards/tests × automatic/all. Mixed/tests enabled, cards disabled; launches choice and validates correct-answer feedback. **1/1 focused UI PASS**, `/tmp/botai_choice_scope_matrix_ui_20261022.log`. Together with card-only fixture this covers **36 states**, but not distinct subjects or a mixed-format catalog.

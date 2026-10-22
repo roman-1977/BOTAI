@@ -111,6 +111,11 @@ All scenarios are mandatory for MVP; this is a verification plan, not evidence o
 - Initial compile failures were incorrect test-only property access (`session` vs `sessionID`, `topicID` vs `attribution.topicID`); corrected. **143/143 unit PASS in 45 suites**, exit 0, `/tmp/botai_shared_topic_summary_units_20261022.log`.
 - This verifies repository persistence and reporting semantics; complete real UI answer→finish→summary for shared topics and backend RLS integration remain pending.
 
+### Shared knowledge across card and choice formats — 2026-10-22
+
+- New deterministic `sharedKnowledgeAcrossFormatsUsesOneMasteryState`: two different question IDs (card and single-choice) intentionally share one knowledge ID; both inherit the same due priority, each format selects only its own kind, and goal mastery counts the shared knowledge once. **146/146 unit PASS**, `/tmp/botai_shared_format_mastery_units_20261022.log`.
+- Important distinction: distinct question formats for the same knowledge may coexist in a session, while their learning state is shared; deduplicating solely by knowledgeID would incorrectly discard one format. A combined UI fixture remains outstanding.
+
 ### Choice-only scope × format × strategy UI checkpoint — 2026-10-22
 
 - Expanded real single-choice material UI test to cover the opposite **18 states** across topic/subject/all-subject × mixed/cards/tests × automatic/all: mixed/tests enabled; cards disabled. Then launches an actual choice question and checks correct-answer feedback. **Focused UI 1/1 PASS**, xcodebuild exit 0, `/tmp/botai_choice_scope_matrix_ui_20261022.log`.
