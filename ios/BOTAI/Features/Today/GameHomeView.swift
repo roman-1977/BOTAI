@@ -28,6 +28,7 @@ struct GameHomeView: View {
   @State private var materialsOpen = false
   @State private var coursesOpen = false
   @State private var chooseGoal = false
+  @State private var chooseSession = false
   @State private var reportURL: URL?
   private var plan: DailyStudyPlan {
     DailyPlanner.make(
@@ -53,6 +54,12 @@ struct GameHomeView: View {
         ForEach(plan.goals) { g in Button("\(g.title) · \(g.questions.count) вопросов") { start(g) }
         }
         Button("Отмена", role: .cancel) {}
+      }.sheet(isPresented: $chooseSession) {
+        SessionLaunchPicker(courses: courses.courses, materials: materials, learning: learning) { questions, title in
+          learning.use(questions: questions.shuffled(), title: title, targetMinutes: plan.budgetMinutes)
+          chooseSession = false
+          learn = true
+        }
       }.sheet(isPresented: Binding(get: { reportURL != nil }, set: { if !$0 { reportURL = nil } })) {
         if let url = reportURL { PDFShareSheet(url: url) }
       }.sheet(
@@ -76,6 +83,8 @@ struct GameHomeView: View {
       todayCard
       progressCard
       launch
+      Button("Выбрать предмет, тему или смешанный режим") { chooseSession = true }
+        .font(.caption.bold()).buttonStyle(.plain).foregroundStyle(HomePalette.accent)
       motivationInsight
       HStack(spacing: 8) {
         Button("Мои цели") { coursesOpen = true }
@@ -751,5 +760,62 @@ private extension View {
   func lightHomeCard() -> some View {
     background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 18))
       .overlay(RoundedRectangle(cornerRadius: 18).stroke(Color.primary.opacity(0.07)))
+  }
+}
+
+/// Scope is chosen when starting a session; it is independent of goal time allocation.
+private struct SessionLaunchPicker: View {
+  let courses: [StudyCourse]
+  let materials: MaterialStore
+  let learning: LearningStore
+  let start: ([StudyQuestion], String) -> Void
+  @Environment(\.dismiss) private var dismiss
+  private func questions(_ refs: [CourseRuleReference]) -> [StudyQuestion] {
+    refs.flatMap { ref -> [StudyQuestion] in
+      guard let content = materials.content(id: ref.materialID) else { return [] }
+      return StudyQuestionBuilder.questions(for: ref, content: content)
+    }
+  }
+  private var allRefs: [CourseRuleReference] {
+    courses.flatMap { $0.sections.flatMap { $0.topics.flatMap(\.questionSets) } }
+  }
+  var body: some View {
+    NavigationStack {
+      List {
+        Section("Быстрый старт") {
+          launchRow("Все предметы вперемешку", refs: allRefs)
+          launchRow("Повторить изученное", refs: allRefs, dueOnly: true)
+        }
+        ForEach(courses) { course in
+          Section(course.title) {
+            launchRow("Весь предмет · \(course.subject.isEmpty ? course.title : course.subject)",
+              refs: course.sections.flatMap { $0.topics.flatMap(\.questionSets) })
+            ForEach(course.sections) { section in
+              ForEach(section.topics) { topic in
+                launchRow(topic.title, refs: topic.questionSets)
+              }
+            }
+          }
+        }
+      }.navigationTitle("Что будем учить?")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar { Button("Закрыть") { dismiss() } }
+    }
+  }
+  private func launchRow(_ title: String, refs: [CourseRuleReference], dueOnly: Bool = false) -> some View {
+    let candidates = questions(refs)
+    let selected = dueOnly ? candidates.filter {
+      guard let state = learning.knowledgeStates[$0.knowledgeID] else { return false }
+      return state.nextDueAt <= .now
+    } : candidates
+    return Button {
+      start(selected, title)
+    } label: {
+      HStack {
+        Text(title)
+        Spacer()
+        Text("\(selected.count)").foregroundStyle(.secondary).font(.caption)
+      }
+    }.disabled(selected.isEmpty)
   }
 }
