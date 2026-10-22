@@ -34,3 +34,21 @@ Optional auth/sync, public library download, class join by code/QR, assignment o
 
 ### F. Release hardening
 Accessibility, localization-ready strings, malformed package tests, migration tests, offline/error states, privacy/account deletion, performance and App Store checklist.
+
+## Active execution plan — v0.3.0 (2026-10-22)
+
+This section supersedes the historical “in progress” labels above. **Goal: local RC acceptance, not publication.** Do not start TestFlight or App Store submission without separate owner approval. Preserve the independently modified `ios/BOTAI.xcodeproj/project.pbxproj`.
+
+| Priority | Work package | Exit criteria / proof | State |
+|---|---|---|---|
+| P0 | Session launch, ordering and resume | All new-session scope choices; temporary format/strategy settings; due-first and equal-priority ordering; atomic resume; unit and UI regression | **Implemented; 137 unit + 16 standard UI PASS**. Full cross-product matrix pending |
+| P0 | Automated session acceptance matrix | Deterministic tests for all/topic/subject × mixed/cards/tests × auto/all, no-due, empty format, duplicates, persisted attempts and restart | **OPEN** — see `SESSION_MODE_MATRIX_2026-10-22.md` |
+| P0 | Adaptive teacher-guided planning | Document teacher inputs, weakness/urgency/pace scoring and tie rules; implement and test deterministic selection without a review-only mode | **OPEN** |
+| P0 | Completed-session summary sync | Disposable Postgres migration `0025`/`0026`, RLS and idempotent retry tests, offline/reconnect and account isolation; question-level attempts remain local | **PARTIAL / backend acceptance pending** |
+| P0 | Small/standard/large iPhone visual/accessibility audit | Home no-scroll, compact full-width chart, theme, VoiceOver, Dynamic Type, Reduce Motion evidence | **OPEN** |
+| P0 | Final regression gate | Unit + standard UI + separately seeded chemistry UI after final code changes; no fixture contamination | **Standard 137+16 PASS; chemistry last 2/2 earlier checkpoint** |
+| P1 | Public content and Apple policy | Author/edit/publish, moderation/report/block, account deletion, privacy disclosures and operational tests | **PARTIAL** |
+| P1 | Distribution readiness | Signing, versioning, screenshots, privacy metadata, real-device checks, TestFlight install | **NOT VERIFIED; no distribution authorized** |
+| P1 | Handoff and RC signoff | Updated docs, reproducible migration/rollback, clean scoped commit, owner acceptance | **IN PROGRESS** |
+
+**Execution order:** (1) close deterministic session-mode tests; (2) finish adaptive policy and tests; (3) disposable-backend/offline sync verification; (4) device visual/accessibility checks; (5) full isolated regressions; (6) privacy/moderation and release checklist. Re-evaluate remaining gaps after each gate; no RC tag until mandatory gates pass or owner explicitly scopes them out.

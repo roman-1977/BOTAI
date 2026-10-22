@@ -1,3 +1,7 @@
+> **Current v0.3.0 status (2026-10-22):** This file's original v0.2.0 snapshot below is historical, not the current implementation status. For the active branch `feature/v0.3.0-chemistry-pilot`, consult `docs/releases/RC_0.3.0_READINESS.md` and `docs/iterations/SESSION_LAUNCH_DECISIONS_2026-10-22.md`. Current simulator verification: **137/137 unit + 16/16 standard UI PASS** (exit 0, `/tmp/botai_final_session_gate_20261022.log`). Durable session resume, scoped launch and due-first automatic priority are implemented. Teacher-guided adaptive policy, complete mode matrix, backend migration/RLS acceptance, device-wide visual/accessibility and release signing remain open. **NOT RC; no TestFlight/App Store distribution authorized.**
+
+---
+
 # BOTAI implementation status
 
 Snapshot: 2026-10-21. This describes the `refactor/v0.2.0` branch, not a released App Store build. The feature scope is frozen for v0.2.0: refactoring, reliability, UI consistency and regression testing only.
