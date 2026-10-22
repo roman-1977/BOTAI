@@ -70,3 +70,5 @@ See `docs/iterations/V030_CHEMISTRY_PILOT.md` for authoritative milestones, veri
 2026-10-22: post-session forecast capture added, UI test verifies PDF share sheet. Four selected UI tests passed on iPhone 16 Pro Max simulator (fresh home, baseline screens, isolated relaunch, PDF share). Full suite pending.
 
 2026-10-22: PDF forecast-history vector chart implemented and tested (2/2); full UI run revealed an existing Edit Course navigation assertion failure, triage pending.
+
+2026-10-22: complete 11-test UI suite passed on serial retry, 0 failures (192s). Previously failing Edit Course test passed both in isolation and full retry. Potential intermittent timing issue, not reproduced; see iteration log.
