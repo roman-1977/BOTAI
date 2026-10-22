@@ -202,7 +202,7 @@ struct BOTAIApp: App {
     var body: some Scene {
         WindowGroup {
             Group {
-                if didResolveInitialIdentity && !authStore.isBootstrapping && !authStore.didFailBootstrap {
+                if didResolveInitialIdentity && storageFailure == nil && !authStore.isBootstrapping && !authStore.didFailBootstrap {
                     RootTabView()
                         .id(LocalAccountStorage.directoryName(for: activeIdentity))
                 }

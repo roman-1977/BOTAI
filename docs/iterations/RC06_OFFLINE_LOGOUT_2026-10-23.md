@@ -13,3 +13,9 @@ Use `defer` to unconditionally clear `OfflineAccountBinding`, `userID`, `isAuthe
 Run the signed simulator unit suite and UI regression on the modified app. No live backend token-revocation claim: remote revocation cannot be confirmed without a real authenticated test identity and server checks. RC-06 remains open until that acceptance test is performed.
 
 Signed final build: unit suite PASS `/tmp/botai_rc06_signout_20261023.log`; 25/25 UI PASS `/tmp/botai_rc06_signout_ui_20261023.log`.
+
+## Follow-up: storage errors take precedence over the study interface
+
+The root view previously selected `RootTabView` when initial identity resolution was complete, even if a subsequent account database reopen failed. The guard now requires `storageFailure == nil`, ensuring that a failed per-account storage rebind cannot expose a stale study view. The existing storage-error retry screen is shown instead. This is a fail-closed UI guard, not a substitute for live backend isolation tests.
+
+Signed simulator unit suite and 25/25 UI tests PASS. Logs: `/tmp/botai_rc06_storage_guard_unit_20261023.log`, `/tmp/botai_rc06_storage_guard_ui_20261023.log`.

@@ -127,3 +127,5 @@ Added `NWPathMonitor`-driven retry on offline→online transition even while the
 ### RC-06 offline logout fail-closed — 2026-10-23
 
 Local identity and offline binding are now always cleared on sign-out even when Supabase remote logout fails. The pinned Supabase SDK clears its persisted session before the remote call; remote token revocation is not claimed on network failure. See `docs/iterations/RC06_OFFLINE_LOGOUT_2026-10-23.md`. Signed regression evidence: `/tmp/botai_rc06_signout_20261023.log` (pending), UI regression `/tmp/botai_rc06_connectivity_ui_20261023.log` (earlier build). Full hosted backend acceptance remains open.
+
+RC-06 storage failure guard (2026-10-23): `BOTAIApp` now requires `storageFailure == nil` before showing `RootTabView` after identity resolution. Validate signed unit/UI suites; do not treat this as real backend ACK/revocation acceptance. Do not stage the user's `ios/BOTAI.xcodeproj/project.pbxproj`.
