@@ -120,9 +120,9 @@ struct AttemptSyncCoordinatorTests {
             isCurrentAccount: { await gate.isActive() })
         let operation = Task { try await sync.flush() }
         // Wait for the fake network call to enter its suspended state.
-        for _ in 0..<1000 {
+        for _ in 0..<500 {
             if await backend.started() { break }
-            await Task.yield()
+            try await Task.sleep(for: .milliseconds(2))
         }
         #expect(await backend.started())
         await gate.deactivate()
@@ -138,9 +138,9 @@ struct AttemptSyncCoordinatorTests {
         let sync = AttemptSyncCoordinator(backend: backend, repository: learning,
             isCurrentAccount: { true })
         let first = Task { try await sync.flush() }
-        for _ in 0..<1000 {
+        for _ in 0..<500 {
             if await backend.started() { break }
-            await Task.yield()
+            try await Task.sleep(for: .milliseconds(2))
         }
         #expect(await backend.started())
         // First upload is suspended; the actor must not reenter the upload pipeline.
@@ -265,9 +265,9 @@ struct SessionSummarySyncCoordinatorTests {
         let sync = SessionSummarySyncCoordinator(backend: backend, repository: repository,
             isCurrentAccount: { await gate.isActive() })
         let task = Task { try await sync.flush() }
-        for _ in 0..<1000 {
+        for _ in 0..<500 {
             if await backend.started() { break }
-            await Task.yield()
+            try await Task.sleep(for: .milliseconds(2))
         }
         #expect(await backend.started())
         await gate.deactivate()
@@ -283,9 +283,9 @@ struct SessionSummarySyncCoordinatorTests {
         let sync = SessionSummarySyncCoordinator(backend: backend, repository: repository,
             isCurrentAccount: { true })
         let task = Task { try await sync.flush() }
-        for _ in 0..<1000 {
+        for _ in 0..<500 {
             if await backend.started() { break }
-            await Task.yield()
+            try await Task.sleep(for: .milliseconds(2))
         }
         #expect(await backend.started())
         #expect(try await sync.flush() == 0)
