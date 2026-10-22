@@ -98,3 +98,5 @@ See `docs/iterations/V030_CHEMISTRY_PILOT.md` for authoritative milestones, veri
 2026-10-22: resumable-session atomic persistence tests **2/2 PASS** (`/tmp/botai_resume_unit_20261022.log`); post-atomic UI **2/2 PASS**. Full 14/14 UI regression was run before atomic hardening, not after. Physical-device/visual checks outstanding.
 
 2026-10-22: RC 0.3.0 readiness audit created at `docs/releases/RC_0.3.0_READINESS.md`. Ten acceptance gates, evidence, risks and next executable steps; **NOT RC**. No release build or TestFlight verification.
+
+2026-10-22: owner directed autonomous **large-batch delivery to user-testable v0.3.0**, no repeated micro-approvals. Execution plan: `docs/iterations/USER_TESTING_READINESS_2026-10-22.md`.
