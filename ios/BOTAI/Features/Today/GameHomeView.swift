@@ -56,7 +56,7 @@ struct GameHomeView: View {
         Button("Отмена", role: .cancel) {}
       }.sheet(isPresented: $chooseSession) {
         SessionLaunchPicker(courses: courses.courses, materials: materials, learning: learning) { questions, title in
-          learning.use(questions: questions.shuffled(), title: title, targetMinutes: plan.budgetMinutes)
+          learning.use(questions: questions, title: title, targetMinutes: plan.budgetMinutes)
           chooseSession = false
           learn = true
         }
@@ -767,6 +767,11 @@ private struct SessionLaunchPicker: View {
   let materials: MaterialStore
   let learning: LearningStore
   let start: ([StudyQuestion], String) -> Void
+  // Every NEW session starts from system defaults. Resuming an existing session
+  // must retain that session's original configuration instead.
+  @State private var format = "mixed"
+  @State private var strategy = "auto"
+  @State private var showAdvanced = false
   @Environment(\.dismiss) private var dismiss
   private func questions(_ refs: [CourseRuleReference]) -> [StudyQuestion] {
     refs.flatMap { ref -> [StudyQuestion] in
@@ -780,6 +785,26 @@ private struct SessionLaunchPicker: View {
   var body: some View {
     NavigationStack {
       List {
+        Section {
+          DisclosureGroup("Дополнительные настройки", isExpanded: $showAdvanced) {
+            Picker("Формат", selection: $format) {
+              Text("Вперемешку").tag("mixed")
+              Text("Карточки").tag("cards")
+              Text("Тесты").tag("tests")
+            }
+            Picker("Стратегия", selection: $strategy) {
+              Text("Выбирает система").tag("auto")
+              Text("Все вопросы").tag("all")
+              Text("Повторение").tag("review")
+            }
+            Button("Вернуть автоматический выбор") {
+              format = "mixed"
+              strategy = "auto"
+            }.font(.subheadline)
+          }
+        } footer: {
+          Text("По умолчанию система подбирает вопросы и способ тренировки. Настройки менять необязательно.")
+        }
         Section("Быстрый старт") {
           launchRow("Все предметы вперемешку", refs: allRefs)
           launchRow("Повторить изученное", refs: allRefs, dueOnly: true)
@@ -801,11 +826,26 @@ private struct SessionLaunchPicker: View {
     }
   }
   private func launchRow(_ title: String, refs: [CourseRuleReference], dueOnly: Bool = false) -> some View {
-    let candidates = questions(refs)
-    let selected = dueOnly ? candidates.filter {
+    let candidates = questions(refs).filter { question in
+      switch format {
+      case "cards": return question.kind == .reveal || question.kind == .pair
+      case "tests": return question.kind == .singleChoice || question.kind == .multipleChoice
+      default: return true
+      }
+    }
+    let due = candidates.filter {
       guard let state = learning.knowledgeStates[$0.knowledgeID] else { return false }
       return state.nextDueAt <= .now
-    } : candidates
+    }
+    let selected: [StudyQuestion]
+    if dueOnly || strategy == "review" {
+      selected = due
+    } else if strategy == "auto" && !due.isEmpty {
+      let dueIDs = Set(due.map(\.id))
+      selected = due + candidates.filter { !dueIDs.contains($0.id) }
+    } else {
+      selected = candidates
+    }
     return Button {
       start(selected, title)
     } label: {
