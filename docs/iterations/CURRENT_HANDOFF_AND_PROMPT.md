@@ -66,3 +66,7 @@ Added duplicate-ACK rejection in both completed session and topic aggregate uplo
 ### Disposable PostgreSQL RLS checkpoint — 2026-10-22
 
 Homebrew PostgreSQL 17 installed; isolated cluster at `/tmp/botai_pg17_rls_20261022/data`, port 55439, **stopped after tests**. Exact migrations 0025/0026 and both rollback-only RLS fixtures executed successfully on genuine PostgreSQL using minimal local auth schema/uid shim. No live Supabase changes. This covers DB SQL and basic role-based isolation, NOT hosted Supabase Auth/PostgREST. Do not mistake shim for full Supabase. Next: real network disruptions, remaining RC gates. Preserve user-owned `ios/BOTAI.xcodeproj/project.pbxproj`.
+
+### Additional PostgreSQL negative-permission tests — 2026-10-22
+
+New `backend/tests/completed_session_negative_permissions.sql` fixture PASS on disposable PostgreSQL 17; verifies forbidden DELETE, unauthenticated SELECT, orphan topic FK, invalid counts. `/tmp/botai_rls_negative_permissions_20261022.log`. Cluster stopped, no live database touched. Full hosted Supabase and physical offline/online tests still outstanding.
