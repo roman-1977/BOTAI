@@ -47,3 +47,6 @@ On dismissal of a learning session, the home screen records updated goal forecas
 
 ## PDF vector trend chart (2026-10-22)
 When at least two daily forecast snapshots exist, the PDF now appends a vector line chart of known knowledge against snapshot dates for each goal, plus first/latest numeric labels. The pages are merged with PDFKit. Dedicated PDFKit tests 2/2 passed. Forecast date evolution remains described in text; this chart plots knowledge count, not ETA. Full UI suite is being investigated after an existing Edit Course test failed.
+
+## Deadline forecast evolution plot (2026-10-22)
+The PDF chart page now has two separate trends per goal: mastered knowledge count, and forecast completion offset in days relative to the goal deadline (positive means late, negative early). A zero reference line is included; missing forecasts do not connect across gaps. A goal needs a deadline and at least two valid ETA snapshots to plot the second trend. Swift suite before the chart change: 101/101 passed; dedicated updated PDF chart suite: 3/3 passed.

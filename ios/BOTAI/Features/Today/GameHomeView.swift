@@ -473,7 +473,7 @@ enum StudyPDFReport {
         (title as NSString).draw(at: CGPoint(x: 38, y: 42), withAttributes: [.font: UIFont.boldSystemFont(ofSize: 15)])
         var top: CGFloat = 95
         for snapshots in chartGroups.sorted(by: { ($0.first?.goalID.uuidString ?? "") < ($1.first?.goalID.uuidString ?? "") }) {
-          if top + 165 > 800 { ctx.beginPage(); top = 55 }
+          if top + 260 > 800 { ctx.beginPage(); top = 55 }
           let ordered = snapshots.sorted { $0.calculatedAt < $1.calculatedAt }
           guard let first = ordered.first, let last = ordered.last else { continue }
           let label = courses.flatMap(\.goals).first(where: { $0.id == first.goalID })?.title ?? "Учебная цель"
@@ -504,7 +504,45 @@ enum StudyPDFReport {
             withAttributes: [.font: UIFont.systemFont(ofSize: 8)])
           ("\(last.calculatedAt.formatted(date: .numeric, time: .omitted))" as NSString).draw(at: CGPoint(x: origin.x + width - 75, y: origin.y + 5),
             withAttributes: [.font: UIFont.systemFont(ofSize: 8)])
-          top += 165
+          // ETA timeline: days early/late against the goal deadline; no interpolation
+          // across missing forecasts (nil means the algorithm had insufficient evidence).
+          let deadline = courses.flatMap(\.goals).first(where: { $0.id == first.goalID })?.deadline
+          let projected = ordered.compactMap { item -> (Date, Int)? in
+            guard let forecast = item.forecastAt, let deadline else { return nil }
+            return (item.calculatedAt, calendar.dateComponents([.day], from: deadline, to: forecast).day ?? 0)
+          }
+          if let deadline, projected.count >= 2 {
+            ("Прогноз относительно срока \(deadline.formatted(date: .numeric, time: .omitted)): + отставание / − опережение" as NSString)
+              .draw(at: CGPoint(x: 38, y: top + 143), withAttributes: [.font: UIFont.systemFont(ofSize: 9)])
+            let maxAbs = max(1, projected.map { abs($0.1) }.max() ?? 1)
+            let baseline = top + 211
+            let scale: CGFloat = 32 / CGFloat(maxAbs)
+            context.setStrokeColor(UIColor.systemGray.cgColor)
+            context.setLineWidth(0.6)
+            context.move(to: CGPoint(x: origin.x, y: baseline))
+            context.addLine(to: CGPoint(x: origin.x + width, y: baseline))
+            context.strokePath()
+            context.setStrokeColor(UIColor.systemOrange.cgColor)
+            context.setLineWidth(2)
+            // Each pair is connected only if there were no nil ETA snapshots between them.
+            for index in 1..<ordered.count {
+              guard let previous = ordered[index - 1].forecastAt,
+                    let current = ordered[index].forecastAt else { continue }
+              let a = calendar.dateComponents([.day], from: deadline, to: previous).day ?? 0
+              let b = calendar.dateComponents([.day], from: deadline, to: current).day ?? 0
+              let x0 = origin.x + width * CGFloat(ordered[index - 1].calculatedAt.timeIntervalSince(dates.first!) / span)
+              let x1 = origin.x + width * CGFloat(ordered[index].calculatedAt.timeIntervalSince(dates.first!) / span)
+              context.move(to: CGPoint(x: x0, y: baseline - CGFloat(a) * scale))
+              context.addLine(to: CGPoint(x: x1, y: baseline - CGFloat(b) * scale))
+              context.strokePath()
+            }
+            ("Первый: \(projected.first!.1) дн.; последний: \(projected.last!.1) дн." as NSString)
+              .draw(at: CGPoint(x: 38, y: top + 246), withAttributes: [.font: UIFont.systemFont(ofSize: 9)])
+          } else {
+            ("История прогнозной даты: недостаточно сопоставимых оценок." as NSString)
+              .draw(at: CGPoint(x: 38, y: top + 153), withAttributes: [.font: UIFont.systemFont(ofSize: 9)])
+          }
+          top += 275
         }
       }
       // Merge the text report and chart pages without rasterizing either document.

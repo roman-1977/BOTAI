@@ -175,3 +175,27 @@ extension KnowledgeDeadlineForecastTests {
     #expect(pdf.string?.contains("ИСТОРИЯ ПРОГНОЗОВ") == false)
   }
 }
+
+extension ForecastChartPDFTests {
+  @Test func deadlineTrendHasReadableLabels() throws {
+    let now = Date(), id = UUID()
+    let goal = LearningGoal(id:id,title:"Физика",questionSets:[],masteryTarget:90,
+      deadline:now.addingTimeInterval(86400 * 20),state:.active)
+    let course = StudyCourse(id:UUID(),title:"Курс",description:"",subject:"Физика",audience:"ЕГЭ",
+      estimatedMinutes:nil,author:nil,language:"ru",coverSymbol:"book",source:.created,
+      sections:[],goals:[goal],createdAt:now,updatedAt:now)
+    let history = [
+      LearningRepository.ForecastSnapshot(goalID:id,day:"2026-10-19",calculatedAt:now.addingTimeInterval(-259200),
+        forecastAt:now.addingTimeInterval(86400 * 25),known:2,target:10,rate:0.1,algorithmVersion:2),
+      LearningRepository.ForecastSnapshot(goalID:id,day:"2026-10-22",calculatedAt:now,
+        forecastAt:now.addingTimeInterval(86400 * 18),known:5,target:10,rate:0.3,algorithmVersion:2)
+    ]
+    let url = try StudyPDFReport.export(profile:.standard,sessions:[],attempts:[],knowledgeStates:[:],
+      courses:[course],forecastHistory:history,now:now)
+    defer { try? FileManager.default.removeItem(at:url) }
+    let pdf = try #require(PDFDocument(url:url))
+    #expect(pdf.string?.contains("Прогноз относительно") == true)
+    #expect(pdf.string?.contains("Первый:") == true)
+    #expect(pdf.string?.contains("последний:") == true)
+  }
+}
