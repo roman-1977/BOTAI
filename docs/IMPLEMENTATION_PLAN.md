@@ -64,3 +64,7 @@ Empty-catalog quick-start disabled-state and no-spurious-session UI test **PASS*
 ### Explicit topic attribution — 2026-10-22
 
 Chosen-topic sessions now override ambiguous shared-question ownership with the explicit course/section/topic selection; mixed/subject sessions retain conservative unique ownership. 140/140 unit tests PASS. Full regression 140/140 unit + 17/17 UI PASS; populated scope cross-product remains pending.
+
+### Обязательная передача контекста перед релизом
+
+Каждый значимый checkpoint и финальная приёмка должны актуализировать `docs/iterations/CURRENT_HANDOFF_AND_PROMPT.md` (текущее состояние, тесты, ограничения, следующий шаг и копируемый промпт для нового чата). Источник правил: `docs/iterations/DEVELOPMENT_HANDOFF_STANDARD.md`. Передача без документации и промпта не считается завершённой.
