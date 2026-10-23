@@ -1,4 +1,6 @@
 # Live Supabase BOTAI — completed aggregate migrations (2026-10-23)
+> **APPLE PROVIDER FIXED 2026-10-23:** Apple Developer explicit App ID `com.roman1977.botai` already had primary Sign In with Apple enabled; Supabase Apple provider **enabled and saved** for native Client ID `com.roman1977.botai` (no OAuth secret needed for native token exchange). Independent Auth settings now `external.apple=true`. Read-only release backend probe **PUBLIC_CHECKS_PASS, exit 0**; aggregate REST endpoints require authentication. Real signed-device Apple login, hosted two-account acceptance and signing remain OPEN. See `docs/iterations/APPLE_NATIVE_PROVIDER_ENABLED_2026-10-23.md`.
+
 
 **User authorized changes to the existing BOTAI project.** Supabase project `gdkjcfrzxrjdscutxffc` (`ACTIVE_HEALTHY`). Before mutation: verified `public.completed_session_summaries` and `public.completed_session_topic_aggregates` physically absent using `to_regclass`, 24 existing auth users, 10 questions and 10 attempts. No existing table or data was dropped or changed.
 
