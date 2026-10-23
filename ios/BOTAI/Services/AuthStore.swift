@@ -240,14 +240,13 @@ final class AuthStore {
     }
 
     func signOut() async {
-        // Supabase clears its persisted session before calling the remote logout endpoint.
-        // Even when that request fails offline, local study access must end immediately.
-        defer {
-            OfflineAccountBinding.clear()
-            userID = nil
-            isAuthenticated = false
-            isOfflineLocalSession = false
-        }
+        // Lock local study BEFORE the first network suspension. A slow or offline
+        // server must never keep the previous student's SQLite account accessible.
+        OfflineAccountBinding.clear()
+        userID = nil
+        isAuthenticated = false
+        isOfflineLocalSession = false
+        registrationNeedsEmailConfirmation = false
         do {
             try await client.auth.signOut()
             errorMessage = nil
