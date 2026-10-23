@@ -184,13 +184,7 @@ private struct AddMaterialSourceView: View {
     @State private var create=false; @State private var savedMaterial=false; @State private var packageImporter=false; @State private var packageError:String?; @State private var pendingPackage:BOTAIPackagePayload?
     var body: some View { NavigationStack { ZStack { DigitalHubBackground(); ScrollView { VStack(spacing:14) { sourceCard("Импортировать таблицу","CSV / TSV / ZIP · настроить наборы вопросов","tablecells"){create=true};sourceCard("Импортировать BOTAI","Готовый материал .botai","shippingbox.fill"){packageImporter=true};sourceLabel("Общая библиотека · скоро","Поиск готовых материалов пока недоступен","books.vertical").opacity(0.5); sourceLabel("Класс или группа · скоро","Подключение к группе пока недоступно","person.3").opacity(0.5) }.padding(16) } }.navigationTitle("Добавить").toolbar{Button("Готово"){dismiss()}}.sheet(isPresented:$create,onDismiss:{if savedMaterial{dismiss()}}){AddMaterialView(onSaved:{savedMaterial=true;create=false})}.sheet(item:$pendingPackage,onDismiss:{if let p=pendingPackage{try? FileManager.default.removeItem(at:p.root)};pendingPackage=nil}){p in BOTAIImportPreview(payload:p){name in do{let refs=try store.importPackagePayload(p,title:name)
                     if let plan=p.manifest.coursePlan {
-                        let now=Date()
-                        let goals=plan.goals.map { goal in LearningGoal(id:UUID(),title:goal.title,questionSets:goal.questionSetIndexes.map { refs[$0] },masteryTarget:goal.masteryTarget,deadline:goal.deadline,state:.active,guidance:goal.guidance) }
-                        let course=StudyCourse(id:UUID(),title:plan.title,description:p.manifest.description ?? "",subject:plan.subject,audience:"",estimatedMinutes:nil,author:p.manifest.author,language:"ru",coverSymbol:"graduationcap.fill",source:.importedPackage,sections:plan.sections.map { section in
-                            CourseSection(id:UUID(),title:section.title,description:"",estimatedMinutes:nil,topics:section.topics.map { topic in
-                                CourseTopic(id:UUID(),title:topic.title,questionSets:topic.questionSetIndexes.map { refs[$0] })
-                            })
-                        },goals:goals,createdAt:now,updatedAt:now)
+                        let course=try BundledCourseImporter.course(plan:plan,manifest:p.manifest,references:refs)
                         courses.save(course)
                         if let error=courses.lastPersistenceError {
                             // The material was already committed: roll it back when course persistence fails.

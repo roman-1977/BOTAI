@@ -59,6 +59,25 @@ struct PackageRoundTripTests {
         #expect(throws:BOTAIPackageError.self) { try BOTAIPackageService.validateManifest(broken) }
     }
 
+    @Test @MainActor func bundledCourseImportBuildsAndPersistsActualSectionTopicAndGoalReferences() throws {
+        let guidance=CourseLearningGuidance(priority:.critical,rationale:"ЕГЭ",difficulty:4,recommendedDailyMinutes:25)
+        let plan=PackageCoursePlan(title:"ЕГЭ химия",subject:"Химия",goals:[PackageCourseGoal(title:"Кислоты",questionSetIndexes:[0],masteryTarget:90,deadline:nil,guidance:guidance)],sections:[PackageCourseSection(title:"Неорганическая",topics:[PackageCourseTopic(title:"Кислоты",questionSetIndexes:[0])])])
+        let manifest=BOTAIPackageManifest(formatVersion:1,title:"Кислоты",description:"Учебный материал",author:"Преподаватель",tags:nil,kind:.reference,
+            fields:[PackageField(key:"q",title:"Вопрос",position:0,type:"text")],rows:[["q":"HCl"]],questionSets:[PackageQuestionSet(kind:.card,promptTemplate:"{1}",promptFieldKeys:["q"],answers:[],showCorrectCount:false,enabled:true)],coursePlan:plan)
+        let ref=CourseRuleReference(materialID:UUID(),ruleID:UUID())
+        let built=try BundledCourseImporter.course(plan:plan,manifest:manifest,references:[ref])
+        #expect(built.source == .importedPackage)
+        #expect(built.sections[0].topics[0].questionSets == [ref])
+        #expect(built.goals[0].questionSets == [ref])
+        #expect(built.goals[0].guidance == guidance)
+        let db=try AppDatabase()
+        try CourseRepository(database:db).save(built)
+        let restored=try #require(CourseRepository(database:db).courses().first)
+        #expect(restored.sections[0].topics[0].questionSets == [ref])
+        #expect(restored.goals[0].guidance == guidance)
+        #expect(throws:BOTAIPackageError.self) { try BundledCourseImporter.course(plan:plan,manifest:manifest,references:[]) }
+    }
+
     @Test func invalidTeacherGoalReferencesRejectPackage() throws {
         let plan=PackageCoursePlan(title:"Chemistry",subject:"Химия",goals:[PackageCourseGoal(title:"Broken",questionSetIndexes:[99],masteryTarget:90,deadline:nil,guidance:nil)])
         let manifest=BOTAIPackageManifest(formatVersion:1,title:"Material",description:nil,author:nil,tags:nil,kind:.reference,

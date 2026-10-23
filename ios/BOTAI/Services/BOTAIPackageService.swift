@@ -89,3 +89,22 @@ enum BOTAIPackageService {
     }
     static func write(_ c:MaterialContent)throws->URL{let root=FileManager.default.temporaryDirectory.appendingPathComponent("botai-export-\(UUID().uuidString)",isDirectory:true),media=root.appendingPathComponent("media",isDirectory:true);try FileManager.default.createDirectory(at:media,withIntermediateDirectories:true);let exts=Set(["png","jpg","jpeg","webp","heic"]);var rows:[[String:String]]=[],mediaKeys=Set<String>();for r in c.rows{var v=r.values;for(k,value)in r.values{let u=MaterialMediaStore.resolvedURL(for:value) ?? URL(fileURLWithPath:value);if (MaterialMediaStore.isImageReference(value) || exts.contains(u.pathExtension.lowercased())),FileManager.default.fileExists(atPath:u.path){let n="\(UUID().uuidString)-\(u.lastPathComponent)";try FileManager.default.copyItem(at:u,to:media.appendingPathComponent(n));v[k]="media/\(n)";mediaKeys.insert(k)}};rows.append(v)};let fields=c.fields.map{PackageField(key:$0.key,title:$0.title,position:$0.position,type:mediaKeys.contains($0.key) ? "image":"text")};let sets=c.rules.map{PackageQuestionSet(kind:$0.kind,promptTemplate:$0.promptTemplate,promptFieldKeys:$0.promptFieldKeys,answers:$0.answers,showCorrectCount:$0.showCorrectCount,enabled:$0.enabled)};let m=BOTAIPackageManifest(formatVersion:1,title:c.material.title,description:c.material.description,author:c.material.author ?? (c.material.source == .created ? "Вы" : nil),tags:c.material.topic,kind:c.material.kind,fields:fields,rows:rows,questionSets:sets);let e=JSONEncoder();e.outputFormatting=[.prettyPrinted,.sortedKeys,.withoutEscapingSlashes];try e.encode(m).write(to:root.appendingPathComponent("manifest.json"));let out=FileManager.default.temporaryDirectory.appendingPathComponent(c.material.title.replacingOccurrences(of:"/",with:"-")).appendingPathExtension("botai");try? FileManager.default.removeItem(at:out);try FileManager.default.zipItem(at:root,to:out,shouldKeepParent:false);return out}
 }
+
+
+/// Builds the persisted learner course from a validated bundled plan and the
+/// actual generated rule IDs. Kept outside SwiftUI for deterministic testing.
+enum BundledCourseImporter {
+ static func course(plan:PackageCoursePlan,manifest:BOTAIPackageManifest,references:[CourseRuleReference],date:Date = .now) throws -> StudyCourse {
+  try BOTAIPackageService.validateManifest(manifest)
+  guard manifest.coursePlan == plan,references.count == manifest.questionSets.count else { throw BOTAIPackageError.invalidManifest }
+  let goals=plan.goals.map { goal in
+   LearningGoal(id:UUID(),title:goal.title,questionSets:goal.questionSetIndexes.map { references[$0] },masteryTarget:goal.masteryTarget,deadline:goal.deadline,state:.active,guidance:goal.guidance)
+  }
+  let sections=plan.sections.map { section in
+   CourseSection(id:UUID(),title:section.title,description:"",estimatedMinutes:nil,topics:section.topics.map { topic in
+    CourseTopic(id:UUID(),title:topic.title,questionSets:topic.questionSetIndexes.map { references[$0] })
+   })
+  }
+  return StudyCourse(id:UUID(),title:plan.title,description:manifest.description ?? "",subject:plan.subject,audience:"",estimatedMinutes:nil,author:manifest.author,language:"ru",coverSymbol:"graduationcap.fill",source:.importedPackage,sections:sections,goals:goals,createdAt:date,updatedAt:date)
+ }
+}
