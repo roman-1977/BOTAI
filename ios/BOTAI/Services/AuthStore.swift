@@ -185,6 +185,8 @@ final class AuthStore {
     }
     #endif
 
+    func setAppleSignInError(_ message: String) { errorMessage = message }
+
     func signInWithApple(idToken: String, nonce: String? = nil) async {
         do {
             let session = try await client.auth.signInWithIdToken(credentials: .init(provider: .apple, idToken: idToken, nonce: nonce))
