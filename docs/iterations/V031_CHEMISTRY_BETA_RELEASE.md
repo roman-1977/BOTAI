@@ -13,3 +13,7 @@ Chemistry learner beta includes bundled curriculum, teacher-defined staged cours
 ## Verification
 
 Pre-change checkpoint: 189/189 unit tests passed; all 28 UI scenarios passed across a full 26/28 run plus two targeted reruns. After persistence change, full unit/UI simulator run: `/tmp/botai_042_release_full.log` (fill in final outcome). Xcode project has unrelated user edits and must not be committed. Release build should override version/build using `MARKETING_VERSION=0.3.1 CURRENT_PROJECT_VERSION=3` rather than rewriting the project file.
+
+## Transfer package
+
+See `docs/iterations/FINAL_HANDOFF_2026-10-23.md`. Every primary GPT entry point (`AGENTS.md`, `docs/CHATGPT_REPOSITORY_GUIDE.md`, `README.md`, status/plan, QA plan and current handoff) now points to the authoritative beta handoff. Historical notes remain for traceability and must not be mistaken for the current release status.
