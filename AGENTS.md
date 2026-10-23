@@ -1,4 +1,6 @@
 # BOTAI — AI Development Context
+> **РЕШЕНИЕ ВЛАДЕЛЬЦА 2026-10-23 — ЦЕЛЬ РЕЛИЗА:** довести полный согласованный MVP до релиза; два независимых ученика на iPhone 15 Pro Max и iPhone 16 Pro Max, начать с химии; контент и охват ЕГЭ — ответственность преподавателя, работа приложения — наша. Полная регрессия 181/181 unit + 25/25 UI PASS на iPhone 16e, **NOT RC** до приёмки целевых устройств и закрытия RC-гейтов. Подробности: `docs/iterations/RELEASE_TARGET_DECISION_2026-10-23.md`. Подготовка TestFlight/App Store не означает разрешения на отправку. Старые исторические снимки ниже не отменяют это решение.
+
 
 > **Обязательная карта проекта для ChatGPT:** `docs/CHATGPT_REPOSITORY_GUIDE.md`. Перед изменениями прочитать её, текущий план (`docs/IMPLEMENTATION_PLAN.md`), статус (`docs/IMPLEMENTATION_STATUS.md`) и RC-чеклист (`docs/releases/RC_0.3.0_READINESS.md`). Исторический раздел «Current phase» ниже не является актуальным статусом v0.3.0.
 
