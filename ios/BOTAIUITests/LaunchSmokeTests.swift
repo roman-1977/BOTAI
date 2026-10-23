@@ -327,6 +327,12 @@ final class LaunchSmokeTests: XCTestCase {
         let subjectLaunch = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Весь предмет")).firstMatch
         let mixedLaunch = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Все предметы вперемешку")).firstMatch
         XCTAssertTrue(topicLaunch.waitForExistence(timeout: 10))
+        XCTAssertFalse(topicLaunch.isEnabled)
+        XCTAssertFalse(subjectLaunch.isEnabled)
+        XCTAssertFalse(mixedLaunch.isEnabled)
+        app.buttons["Дополнительные настройки"].tap()
+        app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Формат")).firstMatch.tap()
+        app.buttons["Карточки"].tap()
         XCTAssertTrue(topicLaunch.isEnabled)
         XCTAssertTrue(subjectLaunch.isEnabled)
         XCTAssertTrue(mixedLaunch.isEnabled)
@@ -378,6 +384,9 @@ final class LaunchSmokeTests: XCTestCase {
         XCTAssertTrue(launch.waitForExistence(timeout: 10))
         launch.tap()
         XCTAssertTrue(app.navigationBars["Что будем учить?"].waitForExistence(timeout: 10))
+        app.buttons["Дополнительные настройки"].tap()
+        app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Формат")).firstMatch.tap()
+        app.buttons["Карточки"].tap()
         let first = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Тема первая")).firstMatch
         let second = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Тема вторая")).firstMatch
         let subject = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Весь предмет")).firstMatch
@@ -412,6 +421,10 @@ final class LaunchSmokeTests: XCTestCase {
         app.buttons["Настроить занятие"].tap()
         let firstAfterReopen = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Тема первая")).firstMatch
         XCTAssertTrue(firstAfterReopen.waitForExistence(timeout: 10))
+        app.buttons["Дополнительные настройки"].tap()
+        app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Формат")).firstMatch.tap()
+        app.buttons["Карточки"].tap()
+        app.buttons["Дополнительные настройки"].tap()
         XCTAssertTrue(firstAfterReopen.isEnabled)
         firstAfterReopen.tap()
         XCTAssertTrue(app.staticTexts["Кислота"].waitForExistence(timeout: 10))
@@ -466,16 +479,16 @@ final class LaunchSmokeTests: XCTestCase {
         XCTAssertTrue(app.navigationBars["Что будем учить?"].waitForExistence(timeout: 10))
         let topicLaunch = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Тема проверки")).firstMatch
         XCTAssertTrue(topicLaunch.waitForExistence(timeout: 10))
-        XCTAssertTrue(topicLaunch.isEnabled)
+        XCTAssertFalse(topicLaunch.isEnabled) // Tests are default; this catalog is card-only.
         app.buttons["Дополнительные настройки"].tap()
         let strategy = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Стратегия")).firstMatch
         XCTAssertTrue(strategy.waitForExistence(timeout: 10))
         strategy.tap()
         app.buttons["Все вопросы"].tap()
-        XCTAssertTrue(topicLaunch.isEnabled)
+        XCTAssertFalse(topicLaunch.isEnabled)
         strategy.tap()
         app.buttons["Выбирает система"].tap()
-        XCTAssertTrue(topicLaunch.isEnabled)
+        XCTAssertFalse(topicLaunch.isEnabled)
         let subjectLaunch = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Весь предмет")).firstMatch
         let mixedLaunch = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Все предметы вперемешку")).firstMatch
         let formatPicker = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Формат")).firstMatch
@@ -848,7 +861,7 @@ final class LaunchSmokeTests: XCTestCase {
         XCTAssertTrue(app.navigationBars["Что будем учить?"].waitForExistence(timeout: 10))
         let topicLaunch = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Тема проверки")).firstMatch
         XCTAssertTrue(topicLaunch.waitForExistence(timeout: 10))
-        XCTAssertTrue(topicLaunch.isEnabled)
+        XCTAssertFalse(topicLaunch.isEnabled) // Default tests cannot run card-only material.
         app.buttons["Дополнительные настройки"].tap()
         let format = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Формат")).firstMatch
         XCTAssertTrue(format.waitForExistence(timeout: 10))
@@ -908,6 +921,11 @@ final class LaunchSmokeTests: XCTestCase {
         let launch = app.buttons["Настроить занятие"]
         XCTAssertTrue(launch.waitForExistence(timeout: 20))
         launch.tap()
+        // Card-only fixture: explicitly select cards; production defaults to tests.
+        app.buttons["Дополнительные настройки"].tap()
+        app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Формат")).firstMatch.tap()
+        app.buttons["Карточки"].tap()
+        app.buttons["Дополнительные настройки"].tap()
         let topicLaunch = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Тема проверки")).firstMatch
         XCTAssertTrue(topicLaunch.waitForExistence(timeout: 10))
         topicLaunch.tap()
@@ -976,15 +994,25 @@ final class LaunchSmokeTests: XCTestCase {
         let launch = app.buttons["Настроить занятие"]
         XCTAssertTrue(launch.waitForExistence(timeout: 20))
         launch.tap()
+        // Card-only fixture: explicitly select cards; production defaults to tests.
+        app.buttons["Дополнительные настройки"].tap()
+        app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Формат")).firstMatch.tap()
+        app.buttons["Карточки"].tap()
+        app.buttons["Дополнительные настройки"].tap()
         let topicLaunch = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Тема проверки")).firstMatch
         XCTAssertTrue(topicLaunch.waitForExistence(timeout: 10))
         topicLaunch.tap()
-        XCTAssertTrue(app.staticTexts["Кислота"].waitForExistence(timeout: 10))
-        app.staticTexts["Кислота"].tap()
+        // Card pairs can be presented in either direction and either order.
+        let prompts = ["Кислота", "Основание", "Acid", "Base"]
+        let anyPrompt = app.staticTexts.matching(NSPredicate(format: "label IN %@", prompts)).firstMatch
+        XCTAssertTrue(anyPrompt.waitForExistence(timeout: 10))
+        let firstPrompt = prompts.first(where: { app.staticTexts[$0].exists })!
+        let secondPrompt = ["Кислота": "Основание", "Основание": "Кислота", "Acid": "Base", "Base": "Acid"][firstPrompt]!
+        app.staticTexts[firstPrompt].tap()
         let firstAnswer = app.buttons["ОТВЕТИЛ ЛЕГКО"]
         XCTAssertTrue(firstAnswer.waitForExistence(timeout: 10))
         firstAnswer.tap()
-        XCTAssertTrue(app.staticTexts["Основание"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts[secondPrompt].waitForExistence(timeout: 10))
         app.terminate()
         app.launch()
         let resume = app.buttons["primary-study-launch"]
@@ -992,9 +1020,9 @@ final class LaunchSmokeTests: XCTestCase {
         XCTAssertTrue(app.buttons["primary-study-launch"].exists)
         resume.tap()
         app.buttons["Продолжить"].tap()
-        XCTAssertTrue(app.staticTexts["Основание"].waitForExistence(timeout: 10))
-        XCTAssertFalse(app.staticTexts["Кислота"].exists)
-        app.staticTexts["Основание"].tap()
+        XCTAssertTrue(app.staticTexts[secondPrompt].waitForExistence(timeout: 10))
+        XCTAssertFalse(app.staticTexts[firstPrompt].exists)
+        app.staticTexts[secondPrompt].tap()
         let answer = app.buttons["ОТВЕТИЛ ЛЕГКО"]
         XCTAssertTrue(answer.waitForExistence(timeout: 10))
         answer.tap()
@@ -1087,6 +1115,11 @@ final class LaunchSmokeTests: XCTestCase {
         XCTAssertTrue(launch.waitForExistence(timeout: 10))
         launch.tap()
         XCTAssertTrue(app.navigationBars["Что будем учить?"].waitForExistence(timeout: 10))
+        // Card-only fixture: explicitly select cards; production defaults to tests.
+        app.buttons["Дополнительные настройки"].tap()
+        app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Формат")).firstMatch.tap()
+        app.buttons["Карточки"].tap()
+        app.buttons["Дополнительные настройки"].tap()
         let topicLaunch = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Тема проверки")).firstMatch
         XCTAssertTrue(topicLaunch.waitForExistence(timeout: 10))
         topicLaunch.tap()

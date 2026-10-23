@@ -435,7 +435,7 @@ struct GameHomeView: View {
     activeGoals.isEmpty ? "Выбрать цель и начать" : "Проверить содержание цели"
   }
   private func startRecommended() {
-    let recommended = StudyQuestionSelection.forSession(plan.questions, format: .cards,
+    let recommended = StudyQuestionSelection.forSession(plan.questions, format: .tests,
       knowledgeStates: learning.knowledgeStates, now: .now)
     guard !recommended.isEmpty else { chooseSession = true; return }
     learning.use(questions: recommended, title: "Рекомендация системы", targetMinutes: plan.budgetMinutes)
@@ -445,7 +445,10 @@ struct GameHomeView: View {
     if plan.goals.count == 1, let g = plan.goals.first { start(g) } else { chooseGoal = true }
   }
   private func start(_ g: DailyStudyPlan.GoalPlan) {
-    learning.use(questions: StudyQuestionSelection.forSession(g.questions, format: .cards, knowledgeStates: learning.knowledgeStates, now: .now), title: g.title, targetMinutes: plan.budgetMinutes == 0 ? 0 : g.minutes)
+    let selected = StudyQuestionSelection.forSession(g.questions, format: .tests,
+      knowledgeStates: learning.knowledgeStates, now: .now)
+    guard !selected.isEmpty else { chooseSession = true; return }
+    learning.use(questions: selected, title: g.title, targetMinutes: plan.budgetMinutes == 0 ? 0 : g.minutes)
     studyPresentation = StudyPresentation(resume: false)
   }
   private func timeText(_ seconds: Int) -> String {
@@ -840,7 +843,7 @@ private struct SessionLaunchPicker: View {
   let start: ([StudyQuestion], String, [UUID: StudyQuestionAttribution]) -> Void
   // Every NEW session starts from system defaults. Resuming an existing session
   // must retain that session's original configuration instead.
-  @State private var format = "cards"
+  @State private var format = "tests"
   @State private var strategy = "auto"
   @State private var showAdvanced = false
   @Environment(\.dismiss) private var dismiss
@@ -867,7 +870,7 @@ private struct SessionLaunchPicker: View {
               Text("Все вопросы").tag("all")
             }
             Button("Вернуть автоматический выбор") {
-              format = "cards"
+              format = "tests"
               strategy = "auto"
             }.font(.subheadline)
           }

@@ -55,6 +55,19 @@ final class AppDatabase: @unchecked Sendable {
         try Self.migrator.migrate(dbQueue)
     }
 
+    /// Temporary pre-release pilot policy. Only learning data is erased;
+    /// course definitions, materials, profile and Apple identity are retained.
+    func resetPilotLearning() throws {
+        try dbQueue.write { db in
+            for table in ["attempts", "learningStates", "knowledgeStates",
+                          "knowledgeProgressEvents", "studySessions", "studyPlanHistory",
+                          "goalForecastSnapshots", "resumableStudySession",
+                          "completedSessionSummaries", "syncOutbox"] {
+                try db.execute(sql: "DELETE FROM \(table)")
+            }
+        }
+    }
+
     static var migrator: DatabaseMigrator {
         var migrator = DatabaseMigrator()
         migrator.registerMigration("v1_learning_outbox") { db in

@@ -1,3 +1,4 @@
+import GRDB
 import Foundation
 import PDFKit
 import Testing
@@ -351,6 +352,44 @@ struct StudyQuestionSelectionMatrixTests {
             knowledgeStates: due, now: now).map(\.id) == [choice.id])
         #expect(GoalProgressService.masteryPercentage(questions: source,
             states: [shared: LearningState(intervalDays: 4, streak: 5, nextDueAt: now)]) == 50)
+    }
+
+    @Test func pilotResetRetainsCurriculumAndClearsLearning() throws {
+        let db = try AppDatabase()
+        try db.dbQueue.write { database in
+            try database.execute(sql: "INSERT INTO courses (id, payloadJSON, updatedAt) VALUES (?, ?, ?)", arguments: [UUID().uuidString, "{}", Date()])
+            try database.execute(sql: "INSERT INTO attempts (id, questionID, occurredAt, rating) VALUES (?, ?, ?, ?)", arguments: [UUID().uuidString, UUID().uuidString, Date(), "good"])
+            try database.execute(sql: "INSERT INTO studySessions (id, startedAt, endedAt, activeSeconds, answered, correct) VALUES (?, ?, ?, ?, ?, ?)", arguments: [UUID().uuidString, Date(), Date(), 10, 1, 1])
+        }
+        try db.resetPilotLearning()
+        try db.dbQueue.read { database in
+            let courses = try Int.fetchOne(database, sql: "SELECT COUNT(*) FROM courses")
+            let attempts = try Int.fetchOne(database, sql: "SELECT COUNT(*) FROM attempts")
+            let sessions = try Int.fetchOne(database, sql: "SELECT COUNT(*) FROM studySessions")
+            #expect(courses == 1)
+            #expect(attempts == 0)
+            #expect(sessions == 0)
+        }
+    }
+
+    @Test func sessionShufflesWithinPriorityTiersWithoutRepeatingKnowledge() {
+        let now = Date(timeIntervalSince1970: 1_700_000_000)
+        let due = (0..<4).map { i in StudyQuestion(id: UUID(), prompt: "Due \(i)", answer: "A", kind: .singleChoice, choices: [], correctChoiceIndexes: []) }
+        let fresh = (0..<12).map { i in StudyQuestion(id: UUID(), prompt: "New \(i)", answer: "A", kind: .singleChoice, choices: [], correctChoiceIndexes: []) }
+        let later = (0..<3).map { i in StudyQuestion(id: UUID(), prompt: "Later \(i)", answer: "A", kind: .singleChoice, choices: [], correctChoiceIndexes: []) }
+        let states = Dictionary(uniqueKeysWithValues: due.map { ($0.knowledgeID, LearningState(intervalDays: 1, streak: 0, nextDueAt: now)) } + later.map { ($0.knowledgeID, LearningState(intervalDays: 5, streak: 2, nextDueAt: now.addingTimeInterval(86400))) })
+        let source = due + fresh + later + [fresh[0]]
+        var orders = Set<String>()
+        for _ in 0..<12 {
+            let selected = StudyQuestionSelection.forSession(source, format: .tests, knowledgeStates: states, now: now)
+            #expect(selected.count == 19)
+            #expect(Set(selected.map(\.knowledgeID)).count == selected.count)
+            #expect(Set(selected.prefix(4).map(\.id)) == Set(due.map(\.id)))
+            #expect(Set(selected.dropFirst(4).prefix(12).map(\.id)) == Set(fresh.map(\.id)))
+            #expect(Set(selected.suffix(3).map(\.id)) == Set(later.map(\.id)))
+            orders.insert(selected.map { $0.id.uuidString }.joined())
+        }
+        #expect(orders.count > 1)
     }
 
     @Test func dueWeakThenNewThenNotDueWithStableTies() {

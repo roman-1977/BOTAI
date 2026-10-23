@@ -30,7 +30,20 @@ enum StudyQuestionSelection {
   static func forSession(_ questions: [StudyQuestion], format: Format = .cards,
                          strategy: Strategy = .automatic,
                          knowledgeStates: [UUID: LearningState], now: Date) -> [StudyQuestion] {
-    uniqueKnowledge(select(questions, format: format, strategy: strategy, knowledgeStates: knowledgeStates, now: now))
+    let eligible = uniqueKnowledge(select(questions, format: format, strategy: strategy,
+                                         knowledgeStates: knowledgeStates, now: now))
+    // Shuffle within priority tiers, not across them: weak/due before new,
+    // new before not-due. This avoids the source table's adjacent acid rows.
+    guard strategy == .automatic else { return eligible.shuffled() }
+    let groups = Dictionary(grouping: eligible) { question in
+      priorityTier(question, states: knowledgeStates, now: now)
+    }
+    return [2, 1, 0].flatMap { (groups[$0] ?? []).shuffled() }
+  }
+
+  private static func priorityTier(_ question: StudyQuestion, states: [UUID: LearningState], now: Date) -> Int {
+    guard let state = states[question.knowledgeID] else { return 1 }
+    return state.nextDueAt <= now ? 2 : 0
   }
 
   private static func priority(_ question: StudyQuestion, states: [UUID: LearningState], now: Date) -> Int {
@@ -65,7 +78,11 @@ enum DailyPlanner {
    var scheduledQuestionIDs=Set<UUID>()
    var work:[(candidate:Candidate,questions:[StudyQuestion])]=[]
    for x in ranked {
-    let ordered=StudyQuestionSelection.select(x.questions,knowledgeStates:learning.knowledgeStates,now:date)
+    // Shuffle before limiting the daily quota so every eligible item can be reached.
+    // Preserve the teacher's goal planning across all material types.
+    // Automatic session launch filters to objectively graded tests separately.
+    let ordered=StudyQuestionSelection.forSession(x.questions,format:.mixed,
+       knowledgeStates:learning.knowledgeStates,now:date)
     let unique=takeUnique(ordered,count:ordered.count,seen:&scheduledQuestionIDs)
     if !unique.isEmpty { work.append((candidate:x,questions:unique)) }
    }

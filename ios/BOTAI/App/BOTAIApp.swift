@@ -51,6 +51,11 @@ struct BOTAIApp: App {
     @State private var storageFailure: String?
     @State private var syncService: SyncService?
 
+    // Remove after release acceptance. UI tests retain persistence unless explicitly reset.
+    private static var pilotResetEnabled: Bool {
+        !ProcessInfo.processInfo.arguments.contains("-botai-ui-testing")
+    }
+
     init() {
         var materialRepository: MaterialRepository?
         var courseRepository: CourseRepository?
@@ -71,6 +76,9 @@ struct BOTAIApp: App {
             }
             guard FileManager.default.fileExists(atPath: folder.path) else { return nil }
             guard let database = try? AppDatabase(path: folder.appending(path: "learning.sqlite").path) else { return nil }
+            if Self.pilotResetEnabled {
+                do { try database.resetPilotLearning() } catch { return nil }
+            }
             if !isUITesting || ProcessInfo.processInfo.arguments.contains("-botai-seed-chemistry") {
                 do { try ChemistryPilotProvisioner.installIfNeeded(database: database) }
                 catch { return nil }
@@ -168,7 +176,7 @@ struct BOTAIApp: App {
                     return false
                 }
                 let repository = LearningRepository(database: database)
-                syncService = authStore.userID.map { SyncService(repository: repository, mappings: RemoteQuestionMappingRepository(database: database), boundAccountID: $0) }
+                syncService = Self.pilotResetEnabled ? nil : authStore.userID.map { SyncService(repository: repository, mappings: RemoteQuestionMappingRepository(database: database), boundAccountID: $0) }
             }
             return true
         }
@@ -186,12 +194,14 @@ struct BOTAIApp: App {
         do {
             try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
             let database = try AppDatabase(path: folder.appendingPathComponent("learning.sqlite").path)
+            // A freshly opened account must not resurrect pre-release progress.
+            if Self.pilotResetEnabled { try database.resetPilotLearning() }
             // Replace all stores together so no authenticated identity sees another account's data.
             let learningRepository = LearningRepository(database: database)
             learningStore = LearningStore(repository: learningRepository)
             // Recreate sync with the exact database for the newly authenticated identity.
             // Guest mode never owns an authenticated sync service.
-            syncService = authStore.isAuthenticated ? authStore.userID.map { SyncService(repository: learningRepository, mappings: RemoteQuestionMappingRepository(database: database), boundAccountID: $0) } : nil
+            syncService = Self.pilotResetEnabled ? nil : (authStore.isAuthenticated ? authStore.userID.map { SyncService(repository: learningRepository, mappings: RemoteQuestionMappingRepository(database: database), boundAccountID: $0) } : nil)
             // Seed only the first-time chemistry curriculum. Stable material IDs
             // and the course marker prevent re-import on future launches/updates.
             if !uiTesting || ProcessInfo.processInfo.arguments.contains("-botai-seed-chemistry") {

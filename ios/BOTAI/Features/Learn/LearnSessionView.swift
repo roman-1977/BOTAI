@@ -79,14 +79,11 @@ struct LearnSessionView: View {
   }
   private var sessionHeader: some View {
     HStack(spacing: 0) {
-      GoalRing(value: answeredToday, target: max(1, store.questions.count), label: "ВОПРОСЫ", tint: .mint)
-      Spacer(minLength: 0)
-      GoalRing(value: studySecondsToday / 60, target: max(1, store.sessionTargetMinutes), label: "МИНУТЫ", tint: .cyan)
-      Spacer(minLength: 0)
-      AnswerSplitRing(correct: correctToday, wrong: wrongToday)
-      Spacer(minLength: 0)
-      CoverageRing(seen: seenToday.count, total: store.questions.count)
-    }.padding(.horizontal, 14).padding(.top, 10).padding(.bottom, 8)
+      GoalRing(value: answeredToday, target: max(1, store.questions.count), label: "ВОПРОСЫ", tint: .mint).frame(maxWidth: .infinity)
+      GoalRing(value: studySecondsToday / 60, target: max(1, store.sessionTargetMinutes), label: "МИНУТЫ", tint: .cyan).frame(maxWidth: .infinity)
+      AnswerSplitRing(correct: correctToday, wrong: wrongToday).frame(maxWidth: .infinity)
+      CoverageRing(seen: seenToday.count, total: store.questions.count).frame(maxWidth: .infinity)
+    }.padding(.horizontal, 8).padding(.top, 10).padding(.bottom, 16)
       .accessibilityIdentifier("study-answered-\(answeredToday)")
   }
   private var topicBadge: some View {
@@ -438,10 +435,13 @@ private struct GoalRing: View {
         Text("\(value)").font(.title3.bold().monospacedDigit())
         Text("/\(target)").font(.caption2.bold()).foregroundStyle(.white.opacity(0.55))
       }
-    }.frame(width: 68, height: 68).overlay(alignment: .bottom) {
-      Text(label).font(.caption2.bold()).foregroundStyle(.white.opacity(0.72))
-        .offset(y: 19)
+    }.frame(width: 62, height: 62)
+    .overlay(alignment: .bottom) {
+      Text(label).font(.system(size: 9, weight: .bold)).minimumScaleFactor(0.8)
+        .lineLimit(1).foregroundStyle(.white.opacity(0.72))
+        .offset(y: 17)
     }
+    .frame(maxWidth: .infinity)
     .accessibilityElement(children: .ignore)
     .accessibilityLabel("\(label): \(value) из \(target)")
   }
@@ -467,10 +467,13 @@ private struct AnswerSplitRing: View {
           Text("\(wrong)").foregroundStyle(.red)
         }.font(.headline.bold().monospacedDigit())
       }
-    }.frame(width: 68, height: 68).overlay(alignment: .bottom) {
-      Text("ОТВЕТЫ").font(.caption2.bold()).foregroundStyle(.white.opacity(0.72))
-        .offset(y: 19)
+    }.frame(width: 62, height: 62)
+    .overlay(alignment: .bottom) {
+      Text("ОТВЕТЫ").font(.system(size: 9, weight: .bold)).minimumScaleFactor(0.8)
+        .lineLimit(1).foregroundStyle(.white.opacity(0.72))
+        .offset(y: 17)
     }
+    .frame(maxWidth: .infinity)
     .accessibilityElement(children: .ignore)
     .accessibilityLabel("Ответы: \(correct) правильных, \(wrong) неправильных")
   }
@@ -486,10 +489,13 @@ private struct CoverageRing: View {
         .purple, style: StrokeStyle(lineWidth: 8, lineCap: .round)
       ).rotationEffect(.degrees(-90)).shadow(color: .purple.opacity(0.45), radius: 5)
       Text("\(Int(ratio*100))%").font(.headline.bold().monospacedDigit())
-    }.frame(width: 68, height: 68).overlay(alignment: .bottom) {
-      Text("ОХВАТ").font(.caption2.bold()).foregroundStyle(.white.opacity(0.72))
-        .offset(y: 19)
+    }.frame(width: 62, height: 62)
+    .overlay(alignment: .bottom) {
+      Text("ОХВАТ").font(.system(size: 9, weight: .bold)).minimumScaleFactor(0.8)
+        .lineLimit(1).foregroundStyle(.white.opacity(0.72))
+        .offset(y: 17)
     }
+    .frame(maxWidth: .infinity)
     .accessibilityElement(children: .ignore)
     .accessibilityLabel("Охват: \(seen) из \(total) вопросов")
   }
