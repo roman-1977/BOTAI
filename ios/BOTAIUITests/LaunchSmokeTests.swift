@@ -1027,6 +1027,13 @@ final class LaunchSmokeTests: XCTestCase {
         app.terminate()
         app.launchArguments = ["-botai-ui-testing"]
         app.launch()
+        let recommendations = app.buttons["today-recommendations"]
+        XCTAssertTrue(recommendations.waitForExistence(timeout: 20))
+        recommendations.tap()
+        XCTAssertTrue(app.navigationBars["Рекомендации и цели"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["Освоить проверку"].exists)
+        XCTAssertTrue(app.staticTexts["Освоено 0%"].exists)
+        app.buttons["Готово"].tap()
         let reopenedCourses = app.buttons["Мои курсы"]
         XCTAssertTrue(reopenedCourses.waitForExistence(timeout: 20))
         reopenedCourses.tap()

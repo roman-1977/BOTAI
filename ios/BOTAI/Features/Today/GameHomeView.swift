@@ -32,6 +32,7 @@ struct GameHomeView: View {
   @State private var materialsOpen = false
   @State private var coursesOpen = false
   @State private var chooseGoal = false
+  @State private var showRecommendations = false
   @State private var chooseSession = false
   @State private var reportURL: URL?
   private var plan: DailyStudyPlan {
@@ -58,6 +59,16 @@ struct GameHomeView: View {
         ForEach(plan.goals) { g in Button("\(g.title) · \(g.questions.count) вопросов") { start(g) }
         }
         Button("Отмена", role: .cancel) {}
+      }.sheet(isPresented: $showRecommendations) {
+        NavigationStack {
+          ScrollView { goalsCard.padding(16) }
+            .background(HomeTheme.canvasBottom)
+            .navigationTitle("Рекомендации и цели")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar { ToolbarItem(placement: .confirmationAction) {
+              Button("Готово") { showRecommendations = false }
+            } }
+        }.preferredColorScheme(.dark)
       }.sheet(isPresented: $chooseSession) {
         SessionLaunchPicker(courses: courses.courses, materials: materials, learning: learning) { questions, title, attribution in
           learning.use(questions: questions, title: title, targetMinutes: plan.budgetMinutes,
@@ -219,6 +230,11 @@ struct GameHomeView: View {
       Text(
         plan.goals.isEmpty ? emptyPlanText : "BOTAI распределил время между текущими целями."
       ).font(.caption).foregroundStyle(Color.secondary)
+      if !plan.goals.isEmpty {
+        Button("Рекомендации и цели") { showRecommendations = true }
+          .font(.caption.bold())
+          .accessibilityIdentifier("today-recommendations")
+      }
     }
   }
   private var todayProgressRing: some View {
