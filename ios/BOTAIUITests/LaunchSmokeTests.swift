@@ -1099,24 +1099,20 @@ final class LaunchSmokeTests: XCTestCase {
 }
 import XCTest
 
-/// Runs against a dedicated simulator's BOTAI-UITests database seeded by the
-/// chemistry pilot script. Do not run this test on an unseeded simulator.
+/// Exercises the actual bundled chemistry curriculum in an isolated UI-test
+/// database; no external Python seed or preconfigured simulator is required.
 @MainActor
 final class ChemistryPilotSmokeTests: XCTestCase {
     func testChemistryTwoAnswersPersistAfterRelaunch() throws {
         let app = XCUIApplication()
-        app.launchArguments = ["-botai-ui-testing"]
+        app.launchArguments = ["-botai-ui-testing", "-botai-reset-ui-test-data", "-botai-seed-chemistry"]
         app.launch()
         let study = app.buttons["primary-study-launch"]
         XCTAssertTrue(study.waitForExistence(timeout: 20), "Primary study action missing")
         study.tap()
-        guard app.navigationBars["Что будем учить?"].waitForExistence(timeout: 10) else {
-            throw XCTSkip("Chemistry pilot picker is unavailable on this unseeded simulator")
-        }
+        XCTAssertTrue(app.navigationBars["Что будем учить?"].waitForExistence(timeout: 10))
         let chemistry = app.staticTexts["Весь предмет · Химия"]
-        guard chemistry.waitForExistence(timeout: 10) else {
-            throw XCTSkip("Chemistry pilot requires a separately seeded simulator; absent in general regression")
-        }
+        XCTAssertTrue(chemistry.waitForExistence(timeout: 15), "Bundled chemistry must be available without external seeding")
         chemistry.tap()
         let finish = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "ЗАВЕРШИТЬ ЗАНЯТИЕ")).firstMatch
         XCTAssertTrue(finish.waitForExistence(timeout: 15), "Study session did not open")
@@ -1128,6 +1124,9 @@ final class ChemistryPilotSmokeTests: XCTestCase {
         XCTAssertTrue(app.otherElements["study-answered-2"].waitForExistence(timeout: 5), "Second answer was not recorded")
         finish.tap()
         app.terminate()
+        // Relaunch without reset: this verifies that the actual student data
+        // survives a cold start with the same bundled curriculum.
+        app.launchArguments = ["-botai-ui-testing", "-botai-seed-chemistry"]
         app.launch()
         XCTAssertTrue(app.staticTexts["ПЛАН НА СЕГОДНЯ"].waitForExistence(timeout: 20))
     }
@@ -1151,17 +1150,23 @@ final class ChemistryPilotSmokeTests: XCTestCase {
 
     func testSeededChemistryCourseAndGoalAreVisible() throws {
         let app = XCUIApplication()
-        app.launchArguments = ["-botai-ui-testing"]
+        app.launchArguments = ["-botai-ui-testing", "-botai-reset-ui-test-data", "-botai-seed-chemistry"]
         app.launch()
         XCTAssertTrue(app.staticTexts["ПЛАН НА СЕГОДНЯ"].waitForExistence(timeout: 20))
         XCTAssertTrue(app.buttons["Мои курсы"].waitForExistence(timeout: 10))
+        // Cold-launch account bootstrap can replace the root view once.
+        // Wait for the home to settle before navigating into the course.
+        Thread.sleep(forTimeInterval: 1.5)
         app.buttons["Мои курсы"].tap()
-        guard app.staticTexts["ЕГЭ — Химия 2027"].waitForExistence(timeout: 15) else {
-            throw XCTSkip("Chemistry pilot requires a separately seeded simulator; absent in general regression")
+        let chemistry = app.staticTexts["ЕГЭ — Химия"]
+        XCTAssertTrue(chemistry.waitForExistence(timeout: 15))
+        if !chemistry.isHittable {
+            app.buttons["Мои курсы"].tap()
+            XCTAssertTrue(chemistry.waitForExistence(timeout: 10))
         }
-        app.staticTexts["ЕГЭ — Химия 2027"].tap()
+        chemistry.tap()
         XCTAssertTrue(app.staticTexts["5 разделов"].waitForExistence(timeout: 10))
         app.buttons["Цели"].tap()
-        XCTAssertTrue(app.staticTexts["Освоить 90% химии к 31 декабря"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["Освоить химию"].waitForExistence(timeout: 10))
     }
 }

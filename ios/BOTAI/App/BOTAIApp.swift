@@ -1,4 +1,5 @@
 import SwiftUI
+import CryptoKit
 import ZIPFoundation
 import Network
 
@@ -70,6 +71,10 @@ struct BOTAIApp: App {
             }
             guard FileManager.default.fileExists(atPath: folder.path) else { return nil }
             guard let database = try? AppDatabase(path: folder.appending(path: "learning.sqlite").path) else { return nil }
+            if !isUITesting || ProcessInfo.processInfo.arguments.contains("-botai-seed-chemistry") {
+                do { try ChemistryPilotProvisioner.installIfNeeded(database: database) }
+                catch { return nil }
+            }
             materialRepository = MaterialRepository(database: database)
             courseRepository = CourseRepository(database: database)
             studyProfileRepository = StudyProfileRepository(database: database)
@@ -187,6 +192,11 @@ struct BOTAIApp: App {
             // Recreate sync with the exact database for the newly authenticated identity.
             // Guest mode never owns an authenticated sync service.
             syncService = authStore.isAuthenticated ? authStore.userID.map { SyncService(repository: learningRepository, mappings: RemoteQuestionMappingRepository(database: database), boundAccountID: $0) } : nil
+            // Seed only the first-time chemistry curriculum. Stable material IDs
+            // and the course marker prevent re-import on future launches/updates.
+            if !uiTesting || ProcessInfo.processInfo.arguments.contains("-botai-seed-chemistry") {
+                try ChemistryPilotProvisioner.installIfNeeded(database: database)
+            }
             materialStore = MaterialStore(repository: MaterialRepository(database: database))
             courseStore = CourseStore(repository: CourseRepository(database: database))
             studyProfileStore = StudyProfileStore(repository: StudyProfileRepository(database: database))
@@ -281,5 +291,121 @@ struct BOTAIApp: App {
                     }
                 }
         }
+    }
+}
+
+/// First-install chemistry curriculum. Runs for each account-local database,
+/// never resets attempts, learning states, or previously provisioned courses.
+@MainActor enum ChemistryPilotProvisioner {
+    struct Source: Decodable {
+        let questions: [Entry]
+    }
+    struct Entry: Decodable {
+        struct Choice: Decodable { let key: String; let text: String }
+        let id: String
+        let section: String
+        let topic: String
+        let knowledge_set: String
+        let question: String
+        let answer: String
+        let choices: [Choice]
+        let correct_choice: String
+    }
+
+    static func stableUUID(_ key: String) -> UUID {
+        let digest = Array(SHA256.hash(data: Data("BOTAI:chemistry:pilot:v1:\(key)".utf8)))
+        var b = Array(digest.prefix(16))
+        b[6] = (b[6] & 0x0f) | 0x50
+        b[8] = (b[8] & 0x3f) | 0x80
+        return UUID(uuid: (b[0],b[1],b[2],b[3],b[4],b[5],b[6],b[7],b[8],b[9],b[10],b[11],b[12],b[13],b[14],b[15]))
+    }
+
+    static let courseID = stableUUID("course")
+
+    static func bundledSource() throws -> Source {
+        guard let asset = NSDataAsset(name: "ChemistryPilot") else {
+            throw NSError(domain: "BOTAI.Chemistry", code: 1, userInfo: [NSLocalizedDescriptionKey: "Учебный курс химии отсутствует в сборке"])
+        }
+        return try JSONDecoder().decode(Source.self, from: asset.data)
+    }
+
+    static func installIfNeeded(database: AppDatabase, source: Source? = nil) throws {
+        let courses = CourseRepository(database: database)
+        if try courses.courses().contains(where: { $0.id == courseID }) { return }
+        let data = try source ?? bundledSource()
+        guard data.questions.count == 323, Set(data.questions.map(\.id)).count == 323 else {
+            throw NSError(domain: "BOTAI.Chemistry", code: 2, userInfo: [NSLocalizedDescriptionKey: "Неполный набор химии"])
+        }
+        let groups = Dictionary(grouping: data.questions) {
+            "\($0.section)|\($0.topic)|\($0.knowledge_set)|\($0.correct_choice)"
+        }
+        let materials = MaterialRepository(database: database)
+        let now = Date()
+        var topicRefs: [String: [CourseRuleReference]] = [:]
+        var goalRefs: [CourseRuleReference] = []
+        for key in groups.keys.sorted() {
+            guard let entries = groups[key], let first = entries.first else { continue }
+            let mid = stableUUID("material:" + key)
+            let cardID = stableUUID("card:" + key)
+            let choiceID = stableUUID("choice:" + key)
+            let fields = ["question", "answer", "A", "B", "C", "D"].enumerated().map {
+                MaterialField(id: stableUUID("field:\(key):\($0.element)"), materialID: mid,
+                              key: $0.element, title: $0.element, position: $0.offset)
+            }
+            let rows = entries.sorted { $0.id < $1.id }.enumerated().map { index, entry -> KnowledgeRow in
+                var values = ["question": entry.question, "answer": entry.answer]
+                for choice in entry.choices { values[choice.key] = choice.text }
+                return KnowledgeRow(id: stableUUID("row:" + entry.id), materialID: mid,
+                                    position: index, values: values)
+            }
+            let card = QuestionRule(id: cardID, materialID: mid, kind: .card,
+                promptFieldKey: "question", answerFieldKey: "answer", promptFieldKeys: ["question"],
+                answers: [QuestionAnswerRule(template: "{1}", fieldKeys: ["answer"], correct: true)], enabled: true)
+            let choice = QuestionRule(id: choiceID, materialID: mid, kind: .singleChoice,
+                promptFieldKey: "question", answerFieldKey: "answer", promptFieldKeys: ["question"],
+                answers: ["A", "B", "C", "D"].map {
+                    QuestionAnswerRule(template: "{1}", fieldKeys: [$0], correct: $0 == first.correct_choice)
+                }, enabled: true)
+            let record = StudyMaterialRecord(id: mid, title: first.knowledge_set,
+                subject: "Химия", topic: first.topic, description: first.section,
+                author: "BOTAI Pilot", kind: .quiz, source: .created, createdAt: now, updatedAt: now)
+            try materials.save(material: record, fields: fields, rows: rows, rules: [card, choice])
+            let cardRef = CourseRuleReference(materialID: mid, ruleID: cardID)
+            let choiceRef = CourseRuleReference(materialID: mid, ruleID: choiceID)
+            topicRefs[first.section + "|" + first.topic, default: []].append(contentsOf: [cardRef, choiceRef])
+            goalRefs.append(cardRef)
+        }
+        let sections = Dictionary(grouping: data.questions, by: \.section).keys.sorted().map { name -> CourseSection in
+            let topics = Set(data.questions.filter { $0.section == name }.map(\.topic)).sorted().map { topic in
+                CourseTopic(id: stableUUID("topic:\(name):\(topic)"), title: topic,
+                            questionSets: topicRefs[name + "|" + topic] ?? [])
+            }
+            return CourseSection(id: stableUUID("section:" + name), title: name,
+                                 description: "", estimatedMinutes: nil, topics: topics)
+        }
+        let goal = LearningGoal(id: stableUUID("goal"), title: "Освоить химию",
+            questionSets: goalRefs, masteryTarget: 90, deadline: nil, state: .active,
+            guidance: CourseLearningGuidance(priority: .elevated,
+                rationale: "Химия — приоритет подготовки к ЕГЭ", difficulty: 4,
+                recommendedDailyMinutes: 25))
+        var course = StudyCourse(id: courseID, title: "ЕГЭ — Химия", description: "Учебный курс химии",
+            subject: "Химия", audience: "ЕГЭ", estimatedMinutes: nil,
+            author: "BOTAI Pilot", language: "ru", coverSymbol: "flask.fill",
+            source: .created, sections: sections, goals: [goal], createdAt: now, updatedAt: now)
+        let stages = ["Неорганическая химия", "Органическая химия"]
+        guard stages.allSatisfy({ name in sections.contains(where: { $0.title == name }) }) else {
+            throw NSError(domain: "BOTAI.Chemistry", code: 3, userInfo: [NSLocalizedDescriptionKey: "Разделы курса химии отсутствуют"])
+        }
+        course.stagedLearning = StagedLearningRoute(sectionIDs: stages.map { stableUUID("section:" + $0) }, threshold: 70)
+        // Preserve a learner's chosen schedule. Only a truly new profile gets
+        // the chemistry pilot's teacher-suggested 25-minute daily default.
+        let profileRepo = StudyProfileRepository(database: database)
+        if try profileRepo.history().isEmpty {
+            try profileRepo.save(StudyProfile(defaultDailyMinutes: 25,
+                customDays: [StudyDayPlan(weekday: 1, minutes: 0)], updatedAt: now))
+        }
+        // The course is the completion marker, saved only after every material.
+        // A failed import can safely resume on next launch using stable IDs.
+        try courses.save(course)
     }
 }

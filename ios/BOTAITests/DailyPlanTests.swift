@@ -565,3 +565,53 @@ struct MultiGoalOverlappingIntegrationTests {
         #expect(DailyPlanner.stagedReferences(course: course, goal: goal, materials: store, states: [:]) == refs)
     }
 }
+
+@MainActor struct ChemistryFirstInstallTests {
+    @Test func bundledChemistryInstallsOnceAndPreservesExistingCourseAndMaterial() throws {
+        let source = try ChemistryPilotProvisioner.bundledSource()
+        #expect(source.questions.count == 323)
+        let db = try AppDatabase()
+        try ChemistryPilotProvisioner.installIfNeeded(database: db, source: source)
+        let repo = CourseRepository(database: db)
+        let installed = try repo.courses()
+        let course = try #require(installed.first(where: { $0.id == ChemistryPilotProvisioner.courseID }))
+        #expect(course.sections.count == 5)
+        #expect(course.topicCount == 25)
+        #expect(course.stagedLearning?.threshold == 70)
+        #expect(course.stagedLearning?.sectionIDs.count == 2)
+        let profileRepo = StudyProfileRepository(database: db)
+        #expect(try profileRepo.load().defaultDailyMinutes == 25)
+        #expect(try profileRepo.load().minutes(for: 1) == 0)
+        let materials = MaterialRepository(database: db)
+        #expect(try materials.materials().count == 102)
+        let refs = course.goals.flatMap(\.questionSets)
+        let questions = try refs.flatMap { ref -> [StudyQuestion] in
+            let loaded = try materials.content(id: ref.materialID)
+            let content = try #require(loaded)
+            return StudyQuestionBuilder.questions(for: ref, content: content)
+        }
+        #expect(questions.count == 323)
+        #expect(Set(questions.map(\.knowledgeID)).count == 323)
+        let allChoiceRefs = course.sections.flatMap(\.topics).flatMap(\.questionSets).filter { !refs.contains($0) }
+        let choices = try allChoiceRefs.flatMap { ref -> [StudyQuestion] in
+            let loaded = try materials.content(id: ref.materialID)
+            let content = try #require(loaded)
+            return StudyQuestionBuilder.questions(for: ref, content: content)
+        }
+        #expect(choices.count == 323)
+        #expect(choices.allSatisfy { $0.choices.count == 4 && $0.correctChoiceIndexes.count == 1 })
+        var edited = course
+        edited.description = "Learner progress must survive updates"
+        try repo.save(edited)
+        try profileRepo.save(StudyProfile(defaultDailyMinutes: 15, customDays: [], updatedAt: .now))
+        try ChemistryPilotProvisioner.installIfNeeded(database: db, source: source)
+        #expect(try profileRepo.load().defaultDailyMinutes == 15)
+        #expect(try repo.courses().count == 1)
+        #expect(try repo.courses().first?.description == "Learner progress must survive updates")
+        #expect(try materials.materials().count == 102)
+        let independent = try AppDatabase()
+        #expect(try CourseRepository(database: independent).courses().isEmpty)
+        try ChemistryPilotProvisioner.installIfNeeded(database: independent, source: source)
+        #expect(try CourseRepository(database: independent).courses().count == 1)
+    }
+}

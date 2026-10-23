@@ -1,4 +1,8 @@
 # BOTAI — актуальная передача проекта и готовый промпт
+> **FULL REGRESSION 2026-10-23:** chemistry built into iOS app, initial guest and each new account provisioned independently; 323 knowledge rows, 102 materials, 25 topics, 5 sections, 70% staged route. **183/183 unit + 27/27 UI PASS**, serial iPhone 16e simulator, `/tmp/botai_chemistry_install_full_final.log`, exit 0. Real 15/16 Pro Max physical devices, hosted auth and multi-day acceptance still OPEN. See `docs/iterations/RELEASE_TARGET_DECISION_2026-10-23.md`.
+
+> **CHEMISTRY INSTALL CHECKPOINT 2026-10-23:** `ChemistryPilot.dataset` bundled in iOS app; deterministic per-account first-install provisioning (323 questions, 102 materials, 25 topics, 5 sections, card + choice), no destructive Python seed required, preserves existing course/progress on relaunch. 183/183 unit PASS; focused chemistry UI PASS. Full simulator suite running; real devices/auth/multi-day acceptance remain open. `docs/iterations/RELEASE_TARGET_DECISION_2026-10-23.md`.
+
 > **CHEMISTRY ROUTE CHECKPOINT 2026-10-23:** optional explicit staged course sections with 70% unique-mastery threshold now drive DailyPlanner; chemistry seed configures inorganic → organic → full-goal reinforcement. 182/182 unit PASS, full UI/device not yet rerun. Release provisioning and physical acceptance OPEN. `docs/iterations/RELEASE_TARGET_DECISION_2026-10-23.md`.
 
 > **EMAIL AUTH CHECKPOINT 2026-10-23:** Profile email sign-in/sign-up/password-reset wired to Supabase Auth, 181/181 unit PASS. Real email delivery/confirmation, hosted auth, Apple ID, account switching and two physical phones still unverified; last full UI 25/25 predates this code. `docs/iterations/RELEASE_TARGET_DECISION_2026-10-23.md`.
