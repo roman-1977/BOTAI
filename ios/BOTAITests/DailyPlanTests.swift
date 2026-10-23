@@ -393,3 +393,24 @@ struct TeacherGuidanceOrderingTests {
   #expect(DailyPlanner.guidanceRank(.elevated) > DailyPlanner.guidanceRank(.standard))
  }
 }
+
+struct MultiGoalMinuteAllocationTests {
+ @Test func allGoalsGetTimeWhenBudgetAllows() {
+  #expect(DailyPlanner.allocateMinutes(budget: 3, urgencies: [0.8,0.1,0.1]) == [1,1,1])
+  let result=DailyPlanner.allocateMinutes(budget: 12, urgencies: [0.8,0.1,0.1])
+  #expect(result.reduce(0,+) == 12)
+  #expect(result.allSatisfy { $0 >= 1 })
+  #expect(result[0] > result[1])
+ }
+ @Test func budgetBelowGoalCountAndRestDayAreSafe() {
+  #expect(DailyPlanner.allocateMinutes(budget: 2, urgencies: [1,1,1]) == [1,1,0])
+  #expect(DailyPlanner.allocateMinutes(budget: 0, urgencies: [1,1,1]) == [0,0,0])
+  #expect(DailyPlanner.allocateMinutes(budget: 5, urgencies: []) == [])
+ }
+ @Test func equalUrgencyAllocationIsDeterministic() {
+  let a=DailyPlanner.allocateMinutes(budget: 11, urgencies: [1,1,1])
+  #expect(a == DailyPlanner.allocateMinutes(budget: 11, urgencies: [1,1,1]))
+  #expect(a.reduce(0,+) == 11)
+  #expect(a.max()! - a.min()! <= 1)
+ }
+}

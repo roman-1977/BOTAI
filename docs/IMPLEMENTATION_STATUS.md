@@ -220,3 +220,5 @@ RC-04 student UI partial 2026-10-23: Today goal card displays stored recommendat
 RC-04 2026-10-23: teacher priority now breaks equal-urgency goal ties in DailyPlanner, without overriding actual mastery/deadline or due-first question order. Signed simulator unit 161/161 PASS. This is partial recommendation use, not RC-04 completion.
 
 2026-10-23 RC-04 rest-day fix: no phantom mandatory minute for zero budget; voluntary questions still available. 161/161 signed simulator unit PASS. Full recommendation pipeline P0 OPEN.
+
+2026-10-23 RC-04 multi-goal fairness: deterministic 1-minute minimum per goal when budget allows, urgency-weighted remainder, no overbudget or phantom rest-day minute. 164/164 signed simulator unit PASS. General recommendation pipeline/UI still open.

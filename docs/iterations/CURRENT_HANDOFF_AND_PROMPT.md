@@ -18,6 +18,8 @@
 
 > **RC-04 rest-day fix:** zero-minute days no longer allocate phantom mandatory minute; optional study still available. 161/161 unit PASS `/tmp/botai_rc04_restday_units_20261023.log`.
 
+> **RC-04 latest 2026-10-23:** multi-goal budget allocation fixed (no starvation when budget covers goals, proportional remainder, stable tie, no phantom minutes). 164/164 simulator units PASS `/tmp/botai_rc04_multigoal_units_20261023.log`. Teacher recommendation pipeline still incomplete.
+
 ## Подтверждённое состояние
 
 - Репозиторий Mac: `/Users/romanarzumanov/Desktop/Личное/Develop/BOTAI`; ветка `feature/v0.3.0-chemistry-pilot`; последний подтверждённый коммит перед этим документом `33f9f20`. Проверять фактический HEAD при входе.

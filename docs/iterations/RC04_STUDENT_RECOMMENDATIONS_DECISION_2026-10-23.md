@@ -37,3 +37,7 @@ The Today goal card now displays persisted guidance priority and optional ration
 ### Rest-day correctness checkpoint — 2026-10-23
 
 Fixed a verified planner inconsistency: zero-minute scheduled rest days previously created a **phantom mandatory minute** (`remaining=max(1,budget)`), even though the UI said zero minutes. Now allocated minutes remain zero; optional voluntary questions remain available. Added `plan.plannedMinutes == 0` regression assertion. Simulator signed unit tests 161/161 PASS, exit 0 (`/tmp/botai_rc04_restday_units_20261023.log`). Remaining: full recommendations import/difficulty/pace/UI acceptance and multi-goal starvation analysis.
+
+### Multi-goal budget fairness checkpoint — 2026-10-23
+
+Fixed `DailyPlanner` multi-goal starvation from the old `max(5, weighted)` greedy allocation: each eligible goal receives one minute when the profile budget permits, then remaining minutes are allocated proportionally to observed deadline/mastery urgency with deterministic largest-remainder rounding. If fewer minutes than goals, higher-urgency goals receive the limited minutes first; teacher priority breaks only equal-urgency ties. Budget is never exceeded. Zero-minute rest days retain voluntary questions with zero mandatory minutes. Added three deterministic allocation tests (fairness, low/zero budget, equal-urgency ties). Signed iPhone 16e simulator **164/164 unit PASS**, exit 0 (`/tmp/botai_rc04_multigoal_units_20261023.log`). General import, teacher difficulty/pace, end-to-end UI and device acceptance remain P0 open.

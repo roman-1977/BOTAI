@@ -42,12 +42,51 @@ enum DailyPlanner {
      cs.append(.init(course:c,goal:g,questions:qs,mastery:mastery,urgency:urgency))
    }}
    guard !cs.isEmpty else{return .init(date:date,budgetMinutes:budget,goals:[])}
-   let total=max(0.0001,cs.reduce(0){$0+$1.urgency});var remaining=max(0,budget);var plans:[DailyStudyPlan.GoalPlan]=[]
-   for (i,x) in cs.sorted(by:{
+   let ranked = cs.sorted {
     if $0.urgency != $1.urgency { return $0.urgency > $1.urgency }
     return guidanceRank($0.goal.guidance?.priority) > guidanceRank($1.goal.guidance?.priority)
-   }).enumerated(){let mins=i==cs.count-1 ? remaining:max(5,Int((Double(budget)*x.urgency/total).rounded()));let allocated=min(remaining,mins);remaining-=allocated;let count=min(x.questions.count,max(1,allocated*2));let selected=adaptiveQuestions(goal:x.goal,materials:materials,learning:learning,count:count,date:date);plans.append(.init(id:x.goal.id,courseID:x.course.id,goalID:x.goal.id,title:x.goal.title,minutes:allocated,questions:selected,mastery:x.mastery,target:x.goal.masteryTarget,deadline:x.goal.deadline));if remaining<=0 && budget>0{break}}
+   }
+   let allocations = allocateMinutes(
+    budget: budget, urgencies: ranked.map(\.urgency))
+   var plans:[DailyStudyPlan.GoalPlan]=[]
+   for (i,x) in ranked.enumerated() {
+    let allocated = allocations[i]
+    // A rest day offers optional questions, but creates no required minutes.
+    if allocated == 0 && budget > 0 { continue }
+    let count=min(x.questions.count,max(1,allocated*2))
+    let selected=adaptiveQuestions(goal:x.goal,materials:materials,learning:learning,count:count,date:date)
+    plans.append(.init(id:x.goal.id,courseID:x.course.id,goalID:x.goal.id,title:x.goal.title,minutes:allocated,questions:selected,mastery:x.mastery,target:x.goal.masteryTarget,deadline:x.goal.deadline))
+   }
    return .init(date:date,budgetMinutes:budget,goals:plans)
+ }
+
+ // Guarantee each goal a share when the user has enough minutes. Remaining
+ // minutes follow observed deadline/mastery urgency; ties preserve input order.
+ // The total never exceeds the learner-owned daily budget.
+ static func allocateMinutes(budget: Int, urgencies: [Double]) -> [Int] {
+  guard !urgencies.isEmpty else { return [] }
+  let available=max(0,budget)
+  var result=Array(repeating:0,count:urgencies.count)
+  let seeded=min(available,urgencies.count)
+  for i in 0..<seeded { result[i]=1 }
+  let remaining=available-seeded
+  guard remaining>0 else { return result }
+  let weights=urgencies.map { $0.isFinite ? max(0,$0) : 0 }
+  let total=weights.reduce(0,+)
+  guard total>0 else {
+   for i in 0..<remaining { result[i % result.count]+=1 }
+   return result
+  }
+  let exact=weights.map { Double(remaining)*$0/total }
+  let floors=exact.map { Int($0.rounded(.down)) }
+  for i in result.indices { result[i]+=floors[i] }
+  let leftover=remaining-floors.reduce(0,+)
+  let order=result.indices.sorted {
+   let first=exact[$0]-Double(floors[$0]), second=exact[$1]-Double(floors[$1])
+   return first == second ? $0<$1 : first>second
+  }
+  if leftover>0 { for i in 0..<leftover { result[order[i]]+=1 } }
+  return result
  }
 
  // Recommendations break ties between equally urgent goals. Deadline and actual
