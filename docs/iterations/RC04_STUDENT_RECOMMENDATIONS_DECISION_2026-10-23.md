@@ -45,3 +45,7 @@ Fixed `DailyPlanner` multi-goal starvation from the old `max(5, weighted)` greed
 ### Local persistence acceptance checkpoint — 2026-10-23
 
 Added a real SQLite `CourseRepository` regression for a teacher-guided imported-source course: write → instantiate a fresh repository against the same database → reload → update course description → reload again. Verifies that priority and rationale remain intact, rather than only testing in-memory JSON. Signed simulator **165/165 unit PASS**, exit 0 (`/tmp/botai_rc04_guidance_persistence_units_20261023.log`). This does **not** verify a full app-process cold relaunch or a general `.botai` course import: both remain open.
+
+### Teacher difficulty and suggested pace metadata — 2026-10-23
+
+Extended the optional `CourseLearningGuidance` payload with `difficulty` (1–5) and `recommendedDailyMinutes` (1–240), backward-compatible Codable decoding, and defensive normalization of out-of-range imported values to nil. The student Today goal card displays these as **teacher suggestions**, not BOTAI's assigned daily budget. They are persisted in the same course JSON as priority/rationale. The learner's profile budget is deliberately unchanged. Added valid/legacy/malformed range tests; signed iPhone 16e simulator **167/167 unit PASS**, exit 0 (`/tmp/botai_rc04_difficulty_pace_units_20261023.log`). The planner does not yet adapt question selection to difficulty or pace, and general `.botai` course import still needs an agreed transport contract. No new UI test was run.

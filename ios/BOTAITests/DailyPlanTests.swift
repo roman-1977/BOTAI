@@ -414,3 +414,19 @@ struct MultiGoalMinuteAllocationTests {
   #expect(a.max()! - a.min()! <= 1)
  }
 }
+
+struct TeacherGuidanceMetadataTests {
+ @Test func difficultyAndSuggestedPaceRoundTrip() throws {
+  let guidance=CourseLearningGuidance(priority:.critical,rationale:"Повторить",difficulty:4,recommendedDailyMinutes:25)
+  let restored=try JSONDecoder().decode(CourseLearningGuidance.self,from:JSONEncoder().encode(guidance))
+  #expect(restored == guidance)
+ }
+ @Test func invalidRecommendationsNeverIncreaseStudyBudget() throws {
+  let raw=Data(#"{"priority":"elevated","difficulty":9,"recommendedDailyMinutes":900}"#.utf8)
+  let decoded=try JSONDecoder().decode(CourseLearningGuidance.self,from:raw)
+  #expect(decoded.difficulty == nil)
+  #expect(decoded.recommendedDailyMinutes == nil)
+  let legacy=try JSONDecoder().decode(CourseLearningGuidance.self,from:Data(#"{"priority":"standard"}"#.utf8))
+  #expect(legacy.difficulty == nil && legacy.recommendedDailyMinutes == nil)
+ }
+}

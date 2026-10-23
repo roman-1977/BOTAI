@@ -11,6 +11,25 @@ struct CourseLearningGuidance: Codable, Equatable, Sendable {
  enum Priority: String, Codable, Sendable { case standard, elevated, critical }
  var priority: Priority
  var rationale: String?
+ /// Teacher-provided expected complexity (1 = introductory, 5 = advanced).
+ var difficulty: Int? = nil
+ /// Suggested study minutes, never applied as a silent profile-budget override.
+ var recommendedDailyMinutes: Int? = nil
+ enum CodingKeys: String, CodingKey { case priority, rationale, difficulty, recommendedDailyMinutes }
+ init(priority: Priority, rationale: String? = nil, difficulty: Int? = nil, recommendedDailyMinutes: Int? = nil) {
+  self.priority=priority;self.rationale=rationale
+  self.difficulty=difficulty.flatMap { (1...5).contains($0) ? $0 : nil }
+  self.recommendedDailyMinutes=recommendedDailyMinutes.flatMap { (1...240).contains($0) ? $0 : nil }
+ }
+ init(from decoder: Decoder) throws {
+  let c=try decoder.container(keyedBy:CodingKeys.self)
+  priority=try c.decode(Priority.self,forKey:.priority)
+  rationale=try c.decodeIfPresent(String.self,forKey:.rationale)
+  let d=try c.decodeIfPresent(Int.self,forKey:.difficulty)
+  difficulty=d.flatMap { (1...5).contains($0) ? $0 : nil }
+  let m=try c.decodeIfPresent(Int.self,forKey:.recommendedDailyMinutes)
+  recommendedDailyMinutes=m.flatMap { (1...240).contains($0) ? $0 : nil }
+ }
 }
 extension CourseLearningGuidance.Priority {
  var studentLabel: String {

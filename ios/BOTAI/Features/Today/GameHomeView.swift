@@ -249,6 +249,14 @@ struct GameHomeView: View {
                 Text("Рекомендация: \(guidance.priority.studentLabel)")
                   .font(.caption).foregroundStyle(HomeTheme.accent)
                   .accessibilityLabel("Приоритет преподавателя: \(guidance.priority.studentLabel)")
+                if let difficulty = guidance.difficulty {
+                  Text("Сложность: \(difficulty)/5").font(.caption2)
+                    .foregroundStyle(.secondary)
+                }
+                if let suggested = guidance.recommendedDailyMinutes {
+                  Text("Совет преподавателя: \(suggested) мин/день")
+                    .font(.caption2).foregroundStyle(.secondary)
+                }
                 if let rationale = guidance.rationale, !rationale.isEmpty {
                   Text(rationale).font(.caption2).foregroundStyle(.secondary)
                     .lineLimit(2)

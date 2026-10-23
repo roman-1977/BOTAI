@@ -136,3 +136,5 @@ Existing daily planner already uses goal mastery, deadline deficit, profile budg
 RC-04 checkpoint: optional teacher priority now resolves equal-urgency goal ordering deterministically, preserving learner evidence as primary signal. Remaining P0: difficulty, pace, general course import, learner visualization of adaptive impact, multi-goal/UI acceptance. Test evidence: `/tmp/botai_rc04_guidance_order_units_20261023.log` 161/161 PASS.
 
 RC-04 multi-goal allocation checkpoint: fair deterministic shared-minute budget, urgency-based remainder and bounded teacher tie-break; verified 164/164 simulator units (`/tmp/botai_rc04_multigoal_units_20261023.log`). Remaining mandatory recommendation ingestion/difficulty/pace/visualization/UI tests.
+
+RC-04 metadata checkpoint: teacher difficulty and recommended pace are now accepted, validated, persisted with goals and shown on Today. They are not yet applied to adaptive scheduling; no silent learner-budget override. 167/167 unit PASS `/tmp/botai_rc04_difficulty_pace_units_20261023.log`.
