@@ -138,3 +138,5 @@ RC-04 checkpoint: optional teacher priority now resolves equal-urgency goal orde
 RC-04 multi-goal allocation checkpoint: fair deterministic shared-minute budget, urgency-based remainder and bounded teacher tie-break; verified 164/164 simulator units (`/tmp/botai_rc04_multigoal_units_20261023.log`). Remaining mandatory recommendation ingestion/difficulty/pace/visualization/UI tests.
 
 RC-04 metadata checkpoint: teacher difficulty and recommended pace are now accepted, validated, persisted with goals and shown on Today. They are not yet applied to adaptive scheduling; no silent learner-budget override. 167/167 unit PASS `/tmp/botai_rc04_difficulty_pace_units_20261023.log`.
+
+RC-04 pace visualization checkpoint: teacher suggested daily minutes vs actual per-goal allocation now displayed; chemistry direct seed includes difficulty/pace. 168/168 unit PASS `/tmp/botai_rc04_pace_assessment_units_20261023.log`. General import/adaptive difficulty/UI acceptance still mandatory.

@@ -430,3 +430,14 @@ struct TeacherGuidanceMetadataTests {
   #expect(legacy.difficulty == nil && legacy.recommendedDailyMinutes == nil)
  }
 }
+
+struct TeacherPaceAssessmentTests {
+ @Test func comparesAdviceWithAllocatedShareWithoutOverridingBudget() {
+  let advice=CourseLearningGuidance(priority:.elevated,recommendedDailyMinutes:25)
+  #expect(DailyPlanner.assessPace(guidance:advice,allocatedMinutes:15) == .belowSuggestion(minutes:10))
+  #expect(DailyPlanner.assessPace(guidance:advice,allocatedMinutes:25) == .matched)
+  #expect(DailyPlanner.assessPace(guidance:advice,allocatedMinutes:30) == .aboveSuggestion(minutes:5))
+  #expect(DailyPlanner.assessPace(guidance:advice,allocatedMinutes:0) == .belowSuggestion(minutes:25))
+  #expect(DailyPlanner.assessPace(guidance:nil,allocatedMinutes:20) == .notProvided)
+ }
+}

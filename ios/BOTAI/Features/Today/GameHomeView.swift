@@ -257,6 +257,18 @@ struct GameHomeView: View {
                   Text("Совет преподавателя: \(suggested) мин/день")
                     .font(.caption2).foregroundStyle(.secondary)
                 }
+                switch DailyPlanner.assessPace(guidance: guidance, allocatedMinutes: g.minutes) {
+                case .belowSuggestion(let difference):
+                  Text("План BOTAI: на \(difference) мин меньше совета")
+                    .font(.caption2).foregroundStyle(.secondary)
+                case .aboveSuggestion(let difference):
+                  Text("План BOTAI: на \(difference) мин больше совета")
+                    .font(.caption2).foregroundStyle(.secondary)
+                case .matched:
+                  Text("План BOTAI совпадает с советом").font(.caption2)
+                    .foregroundStyle(.secondary)
+                case .notProvided: EmptyView()
+                }
                 if let rationale = guidance.rationale, !rationale.isEmpty {
                   Text(rationale).font(.caption2).foregroundStyle(.secondary)
                     .lineLimit(2)

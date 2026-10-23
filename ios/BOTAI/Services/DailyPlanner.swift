@@ -89,6 +89,18 @@ enum DailyPlanner {
   return result
  }
 
+ // Teacher pace is advice, not permission to change the learner's profile.
+ // Comparing against the *allocated* share keeps multi-goal feedback honest.
+ enum PaceAssessment: Equatable {
+  case notProvided, matched, belowSuggestion(minutes: Int), aboveSuggestion(minutes: Int)
+ }
+ static func assessPace(guidance: CourseLearningGuidance?, allocatedMinutes: Int) -> PaceAssessment {
+  guard let suggested = guidance?.recommendedDailyMinutes, suggested > 0 else { return .notProvided }
+  let delta = max(0,allocatedMinutes)-suggested
+  if delta == 0 { return .matched }
+  return delta < 0 ? .belowSuggestion(minutes: -delta) : .aboveSuggestion(minutes: delta)
+ }
+
  // Recommendations break ties between equally urgent goals. Deadline and actual
  // mastery still lead, so teacher guidance never overrides student evidence.
  static func guidanceRank(_ priority: CourseLearningGuidance.Priority?) -> Int {

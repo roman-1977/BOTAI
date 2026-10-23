@@ -24,6 +24,8 @@
 
 > **RC-04 latest:** teacher difficulty (1–5) and suggested daily minutes (1–240) supported in optional course goal guidance, shown in Today, invalid ranges normalized, 167/167 simulator unit PASS `/tmp/botai_rc04_difficulty_pace_units_20261023.log`. Adaptive difficulty/pace use, general import and UI tests P0 OPEN.
 
+> **RC-04 pace comparison 2026-10-23:** chemistry direct seed includes teacher difficulty 4 and 25-minute suggestion; Today compares it against actual goal allocation, never silently changes profile. 168/168 simulator units PASS `/tmp/botai_rc04_pace_assessment_units_20261023.log`. General course import/adaptive difficulty/full UI acceptance open.
+
 ## Подтверждённое состояние
 
 - Репозиторий Mac: `/Users/romanarzumanov/Desktop/Личное/Develop/BOTAI`; ветка `feature/v0.3.0-chemistry-pilot`; последний подтверждённый коммит перед этим документом `33f9f20`. Проверять фактический HEAD при входе.
