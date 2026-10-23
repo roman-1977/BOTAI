@@ -59,6 +59,21 @@ struct KnowledgeIdentityTests {
         #expect(second.first?.correctChoiceIndexes.count == 1)
     }
 
+    @Test func generatedChoicesAreStableAcrossRebuilds() {
+        let materialID=UUID(),ruleID=UUID()
+        let material=StudyMaterialRecord(id:materialID,title:"Acids",subject:"Химия",topic:nil,kind:.quiz,source:.created,createdAt:.now,updatedAt:.now)
+        let rows=(0..<6).map { index in KnowledgeRow(id:UUID(),materialID:materialID,position:index,values:["q":"Q\(index)","a":"A\(index)"]) }
+        let rule=QuestionRule(id:ruleID,materialID:materialID,kind:.singleChoice,promptFieldKey:"q",answerFieldKey:"a",promptFieldKeys:["q"],answers:[.init(template:"{1}",fieldKeys:["a"],correct:true)],enabled:true)
+        let content=MaterialContent(material:material,fields:[],rows:rows,rules:[rule])
+        let ref=CourseRuleReference(materialID:materialID,ruleID:ruleID)
+        let first=StudyQuestionBuilder.questions(for:ref,content:content)
+        let second=StudyQuestionBuilder.questions(for:ref,content:content)
+        #expect(first.count == 6)
+        #expect(first.map(\.choices) == second.map(\.choices))
+        #expect(first.map(\.correctChoiceIndexes) == second.map(\.correctChoiceIndexes))
+        #expect(first.allSatisfy { $0.choices.count == 4 && $0.correctChoiceIndexes.count == 1 })
+    }
+
     @Test func legacyQuestionsDefaultKnowledgeIdentityToQuestionID() {
         let id = UUID()
         let q = StudyQuestion(id:id,prompt:"Q",answer:"A",kind:.reveal,choices:[],correctChoiceIndexes:[])

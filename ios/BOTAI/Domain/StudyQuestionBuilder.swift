@@ -33,17 +33,21 @@ enum StudyQuestionBuilder {
                         let text=render(a.template,keys:a.fieldKeys,row:other).trimmingCharacters(in:.whitespacesAndNewlines)
                         return text.isEmpty ? nil:text
                     }
-                }.filter { candidate in !options.contains(where:{$0.text == candidate}) }.shuffled()
+                }.filter { candidate in !options.contains(where:{$0.text == candidate}) }.sorted { stableChoiceKey(ruleID:rule.id,rowID:row.id,text:$0) < stableChoiceKey(ruleID:rule.id,rowID:row.id,text:$1) }
                 while options.count < 4, !pool.isEmpty { let x=pool.removeFirst();if !options.contains(where:{$0.text == x}) { options.append((x,false)) } }
             }
             if rule.kind != .card && options.count < 4 { return nil }
-            let shuffled = options.shuffled()
+            let shuffled = options.sorted { stableChoiceKey(ruleID:rule.id,rowID:row.id,text:$0.text) < stableChoiceKey(ruleID:rule.id,rowID:row.id,text:$1.text) }
             let answers=shuffled.map(\.text)
             let correct=Set(shuffled.enumerated().compactMap{$0.element.correct ? $0.offset:nil})
             let answer=correctTexts.joined(separator:", ")
             let kind:StudyQuestion.Kind = rule.kind == .singleChoice ? .singleChoice : rule.kind == .multipleChoice ? .multipleChoice : .reveal
             return StudyQuestion(id:stableID(ruleID:rule.id,rowID:row.id),prompt:prompt,answer:answer.isEmpty ? fallback:answer,kind:kind,choices:answers,correctChoiceIndexes:correct,knowledgeID:row.id)
         }
+    }
+    private static func stableChoiceKey(ruleID:UUID,rowID:UUID,text:String)->String {
+        let digest=SHA256.hash(data:Data("\(ruleID.uuidString):\(rowID.uuidString):\(text)".utf8))
+        return digest.map { String(format:"%02x",$0) }.joined()
     }
     private static func fieldsPresent(_ keys:[String],in row:KnowledgeRow)->Bool { keys.allSatisfy { !(row.values[$0] ?? "").trimmingCharacters(in:.whitespacesAndNewlines).isEmpty } }
     static func stableID(ruleID:UUID,rowID:UUID)->UUID { let digest=SHA256.hash(data:Data("\(ruleID.uuidString):\(rowID.uuidString)".utf8));var b=Array(digest.prefix(16));b[6]=(b[6]&0x0F)|0x50;b[8]=(b[8]&0x3F)|0x80;return UUID(uuid:(b[0],b[1],b[2],b[3],b[4],b[5],b[6],b[7],b[8],b[9],b[10],b[11],b[12],b[13],b[14],b[15])) }
