@@ -1,4 +1,6 @@
 # BOTAI — актуальная передача проекта и готовый промпт
+> **TWO-STUDENT DURABILITY 2026-10-23:** Added disk-backed chemistry test: two account-specific SQLite files, same real chemistry question, distinct attempt IDs/streaks, cold reopen in reverse order and repeated provisioning without progress loss. Verification pending final post-change regression. `docs/iterations/CHEMISTRY_TWO_STUDENT_DURABILITY_2026-10-23.md`.
+
 > **FINAL PRE-RC SIMULATOR REGRESSION 2026-10-23:** Release simulator build PASS; **183/183 unit + 28/28 UI PASS** after new Apple/email/recovery entry test, exit 0, `/tmp/botai_pre_rc_full_20261023.log`. Signed iOS archive, hosted auth/sync and multi-day learner acceptance still BLOCK RELEASE. Install phones only after release is ready. `docs/iterations/CHEMISTRY_LEARNER_PRE_RELEASE_GATE_2026-10-23.md`.
 
 > **PRE-RELEASE ORDER 2026-10-23:** owner requires release candidate FIRST, physical installation SECOND. Release simulator build PASS; new Apple/email account-entry UI PASS; full post-change regression running. Hosted auth, multi-day durability, hosted aggregate sync, signed archive and final accessibility still OPEN; no RC declaration. `docs/iterations/CHEMISTRY_LEARNER_PRE_RELEASE_GATE_2026-10-23.md`.

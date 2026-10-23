@@ -567,6 +567,53 @@ struct MultiGoalOverlappingIntegrationTests {
 }
 
 @MainActor struct ChemistryFirstInstallTests {
+    @Test func twoStudentChemistryProgressSurvivesOfflineRestartAndRepeatedProvisioning() throws {
+        let source = try ChemistryPilotProvisioner.bundledSource()
+        let fm = FileManager.default
+        let support = fm.temporaryDirectory.appendingPathComponent("botai-chemistry-two-students-" + UUID().uuidString)
+        defer { try? fm.removeItem(at: support) }
+        let identities: [LocalAccountStorage.Identity] = [.authenticated(UUID()), .authenticated(UUID())]
+        var firstQuestion: UUID?
+        let attempts = [UUID(), UUID()]
+        for (index, identity) in identities.enumerated() {
+            let folder = LocalAccountStorage.directory(for: identity, support: support)
+            try fm.createDirectory(at: folder, withIntermediateDirectories: true)
+            let path = folder.appendingPathComponent("learning.sqlite").path
+            let db = try AppDatabase(path: path)
+            try ChemistryPilotProvisioner.installIfNeeded(database: db, source: source)
+            let course = try #require(CourseRepository(database: db).courses().first)
+            let ref = try #require(course.goals.first?.questionSets.first)
+            let loadedContent = try MaterialRepository(database: db).content(id: ref.materialID)
+            let content = try #require(loadedContent)
+            let realChemistryQuestion = try #require(StudyQuestionBuilder.questions(for: ref, content: content).first)
+            if let firstQuestion { #expect(realChemistryQuestion.id == firstQuestion) }
+            firstQuestion = realChemistryQuestion.id
+            let learning = LearningRepository(database: db)
+            let state = LearningState(intervalDays: index + 1, streak: index + 1, nextDueAt: .now)
+            try learning.record(Attempt(id: attempts[index], questionID: realChemistryQuestion.id,
+                                        occurredAt: .now, rating: .good), state: state)
+            #expect(try learning.load().0.map(\.id) == [attempts[index]])
+        }
+        let questionID = try #require(firstQuestion)
+        // Simulate cold relaunch / app update: reopen each account's own on-disk DB,
+        // re-run the normal first-install hook, and verify it cannot reset progress.
+        for (index, identity) in identities.enumerated().reversed() {
+            let path = LocalAccountStorage.directory(for: identity, support: support)
+                .appendingPathComponent("learning.sqlite").path
+            let db = try AppDatabase(path: path)
+            try ChemistryPilotProvisioner.installIfNeeded(database: db, source: source)
+            let learning = LearningRepository(database: db)
+            let persisted = try learning.load()
+            #expect(persisted.0.count == 1)
+            #expect(persisted.0.first?.id == attempts[index])
+            #expect(persisted.0.first?.questionID == questionID)
+            #expect(persisted.1[questionID]?.streak == index + 1)
+            #expect(try CourseRepository(database: db).courses().count == 1)
+            #expect(try MaterialRepository(database: db).materials().count == 102)
+        }
+        #expect(LocalAccountStorage.directoryName(for: identities[0]) != LocalAccountStorage.directoryName(for: identities[1]))
+    }
+
     @Test func bundledChemistryInstallsOnceAndPreservesExistingCourseAndMaterial() throws {
         let source = try ChemistryPilotProvisioner.bundledSource()
         #expect(source.questions.count == 323)
