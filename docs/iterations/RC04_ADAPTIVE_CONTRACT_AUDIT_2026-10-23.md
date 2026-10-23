@@ -28,3 +28,13 @@
 ## Release implication
 
 RC-04 is **PARTIAL / teacher-guided portion BLOCKED ON PRODUCT DECISION**, not an untouched feature and not PASS. Existing due-first planning, goal mastery, deadline urgency and deterministic selection are real working functionality. The next implementation must start from an approved contract, not an assistant-created algorithm.
+
+## Scope clarification from accepted MVP sources (2026-10-23)
+
+- `docs/REQUIREMENTS.md` §§6–7 **requires in MVP** a BOTAI-recommended daily lesson and goal-aware date, material volume, progress, available time and required pace. These are **not** optional teacher features.
+- `docs/ROADMAP.md` lists expanded **author and teacher tools after MVP**; it does **not** cancel the accepted `docs/COURSES_AND_GOALS.md` conceptual teacher/class goal source or `docs/decisions/023-library-courses-assignments.md` assignment ownership. Do not silently move teacher-assigned goals out of MVP.
+- `docs/COURSES_AND_GOALS.md` explicitly says a future Assignment carries learner/class/teacher context; the current implemented local `LearningGoal` is not that assignment. A distinct teacher role is unresolved in `docs/OPEN_QUESTIONS.md`.
+- Thus RC-04 has **two different remaining categories**: (A) verify/finish *required learner-side* daily planning and goal-pace behavior, which can proceed without teacher-role decisions; (B) full teacher-directed guidance and authority, which needs an approved contract and must remain visible as a separate gap, not be marked 'post-MVP' by inference.
+- `docs/MVP_ACCEPTANCE.md` calls the adaptive daily plan an implemented vertical; this is evidence of a baseline, not evidence of complete teacher-guided acceptance.
+
+**Next authorized work without policy invention:** targeted deterministic learner-side tests for multiple goals, dated vs undated urgency, rest days, shared-knowledge deduplication, due/new ordering and repeated planning; then address demonstrated defects. Teacher role, weighting and ownership require an explicit decision before adding schema or UX.

@@ -124,3 +124,7 @@ RC-06 repeatable SQL security gate: run `tools/verify_rc06_disposable_postgres.s
 ### RC-04 contract audit — 2026-10-23
 
 Existing daily planner already uses goal mastery, deadline deficit, profile budget, due/new/not-due priority and deterministic ordering. Teacher-guided assignment/priority/difficulty/pace is **not** implemented; separate teacher role and multi-goal time policy remain unresolved in `docs/OPEN_QUESTIONS.md`. No arbitrary scoring formula is authorized. Detailed gap audit: `docs/iterations/RC04_ADAPTIVE_CONTRACT_AUDIT_2026-10-23.md`.
+
+### RC-04 MVP scope reconciliation — 2026-10-23
+
+`docs/REQUIREMENTS.md` requires learner-side goal/date/progress/budget/pace daily planning in MVP; this baseline is implemented but its multi-goal edge cases still need acceptance. Expanded teacher authoring tools are listed post-MVP in `docs/ROADMAP.md`, **but** accepted `docs/COURSES_AND_GOALS.md` and ADR-023 still describe teacher/class assignments; do not silently drop them. Teacher role/authority/scoring remain separate unresolved requirements. See RC04 audit.
