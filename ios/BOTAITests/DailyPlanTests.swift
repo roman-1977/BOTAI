@@ -454,3 +454,17 @@ struct CrossGoalQuestionDedupTests {
   #expect(seen.count == 2)
  }
 }
+
+struct CalendarDeadlinePlannerTests {
+ @Test func sameAndNextCalendarDayAreNotTruncatedByTimeOfDay() throws {
+  var calendar=Calendar(identifier:.gregorian)
+  calendar.timeZone=try #require(TimeZone(secondsFromGMT:0))
+  let now=try #require(calendar.date(from:DateComponents(year:2026,month:10,day:23,hour:23,minute:50)))
+  let next=try #require(calendar.date(from:DateComponents(year:2026,month:10,day:24,hour:0,minute:5)))
+  let later=try #require(calendar.date(from:DateComponents(year:2026,month:10,day:26,hour:0,minute:5)))
+  #expect(DailyPlanner.daysRemaining(deadline:next,now:now,calendar:calendar) == 1)
+  #expect(DailyPlanner.daysRemaining(deadline:later,now:now,calendar:calendar) == 3)
+  #expect(DailyPlanner.daysRemaining(deadline:now.addingTimeInterval(-86400),now:now,calendar:calendar) == 1)
+  #expect(DailyPlanner.daysRemaining(deadline:nil,now:now,calendar:calendar) == 30)
+ }
+}

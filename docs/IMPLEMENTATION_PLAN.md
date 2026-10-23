@@ -140,3 +140,7 @@ RC-04 multi-goal allocation checkpoint: fair deterministic shared-minute budget,
 RC-04 metadata checkpoint: teacher difficulty and recommended pace are now accepted, validated, persisted with goals and shown on Today. They are not yet applied to adaptive scheduling; no silent learner-budget override. 167/167 unit PASS `/tmp/botai_rc04_difficulty_pace_units_20261023.log`.
 
 RC-04 pace visualization checkpoint: teacher suggested daily minutes vs actual per-goal allocation now displayed; chemistry direct seed includes difficulty/pace. 168/168 unit PASS `/tmp/botai_rc04_pace_assessment_units_20261023.log`. General import/adaptive difficulty/UI acceptance still mandatory.
+
+### RC-04 consolidated planner regression (2026-10-23)
+
+Planner now removes overlapping question IDs **before** assigning shared study minutes, so goals with no remaining unique work do not consume time and the budget is reallocated to actionable goals. Due/new/not-due ordering and deterministic teacher-priority tie-break remain unchanged. Deadline urgency now counts calendar days (not truncated 24-hour intervals), including overdue deadlines. Added midnight/next-day/overdue/no-deadline regression. Full simulator unit + standard UI run: `/tmp/botai_rc04_batch_full_20261023.log` (check final result before claiming PASS). Outstanding: full teacher course import, adaptive difficulty policy, end-to-end UI guidance acceptance, physical device. RC-04 stays OPEN.

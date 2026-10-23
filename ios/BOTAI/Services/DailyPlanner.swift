@@ -38,7 +38,7 @@ enum DailyPlanner {
      let qs=g.questionSets.flatMap{ref -> [StudyQuestion] in guard let content=materials.content(id:ref.materialID) else{return []};return StudyQuestionBuilder.questions(for:ref,content:content)}
      guard !qs.isEmpty else{continue}
     let mastery = GoalProgressService.masteryPercentage(questions: qs, states: learning.knowledgeStates);guard mastery < g.masteryTarget else{continue}
-     let days=max(1,g.deadline.map{Calendar.current.dateComponents([.day],from:date,to:$0).day ?? 1} ?? 30);let deficit=Double(g.masteryTarget-mastery)/100.0;let urgency=deficit/Double(days)
+     let days=daysRemaining(deadline:g.deadline,now:date);let deficit=Double(g.masteryTarget-mastery)/100.0;let urgency=deficit/Double(days)
      cs.append(.init(course:c,goal:g,questions:qs,mastery:mastery,urgency:urgency))
    }}
    guard !cs.isEmpty else{return .init(date:date,budgetMinutes:budget,goals:[])}
@@ -46,20 +46,34 @@ enum DailyPlanner {
     if $0.urgency != $1.urgency { return $0.urgency > $1.urgency }
     return guidanceRank($0.goal.guidance?.priority) > guidanceRank($1.goal.guidance?.priority)
    }
-   let allocations = allocateMinutes(
-    budget: budget, urgencies: ranked.map(\.urgency))
-   var plans:[DailyStudyPlan.GoalPlan]=[]
+   // Prepare unique question pools before assigning time. An overlapping goal
+   // with no remaining unique work must not consume the shared daily budget.
    var scheduledQuestionIDs=Set<UUID>()
-   for (i,x) in ranked.enumerated() {
-    let allocated = allocations[i]
-    // A rest day offers optional questions, but creates no required minutes.
+   var work:[(candidate:Candidate,questions:[StudyQuestion])]=[]
+   for x in ranked {
+    let ordered=StudyQuestionSelection.select(x.questions,knowledgeStates:learning.knowledgeStates,now:date)
+    let unique=takeUnique(ordered,count:ordered.count,seen:&scheduledQuestionIDs)
+    if !unique.isEmpty { work.append((candidate:x,questions:unique)) }
+   }
+   let allocations=allocateMinutes(budget:budget,urgencies:work.map { $0.candidate.urgency })
+   var plans:[DailyStudyPlan.GoalPlan]=[]
+   for (i,item) in work.enumerated() {
+    let x=item.candidate,allocated=allocations[i]
     if allocated == 0 && budget > 0 { continue }
-    let count=min(x.questions.count,max(1,allocated*2))
-    let selected=adaptiveQuestions(goal:x.goal,materials:materials,learning:learning,count:count,date:date,excluding:&scheduledQuestionIDs)
-    guard !selected.isEmpty else { continue }
+    let count=min(item.questions.count,max(1,allocated*2))
+    let selected=Array(item.questions.prefix(count))
     plans.append(.init(id:x.goal.id,courseID:x.course.id,goalID:x.goal.id,title:x.goal.title,minutes:allocated,questions:selected,mastery:x.mastery,target:x.goal.masteryTarget,deadline:x.goal.deadline))
    }
    return .init(date:date,budgetMinutes:budget,goals:plans)
+ }
+
+ // Calendar-day deadlines must not lose a day because of the current clock
+ // time. Overdue deadlines are urgent, not a negative allocation divisor.
+ static func daysRemaining(deadline:Date?,now:Date,calendar:Calendar = .current)->Int {
+  guard let deadline else { return 30 }
+  let today=calendar.startOfDay(for:now)
+  let end=calendar.startOfDay(for:deadline)
+  return max(1,calendar.dateComponents([.day],from:today,to:end).day ?? 1)
  }
 
  // A shared questionnaire may be referenced by multiple goals. Do not schedule
