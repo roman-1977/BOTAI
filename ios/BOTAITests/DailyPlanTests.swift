@@ -521,3 +521,47 @@ struct MultiGoalOverlappingIntegrationTests {
   #expect(plan.goals.first?.questions.count == 1)
  }
 }
+
+@MainActor struct StagedChemistryRouteTests {
+    @Test func inorganicThenOrganicThenFullReviewAtSeventyPercent() throws {
+        let db = try AppDatabase()
+        let repo = MaterialRepository(database: db)
+        var sections: [CourseSection] = []
+        var refs: [CourseRuleReference] = []
+        var knowledgeIDs: [UUID] = []
+        for (index, name) in ["Неорганическая", "Органическая"].enumerated() {
+            let mid = UUID(), rid = UUID(), rowID = UUID()
+            let material = StudyMaterialRecord(id: mid, title: name, subject: "Химия", topic: name,
+                kind: .quiz, source: .created, createdAt: .now, updatedAt: .now)
+            let row = KnowledgeRow(id: rowID, materialID: mid, position: 0, values: ["q": "Q\(index)", "a": "A"])
+            let rule = QuestionRule(id: rid, materialID: mid, kind: .card,
+                promptFieldKey: "q", answerFieldKey: "a", promptFieldKeys: ["q"],
+                answers: [.init(template: "{1}", fieldKeys: ["a"], correct: true)], enabled: true)
+            try repo.save(material: material, fields: [], rows: [row], rules: [rule])
+            let ref = CourseRuleReference(materialID: mid, ruleID: rid)
+            refs.append(ref)
+            let topic = CourseTopic(id: UUID(), title: name, questionSets: [ref])
+            sections.append(CourseSection(id: UUID(), title: name, description: "", estimatedMinutes: nil, topics: [topic]))
+            let fetched = try repo.content(id: mid)
+            let content = try #require(fetched)
+            let question = try #require(StudyQuestionBuilder.questions(for: ref, content: content).first)
+            knowledgeIDs.append(question.knowledgeID)
+        }
+        let goal = LearningGoal(id: UUID(), title: "Химия", questionSets: refs, masteryTarget: 90, deadline: nil, state: .active)
+        var course = StudyCourse(id: UUID(), title: "Химия", description: "", subject: "Химия", audience: "ЕГЭ",
+            estimatedMinutes: nil, author: nil, language: "ru", coverSymbol: "book", source: .created,
+            sections: sections, goals: [goal], createdAt: .now, updatedAt: .now)
+        course.stagedLearning = StagedLearningRoute(sectionIDs: sections.map(\.id), threshold: 70)
+        let store = MaterialStore(repository: repo)
+        #expect(DailyPlanner.stagedReferences(course: course, goal: goal, materials: store, states: [:]) == [refs[0]])
+        let known = LearningState(intervalDays: 10, streak: 5, nextDueAt: .now)
+        #expect(DailyPlanner.stagedReferences(course: course, goal: goal, materials: store,
+            states: [knowledgeIDs[0]: known]) == [refs[1]])
+        #expect(DailyPlanner.stagedReferences(course: course, goal: goal, materials: store,
+            states: [knowledgeIDs[0]: known, knowledgeIDs[1]: known]) == refs)
+        let encoded = try JSONEncoder().encode(course)
+        #expect(try JSONDecoder().decode(StudyCourse.self, from: encoded).stagedLearning == course.stagedLearning)
+        course.stagedLearning = nil
+        #expect(DailyPlanner.stagedReferences(course: course, goal: goal, materials: store, states: [:]) == refs)
+    }
+}

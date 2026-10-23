@@ -35,7 +35,8 @@ enum DailyPlanner {
    struct Candidate { let course:StudyCourse;let goal:LearningGoal;let questions:[StudyQuestion];let mastery:Int;let urgency:Double }
    var cs:[Candidate]=[]
    for c in courses { for g in c.goals where g.state == .active {
-     let qs=g.questionSets.flatMap{ref -> [StudyQuestion] in guard let content=materials.content(id:ref.materialID) else{return []};return StudyQuestionBuilder.questions(for:ref,content:content)}
+     let scopedRefs = stagedReferences(course: c, goal: g, materials: materials, states: learning.knowledgeStates)
+     let qs=scopedRefs.flatMap{ref -> [StudyQuestion] in guard let content=materials.content(id:ref.materialID) else{return []};return StudyQuestionBuilder.questions(for:ref,content:content)}
      guard !qs.isEmpty else{continue}
     let mastery = GoalProgressService.masteryPercentage(questions: qs, states: learning.knowledgeStates);guard mastery < g.masteryTarget else{continue}
      let days=daysRemaining(deadline:g.deadline,now:date);let deficit=Double(g.masteryTarget-mastery)/100.0;let urgency=deficit/Double(days)
@@ -67,6 +68,30 @@ enum DailyPlanner {
     plans.append(.init(id:x.goal.id,courseID:x.course.id,goalID:x.goal.id,title:x.goal.title,minutes:allocated,questions:selected,mastery:x.mastery,target:x.goal.masteryTarget,deadline:x.goal.deadline))
    }
    return .init(date:date,budgetMinutes:budget,goals:plans)
+ }
+
+ /// Advance to the next teacher-ordered section only when the previous
+ /// section has reached its explicitly configured unique-knowledge threshold.
+ /// Once all staged sections pass, the whole goal becomes available for review.
+ @MainActor static func stagedReferences(course: StudyCourse, goal: LearningGoal,
+                                         materials: MaterialStore,
+                                         states: [UUID: LearningState]) -> [CourseRuleReference] {
+  guard let route=course.stagedLearning, (1...100).contains(route.threshold),
+        !route.sectionIDs.isEmpty else { return goal.questionSets }
+  let allowed=Set(goal.questionSets)
+  for sectionID in route.sectionIDs {
+   guard let section=course.sections.first(where: { $0.id == sectionID }) else { return goal.questionSets }
+   let refs=section.topics.flatMap(\.questionSets).filter { allowed.contains($0) }
+   let questions=refs.flatMap { ref -> [StudyQuestion] in
+    guard let content=materials.content(id:ref.materialID) else { return [] }
+    return StudyQuestionBuilder.questions(for:ref,content:content)
+   }
+   guard !questions.isEmpty else { return goal.questionSets }
+   if GoalProgressService.masteryPercentage(questions: questions, states: states) < route.threshold {
+    return refs
+   }
+  }
+  return goal.questionSets
  }
 
  // Calendar-day deadlines must not lose a day because of the current clock

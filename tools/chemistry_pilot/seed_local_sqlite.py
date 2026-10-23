@@ -84,6 +84,9 @@ def main():
             goal_refs = [ref for key, ref in refs.items() if key[-1] == "card"]
             deadline = dt.datetime(2026,12,31,23,59,59,tzinfo=dt.timezone.utc)
             course = {"id":uid("course"),"title":"ЕГЭ — Химия 2027","description":"Пилот адаптивного обучения: 323 знания, 31.12.2026","subject":"Химия","audience":"ЕГЭ","estimatedMinutes":None,"author":"BOTAI Pilot","language":"ru","coverSymbol":"flask.fill","source":"created","sections":section_data,"goals":[{"id":uid("goal"),"title":"Освоить 90% химии к 31 декабря","questionSets":goal_refs,"masteryTarget":90,"deadline":apple_date(deadline),"state":"active","guidance":{"priority":"elevated","rationale":"Химия — приоритет подготовки к ЕГЭ","difficulty":4,"recommendedDailyMinutes":25}}],"createdAt":apple_date(now),"updatedAt":apple_date(now)}
+            # The teacher-approved route is explicit, not inferred from section sort order.
+            stage_names = ["Неорганическая химия", "Органическая химия"]
+            course["stagedLearning"] = {"sectionIDs": [next(section["id"] for section in section_data if section["title"] == name) for name in stage_names], "threshold": 70}
             con.execute("INSERT INTO courses(id,payloadJSON,updatedAt) VALUES(?,?,?)",(course["id"],json.dumps(course,ensure_ascii=False),ts))
             profile = {"defaultDailyMinutes":25,"customDays":[{"weekday":1,"minutes":0}],"updatedAt":apple_date(now)}
             con.execute("INSERT INTO studyProfile(id,payloadJSON,updatedAt) VALUES(1,?,?)",(json.dumps(profile),ts))

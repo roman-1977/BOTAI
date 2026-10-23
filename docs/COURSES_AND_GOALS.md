@@ -1,4 +1,6 @@
 # BOTAI Courses and Goals — v1
+> **CHEMISTRY ROUTE CHECKPOINT 2026-10-23:** optional explicit staged course sections with 70% unique-mastery threshold now drive DailyPlanner; chemistry seed configures inorganic → organic → full-goal reinforcement. 182/182 unit PASS, full UI/device not yet rerun. Release provisioning and physical acceptance OPEN. `docs/iterations/RELEASE_TARGET_DECISION_2026-10-23.md`.
+
 
 ## Product boundary
 BOTAI has one learning engine and three sources of learning goals.
