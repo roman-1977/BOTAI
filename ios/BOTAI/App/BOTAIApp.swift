@@ -51,10 +51,10 @@ struct BOTAIApp: App {
     @State private var storageFailure: String?
     @State private var syncService: SyncService?
 
-    // Remove after release acceptance. UI tests retain persistence unless explicitly reset.
-    private static var pilotResetEnabled: Bool {
-        !ProcessInfo.processInfo.arguments.contains("-botai-ui-testing")
-    }
+    // Beta release: never erase learning progress on launch or account switch.
+    // Remote learning sync remains suspended until legacy pilot cloud data can
+    // be reconciled without rehydrating deleted progress into learner accounts.
+    private static let betaLearningSyncEnabled = false
 
     init() {
         var materialRepository: MaterialRepository?
@@ -76,9 +76,6 @@ struct BOTAIApp: App {
             }
             guard FileManager.default.fileExists(atPath: folder.path) else { return nil }
             guard let database = try? AppDatabase(path: folder.appending(path: "learning.sqlite").path) else { return nil }
-            if Self.pilotResetEnabled {
-                do { try database.resetPilotLearning() } catch { return nil }
-            }
             if !isUITesting || ProcessInfo.processInfo.arguments.contains("-botai-seed-chemistry") {
                 do { try ChemistryPilotProvisioner.installIfNeeded(database: database) }
                 catch { return nil }
@@ -162,7 +159,7 @@ struct BOTAIApp: App {
         let identity = authStore.localIdentity
         guard identity != activeIdentity || storageFailure != nil else {
             if !authStore.isAuthenticated { syncService = nil }
-            else if syncService == nil {
+            else if Self.betaLearningSyncEnabled && syncService == nil {
                 // The same account can return online after an offline-only cold launch.
                 // Rebind sync to the already opened account database, never to guest data.
                 guard let support = try? FileManager.default.url(
@@ -176,7 +173,7 @@ struct BOTAIApp: App {
                     return false
                 }
                 let repository = LearningRepository(database: database)
-                syncService = Self.pilotResetEnabled ? nil : authStore.userID.map { SyncService(repository: repository, mappings: RemoteQuestionMappingRepository(database: database), boundAccountID: $0) }
+                syncService = authStore.userID.map { SyncService(repository: repository, mappings: RemoteQuestionMappingRepository(database: database), boundAccountID: $0) }
             }
             return true
         }
@@ -194,14 +191,12 @@ struct BOTAIApp: App {
         do {
             try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
             let database = try AppDatabase(path: folder.appendingPathComponent("learning.sqlite").path)
-            // A freshly opened account must not resurrect pre-release progress.
-            if Self.pilotResetEnabled { try database.resetPilotLearning() }
             // Replace all stores together so no authenticated identity sees another account's data.
             let learningRepository = LearningRepository(database: database)
             learningStore = LearningStore(repository: learningRepository)
             // Recreate sync with the exact database for the newly authenticated identity.
             // Guest mode never owns an authenticated sync service.
-            syncService = Self.pilotResetEnabled ? nil : (authStore.isAuthenticated ? authStore.userID.map { SyncService(repository: learningRepository, mappings: RemoteQuestionMappingRepository(database: database), boundAccountID: $0) } : nil)
+            syncService = Self.betaLearningSyncEnabled && authStore.isAuthenticated ? authStore.userID.map { SyncService(repository: learningRepository, mappings: RemoteQuestionMappingRepository(database: database), boundAccountID: $0) } : nil
             // Seed only the first-time chemistry curriculum. Stable material IDs
             // and the course marker prevent re-import on future launches/updates.
             if !uiTesting || ProcessInfo.processInfo.arguments.contains("-botai-seed-chemistry") {
