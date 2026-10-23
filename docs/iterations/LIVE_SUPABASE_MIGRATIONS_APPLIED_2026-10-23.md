@@ -1,0 +1,11 @@
+# Live Supabase BOTAI — completed aggregate migrations (2026-10-23)
+
+**User authorized changes to the existing BOTAI project.** Supabase project `gdkjcfrzxrjdscutxffc` (`ACTIVE_HEALTHY`). Before mutation: verified `public.completed_session_summaries` and `public.completed_session_topic_aggregates` physically absent using `to_regclass`, 24 existing auth users, 10 questions and 10 attempts. No existing table or data was dropped or changed.
+
+Applied checked-in SQL from `backend/supabase/migrations/0025_completed_session_summaries.sql` and `0026_completed_session_topic_aggregates.sql`, in dependency order, using Supabase migrations API. Both operations returned `success: true`. Remote migration ledger now includes `20261023145228_completed_session_summaries` and `20261023145243_completed_session_topic_aggregates` (remote-generated version names; local files retain original 0025/0026 names). **Do not apply the local files again**; reconcile ledger before future CLI migration pushes.
+
+Post-deploy read-only verification: both tables exist, RLS enabled, each has 2 policies, authenticated role has SELECT/INSERT, anon has no SELECT. Both tables initially empty. Public unauthenticated REST requests now return **401 / 42501** (authentication required), replacing previous **404 / PGRST205** (missing table). This confirms endpoint/schema availability and blocks anonymous reading; it is **not** proof of successful authenticated upload or cross-account RLS behavior.
+
+Remaining blocker: Supabase public Auth settings report **Apple provider disabled**, email enabled with confirmation required. Real Apple sign-in needs Apple Developer/provider configuration; no credentials created or modified. Hosted two-account authentication, email delivery, RLS isolation and aggregate upload still require controlled integration acceptance. Security advisor flagged pre-existing warnings (including exposed SECURITY DEFINER RPCs and `set_updated_at` search path); no unrelated permissions were widened.
+
+`tools/release/check_live_auth_and_schema.sh` updated to classify expected 401/42501 as table-present/auth-required rather than a missing table. The release gate still returns nonzero while Apple provider is disabled.

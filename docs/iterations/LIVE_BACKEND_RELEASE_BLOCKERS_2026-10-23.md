@@ -1,4 +1,6 @@
 # Live backend release gate — confirmed blockers (2026-10-23)
+> **LIVE SUPABASE SCHEMA FIX 2026-10-23:** authorized production project `gdkjcfrzxrjdscutxffc`; verified tables physically absent, applied existing aggregate SQL migrations 0025/0026 via Supabase connector, both SUCCESS; remote ledger `20261023145228`, `20261023145243`. Post-check both tables RLS ON, 2 ownership policies each, authenticated SELECT/INSERT, anon SELECT denied; REST now 401/42501 instead of 404/PGRST205. **Apple provider still DISABLED**; real auth/upload/RLS acceptance pending. See `docs/iterations/LIVE_SUPABASE_MIGRATIONS_APPLIED_2026-10-23.md`.
+
 
 **Important: this is the first direct read-only check against the configured real Supabase project, not a simulator/mock assertion.** Checked the public endpoints using the app's existing publishable key. No accounts created, rows changed, migrations executed, or secret credentials exposed. Reproduce with `tools/release/check_live_auth_and_schema.sh`. **Release gate returns exit 1 (`RELEASE_BACKEND_GATE=BLOCKED`)** for the observed provider/schema blockers; a future public-check PASS would still require actual hosted two-account/RLS tests.
 

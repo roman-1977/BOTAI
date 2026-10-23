@@ -30,6 +30,8 @@ except (OSError,ValueError): data={}
 if status=='404' and isinstance(data,dict) and data.get('code')=='PGRST205':
     print(name, 'NOT_EXPOSED_IN_PUBLIC_SCHEMA_CACHE')
     sys.exit(1)
+elif status in ('401','403') and isinstance(data,dict) and data.get('code') in ('42501','PGRST301'):
+    print(name, 'EXISTS_AUTH_REQUIRED_RLS', 'http='+status)
 elif status=='200' and isinstance(data,list):
     print(name, 'VISIBLE_TO_ANON', 'rows='+str(len(data)))
 else:
