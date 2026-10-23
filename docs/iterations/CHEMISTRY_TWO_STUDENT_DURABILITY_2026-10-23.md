@@ -15,4 +15,4 @@ This is a deterministic disk-backed integration test, not an iOS UI login, a phy
 ## Verification
 
 - **PASS**: 184/184 unit tests, `xcodebuild` exit 0, `/tmp/botai_two_student_units_verified_20261023.log`. The new test uses an actual question generated from the bundled chemistry material.
-- **PENDING**: full serial unit + UI regression, `/tmp/botai_two_student_full_verified_20261023.log`.
+- **PASS**: full serial simulator regression **184/184 unit + 28/28 UI**, `xcodebuild` exit 0, `** TEST SUCCEEDED **`, `/tmp/botai_two_student_full_verified_20261023.log`.
