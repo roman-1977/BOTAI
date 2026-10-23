@@ -47,3 +47,12 @@ This document supersedes historical 0.3.0 pilot-release readiness claims for the
 ## 6. Suggested next-chat kickoff prompt
 
 Continue BOTAI from `docs/iterations/FINAL_HANDOFF_2026-10-23.md`. First verify `/tmp/botai_042_release_full.log`, `/tmp/botai_044_beta_release_gate.log`, signed build, GitHub tag/release and current git status; finish any incomplete release gate. Never erase learner progress or touch preexisting `ios/BOTAI.xcodeproj/project.pbxproj` changes. Beta must preserve local SQLite progress; remote learning sync stays disabled until safe migration is implemented and tested. Report exact test counts and outstanding physical-device acceptance. Then prepare safe installation and a concrete cloud-persistence follow-up plan.
+
+## Confirmed release outcome — 2026-10-23
+
+- Fresh complete post-persistence simulator run `/tmp/botai_042_release_full.log`: **TEST SUCCEEDED**; **28/28 UI tests PASS, 0 failed, 0 remaining**. Earlier unit evidence **189/189 PASS** from `/tmp/botai_037_units.log`; the fresh combined xcodebuild log's visible summary confirms 28 UI tests, not an independently re-counted 189 unit tests.
+- Signed Debug generic iPhoneOS build `/tmp/botai_043_beta_device_build.log`: **BUILD SUCCEEDED**, using `MARKETING_VERSION=0.3.1 CURRENT_PROJECT_VERSION=3`.
+- Release gate `/tmp/botai_044_beta_release_gate.log`: **TESTS_PASS**, **SIGNED_BUILD_PASS**, branch and annotated tag pushed, **GITHUB_PRERELEASE_PUBLISHED**.
+- Tag: `v0.3.1-chemistry-beta`; GitHub prerelease: https://github.com/roman-1977/BOTAI/releases/tag/v0.3.1-chemistry-beta ; tagged source commit `13cda23`. This status addendum is a later documentation-only commit, so it is not contained in the release tag.
+- Distribution is a GitHub prerelease and signed Xcode device build, **not** TestFlight or App Store; physical device installation, real sign-in and long-term cloud persistence remain unverified.
+- Local learner progress is preserved in SQLite; cloud learning sync deliberately disabled. Do not delete/reinstall the app after learners start, and do not claim cloud backup.
