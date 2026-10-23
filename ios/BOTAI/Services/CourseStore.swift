@@ -31,10 +31,27 @@ import Observation
     return x
   }
   func save(_ course: StudyCourse) {
-    var x = course
-    x.updatedAt = Date()
-    persist { try repository?.save(x) }
-    if lastPersistenceError == nil { refresh() }
+    do { try saveOrThrow(course) }
+    catch { lastPersistenceError = error.localizedDescription }
+  }
+  func saveOrThrow(_ course: StudyCourse) throws {
+    guard let repository else {
+      let error = CocoaError(.fileNoSuchFile)
+      lastPersistenceError = error.localizedDescription
+      throw error
+    }
+    var updated = course
+    updated.updatedAt = Date()
+    do {
+      try repository.save(updated)
+      // The write has committed. A subsequent refresh error must not be
+      // reported as a failed write or trigger deletion of its material.
+      lastPersistenceError = nil
+      refresh()
+    } catch {
+      lastPersistenceError = error.localizedDescription
+      throw error
+    }
   }
   func delete(_ id: UUID) {
     persist { try repository?.delete(id) }

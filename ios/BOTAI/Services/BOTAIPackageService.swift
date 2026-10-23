@@ -91,6 +91,32 @@ enum BOTAIPackageService {
 }
 
 
+/// Imports a learner course as one logical operation. A failed course save
+/// rolls back the newly imported material; unrelated library data is untouched.
+@MainActor enum LearnerPackageImport {
+ static func run(payload:BOTAIPackagePayload,title:String,materials:MaterialStore,courses:CourseStore) throws {
+  try BOTAIPackageService.validateManifest(payload.manifest)
+  if let plan=payload.manifest.coursePlan {
+   let placeholders=payload.manifest.questionSets.map { _ in CourseRuleReference(materialID:UUID(),ruleID:UUID()) }
+   _ = try BundledCourseImporter.course(plan:plan,manifest:payload.manifest,references:placeholders)
+  }
+  let references=try materials.importPackagePayload(payload,title:title)
+  guard let plan=payload.manifest.coursePlan else { return }
+  do {
+   let course=try BundledCourseImporter.course(plan:plan,manifest:payload.manifest,references:references)
+   try courses.saveOrThrow(course)
+  } catch {
+   let importError=error
+   // The importer created exactly one material for this manifest.
+   if let id=references.first?.materialID {
+    do { try materials.delete(id:id) }
+    catch { throw NSError(domain:"BOTAI.ImportRollback",code:1,userInfo:[NSLocalizedDescriptionKey:"Course import failed: \(importError.localizedDescription); material rollback failed: \(error.localizedDescription)"]) }
+   }
+   throw importError
+  }
+ }
+}
+
 /// Builds the persisted learner course from a validated bundled plan and the
 /// actual generated rule IDs. Kept outside SwiftUI for deterministic testing.
 enum BundledCourseImporter {

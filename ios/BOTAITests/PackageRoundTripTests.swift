@@ -115,6 +115,31 @@ struct PackageRoundTripTests {
         #expect(DailyPlanner.assessPace(guidance:restored.goals[0].guidance,allocatedMinutes:daily.goals[0].minutes) == .belowSuggestion(minutes:10))
     }
 
+    @Test @MainActor func courseImportFailureRollsBackMaterialAndSuccessfulImportKeepsBoth() throws {
+        let plan=PackageCoursePlan(title:"Химия",subject:"Химия",
+            goals:[PackageCourseGoal(title:"Кислоты",questionSetIndexes:[0],masteryTarget:90,deadline:nil,guidance:.init(priority:.critical,difficulty:4))])
+        let manifest=BOTAIPackageManifest(formatVersion:1,title:"Кислоты",description:nil,author:nil,tags:nil,kind:.reference,
+            fields:[PackageField(key:"q",title:"Вопрос",position:0,type:"text"),PackageField(key:"a",title:"Ответ",position:1,type:"text")],
+            rows:[["q":"HCl","a":"Соляная"]],
+            questionSets:[PackageQuestionSet(kind:.card,promptTemplate:"{1}",promptFieldKeys:["q"],answers:[.init(template:"{1}",fieldKeys:["a"],correct:true)],showCorrectCount:false,enabled:true)],coursePlan:plan)
+        let db=try AppDatabase()
+        let materials=MaterialStore(repository:MaterialRepository(database:db))
+        let brokenCourses=CourseStore()
+        let badRoot=FileManager.default.temporaryDirectory.appendingPathComponent("botai-rollback-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at:badRoot,withIntermediateDirectories:true)
+        #expect(throws:Error.self) {
+            try LearnerPackageImport.run(payload:.init(manifest:manifest,root:badRoot),title:"Кислоты",materials:materials,courses:brokenCourses)
+        }
+        #expect(materials.materials.isEmpty)
+        let goodRoot=FileManager.default.temporaryDirectory.appendingPathComponent("botai-success-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at:goodRoot,withIntermediateDirectories:true)
+        let courses=CourseStore(repository:CourseRepository(database:db))
+        try LearnerPackageImport.run(payload:.init(manifest:manifest,root:goodRoot),title:"Кислоты",materials:materials,courses:courses)
+        #expect(materials.materials.count == 1)
+        #expect(courses.courses.count == 1)
+        #expect(courses.courses[0].goals[0].questionSets[0].materialID == materials.materials[0].id)
+    }
+
     @Test func invalidTeacherGoalReferencesRejectPackage() throws {
         let plan=PackageCoursePlan(title:"Chemistry",subject:"Химия",goals:[PackageCourseGoal(title:"Broken",questionSetIndexes:[99],masteryTarget:90,deadline:nil,guidance:nil)])
         let manifest=BOTAIPackageManifest(formatVersion:1,title:"Material",description:nil,author:nil,tags:nil,kind:.reference,
