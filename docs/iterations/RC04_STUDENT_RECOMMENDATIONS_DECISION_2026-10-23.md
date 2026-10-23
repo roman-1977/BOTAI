@@ -33,3 +33,7 @@ The Today goal card now displays persisted guidance priority and optional ration
 ### Deterministic recommendation use checkpoint — 2026-10-23
 
 `DailyPlanner.make` now uses imported teacher priority **only to break exact ties in observed deadline/mastery urgency**. Order: `critical > elevated > standard == missing`; no numeric weight was invented, and due/new/not-due ordering within a goal is unchanged. This is a deliberately bounded initial use, **not** full adaptive recommendation processing. Added rank/legacy-default unit test; signed iPhone 16e simulator 161/161 unit PASS (`/tmp/botai_rc04_guidance_order_units_20261023.log`, exit 0). Missing: teacher difficulty, recommended pace, general course import, multi-goal acceptance and UI tests.
+
+### Rest-day correctness checkpoint — 2026-10-23
+
+Fixed a verified planner inconsistency: zero-minute scheduled rest days previously created a **phantom mandatory minute** (`remaining=max(1,budget)`), even though the UI said zero minutes. Now allocated minutes remain zero; optional voluntary questions remain available. Added `plan.plannedMinutes == 0` regression assertion. Simulator signed unit tests 161/161 PASS, exit 0 (`/tmp/botai_rc04_restday_units_20261023.log`). Remaining: full recommendations import/difficulty/pace/UI acceptance and multi-goal starvation analysis.

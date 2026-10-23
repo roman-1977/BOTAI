@@ -218,3 +218,5 @@ RC-04 scope check 2026-10-23: learner-side adaptive daily planning is an explici
 RC-04 student UI partial 2026-10-23: Today goal card displays stored recommendation priority and rationale, VoiceOver priority label. Simulator build PASS (`/tmp/botai_rc04_guidance_ui_build_20261023.log`); UI behavior not yet independently tested. RC-04 remains P0 OPEN.
 
 RC-04 2026-10-23: teacher priority now breaks equal-urgency goal ties in DailyPlanner, without overriding actual mastery/deadline or due-first question order. Signed simulator unit 161/161 PASS. This is partial recommendation use, not RC-04 completion.
+
+2026-10-23 RC-04 rest-day fix: no phantom mandatory minute for zero budget; voluntary questions still available. 161/161 signed simulator unit PASS. Full recommendation pipeline P0 OPEN.

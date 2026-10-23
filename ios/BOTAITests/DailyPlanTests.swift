@@ -53,6 +53,7 @@ struct DailyPlanTests {
         let plan = DailyPlanner.make(courses:[course],materials:MaterialStore(repository:MaterialRepository(database:database)),
             learning:LearningStore(questions:[],repository:LearningRepository(database:database)),profile:profile)
         #expect(plan.budgetMinutes == 0)
+        #expect(plan.plannedMinutes == 0) // Rest day is not silently converted into mandatory study time
         #expect(plan.questions.count == 1)
         #expect(plan.goals.count == 1)
         let secondPlan = DailyPlanner.make(courses:[course],materials:MaterialStore(repository:MaterialRepository(database:database)),

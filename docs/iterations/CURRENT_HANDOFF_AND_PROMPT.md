@@ -16,6 +16,8 @@
 
 > **RC-04 latest 2026-10-23:** guidance priority breaks exact goal urgency ties only (no fabricated weights); 161/161 signed unit PASS `/tmp/botai_rc04_guidance_order_units_20261023.log`. Full student recommendation pipeline still P0 OPEN.
 
+> **RC-04 rest-day fix:** zero-minute days no longer allocate phantom mandatory minute; optional study still available. 161/161 unit PASS `/tmp/botai_rc04_restday_units_20261023.log`.
+
 ## Подтверждённое состояние
 
 - Репозиторий Mac: `/Users/romanarzumanov/Desktop/Личное/Develop/BOTAI`; ветка `feature/v0.3.0-chemistry-pilot`; последний подтверждённый коммит перед этим документом `33f9f20`. Проверять фактический HEAD при входе.
