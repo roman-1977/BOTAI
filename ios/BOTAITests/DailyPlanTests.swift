@@ -372,3 +372,15 @@ struct StudyQuestionSelectionMatrixTests {
         #expect(StudyQuestionSelection.select([], knowledgeStates: [:], now: now).isEmpty)
     }
 }
+
+struct CourseGuidanceCompatibilityTests {
+ @Test func legacyGoalAndImportedGuidanceRoundTrip() throws {
+  let legacy = LearningGoal(id: UUID(), title: "Химия", questionSets: [], masteryTarget: 90, deadline: nil, state: .active)
+  let legacyDecoded = try JSONDecoder().decode(LearningGoal.self, from: JSONEncoder().encode(legacy))
+  #expect(legacyDecoded.guidance == nil)
+  let guided = LearningGoal(id: UUID(), title: "Химия", questionSets: [], masteryTarget: 90, deadline: nil, state: .active,
+    guidance: CourseLearningGuidance(priority: .elevated, rationale: "Важная тема"))
+  let restored = try JSONDecoder().decode(LearningGoal.self, from: JSONEncoder().encode(guided))
+  #expect(restored.guidance == guided.guidance)
+ }
+}

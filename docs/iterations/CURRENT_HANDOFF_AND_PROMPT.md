@@ -10,6 +10,8 @@
 
 > **ПОСЛЕДНЕЕ РЕШЕНИЕ ВЛАДЕЛЬЦА (2026-10-23):** RC-04 полный цикл рекомендаций преподавателя **обязателен в MVP ученика**. Источник — импорт курса или прямой seed химии; хранение офлайн, обработка и влияние на план, визуализация и тесты обязательны. Только кабинет преподавателя отложен. Старые записи ниже о неопределённости/пост-MVP заменены этим решением. См. `docs/iterations/RC04_STUDENT_RECOMMENDATIONS_DECISION_2026-10-23.md`.
 
+> **RC-04 implementation checkpoint:** `LearningGoal.guidance` optional Codable + chemistry local seed + compatibility unit test in progress; full import/adaptation/UI **not** done. Do not mark RC-04 PASS. Test log `/tmp/botai_rc04_guidance_units_20261023.log`.
+
 ## Подтверждённое состояние
 
 - Репозиторий Mac: `/Users/romanarzumanov/Desktop/Личное/Develop/BOTAI`; ветка `feature/v0.3.0-chemistry-pilot`; последний подтверждённый коммит перед этим документом `33f9f20`. Проверять фактический HEAD при входе.

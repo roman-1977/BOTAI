@@ -212,3 +212,5 @@ RC-04 accepted-contract audit 2026-10-23: inspected `DailyPlanner`, goal/profile
 RC-04 scope check 2026-10-23: learner-side adaptive daily planning is an explicit MVP requirement, while expanded teacher authoring tools are post-MVP. Teacher/class assignment semantics remain accepted conceptually and are not scoped out; implementation policy remains unresolved. Next: deterministic learner-side multi-goal acceptance tests without inventing teacher weights.
 
 2026-10-23 OWNER DECISION: student-side teacher recommendations are mandatory in MVP (course import/direct chemistry-style seeding → offline persistence → adaptive planning → student UI). Only teacher authoring/admin is deferred. RC-04 P0 OPEN; prior interpretation superseded. Contract: `docs/iterations/RC04_STUDENT_RECOMMENDATIONS_DECISION_2026-10-23.md`.
+
+2026-10-23 RC-04 work in progress: optional Codable goal guidance and chemistry seed metadata added with compatibility test; no general import, planner integration or visualization yet. Do not mark RC-04 complete.

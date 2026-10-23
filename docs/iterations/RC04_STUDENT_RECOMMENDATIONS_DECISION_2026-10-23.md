@@ -21,3 +21,7 @@ No teacher-facing authoring, class administration or remote recommendation distr
 ## Next implementation batch
 
 Add a backwards-compatible guidance payload to course/goal models and import/direct-seed path, implement deterministic priority/pace handling and explainable learner-facing display, then run focused persistence/planner/UI/seed tests and full milestone regression. Keep all related code, tests, status and docs in one coherent tested commit; do not introduce unapproved numeric weights without documenting and validating policy.
+
+### In-progress implementation checkpoint — 2026-10-23
+
+Added optional backward-compatible `LearningGoal.guidance` (priority/rationale), chemistry local fixture metadata, and a Codable compatibility regression. This is **partial groundwork only**, not the complete required pipeline: recommendation import for general course packages, difficulty/pace, deterministic adaptive effect and student UI are still missing. No arbitrary scoring weights were accepted. Simulator unit run initiated; do not mark tests PASS until log confirms.

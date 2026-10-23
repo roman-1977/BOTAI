@@ -5,8 +5,29 @@ struct CourseRuleReference: Codable, Hashable, Sendable { let materialID: UUID; 
 struct CourseTopic: Identifiable, Codable, Equatable, Sendable { let id: UUID; var title: String; var questionSets: [CourseRuleReference] }
 struct CourseSection: Identifiable, Codable, Equatable, Sendable { let id: UUID; var title: String; var description: String; var estimatedMinutes: Int?; var topics: [CourseTopic] }
 enum LearningGoalState: String, Codable, Sendable { case planned, active, paused, completed }
+/// Optional guidance imported with a course or provided by a trusted local seed.
+/// Existing courses without guidance remain compatible.
+struct CourseLearningGuidance: Codable, Equatable, Sendable {
+ enum Priority: String, Codable, Sendable { case standard, elevated, critical }
+ var priority: Priority
+ var rationale: String?
+}
 struct LearningGoal: Identifiable, Codable, Equatable, Sendable {
  let id: UUID; var title: String; var questionSets: [CourseRuleReference]; var masteryTarget: Int; var deadline: Date?; var state: LearningGoalState
+ var guidance: CourseLearningGuidance? = nil
+ enum CodingKeys: String, CodingKey { case id,title,questionSets,masteryTarget,deadline,state,guidance }
+ init(id: UUID, title: String, questionSets: [CourseRuleReference], masteryTarget: Int, deadline: Date?, state: LearningGoalState, guidance: CourseLearningGuidance? = nil) {
+  self.id=id;self.title=title;self.questionSets=questionSets;self.masteryTarget=masteryTarget;self.deadline=deadline;self.state=state;self.guidance=guidance
+ }
+ init(from decoder: Decoder) throws {
+  let c=try decoder.container(keyedBy:CodingKeys.self)
+  id=try c.decode(UUID.self,forKey:.id);title=try c.decode(String.self,forKey:.title)
+  questionSets=try c.decode([CourseRuleReference].self,forKey:.questionSets)
+  masteryTarget=try c.decode(Int.self,forKey:.masteryTarget)
+  deadline=try c.decodeIfPresent(Date.self,forKey:.deadline)
+  state=try c.decode(LearningGoalState.self,forKey:.state)
+  guidance=try c.decodeIfPresent(CourseLearningGuidance.self,forKey:.guidance)
+ }
 }
 struct StudyCourse: Identifiable, Codable, Equatable, Sendable {
  let id: UUID; var title: String; var description: String; var subject: String; var audience: String; var estimatedMinutes: Int?; var author: String?; var language: String; var coverSymbol: String; var source: CourseSource; var sections: [CourseSection]; var goals: [LearningGoal]; var createdAt: Date; var updatedAt: Date
