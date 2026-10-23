@@ -58,6 +58,17 @@ enum OfflineAccountBinding {
 final class AuthStore {
     private(set) var isAuthenticated = false
     private(set) var userID: UUID?
+    private(set) var accountEmail: String?
+    private(set) var accountName: String?
+
+    static func savedAppleName(for id: UUID, defaults: UserDefaults = .standard) -> String? {
+        defaults.string(forKey: "botai.apple.name.\(id.uuidString)")
+    }
+
+    static func storeAppleName(_ name: String?, for id: UUID, defaults: UserDefaults = .standard) {
+        guard let name, !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+        defaults.set(name, forKey: "botai.apple.name.\(id.uuidString)")
+    }
     private(set) var errorMessage: String?
     private(set) var isBootstrapping = false
     private let client = SupabaseProvider.client
@@ -105,6 +116,8 @@ final class AuthStore {
         do {
             let session = try await client.auth.session
             userID = session.user.id
+            accountEmail = session.user.email
+            accountName = Self.savedAppleName(for: session.user.id)
             isAuthenticated = true
             errorMessage = nil
             OfflineAccountBinding.save(session.user.id)
@@ -121,6 +134,8 @@ final class AuthStore {
                 errorMessage = nil
             } else {
                 userID = nil
+                accountEmail = nil
+                accountName = nil
                 if Self.isConfirmedMissingSession(error) {
                     OfflineAccountBinding.clear()
                     errorMessage = nil
@@ -146,11 +161,15 @@ final class AuthStore {
                 // Never silently switch the current offline study session to another account.
                 isOfflineLocalSession = false
                 userID = nil
+                accountEmail = nil
+                accountName = nil
                 didFailBootstrap = true
                 errorMessage = "Учётная запись изменилась. Повторите авторизацию."
                 return false
             }
             isAuthenticated = true
+            accountEmail = session.user.email
+            accountName = Self.savedAppleName(for: session.user.id)
             isOfflineLocalSession = false
             OfflineAccountBinding.save(session.user.id)
             errorMessage = nil
@@ -161,6 +180,8 @@ final class AuthStore {
                 // A retry may revalidate the account; never keep local study unlocked.
                 isOfflineLocalSession = false
                 userID = nil
+                accountEmail = nil
+                accountName = nil
                 didFailBootstrap = true
                 errorMessage = "Не удалось подтвердить учётную запись."
             }
@@ -175,6 +196,8 @@ final class AuthStore {
         do {
             let session = try await client.auth.signInAnonymously()
             userID = session.user.id
+            accountEmail = session.user.email
+            accountName = Self.savedAppleName(for: session.user.id)
             isAuthenticated = true
             isOfflineLocalSession = false
             OfflineAccountBinding.save(session.user.id)
@@ -193,6 +216,8 @@ final class AuthStore {
         do {
             let session = try await client.auth.signIn(email: email, password: password)
             userID = session.user.id
+            accountEmail = session.user.email
+            accountName = Self.savedAppleName(for: session.user.id)
             isAuthenticated = true
             isOfflineLocalSession = false
             OfflineAccountBinding.save(session.user.id)
@@ -206,6 +231,8 @@ final class AuthStore {
             let response = try await client.auth.signUp(email: email, password: password)
             if let session = response.session {
                 userID = session.user.id
+                accountEmail = session.user.email
+                accountName = Self.savedAppleName(for: session.user.id)
                 isAuthenticated = true
                 isOfflineLocalSession = false
                 OfflineAccountBinding.save(session.user.id)
@@ -226,10 +253,15 @@ final class AuthStore {
         } catch { errorMessage = error.localizedDescription }
     }
 
-    func signInWithApple(idToken: String, nonce: String? = nil) async {
+    func signInWithApple(idToken: String, nonce: String? = nil, fullName: PersonNameComponents? = nil) async {
         do {
             let session = try await client.auth.signInWithIdToken(credentials: .init(provider: .apple, idToken: idToken, nonce: nonce))
             userID = session.user.id
+            accountEmail = session.user.email
+            if let fullName {
+                Self.storeAppleName(PersonNameComponentsFormatter().string(from: fullName), for: session.user.id)
+            }
+            accountName = Self.savedAppleName(for: session.user.id)
             isAuthenticated = true
             isOfflineLocalSession = false
             OfflineAccountBinding.save(session.user.id)
@@ -244,6 +276,8 @@ final class AuthStore {
         // server must never keep the previous student's SQLite account accessible.
         OfflineAccountBinding.clear()
         userID = nil
+        accountEmail = nil
+        accountName = nil
         isAuthenticated = false
         isOfflineLocalSession = false
         registrationNeedsEmailConfirmation = false

@@ -15,7 +15,7 @@ struct ProfileView: View {
         .navigationTitle("Профиль").navigationBarTitleDisplayMode(.inline).toolbarBackground(.hidden,for:.navigationBar).preferredColorScheme(.dark)
         .sheet(isPresented: $showEmailAuth) { EmailAccountSheet() }
     }
-    private var identity: some View { HStack(spacing:14) { ZStack { Circle().fill(HomeTheme.accent.opacity(0.15)); Image(systemName:"person.fill").font(.title).foregroundStyle(HomeTheme.accent) }.frame(width:62,height:62); VStack(alignment:.leading,spacing:4){Text("МОЙ ПРОФИЛЬ").font(.caption.bold()).foregroundStyle(HomeTheme.accent);Text(auth.isAuthenticated ? "Ученик BOTAI" : "Локальный профиль").font(.title3.bold()).foregroundStyle(.white);Text(auth.isAuthenticated ? "Аккаунт подключён" : "Прогресс хранится на этом устройстве").font(.caption).foregroundStyle(.white.opacity(0.55))};Spacer() }.padding(16).profileCard() }
+    private var identity: some View { HStack(spacing:14) { ZStack { Circle().fill(HomeTheme.accent.opacity(0.15)); Image(systemName:"person.fill").font(.title).foregroundStyle(HomeTheme.accent) }.frame(width:62,height:62); VStack(alignment:.leading,spacing:4){Text("МОЙ ПРОФИЛЬ").font(.caption.bold()).foregroundStyle(HomeTheme.accent);Text(auth.isAuthenticated ? (auth.accountName ?? auth.accountEmail ?? auth.userID.map { "Ученик · " + String($0.uuidString.prefix(8)) } ?? "Ученик BOTAI") : "Локальный профиль").font(.title3.bold()).foregroundStyle(.white);Text(auth.isAuthenticated ? "Аккаунт подключён" : "Прогресс хранится на этом устройстве").font(.caption).foregroundStyle(.white.opacity(0.55))};Spacer() }.padding(16).profileCard() }
     private var studyMode: some View { NavigationLink { StudyScheduleView() } label: { HStack(spacing:13) { Image(systemName:"timer").font(.title2).foregroundStyle(HomeTheme.accent).frame(width:36); VStack(alignment:.leading,spacing:4){Text("РЕЖИМ ОБУЧЕНИЯ").font(.caption.bold()).foregroundStyle(HomeTheme.accent);Text(studyProfile.profile.customDays.isEmpty ? "\(studyProfile.profile.defaultDailyMinutes) минут в день" : "Расписание по дням").font(.headline).foregroundStyle(.white);Text(scheduleText).font(.caption).foregroundStyle(.white.opacity(0.58))};Spacer();Image(systemName:"chevron.right").foregroundStyle(HomeTheme.accent) }.padding(16).profileCard() }.buttonStyle(.plain) }
     private var learning: some View { VStack(alignment:.leading,spacing:12){Text("МОЁ ОБУЧЕНИЕ").font(.caption.bold()).foregroundStyle(HomeTheme.accent);Group { if dynamicTypeSize.isAccessibilitySize { VStack(spacing:8) { profileMetrics } } else { HStack(spacing:8) { profileMetrics } } };Text("Курсы и цели редактируются в разделе обучения. Здесь — только состояние твоего учебного плана.").font(.caption).foregroundStyle(.white.opacity(0.5))}.padding(16).profileCard() }
     @ViewBuilder private var profileMetrics: some View {
@@ -41,7 +41,7 @@ SignInWithAppleButton(.signIn, onRequest: { request in
         return
     }
     appleNonce = nil
-    Task { await auth.signInWithApple(idToken: token, nonce: nonce) }
+    Task { await auth.signInWithApple(idToken: token, nonce: nonce, fullName: credential.fullName) }
 }).signInWithAppleButtonStyle(.white).frame(height:48).accessibilityIdentifier("profile-apple-sign-in")
 Button("Войти или зарегистрироваться по email") { showEmailAuth = true }.foregroundStyle(.white).accessibilityIdentifier("profile-email-sign-in")
 if let error = auth.errorMessage { Text(error).font(.caption).foregroundStyle(.red).accessibilityIdentifier("profile-auth-error") }

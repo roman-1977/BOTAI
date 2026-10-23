@@ -36,7 +36,7 @@ final class LaunchSmokeTests: XCTestCase {
         app.launchArguments = ["-botai-ui-testing", "-botai-reset-ui-test-data"]
         app.launch()
         XCTAssertTrue(app.staticTexts["ПЛАН НА СЕГОДНЯ"].waitForExistence(timeout: 20))
-        let choose = app.buttons["primary-study-launch"]
+        let choose = app.buttons["Настроить занятие"]
         XCTAssertTrue(choose.exists)
         choose.tap()
         XCTAssertTrue(app.navigationBars["Что будем учить?"].waitForExistence(timeout: 10))
@@ -49,7 +49,7 @@ final class LaunchSmokeTests: XCTestCase {
         let app = XCUIApplication()
         app.launchArguments = ["-botai-ui-testing", "-botai-reset-ui-test-data"]
         app.launch()
-        let choose = app.buttons["primary-study-launch"]
+        let choose = app.buttons["Настроить занятие"]
         XCTAssertTrue(choose.waitForExistence(timeout: 20))
         choose.tap()
         XCTAssertTrue(app.navigationBars["Что будем учить?"].waitForExistence(timeout: 10))
@@ -68,7 +68,7 @@ final class LaunchSmokeTests: XCTestCase {
         let app = XCUIApplication()
         app.launchArguments = ["-botai-ui-testing", "-botai-reset-ui-test-data"]
         app.launch()
-        let choose = app.buttons["primary-study-launch"]
+        let choose = app.buttons["Настроить занятие"]
         XCTAssertTrue(choose.waitForExistence(timeout: 20))
         choose.tap()
         app.buttons["Дополнительные настройки"].tap()
@@ -84,7 +84,7 @@ final class LaunchSmokeTests: XCTestCase {
         let app = XCUIApplication()
         app.launchArguments = ["-botai-ui-testing", "-botai-reset-ui-test-data"]
         app.launch()
-        let choose = app.buttons["primary-study-launch"]
+        let choose = app.buttons["Настроить занятие"]
         XCTAssertTrue(choose.waitForExistence(timeout: 20))
         choose.tap()
         XCTAssertTrue(app.navigationBars["Что будем учить?"].waitForExistence(timeout: 10))
@@ -96,7 +96,7 @@ final class LaunchSmokeTests: XCTestCase {
         XCTAssertFalse(mixedLaunch.isEnabled)
         app.buttons["Закрыть"].tap()
         XCTAssertTrue(app.staticTexts["ПЛАН НА СЕГОДНЯ"].exists)
-        XCTAssertFalse(app.staticTexts["ПРОДОЛЖИТЬ"].exists)
+        XCTAssertFalse(app.buttons["Продолжить"].exists)
     }
 
     func testReleaseAccountEntryOffersAppleEmailRegistrationAndRecovery() throws {
@@ -318,7 +318,8 @@ final class LaunchSmokeTests: XCTestCase {
         app.navigationBars["Раздел"].buttons.firstMatch.tap()
         app.navigationBars["Курс с разделом"].buttons.firstMatch.tap()
         app.navigationBars["Мои курсы"].buttons.firstMatch.tap()
-        let launch = app.buttons["primary-study-launch"]
+        XCTAssertTrue(app.staticTexts["ПЛАН НА СЕГОДНЯ"].waitForExistence(timeout: 10))
+        let launch = app.buttons["Настроить занятие"]
         XCTAssertTrue(launch.waitForExistence(timeout: 10))
         launch.tap()
         XCTAssertTrue(app.navigationBars["Что будем учить?"].waitForExistence(timeout: 10))
@@ -372,7 +373,8 @@ final class LaunchSmokeTests: XCTestCase {
         app.navigationBars["Раздел"].buttons.firstMatch.tap()
         app.navigationBars["Курс с общим опросником"].buttons.firstMatch.tap()
         app.navigationBars["Мои курсы"].buttons.firstMatch.tap()
-        let launch = app.buttons["primary-study-launch"]
+        XCTAssertTrue(app.staticTexts["ПЛАН НА СЕГОДНЯ"].waitForExistence(timeout: 10))
+        let launch = app.buttons["Настроить занятие"]
         XCTAssertTrue(launch.waitForExistence(timeout: 10))
         launch.tap()
         XCTAssertTrue(app.navigationBars["Что будем учить?"].waitForExistence(timeout: 10))
@@ -407,7 +409,7 @@ final class LaunchSmokeTests: XCTestCase {
         app.launchArguments = ["-botai-ui-testing"]
         app.launch()
         XCTAssertTrue(app.buttons["primary-study-launch"].waitForExistence(timeout: 20))
-        app.buttons["primary-study-launch"].tap()
+        app.buttons["Настроить занятие"].tap()
         let firstAfterReopen = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Тема первая")).firstMatch
         XCTAssertTrue(firstAfterReopen.waitForExistence(timeout: 10))
         XCTAssertTrue(firstAfterReopen.isEnabled)
@@ -457,7 +459,8 @@ final class LaunchSmokeTests: XCTestCase {
         app.navigationBars["Раздел"].buttons.firstMatch.tap()
         app.navigationBars["Курс с разделом"].buttons.firstMatch.tap()
         app.navigationBars["Мои курсы"].buttons.firstMatch.tap()
-        let launch = app.buttons["primary-study-launch"]
+        XCTAssertTrue(app.staticTexts["ПЛАН НА СЕГОДНЯ"].waitForExistence(timeout: 10))
+        let launch = app.buttons["Настроить занятие"]
         XCTAssertTrue(launch.waitForExistence(timeout: 10))
         launch.tap()
         XCTAssertTrue(app.navigationBars["Что будем учить?"].waitForExistence(timeout: 10))
@@ -480,7 +483,7 @@ final class LaunchSmokeTests: XCTestCase {
         for strategyName in ["Все вопросы", "Выбирает система"] {
             strategy.tap()
             app.buttons[strategyName].tap()
-            for (formatName, enabled) in [("Вперемешку", true), ("Карточки", true), ("Тесты", false)] {
+            for (formatName, enabled) in [("Карточки", true), ("Тесты", false)] {
                 formatPicker.tap()
                 app.buttons[formatName].tap()
                 XCTAssertEqual(topicLaunch.isEnabled, enabled)
@@ -539,7 +542,8 @@ final class LaunchSmokeTests: XCTestCase {
         app.navigationBars["Раздел"].buttons.firstMatch.tap()
         app.navigationBars["Курс с разделом"].buttons.firstMatch.tap()
         app.navigationBars["Мои курсы"].buttons.firstMatch.tap()
-        let launch = app.buttons["primary-study-launch"]
+        XCTAssertTrue(app.staticTexts["ПЛАН НА СЕГОДНЯ"].waitForExistence(timeout: 10))
+        let launch = app.buttons["Настроить занятие"]
         XCTAssertTrue(launch.waitForExistence(timeout: 10))
         launch.tap()
         XCTAssertTrue(app.navigationBars["Что будем учить?"].waitForExistence(timeout: 10))
@@ -553,7 +557,7 @@ final class LaunchSmokeTests: XCTestCase {
         for strategyName in ["Все вопросы", "Выбирает система"] {
             strategy.tap()
             app.buttons[strategyName].tap()
-            for (formatName, enabled) in [("Вперемешку", true), ("Карточки", false), ("Тесты", true)] {
+            for (formatName, enabled) in [("Карточки", false), ("Тесты", true)] {
                 format.tap()
                 app.buttons[formatName].tap()
                 XCTAssertEqual(topicLaunch.isEnabled, enabled)
@@ -618,7 +622,8 @@ final class LaunchSmokeTests: XCTestCase {
         app.navigationBars["Раздел"].buttons.firstMatch.tap()
         app.navigationBars["Курс с разделом"].buttons.firstMatch.tap()
         app.navigationBars["Мои курсы"].buttons.firstMatch.tap()
-        let launch = app.buttons["primary-study-launch"]
+        XCTAssertTrue(app.staticTexts["ПЛАН НА СЕГОДНЯ"].waitForExistence(timeout: 10))
+        let launch = app.buttons["Настроить занятие"]
         XCTAssertTrue(launch.waitForExistence(timeout: 10))
         launch.tap()
         XCTAssertTrue(app.navigationBars["Что будем учить?"].waitForExistence(timeout: 10))
@@ -632,7 +637,7 @@ final class LaunchSmokeTests: XCTestCase {
         for strategyName in ["Все вопросы", "Выбирает система"] {
             strategy.tap()
             app.buttons[strategyName].tap()
-            for (formatName, enabled) in [("Вперемешку", true), ("Карточки", true), ("Тесты", true)] {
+            for (formatName, enabled) in [("Карточки", true), ("Тесты", true)] {
                 format.tap()
                 app.buttons[formatName].tap()
                 XCTAssertEqual(topicLaunch.isEnabled, enabled)
@@ -696,7 +701,8 @@ final class LaunchSmokeTests: XCTestCase {
         app.navigationBars["Раздел"].buttons.firstMatch.tap()
         app.navigationBars["Курс с разделом"].buttons.firstMatch.tap()
         app.navigationBars["Мои курсы"].buttons.firstMatch.tap()
-        let launch = app.buttons["primary-study-launch"]
+        XCTAssertTrue(app.staticTexts["ПЛАН НА СЕГОДНЯ"].waitForExistence(timeout: 10))
+        let launch = app.buttons["Настроить занятие"]
         XCTAssertTrue(launch.waitForExistence(timeout: 10))
         launch.tap()
         XCTAssertTrue(app.navigationBars["Что будем учить?"].waitForExistence(timeout: 10))
@@ -770,7 +776,8 @@ final class LaunchSmokeTests: XCTestCase {
         app.navigationBars["Раздел"].buttons.firstMatch.tap()
         app.navigationBars["Курс с разделом"].buttons.firstMatch.tap()
         app.navigationBars["Мои курсы"].buttons.firstMatch.tap()
-        let launch = app.buttons["primary-study-launch"]
+        XCTAssertTrue(app.staticTexts["ПЛАН НА СЕГОДНЯ"].waitForExistence(timeout: 10))
+        let launch = app.buttons["Настроить занятие"]
         XCTAssertTrue(launch.waitForExistence(timeout: 10))
         launch.tap()
         XCTAssertTrue(app.navigationBars["Что будем учить?"].waitForExistence(timeout: 10))
@@ -834,7 +841,8 @@ final class LaunchSmokeTests: XCTestCase {
         app.navigationBars["Раздел"].buttons.firstMatch.tap()
         app.navigationBars["Курс с разделом"].buttons.firstMatch.tap()
         app.navigationBars["Мои курсы"].buttons.firstMatch.tap()
-        let launch = app.buttons["primary-study-launch"]
+        XCTAssertTrue(app.staticTexts["ПЛАН НА СЕГОДНЯ"].waitForExistence(timeout: 10))
+        let launch = app.buttons["Настроить занятие"]
         XCTAssertTrue(launch.waitForExistence(timeout: 10))
         launch.tap()
         XCTAssertTrue(app.navigationBars["Что будем учить?"].waitForExistence(timeout: 10))
@@ -897,7 +905,7 @@ final class LaunchSmokeTests: XCTestCase {
         app.terminate()
         app.launchArguments = ["-botai-ui-testing"]
         app.launch()
-        let launch = app.buttons["primary-study-launch"]
+        let launch = app.buttons["Настроить занятие"]
         XCTAssertTrue(launch.waitForExistence(timeout: 20))
         launch.tap()
         let topicLaunch = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Тема проверки")).firstMatch
@@ -908,8 +916,9 @@ final class LaunchSmokeTests: XCTestCase {
         app.launch()
         let resume = app.buttons["primary-study-launch"]
         XCTAssertTrue(resume.waitForExistence(timeout: 20))
-        XCTAssertTrue(app.staticTexts["ПРОДОЛЖИТЬ"].exists)
+        XCTAssertTrue(app.buttons["primary-study-launch"].exists)
         resume.tap()
+        app.buttons["Продолжить"].tap()
         XCTAssertTrue(app.staticTexts["Кислота"].waitForExistence(timeout: 10))
         app.staticTexts["Кислота"].tap()
         let answer = app.buttons["ОТВЕТИЛ ЛЕГКО"]
@@ -918,7 +927,7 @@ final class LaunchSmokeTests: XCTestCase {
         XCTAssertTrue(app.staticTexts["ВОПРОСЫ ЗАКОНЧИЛИСЬ"].waitForExistence(timeout: 10))
         app.buttons["ГОТОВО"].tap()
         XCTAssertTrue(app.staticTexts["БОТАТЬ"].waitForExistence(timeout: 10))
-        XCTAssertFalse(app.staticTexts["ПРОДОЛЖИТЬ"].exists)
+        XCTAssertFalse(app.buttons["Продолжить"].exists)
     }
 
     func testResumeSecondQuestionAfterFirstAnswerAndRelaunch() throws {
@@ -964,7 +973,7 @@ final class LaunchSmokeTests: XCTestCase {
         app.terminate()
         app.launchArguments = ["-botai-ui-testing"]
         app.launch()
-        let launch = app.buttons["primary-study-launch"]
+        let launch = app.buttons["Настроить занятие"]
         XCTAssertTrue(launch.waitForExistence(timeout: 20))
         launch.tap()
         let topicLaunch = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Тема проверки")).firstMatch
@@ -980,8 +989,9 @@ final class LaunchSmokeTests: XCTestCase {
         app.launch()
         let resume = app.buttons["primary-study-launch"]
         XCTAssertTrue(resume.waitForExistence(timeout: 20))
-        XCTAssertTrue(app.staticTexts["ПРОДОЛЖИТЬ"].exists)
+        XCTAssertTrue(app.buttons["primary-study-launch"].exists)
         resume.tap()
+        app.buttons["Продолжить"].tap()
         XCTAssertTrue(app.staticTexts["Основание"].waitForExistence(timeout: 10))
         XCTAssertFalse(app.staticTexts["Кислота"].exists)
         app.staticTexts["Основание"].tap()
@@ -991,7 +1001,7 @@ final class LaunchSmokeTests: XCTestCase {
         XCTAssertTrue(app.staticTexts["ВОПРОСЫ ЗАКОНЧИЛИСЬ"].waitForExistence(timeout: 10))
         app.buttons["ГОТОВО"].tap()
         XCTAssertTrue(app.staticTexts["БОТАТЬ"].waitForExistence(timeout: 10))
-        XCTAssertFalse(app.staticTexts["ПРОДОЛЖИТЬ"].exists)
+        XCTAssertFalse(app.buttons["Продолжить"].exists)
     }
 
     func testCreateCourseSectionTopicAndGoal() throws {
@@ -1072,7 +1082,8 @@ final class LaunchSmokeTests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Активная"].waitForExistence(timeout: 10))
         app.navigationBars["Курс с разделом"].buttons.firstMatch.tap()
         app.navigationBars["Мои курсы"].buttons.firstMatch.tap()
-        let launch = app.buttons["primary-study-launch"]
+        XCTAssertTrue(app.staticTexts["ПЛАН НА СЕГОДНЯ"].waitForExistence(timeout: 10))
+        let launch = app.buttons["Настроить занятие"]
         XCTAssertTrue(launch.waitForExistence(timeout: 10))
         launch.tap()
         XCTAssertTrue(app.navigationBars["Что будем учить?"].waitForExistence(timeout: 10))
@@ -1134,7 +1145,7 @@ final class ChemistryPilotSmokeTests: XCTestCase {
         let app = XCUIApplication()
         app.launchArguments = ["-botai-ui-testing", "-botai-reset-ui-test-data", "-botai-seed-chemistry"]
         app.launch()
-        let study = app.buttons["primary-study-launch"]
+        let study = app.buttons["Настроить занятие"]
         XCTAssertTrue(study.waitForExistence(timeout: 20), "Primary study action missing")
         study.tap()
         XCTAssertTrue(app.navigationBars["Что будем учить?"].waitForExistence(timeout: 10))

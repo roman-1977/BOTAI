@@ -662,3 +662,49 @@ struct MultiGoalOverlappingIntegrationTests {
         #expect(try CourseRepository(database: independent).courses().count == 1)
     }
 }
+
+struct PilotFeedbackRegressionTests {
+    @Test func defaultStudyDoesNotMixAnswerModesOrRepeatKnowledge() {
+        let shared = UUID(), distinct = UUID()
+        let reveal = StudyQuestion(id: UUID(), prompt: "A", answer: "B", kind: .reveal,
+            choices: [], correctChoiceIndexes: [], knowledgeID: shared)
+        let duplicate = StudyQuestion(id: UUID(), prompt: "A", answer: "B", kind: .singleChoice,
+            choices: ["B", "C", "D", "E"], correctChoiceIndexes: [0], knowledgeID: shared)
+        let other = StudyQuestion(id: UUID(), prompt: "C", answer: "D", kind: .reveal,
+            choices: [], correctChoiceIndexes: [], knowledgeID: distinct)
+        let selected = StudyQuestionSelection.forSession([reveal, duplicate, other], knowledgeStates: [:], now: .now)
+        #expect(selected.count == 2)
+        #expect(Set(selected.map(\.knowledgeID)).count == 2)
+        #expect(selected.allSatisfy { $0.kind == .reveal || $0.kind == .pair })
+        let tests = StudyQuestionSelection.forSession([reveal, duplicate, other], format: .tests,
+            knowledgeStates: [:], now: .now)
+        #expect(tests.count == 1)
+        #expect(tests[0].id == duplicate.id)
+    }
+
+    @Test func previousDaySessionCannotResumeButSameDayCan() {
+        let now = Date()
+        let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: now)!
+        let q = StudyQuestion(id: UUID(), prompt: "A", answer: "B", kind: .reveal,
+            choices: [], correctChoiceIndexes: [], knowledgeID: UUID())
+        let snapshot = ResumableStudySession(id: UUID(), startedAt: yesterday, title: "Test",
+            targetMinutes: 10, questions: [q], nextIndex: 0, answered: 0, correct: 0, activeSeconds: 0)
+        #expect(!snapshot.canResume(on: now))
+        #expect(snapshot.canResume(on: yesterday))
+    }
+}
+
+@MainActor struct AppleAccountIdentityTests {
+    @Test func firstAppleNamePersistsPerAccountAndIsNotOverwrittenByMissingName() {
+        let suite = "BOTAI.apple.identity.test.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let first = UUID(), second = UUID()
+        AuthStore.storeAppleName("Анна Ученица", for: first, defaults: defaults)
+        AuthStore.storeAppleName(nil, for: first, defaults: defaults)
+        #expect(AuthStore.savedAppleName(for: first, defaults: defaults) == "Анна Ученица")
+        #expect(AuthStore.savedAppleName(for: second, defaults: defaults) == nil)
+        AuthStore.storeAppleName("Борис", for: second, defaults: defaults)
+        #expect(AuthStore.savedAppleName(for: second, defaults: defaults) == "Борис")
+    }
+}

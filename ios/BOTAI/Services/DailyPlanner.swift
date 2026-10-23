@@ -1,6 +1,11 @@
 import Foundation
 
 enum StudyQuestionSelection {
+  // One representation per knowledge item and one response mode per session.
+  static func uniqueKnowledge(_ questions: [StudyQuestion]) -> [StudyQuestion] {
+    var seen = Set<UUID>()
+    return questions.filter { seen.insert($0.knowledgeID).inserted }
+  }
   enum Format { case mixed, cards, tests }
   enum Strategy { case automatic, all }
 
@@ -20,6 +25,12 @@ enum StudyQuestionSelection {
     return eligible.sorted {
       priority($0, states: knowledgeStates, now: now) > priority($1, states: knowledgeStates, now: now)
     }
+  }
+
+  static func forSession(_ questions: [StudyQuestion], format: Format = .cards,
+                         strategy: Strategy = .automatic,
+                         knowledgeStates: [UUID: LearningState], now: Date) -> [StudyQuestion] {
+    uniqueKnowledge(select(questions, format: format, strategy: strategy, knowledgeStates: knowledgeStates, now: now))
   }
 
   private static func priority(_ question: StudyQuestion, states: [UUID: LearningState], now: Date) -> Int {

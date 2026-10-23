@@ -34,6 +34,7 @@ struct GameHomeView: View {
   @State private var chooseGoal = false
   @State private var showRecommendations = false
   @State private var chooseSession = false
+  @State private var chooseActiveSession = false
   @State private var reportURL: URL?
   private var plan: DailyStudyPlan {
     DailyPlanner.make(
@@ -58,6 +59,13 @@ struct GameHomeView: View {
       ) {
         ForEach(plan.goals) { g in Button("\(g.title) · \(g.questions.count) вопросов") { start(g) }
         }
+        Button("Отмена", role: .cancel) {}
+      }.confirmationDialog("Есть активное занятие", isPresented: $chooseActiveSession, titleVisibility: .visible) {
+        Button("Продолжить") {
+          if learning.restoreResumableSession() != nil { studyPresentation = StudyPresentation(resume: true) }
+        }
+        Button("Начать новое по рекомендации") { startRecommended() }
+        Button("Настроить новое занятие") { chooseSession = true }
         Button("Отмена", role: .cancel) {}
       }.sheet(isPresented: $showRecommendations) {
         NavigationStack {
@@ -368,10 +376,9 @@ struct GameHomeView: View {
     VStack(spacing: 9) {
       Button {
         if learning.resumableSession?.canResume == true {
-          _ = learning.restoreResumableSession()
-          studyPresentation = StudyPresentation(resume: true)
+          chooseActiveSession = true
         } else {
-          chooseSession = true
+          startRecommended()
         }
       } label: {
         HStack(spacing: 12) {
@@ -379,7 +386,7 @@ struct GameHomeView: View {
             width: 52, height: 52
           ).background(.white.opacity(0.16), in: Circle())
           VStack(alignment: .leading, spacing: 3) {
-            Text(learning.resumableSession?.canResume == true ? "ПРОДОЛЖИТЬ" : "БОТАТЬ").font(.headline).lineLimit(2)
+            Text("БОТАТЬ").font(.headline).lineLimit(2)
             Text(launchSubtitle).font(.caption).opacity(0.72).lineLimit(3)
           }
           Spacer()
@@ -390,11 +397,9 @@ struct GameHomeView: View {
             startPoint: .leading, endPoint: .trailing), in: RoundedRectangle(cornerRadius: 22))
       }.buttonStyle(.plain)
         .accessibilityIdentifier("primary-study-launch")
-        .accessibilityHint(learning.resumableSession?.canResume == true ? "Продолжить прерванное занятие" : "Настроить и начать занятие")
-      if learning.resumableSession?.canResume == true {
-        Button("Новое занятие") { chooseSession = true }
-          .buttonStyle(.bordered).font(.caption)
-      }
+        .accessibilityHint(learning.resumableSession?.canResume == true ? "Выбрать продолжение или новое занятие" : "Начать занятие по рекомендации системы")
+      Button("Настроить занятие") { chooseSession = true }
+        .buttonStyle(.bordered).font(.caption)
       if plan.questions.isEmpty {
         Button(launchActionTitle) { coursesOpen = true }.buttonStyle(.bordered).tint(
           HomePalette.accent)
@@ -429,11 +434,18 @@ struct GameHomeView: View {
   private var launchActionTitle: String {
     activeGoals.isEmpty ? "Выбрать цель и начать" : "Проверить содержание цели"
   }
+  private func startRecommended() {
+    let recommended = StudyQuestionSelection.forSession(plan.questions, format: .cards,
+      knowledgeStates: learning.knowledgeStates, now: .now)
+    guard !recommended.isEmpty else { chooseSession = true; return }
+    learning.use(questions: recommended, title: "Рекомендация системы", targetMinutes: plan.budgetMinutes)
+    studyPresentation = StudyPresentation(resume: false)
+  }
   private func startPlan() {
     if plan.goals.count == 1, let g = plan.goals.first { start(g) } else { chooseGoal = true }
   }
   private func start(_ g: DailyStudyPlan.GoalPlan) {
-    learning.use(questions: g.questions.shuffled(), title: g.title, targetMinutes: plan.budgetMinutes == 0 ? 0 : g.minutes)
+    learning.use(questions: StudyQuestionSelection.forSession(g.questions, format: .cards, knowledgeStates: learning.knowledgeStates, now: .now), title: g.title, targetMinutes: plan.budgetMinutes == 0 ? 0 : g.minutes)
     studyPresentation = StudyPresentation(resume: false)
   }
   private func timeText(_ seconds: Int) -> String {
@@ -828,7 +840,7 @@ private struct SessionLaunchPicker: View {
   let start: ([StudyQuestion], String, [UUID: StudyQuestionAttribution]) -> Void
   // Every NEW session starts from system defaults. Resuming an existing session
   // must retain that session's original configuration instead.
-  @State private var format = "mixed"
+  @State private var format = "cards"
   @State private var strategy = "auto"
   @State private var showAdvanced = false
   @Environment(\.dismiss) private var dismiss
@@ -847,7 +859,6 @@ private struct SessionLaunchPicker: View {
         Section {
           DisclosureGroup("Дополнительные настройки", isExpanded: $showAdvanced) {
             Picker("Формат", selection: $format) {
-              Text("Вперемешку").tag("mixed")
               Text("Карточки").tag("cards")
               Text("Тесты").tag("tests")
             }
@@ -856,7 +867,7 @@ private struct SessionLaunchPicker: View {
               Text("Все вопросы").tag("all")
             }
             Button("Вернуть автоматический выбор") {
-              format = "mixed"
+              format = "cards"
               strategy = "auto"
             }.font(.subheadline)
           }
@@ -885,9 +896,9 @@ private struct SessionLaunchPicker: View {
   }
   private func launchRow(_ title: String, refs: [CourseRuleReference],
     selectedTopic: (UUID, UUID, CourseTopic)? = nil) -> some View {
-    let selected = StudyQuestionSelection.select(
+    let selected = StudyQuestionSelection.forSession(
       questions(refs),
-      format: format == "cards" ? .cards : format == "tests" ? .tests : .mixed,
+      format: format == "tests" ? .tests : .cards,
       strategy: strategy == "auto" ? .automatic : .all,
       knowledgeStates: learning.knowledgeStates,
       now: .now)

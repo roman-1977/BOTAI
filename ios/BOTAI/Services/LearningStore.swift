@@ -15,7 +15,11 @@ struct ResumableStudySession: Codable, Equatable {
     var attributionByQuestion: [UUID: StudyQuestionAttribution]? = nil
     var topicAccumulator: SessionTopicAccumulator? = nil
 
-    var canResume: Bool { !questions.isEmpty && (questions.indices.contains(nextIndex) || (nextIndex == questions.count && answered > 0)) }
+    func canResume(on date: Date, calendar: Calendar = .current) -> Bool {
+        calendar.isDate(startedAt, inSameDayAs: date) && !questions.isEmpty &&
+        (questions.indices.contains(nextIndex) || (nextIndex == questions.count && answered > 0))
+    }
+    var canResume: Bool { canResume(on: .now) }
 }
 
 @MainActor @Observable

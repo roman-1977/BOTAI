@@ -1,3 +1,5 @@
+> **PILOT FEEDBACK FIXES IN PROGRESS 2026-10-23:** See `docs/iterations/PILOT_FEEDBACK_FIXES_2026-10-23.md`. Manual acceptance found duplicate knowledge/mixed formats, overloaded launch, missing account identity and same-day-only resume requirement. Code and regression tests in progress; DO NOT publish another release before full validation. Preserve user-owned `project.pbxproj`.
+
 # BOTAI — актуальная передача проекта и готовый промпт
 > **FINAL PILOT RC 2026-10-23:** Owner-approved **private BOTAI 0.3.0 (2) Chemistry Pilot READY FOR DIRECT XCODE INSTALLATION**. Final full iPhone 16e regression **184/184 unit + 28/28 UI PASS** (`/tmp/botai_chemistry_release_final_20261023.log`, exit 0). Signed Debug iPhoneOS build 0.3.0 (2), valid Apple Development code signature, Apple entitlement and embedded profile PASS. Reproduce via `tools/release/build_signed_chemistry_pilot.sh`; do not touch local `project.pbxproj`. Physical two-user Apple/email authentication, offline/reconnect and hosted aggregate isolation remain post-install acceptance gates; **NOT App Store/TestFlight and NOT broad MVP final acceptance**. See `docs/releases/BOTAI_0.3.0_CHEMISTRY_PILOT.md`.
 
