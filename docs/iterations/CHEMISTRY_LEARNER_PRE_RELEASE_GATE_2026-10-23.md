@@ -1,4 +1,6 @@
 # Chemistry learner release gate — release first, installation later
+> **IOS DEVICE ARCHIVE AUDIT 2026-10-23:** unsigned Release **arm64 iOS archive 0.3.0 (1) PASS**, compiled ChemistryPilot asset verified; `/tmp/BOTAI-Chemistry-0.3.0-PreRC.xcarchive`. Reproducible read-only audit `tools/release/archive_chemistry_prerc.sh`. **Not signed/installable**; hosted auth/sync and distribution signing remain blockers. See `docs/iterations/CHEMISTRY_IOS_ARCHIVE_AUDIT_2026-10-23.md`.
+
 
 Owner decision 2026-10-23: **complete a verifiable release candidate before any installation on either physical phone**. Installation/physical-device acceptance is a subsequent stage, not a prerequisite for finishing the release build. No physical installation, TestFlight upload, App Store submission, or production migration is authorized by this decision.
 

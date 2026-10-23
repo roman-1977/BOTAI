@@ -1,4 +1,6 @@
 # BOTAI Client — implementation plan
+> **IOS DEVICE ARCHIVE AUDIT 2026-10-23:** unsigned Release **arm64 iOS archive 0.3.0 (1) PASS**, compiled ChemistryPilot asset verified; `/tmp/BOTAI-Chemistry-0.3.0-PreRC.xcarchive`. Reproducible read-only audit `tools/release/archive_chemistry_prerc.sh`. **Not signed/installable**; hosted auth/sync and distribution signing remain blockers. See `docs/iterations/CHEMISTRY_IOS_ARCHIVE_AUDIT_2026-10-23.md`.
+
 > **TWO-STUDENT FULL REGRESSION PASS 2026-10-23:** 184/184 unit + 28/28 UI PASS, `xcodebuild` exit 0, `/tmp/botai_two_student_full_verified_20261023.log`. Actual chemistry-question attempt persisted independently across two SQLite account DBs, reopen and repeated provisioning. Hosted auth/sync, signed archive, physical acceptance remain OPEN. `docs/iterations/CHEMISTRY_TWO_STUDENT_DURABILITY_2026-10-23.md`.
 
 > **TWO-STUDENT DURABILITY 2026-10-23:** Added disk-backed chemistry test: two account-specific SQLite files, same real chemistry question, distinct attempt IDs/streaks, cold reopen in reverse order and repeated provisioning without progress loss. Verification pending final post-change regression. `docs/iterations/CHEMISTRY_TWO_STUDENT_DURABILITY_2026-10-23.md`.
