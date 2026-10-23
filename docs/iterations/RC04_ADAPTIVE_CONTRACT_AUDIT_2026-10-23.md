@@ -9,12 +9,13 @@
 - `docs/COURSES_AND_GOALS.md`: auto-course advances after completion, teacher-assigned sequence awaits teacher; personal goals are learner-controlled. Goals define mastery/deadline/scope; the study-minute budget belongs to the profile, not to a goal.
 - `docs/GOALS_PROGRESS.md`: BOTAI recalculates after missed days without debt/punishment; never silently increases a user's daily target; progress and due/weak/new are distinct metrics.
 
-## Actual code inventory
+## Actual code inventory — updated 2026-10-23 after `1f352f0`
 
-- `ios/BOTAI/Services/DailyPlanner.swift`: active goals with question sets; mastery deduplicated by `knowledgeID`; goal urgency = `(target - mastery) / max(days,1)`; shared minutes allocated by relative urgency; questions ordered by due/new/not-due via `StudyQuestionSelection`. Deterministic planning date and stable source-order ties are implemented.
-- `ios/BOTAI/Domain/Courses.swift`: `LearningGoal` stores title, question-set references, mastery target, optional deadline and lifecycle. No teacher-priority, difficulty, recommended pace, assignment owner or teacher progression fields.
-- `ios/BOTAI/Domain/StudyProfile.swift`: weekday minute budget only. There is no persisted teacher guidance.
-- Existing regression `ios/BOTAITests/DailyPlanTests.swift` covers rest days, stable selection and unique mastery; selection matrices cover formats and strategies. None establishes a complete teacher-guided algorithm.
+- `ios/BOTAI/Services/DailyPlanner.swift`: deadline/mastery urgency, explicit priority and ordinal difficulty tie-break, shared profile-minute allocation, question dedup and due/weak → new → not-due selection. Difficulty does not multiply minutes.
+- `ios/BOTAI/Domain/Courses.swift`: goals persist optional `CourseLearningGuidance` (priority, rationale, difficulty 1...5, suggested daily minutes), mastery/deadline/scope. Separate teacher assignment ownership and authority are **not** persisted.
+- `ios/BOTAI/Services/BOTAIPackageService.swift`: legacy-compatible one-material `.botai` archive can include sections/topics/goals/guidance. Import validates mapping, saves material and course, and compensates a failed course write by deleting the new material. **Not** a cross-store ACID transaction.
+- `ios/BOTAI/Features/Today/GameHomeView.swift`: recommendation sheet displays guidance and learner pace comparison.
+- `ios/BOTAITests/DailyPlanTests.swift`, `PackageRoundTripTests.swift`: ordinal priority/difficulty, overlap, actual ZIP → SQLite → daily plan, and import rollback/success coverage. Latest focused unit result **181/181 PASS**, `/tmp/botai_atomic_import_units_final.log`; focused importer UI **1/1 PASS**. Last fully completed UI regression **25/25 PASS** at older baseline; a new full run is in progress.
 
 ## Genuine remaining functional work
 
