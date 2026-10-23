@@ -222,3 +222,5 @@ RC-04 2026-10-23: teacher priority now breaks equal-urgency goal ties in DailyPl
 2026-10-23 RC-04 rest-day fix: no phantom mandatory minute for zero budget; voluntary questions still available. 161/161 signed simulator unit PASS. Full recommendation pipeline P0 OPEN.
 
 2026-10-23 RC-04 multi-goal fairness: deterministic 1-minute minimum per goal when budget allows, urgency-weighted remainder, no overbudget or phantom rest-day minute. 164/164 signed simulator unit PASS. General recommendation pipeline/UI still open.
+
+2026-10-23 RC-04 SQLite persistence: guidance survives CourseRepository save/new repository reload/update, verified by signed simulator unit 165/165 PASS. Full process relaunch, course import, difficulty/pace and UI acceptance still open.

@@ -30,6 +30,28 @@ struct CoursePersistenceTests {
   #expect(try repository.courses().first(where: { $0.id == course.id })?.goals.first?.state == .completed)
  }
 
+ @Test func teacherGuidanceSurvivesLocalRepositorySaveReloadAndUpdate() throws {
+  let database = try AppDatabase()
+  let repository = CourseRepository(database: database)
+  let now = Date()
+  let guidance = CourseLearningGuidance(priority: .critical, rationale: "Сначала сложные разделы")
+  let goal = LearningGoal(id: UUID(), title: "Химия", questionSets: [], masteryTarget: 90,
+    deadline: now.addingTimeInterval(86400 * 20), state: .active, guidance: guidance)
+  var course = StudyCourse(id: UUID(), title: "Химия ЕГЭ", description: "", subject: "Химия",
+    audience: "11 класс", estimatedMinutes: nil, author: "Преподаватель", language: "ru",
+    coverSymbol: "book", source: .importedPackage, sections: [], goals: [goal],
+    createdAt: now, updatedAt: now)
+  try repository.save(course)
+  let reloaded = CourseRepository(database: database)
+  let saved = try #require(reloaded.courses().first(where: { $0.id == course.id }))
+  #expect(saved.goals.first?.guidance == guidance)
+  course.description = "Изменённое описание"
+  try reloaded.save(course)
+  let updated = try #require(repository.courses().first(where: { $0.id == course.id }))
+  #expect(updated.goals.first?.guidance == guidance)
+  #expect(updated.description == "Изменённое описание")
+ }
+
  @Test @MainActor func removingMaterialReferencesPreservesOtherCourseContent() throws {
   let db = try AppDatabase()
   let repository = CourseRepository(database: db)

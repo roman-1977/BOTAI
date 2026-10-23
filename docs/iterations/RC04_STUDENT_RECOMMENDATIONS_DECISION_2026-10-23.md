@@ -41,3 +41,7 @@ Fixed a verified planner inconsistency: zero-minute scheduled rest days previous
 ### Multi-goal budget fairness checkpoint — 2026-10-23
 
 Fixed `DailyPlanner` multi-goal starvation from the old `max(5, weighted)` greedy allocation: each eligible goal receives one minute when the profile budget permits, then remaining minutes are allocated proportionally to observed deadline/mastery urgency with deterministic largest-remainder rounding. If fewer minutes than goals, higher-urgency goals receive the limited minutes first; teacher priority breaks only equal-urgency ties. Budget is never exceeded. Zero-minute rest days retain voluntary questions with zero mandatory minutes. Added three deterministic allocation tests (fairness, low/zero budget, equal-urgency ties). Signed iPhone 16e simulator **164/164 unit PASS**, exit 0 (`/tmp/botai_rc04_multigoal_units_20261023.log`). General import, teacher difficulty/pace, end-to-end UI and device acceptance remain P0 open.
+
+### Local persistence acceptance checkpoint — 2026-10-23
+
+Added a real SQLite `CourseRepository` regression for a teacher-guided imported-source course: write → instantiate a fresh repository against the same database → reload → update course description → reload again. Verifies that priority and rationale remain intact, rather than only testing in-memory JSON. Signed simulator **165/165 unit PASS**, exit 0 (`/tmp/botai_rc04_guidance_persistence_units_20261023.log`). This does **not** verify a full app-process cold relaunch or a general `.botai` course import: both remain open.
