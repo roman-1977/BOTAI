@@ -78,6 +78,43 @@ struct PackageRoundTripTests {
         #expect(throws:BOTAIPackageError.self) { try BundledCourseImporter.course(plan:plan,manifest:manifest,references:[]) }
     }
 
+    @Test @MainActor func actualBotaiArchiveImportPersistsTeacherPlanAndSchedulesQuestions() throws {
+        let fm = FileManager.default
+        let root = fm.temporaryDirectory.appendingPathComponent("botai-e2e-\(UUID().uuidString)")
+        let archive = fm.temporaryDirectory.appendingPathComponent("botai-e2e-\(UUID().uuidString).botai")
+        try fm.createDirectory(at:root,withIntermediateDirectories:true)
+        defer { try? fm.removeItem(at:root);try? fm.removeItem(at:archive) }
+        let guidance = CourseLearningGuidance(priority:.critical,rationale:"Повторить кислоты",difficulty:5,recommendedDailyMinutes:25)
+        let plan = PackageCoursePlan(title:"Химия ЕГЭ",subject:"Химия",
+            goals:[PackageCourseGoal(title:"Кислоты",questionSetIndexes:[0],masteryTarget:90,deadline:nil,guidance:guidance)],
+            sections:[PackageCourseSection(title:"Неорганическая химия",topics:[PackageCourseTopic(title:"Кислоты",questionSetIndexes:[0])])])
+        let manifest = BOTAIPackageManifest(formatVersion:1,title:"Кислоты",description:"Тема ЕГЭ",author:"Преподаватель",tags:nil,kind:.reference,
+            fields:[PackageField(key:"q",title:"Вопрос",position:0,type:"text"),PackageField(key:"a",title:"Ответ",position:1,type:"text")],
+            rows:[["q":"HCl","a":"Соляная"],["q":"H2SO4","a":"Серная"]],
+            questionSets:[PackageQuestionSet(kind:.card,promptTemplate:"{1}",promptFieldKeys:["q"],answers:[.init(template:"{1}",fieldKeys:["a"],correct:true)],showCorrectCount:false,enabled:true)],
+            coursePlan:plan)
+        try JSONEncoder().encode(manifest).write(to:root.appendingPathComponent("manifest.json"))
+        try fm.zipItem(at:root,to:archive,shouldKeepParent:false)
+        let payload = try BOTAIPackageService.read(archive)
+        defer { try? fm.removeItem(at:payload.root) }
+        let db = try AppDatabase()
+        let materials = MaterialStore(repository:MaterialRepository(database:db))
+        let references = try materials.importPackagePayload(payload)
+        let course = try BundledCourseImporter.course(plan:plan,manifest:payload.manifest,references:references)
+        try CourseRepository(database:db).save(course)
+        let restored = try #require(CourseRepository(database:db).courses().first)
+        #expect(restored.sections[0].topics[0].questionSets == references)
+        #expect(restored.goals[0].guidance == guidance)
+        let learning = LearningStore(questions:[],repository:LearningRepository(database:db))
+        let profile = StudyProfile(defaultDailyMinutes:15,customDays:[],updatedAt:.now)
+        let daily = DailyPlanner.make(courses:[restored],materials:materials,learning:learning,profile:profile)
+        #expect(daily.goals.count == 1)
+        #expect(daily.questions.count == 2)
+        #expect(daily.goals[0].title == "Кислоты")
+        #expect(daily.plannedMinutes <= 15)
+        #expect(DailyPlanner.assessPace(guidance:restored.goals[0].guidance,allocatedMinutes:daily.goals[0].minutes) == .belowSuggestion(minutes:10))
+    }
+
     @Test func invalidTeacherGoalReferencesRejectPackage() throws {
         let plan=PackageCoursePlan(title:"Chemistry",subject:"Химия",goals:[PackageCourseGoal(title:"Broken",questionSetIndexes:[99],masteryTarget:90,deadline:nil,guidance:nil)])
         let manifest=BOTAIPackageManifest(formatVersion:1,title:"Material",description:nil,author:nil,tags:nil,kind:.reference,
