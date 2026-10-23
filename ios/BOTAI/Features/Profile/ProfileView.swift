@@ -5,6 +5,7 @@ import SwiftUI
 
 struct ProfileView: View {
     @State private var appleNonce: String?
+    @State private var showEmailAuth = false
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(AuthStore.self) private var auth
     @Environment(StudyProfileStore.self) private var studyProfile
@@ -12,6 +13,7 @@ struct ProfileView: View {
     var body: some View {
         ZStack { ProfileBG(); ScrollView(showsIndicators:false) { VStack(spacing:14) { identity; studyMode; learning; progress; account }.padding(16).padding(.bottom,24) } }
         .navigationTitle("Профиль").navigationBarTitleDisplayMode(.inline).toolbarBackground(.hidden,for:.navigationBar).preferredColorScheme(.dark)
+        .sheet(isPresented: $showEmailAuth) { EmailAccountSheet() }
     }
     private var identity: some View { HStack(spacing:14) { ZStack { Circle().fill(HomeTheme.accent.opacity(0.15)); Image(systemName:"person.fill").font(.title).foregroundStyle(HomeTheme.accent) }.frame(width:62,height:62); VStack(alignment:.leading,spacing:4){Text("МОЙ ПРОФИЛЬ").font(.caption.bold()).foregroundStyle(HomeTheme.accent);Text(auth.isAuthenticated ? "Ученик BOTAI" : "Локальный профиль").font(.title3.bold()).foregroundStyle(.white);Text(auth.isAuthenticated ? "Аккаунт подключён" : "Прогресс хранится на этом устройстве").font(.caption).foregroundStyle(.white.opacity(0.55))};Spacer() }.padding(16).profileCard() }
     private var studyMode: some View { NavigationLink { StudyScheduleView() } label: { HStack(spacing:13) { Image(systemName:"timer").font(.title2).foregroundStyle(HomeTheme.accent).frame(width:36); VStack(alignment:.leading,spacing:4){Text("РЕЖИМ ОБУЧЕНИЯ").font(.caption.bold()).foregroundStyle(HomeTheme.accent);Text(studyProfile.profile.customDays.isEmpty ? "\(studyProfile.profile.defaultDailyMinutes) минут в день" : "Расписание по дням").font(.headline).foregroundStyle(.white);Text(scheduleText).font(.caption).foregroundStyle(.white.opacity(0.58))};Spacer();Image(systemName:"chevron.right").foregroundStyle(HomeTheme.accent) }.padding(16).profileCard() }.buttonStyle(.plain) }
@@ -41,6 +43,7 @@ SignInWithAppleButton(.signIn, onRequest: { request in
     appleNonce = nil
     Task { await auth.signInWithApple(idToken: token, nonce: nonce) }
 }).signInWithAppleButtonStyle(.white).frame(height:48).accessibilityIdentifier("profile-apple-sign-in")
+Button("Войти или зарегистрироваться по email") { showEmailAuth = true }.foregroundStyle(.white).accessibilityIdentifier("profile-email-sign-in")
 if let error = auth.errorMessage { Text(error).font(.caption).foregroundStyle(.red).accessibilityIdentifier("profile-auth-error") }
 #if DEBUG
 Button{Task{await auth.signInForDevelopment()}}label:{ProfileRow(icon:"person.badge.key",title:"Войти для тестирования")}
@@ -72,5 +75,68 @@ enum AppleLoginNonce {
     }
     static func hash(_ nonce: String) -> String {
         SHA256.hash(data: Data(nonce.utf8)).map { String(format: "%02x", $0) }.joined()
+    }
+}
+
+private struct EmailAccountSheet: View {
+    @Environment(AuthStore.self) private var auth
+    @Environment(\.dismiss) private var dismiss
+    @State private var email = ""
+    @State private var password = ""
+    @State private var mode = 0
+    @State private var busy = false
+    @State private var resetSent = false
+
+    private var validEmail: Bool {
+        let parts = email.trimmingCharacters(in: .whitespacesAndNewlines).split(separator: "@")
+        return parts.count == 2 && parts[1].contains(".")
+    }
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Picker("Действие", selection: $mode) {
+                    Text("Вход").tag(0)
+                    Text("Регистрация").tag(1)
+                    Text("Сброс пароля").tag(2)
+                }.pickerStyle(.segmented)
+                TextField("Электронная почта", text: $email)
+                    .textContentType(.emailAddress).keyboardType(.emailAddress)
+                    .textInputAutocapitalization(.never).autocorrectionDisabled()
+                    .accessibilityIdentifier("auth-email")
+                if mode != 2 {
+                    SecureField("Пароль", text: $password)
+                        .textContentType(mode == 1 ? .newPassword : .password)
+                        .accessibilityIdentifier("auth-password")
+                }
+                if mode == 1 {
+                    Text("После регистрации может потребоваться подтвердить адрес электронной почты.")
+                        .font(.footnote)
+                }
+                if auth.registrationNeedsEmailConfirmation {
+                    Text("Проверьте почту и подтвердите регистрацию, затем войдите.")
+                        .foregroundStyle(.green)
+                }
+                if resetSent { Text("Если адрес зарегистрирован, письмо для сброса пароля отправлено.").foregroundStyle(.green) }
+                if let error = auth.errorMessage { Text(error).foregroundStyle(.red).accessibilityIdentifier("auth-email-error") }
+                Button(mode == 0 ? "Войти" : mode == 1 ? "Создать аккаунт" : "Отправить письмо") {
+                    busy = true
+                    Task {
+                        let address = email.trimmingCharacters(in: .whitespacesAndNewlines)
+                        switch mode {
+                        case 0: await auth.signInWithEmail(address, password: password)
+                        case 1: await auth.registerWithEmail(address, password: password)
+                        default: await auth.requestPasswordReset(address)
+                        }
+                        resetSent = mode == 2 && auth.errorMessage == nil
+                        busy = false
+                        if auth.isAuthenticated { dismiss() }
+                    }
+                }.disabled(busy || !validEmail || (mode != 2 && password.count < 6))
+                    .accessibilityIdentifier("auth-email-submit")
+            }
+            .navigationTitle("Аккаунт BOTAI")
+            .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Закрыть") { dismiss() } } }
+        }
     }
 }

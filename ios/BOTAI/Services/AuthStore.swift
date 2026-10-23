@@ -187,6 +187,45 @@ final class AuthStore {
 
     func setAppleSignInError(_ message: String) { errorMessage = message }
 
+    private(set) var registrationNeedsEmailConfirmation = false
+
+    func signInWithEmail(_ email: String, password: String) async {
+        do {
+            let session = try await client.auth.signIn(email: email, password: password)
+            userID = session.user.id
+            isAuthenticated = true
+            isOfflineLocalSession = false
+            OfflineAccountBinding.save(session.user.id)
+            registrationNeedsEmailConfirmation = false
+            errorMessage = nil
+        } catch { errorMessage = error.localizedDescription }
+    }
+
+    func registerWithEmail(_ email: String, password: String) async {
+        do {
+            let response = try await client.auth.signUp(email: email, password: password)
+            if let session = response.session {
+                userID = session.user.id
+                isAuthenticated = true
+                isOfflineLocalSession = false
+                OfflineAccountBinding.save(session.user.id)
+                registrationNeedsEmailConfirmation = false
+            } else {
+                // Email confirmation is required by the backend. Never unlock
+                // a local account before an authenticated session exists.
+                registrationNeedsEmailConfirmation = true
+            }
+            errorMessage = nil
+        } catch { errorMessage = error.localizedDescription }
+    }
+
+    func requestPasswordReset(_ email: String) async {
+        do {
+            try await client.auth.resetPasswordForEmail(email)
+            errorMessage = nil
+        } catch { errorMessage = error.localizedDescription }
+    }
+
     func signInWithApple(idToken: String, nonce: String? = nil) async {
         do {
             let session = try await client.auth.signInWithIdToken(credentials: .init(provider: .apple, idToken: idToken, nonce: nonce))

@@ -1,4 +1,6 @@
 # BOTAI Client — implementation plan
+> **EMAIL AUTH CHECKPOINT 2026-10-23:** Profile email sign-in/sign-up/password-reset wired to Supabase Auth, 181/181 unit PASS. Real email delivery/confirmation, hosted auth, Apple ID, account switching and two physical phones still unverified; last full UI 25/25 predates this code. `docs/iterations/RELEASE_TARGET_DECISION_2026-10-23.md`.
+
 > **APPLE ID CHECKPOINT 2026-10-23:** native Sign in with Apple UI + secure nonce + Supabase token exchange wired, 181/181 unit PASS; physical Apple authentication/provider config and email/password are NOT verified. See `docs/iterations/RELEASE_TARGET_DECISION_2026-10-23.md`.
 
 > **ПРИОРИТЕТ БЛИЖАЙШЕГО РЕЛИЗА (2026-10-23):** дать двум независимым ученикам начать изучать химию на iPhone 15 Pro Max и 16 Pro Max. Приватный chemistry learner release — раньше полного публичного MVP; остальные принятые требования остаются в roadmap. Текущий chemistry seed удаляет локальные учебные данные и годится только для disposable тестов; недеструктивная доставка и маршрут с 70% ещё НЕ готовы. Проверка chemistry Python 5/5 PASS, preview 323 вопроса / 102 набора. Источник: `docs/iterations/RELEASE_TARGET_DECISION_2026-10-23.md`.
