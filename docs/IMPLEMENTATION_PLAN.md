@@ -128,3 +128,7 @@ Existing daily planner already uses goal mastery, deadline deficit, profile budg
 ### RC-04 MVP scope reconciliation — 2026-10-23
 
 `docs/REQUIREMENTS.md` requires learner-side goal/date/progress/budget/pace daily planning in MVP; this baseline is implemented but its multi-goal edge cases still need acceptance. Expanded teacher authoring tools are listed post-MVP in `docs/ROADMAP.md`, **but** accepted `docs/COURSES_AND_GOALS.md` and ADR-023 still describe teacher/class assignments; do not silently drop them. Teacher role/authority/scoring remain separate unresolved requirements. See RC04 audit.
+
+### Owner correction — RC-04 mandatory student MVP, 2026-10-23
+
+**P0: full student-side recommendations are required in this release.** Teacher-facing UI is deferred, **not** teacher-guidance processing. Input via course import or direct chemistry-style seed; local persistence, adaptive use, student visualization, tests all mandatory. Supersedes earlier interpretation that teacher-guided policy could be excluded from MVP. See `docs/iterations/RC04_STUDENT_RECOMMENDATIONS_DECISION_2026-10-23.md`.
