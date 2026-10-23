@@ -468,3 +468,25 @@ struct CalendarDeadlinePlannerTests {
   #expect(DailyPlanner.daysRemaining(deadline:nil,now:now,calendar:calendar) == 30)
  }
 }
+
+struct MultiGoalOverlappingIntegrationTests {
+ @Test @MainActor func overlappingGoalsDoNotConsumeSharedMinutesTwice() throws {
+  let database=try AppDatabase()
+  let materialID=UUID(),ruleID=UUID(),rowID=UUID(),now=Date()
+  let material=StudyMaterialRecord(id:materialID,title:"Chemistry",subject:"Химия",topic:"Кислоты",kind:.quiz,source:.created,createdAt:now,updatedAt:now)
+  let row=KnowledgeRow(id:rowID,materialID:materialID,position:0,values:["q":"HCl?","a":"Соляная"])
+  let rule=QuestionRule(id:ruleID,materialID:materialID,kind:.card,promptFieldKey:"q",answerFieldKey:"a",promptFieldKeys:["q"],answers:[.init(template:"{1}",fieldKeys:["a"],correct:true)],enabled:true)
+  let repository=MaterialRepository(database:database)
+  try repository.save(material:material,fields:[],rows:[row],rules:[rule])
+  let ref=CourseRuleReference(materialID:materialID,ruleID:ruleID)
+  let goal1=LearningGoal(id:UUID(),title:"First",questionSets:[ref],masteryTarget:90,deadline:now,state:.active)
+  let goal2=LearningGoal(id:UUID(),title:"Second",questionSets:[ref],masteryTarget:90,deadline:now,state:.active)
+  let course=StudyCourse(id:UUID(),title:"Chemistry",description:"",subject:"Химия",audience:"ЕГЭ",estimatedMinutes:nil,author:nil,language:"ru",coverSymbol:"book",source:.created,sections:[],goals:[goal1,goal2],createdAt:now,updatedAt:now)
+  let profile=StudyProfile(defaultDailyMinutes:20,customDays:[],updatedAt:now)
+  let plan=DailyPlanner.make(courses:[course],materials:MaterialStore(repository:repository),learning:LearningStore(questions:[],repository:LearningRepository(database:database)),profile:profile,date:now)
+  #expect(plan.goals.count == 1)
+  #expect(plan.goals.first?.goalID == goal1.id)
+  #expect(plan.goals.first?.minutes == 20)
+  #expect(plan.goals.first?.questions.count == 1)
+ }
+}
