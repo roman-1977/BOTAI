@@ -214,3 +214,5 @@ RC-04 scope check 2026-10-23: learner-side adaptive daily planning is an explici
 2026-10-23 OWNER DECISION: student-side teacher recommendations are mandatory in MVP (course import/direct chemistry-style seeding → offline persistence → adaptive planning → student UI). Only teacher authoring/admin is deferred. RC-04 P0 OPEN; prior interpretation superseded. Contract: `docs/iterations/RC04_STUDENT_RECOMMENDATIONS_DECISION_2026-10-23.md`.
 
 2026-10-23 RC-04 work in progress: optional Codable goal guidance and chemistry seed metadata added with compatibility test; no general import, planner integration or visualization yet. Do not mark RC-04 complete.
+
+RC-04 student UI partial 2026-10-23: Today goal card displays stored recommendation priority and rationale, VoiceOver priority label. Simulator build PASS (`/tmp/botai_rc04_guidance_ui_build_20261023.log`); UI behavior not yet independently tested. RC-04 remains P0 OPEN.

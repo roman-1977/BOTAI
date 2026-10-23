@@ -245,6 +245,15 @@ struct GameHomeView: View {
                 Text("до \(d.formatted(date:.abbreviated,time:.omitted))").font(.caption).opacity(
                   0.75)
               }
+              if let guidance = courses.courses.flatMap(\.goals).first(where: { $0.id == g.goalID })?.guidance {
+                Text("Рекомендация: \(guidance.priority.studentLabel)")
+                  .font(.caption).foregroundStyle(HomeTheme.accent)
+                  .accessibilityLabel("Приоритет преподавателя: \(guidance.priority.studentLabel)")
+                if let rationale = guidance.rationale, !rationale.isEmpty {
+                  Text(rationale).font(.caption2).foregroundStyle(.secondary)
+                    .lineLimit(2)
+                }
+              }
             }
             Spacer()
             Text("\(g.minutes) мин").font(.headline).foregroundStyle(HomeTheme.accent)

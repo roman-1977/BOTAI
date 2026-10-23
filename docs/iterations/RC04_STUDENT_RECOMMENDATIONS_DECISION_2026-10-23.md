@@ -25,3 +25,7 @@ Add a backwards-compatible guidance payload to course/goal models and import/dir
 ### In-progress implementation checkpoint — 2026-10-23
 
 Added optional backward-compatible `LearningGoal.guidance` (priority/rationale), chemistry local fixture metadata, and a Codable compatibility regression. This is **partial groundwork only**, not the complete required pipeline: recommendation import for general course packages, difficulty/pace, deterministic adaptive effect and student UI are still missing. No arbitrary scoring weights were accepted. Simulator unit run initiated; do not mark tests PASS until log confirms.
+
+### Student UI checkpoint — 2026-10-23
+
+The Today goal card now displays persisted guidance priority and optional rationale from the associated `LearningGoal` (with VoiceOver label). This is an initial visible indication, **not** a complete recommendation visualization, priority-based planning or multi-goal pace explanation. `xcodebuild ... build GENERATE_INFOPLIST_FILE=YES CODE_SIGN_IDENTITY=-` succeeded on iPhone 16e simulator (`/tmp/botai_rc04_guidance_ui_build_20261023.log`). The preceding commit verified 160/160 unit tests; no new UI test was run for this display, so visual acceptance is still pending.

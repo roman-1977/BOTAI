@@ -12,6 +12,11 @@ struct CourseLearningGuidance: Codable, Equatable, Sendable {
  var priority: Priority
  var rationale: String?
 }
+extension CourseLearningGuidance.Priority {
+ var studentLabel: String {
+  switch self { case .standard: return "Обычный"; case .elevated: return "Повышенный"; case .critical: return "Высокий" }
+ }
+}
 struct LearningGoal: Identifiable, Codable, Equatable, Sendable {
  let id: UUID; var title: String; var questionSets: [CourseRuleReference]; var masteryTarget: Int; var deadline: Date?; var state: LearningGoalState
  var guidance: CourseLearningGuidance? = nil

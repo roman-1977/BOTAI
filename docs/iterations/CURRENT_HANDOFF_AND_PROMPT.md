@@ -12,6 +12,8 @@
 
 > **RC-04 implementation checkpoint:** `LearningGoal.guidance` optional Codable + chemistry local seed + compatibility unit test in progress; full import/adaptation/UI **not** done. Do not mark RC-04 PASS. Test log `/tmp/botai_rc04_guidance_units_20261023.log`.
 
+> **RC-04 UI checkpoint:** Today goal card shows optional teacher priority and rationale from local course goals; simulator build PASS `/tmp/botai_rc04_guidance_ui_build_20261023.log`. Full adaptive effect, general import, difficulty/pace and visual/UI acceptance still pending.
+
 ## Подтверждённое состояние
 
 - Репозиторий Mac: `/Users/romanarzumanov/Desktop/Личное/Develop/BOTAI`; ветка `feature/v0.3.0-chemistry-pilot`; последний подтверждённый коммит перед этим документом `33f9f20`. Проверять фактический HEAD при входе.
