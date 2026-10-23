@@ -41,3 +41,7 @@ RC-04 is **PARTIAL / teacher-guided portion BLOCKED ON PRODUCT DECISION**, not a
 - `docs/MVP_ACCEPTANCE.md` calls the adaptive daily plan an implemented vertical; this is evidence of a baseline, not evidence of complete teacher-guided acceptance.
 
 **Next authorized work without policy invention:** targeted deterministic learner-side tests for multiple goals, dated vs undated urgency, rest days, shared-knowledge deduplication, due/new ordering and repeated planning; then address demonstrated defects. Teacher role, weighting and ownership require an explicit decision before adding schema or UX.
+
+### Full sequential simulator regression — 2026-10-23 (current baseline)
+
+**181/181 unit PASS; 25/25 UI PASS; zero failed UI cases; `xcodebuild` exit 0; `** TEST SUCCEEDED **`.** iPhone 16e simulator `33176212-1247-4722-B8F4-4E53438502E4`, `-parallel-testing-enabled NO`, complete serial suite, 730.46 seconds. Log `/tmp/botai_rc04_full_181_20261023.log`. This run includes latest learner-course import rollback, ordinal teacher difficulty, ZIP -> SQLite -> planner tests, importer UI, recommendations after relaunch, resume, and session strategies. This is the **new authoritative simulator regression baseline** superseding the 177+25 snapshot at `6bce16f` and all older intermediate test notes. **Not a release candidate yet**: RC-04 multi-material course packaging/teacher authority and complete adaptive acceptance, RC-05 device/accessibility, hosted acceptance and distribution gates remain open. User-owned pbxproj not touched.

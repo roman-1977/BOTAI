@@ -128,3 +128,7 @@ When an accepted UX decision changes, update the relevant docs/ADR in the same c
 ## Mandatory iteration completion / handoff
 
 Every development iteration MUST follow `docs/iterations/DEVELOPMENT_HANDOFF_STANDARD.md`: synchronize impacted docs and implementation status, update dated progress and next steps, extend relevant tests, record reproducible test results, and commit scoped changes. An iteration without tests and handoff documentation is not complete.
+
+### Full sequential simulator regression — 2026-10-23 (current baseline)
+
+**181/181 unit PASS; 25/25 UI PASS; zero failed UI cases; `xcodebuild` exit 0; `** TEST SUCCEEDED **`.** iPhone 16e simulator `33176212-1247-4722-B8F4-4E53438502E4`, `-parallel-testing-enabled NO`, complete serial suite, 730.46 seconds. Log `/tmp/botai_rc04_full_181_20261023.log`. This run includes latest learner-course import rollback, ordinal teacher difficulty, ZIP -> SQLite -> planner tests, importer UI, recommendations after relaunch, resume, and session strategies. This is the **new authoritative simulator regression baseline** superseding the 177+25 snapshot at `6bce16f` and all older intermediate test notes. **Not a release candidate yet**: RC-04 multi-material course packaging/teacher authority and complete adaptive acceptance, RC-05 device/accessibility, hosted acceptance and distribution gates remain open. User-owned pbxproj not touched.
