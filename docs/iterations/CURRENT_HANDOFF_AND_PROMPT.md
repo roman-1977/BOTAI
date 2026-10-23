@@ -14,6 +14,8 @@
 
 > **RC-04 UI checkpoint:** Today goal card shows optional teacher priority and rationale from local course goals; simulator build PASS `/tmp/botai_rc04_guidance_ui_build_20261023.log`. Full adaptive effect, general import, difficulty/pace and visual/UI acceptance still pending.
 
+> **RC-04 latest 2026-10-23:** guidance priority breaks exact goal urgency ties only (no fabricated weights); 161/161 signed unit PASS `/tmp/botai_rc04_guidance_order_units_20261023.log`. Full student recommendation pipeline still P0 OPEN.
+
 ## Подтверждённое состояние
 
 - Репозиторий Mac: `/Users/romanarzumanov/Desktop/Личное/Develop/BOTAI`; ветка `feature/v0.3.0-chemistry-pilot`; последний подтверждённый коммит перед этим документом `33f9f20`. Проверять фактический HEAD при входе.

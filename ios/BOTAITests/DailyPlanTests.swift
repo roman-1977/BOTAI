@@ -384,3 +384,11 @@ struct CourseGuidanceCompatibilityTests {
   #expect(restored.guidance == guided.guidance)
  }
 }
+
+struct TeacherGuidanceOrderingTests {
+ @Test func prioritiesAreOrderedWithoutChangingLegacyDefault() {
+  #expect(DailyPlanner.guidanceRank(nil) == DailyPlanner.guidanceRank(.standard))
+  #expect(DailyPlanner.guidanceRank(.critical) > DailyPlanner.guidanceRank(.elevated))
+  #expect(DailyPlanner.guidanceRank(.elevated) > DailyPlanner.guidanceRank(.standard))
+ }
+}

@@ -43,8 +43,17 @@ enum DailyPlanner {
    }}
    guard !cs.isEmpty else{return .init(date:date,budgetMinutes:budget,goals:[])}
    let total=max(0.0001,cs.reduce(0){$0+$1.urgency});var remaining=max(1,budget);var plans:[DailyStudyPlan.GoalPlan]=[]
-   for (i,x) in cs.sorted(by:{$0.urgency>$1.urgency}).enumerated(){let mins=i==cs.count-1 ? remaining:max(5,Int((Double(budget)*x.urgency/total).rounded()));let allocated=min(remaining,mins);remaining-=allocated;let count=min(x.questions.count,max(1,allocated*2));let selected=adaptiveQuestions(goal:x.goal,materials:materials,learning:learning,count:count,date:date);plans.append(.init(id:x.goal.id,courseID:x.course.id,goalID:x.goal.id,title:x.goal.title,minutes:allocated,questions:selected,mastery:x.mastery,target:x.goal.masteryTarget,deadline:x.goal.deadline));if remaining<=0{break}}
+   for (i,x) in cs.sorted(by:{
+    if $0.urgency != $1.urgency { return $0.urgency > $1.urgency }
+    return guidanceRank($0.goal.guidance?.priority) > guidanceRank($1.goal.guidance?.priority)
+   }).enumerated(){let mins=i==cs.count-1 ? remaining:max(5,Int((Double(budget)*x.urgency/total).rounded()));let allocated=min(remaining,mins);remaining-=allocated;let count=min(x.questions.count,max(1,allocated*2));let selected=adaptiveQuestions(goal:x.goal,materials:materials,learning:learning,count:count,date:date);plans.append(.init(id:x.goal.id,courseID:x.course.id,goalID:x.goal.id,title:x.goal.title,minutes:allocated,questions:selected,mastery:x.mastery,target:x.goal.masteryTarget,deadline:x.goal.deadline));if remaining<=0{break}}
    return .init(date:date,budgetMinutes:budget,goals:plans)
+ }
+
+ // Recommendations break ties between equally urgent goals. Deadline and actual
+ // mastery still lead, so teacher guidance never overrides student evidence.
+ static func guidanceRank(_ priority: CourseLearningGuidance.Priority?) -> Int {
+  switch priority { case .critical: return 2; case .elevated: return 1; case .standard, nil: return 0 }
  }
 
  @MainActor private static func adaptiveQuestions(goal:LearningGoal,materials:MaterialStore,learning:LearningStore,count:Int,date:Date)->[StudyQuestion] {

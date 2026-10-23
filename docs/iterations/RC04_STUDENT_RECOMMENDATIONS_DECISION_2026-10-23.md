@@ -29,3 +29,7 @@ Added optional backward-compatible `LearningGoal.guidance` (priority/rationale),
 ### Student UI checkpoint — 2026-10-23
 
 The Today goal card now displays persisted guidance priority and optional rationale from the associated `LearningGoal` (with VoiceOver label). This is an initial visible indication, **not** a complete recommendation visualization, priority-based planning or multi-goal pace explanation. `xcodebuild ... build GENERATE_INFOPLIST_FILE=YES CODE_SIGN_IDENTITY=-` succeeded on iPhone 16e simulator (`/tmp/botai_rc04_guidance_ui_build_20261023.log`). The preceding commit verified 160/160 unit tests; no new UI test was run for this display, so visual acceptance is still pending.
+
+### Deterministic recommendation use checkpoint — 2026-10-23
+
+`DailyPlanner.make` now uses imported teacher priority **only to break exact ties in observed deadline/mastery urgency**. Order: `critical > elevated > standard == missing`; no numeric weight was invented, and due/new/not-due ordering within a goal is unchanged. This is a deliberately bounded initial use, **not** full adaptive recommendation processing. Added rank/legacy-default unit test; signed iPhone 16e simulator 161/161 unit PASS (`/tmp/botai_rc04_guidance_order_units_20261023.log`, exit 0). Missing: teacher difficulty, recommended pace, general course import, multi-goal acceptance and UI tests.

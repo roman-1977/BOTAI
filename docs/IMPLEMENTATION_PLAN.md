@@ -132,3 +132,5 @@ Existing daily planner already uses goal mastery, deadline deficit, profile budg
 ### Owner correction — RC-04 mandatory student MVP, 2026-10-23
 
 **P0: full student-side recommendations are required in this release.** Teacher-facing UI is deferred, **not** teacher-guidance processing. Input via course import or direct chemistry-style seed; local persistence, adaptive use, student visualization, tests all mandatory. Supersedes earlier interpretation that teacher-guided policy could be excluded from MVP. See `docs/iterations/RC04_STUDENT_RECOMMENDATIONS_DECISION_2026-10-23.md`.
+
+RC-04 checkpoint: optional teacher priority now resolves equal-urgency goal ordering deterministically, preserving learner evidence as primary signal. Remaining P0: difficulty, pace, general course import, learner visualization of adaptive impact, multi-goal/UI acceptance. Test evidence: `/tmp/botai_rc04_guidance_order_units_20261023.log` 161/161 PASS.
