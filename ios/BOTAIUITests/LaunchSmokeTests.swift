@@ -99,6 +99,33 @@ final class LaunchSmokeTests: XCTestCase {
         XCTAssertFalse(app.staticTexts["ПРОДОЛЖИТЬ"].exists)
     }
 
+    func testReleaseAccountEntryOffersAppleEmailRegistrationAndRecovery() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-botai-ui-testing", "-botai-reset-ui-test-data"]
+        app.launch()
+        XCTAssertTrue(app.staticTexts["ПЛАН НА СЕГОДНЯ"].waitForExistence(timeout: 20))
+        app.buttons["Профиль"].tap()
+        XCTAssertTrue(app.navigationBars["Профиль"].waitForExistence(timeout: 10))
+        let apple = app.buttons["profile-apple-sign-in"]
+        XCTAssertTrue(apple.waitForExistence(timeout: 10), "Apple ID must be offered in release account entry")
+        let email = app.buttons["profile-email-sign-in"]
+        if !email.isHittable { app.swipeUp() }
+        XCTAssertTrue(email.waitForExistence(timeout: 10))
+        email.tap()
+        XCTAssertTrue(app.navigationBars["Аккаунт BOTAI"].waitForExistence(timeout: 10))
+        let submit = app.buttons["auth-email-submit"]
+        XCTAssertTrue(submit.exists)
+        XCTAssertFalse(submit.isEnabled, "Empty credentials must not trigger a server request")
+        app.buttons["Регистрация"].tap()
+        XCTAssertTrue(app.buttons["Создать аккаунт"].exists)
+        XCTAssertFalse(submit.isEnabled)
+        app.buttons["Сброс пароля"].tap()
+        XCTAssertTrue(app.buttons["Отправить письмо"].exists)
+        XCTAssertFalse(submit.isEnabled)
+        app.buttons["Закрыть"].tap()
+        XCTAssertTrue(app.navigationBars["Профиль"].waitForExistence(timeout: 10))
+    }
+
     func testPrimaryScreensVisualBaseline() throws {
         let app = XCUIApplication()
         app.launchArguments = ["-botai-ui-testing", "-botai-reset-ui-test-data"]
