@@ -45,6 +45,20 @@ struct PackageRoundTripTests {
         #expect(imported.manifest.coursePlan == plan)
     }
 
+    @Test func bundledCourseSectionsAndTopicsRoundTripAndValidate() throws {
+        let section=PackageCourseSection(title:"Неорганическая",topics:[PackageCourseTopic(title:"Кислоты",questionSetIndexes:[0])])
+        let plan=PackageCoursePlan(title:"Химия",subject:"Химия",goals:[PackageCourseGoal(title:"Цель",questionSetIndexes:[0],masteryTarget:90,deadline:nil,guidance:nil)],sections:[section])
+        let manifest=BOTAIPackageManifest(formatVersion:1,title:"Кислоты",description:nil,author:nil,tags:nil,kind:.reference,
+            fields:[PackageField(key:"q",title:"Question",position:0,type:"text")],rows:[["q":"HCl"]],
+            questionSets:[PackageQuestionSet(kind:.card,promptTemplate:"{1}",promptFieldKeys:["q"],answers:[],showCorrectCount:false,enabled:true)],coursePlan:plan)
+        let restored=try JSONDecoder().decode(BOTAIPackageManifest.self,from:JSONEncoder().encode(manifest))
+        #expect(restored.coursePlan?.sections == [section])
+        try BOTAIPackageService.validateManifest(restored)
+        let invalid=PackageCoursePlan(title:"Химия",subject:"Химия",goals:plan.goals,sections:[PackageCourseSection(title:"Неорганическая",topics:[PackageCourseTopic(title:"Кислоты",questionSetIndexes:[7])])])
+        let broken=BOTAIPackageManifest(formatVersion:1,title:manifest.title,description:nil,author:nil,tags:nil,kind:.reference,fields:manifest.fields,rows:manifest.rows,questionSets:manifest.questionSets,coursePlan:invalid)
+        #expect(throws:BOTAIPackageError.self) { try BOTAIPackageService.validateManifest(broken) }
+    }
+
     @Test func invalidTeacherGoalReferencesRejectPackage() throws {
         let plan=PackageCoursePlan(title:"Chemistry",subject:"Химия",goals:[PackageCourseGoal(title:"Broken",questionSetIndexes:[99],masteryTarget:90,deadline:nil,guidance:nil)])
         let manifest=BOTAIPackageManifest(formatVersion:1,title:"Material",description:nil,author:nil,tags:nil,kind:.reference,

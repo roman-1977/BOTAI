@@ -42,6 +42,15 @@ enum BOTAIPackageService {
                       (1...100).contains(goal.masteryTarget) &&
                       !goal.questionSetIndexes.isEmpty &&
                       goal.questionSetIndexes.allSatisfy { $0 >= 0 && $0 < manifest.questionSets.count && manifest.questionSets[$0].enabled }
+                  }),
+                  course.sections.allSatisfy({ section in
+                      !section.title.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty &&
+                      !section.topics.isEmpty &&
+                      section.topics.allSatisfy({ topic in
+                          !topic.title.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty &&
+                          !topic.questionSetIndexes.isEmpty &&
+                          topic.questionSetIndexes.allSatisfy { $0 >= 0 && $0 < manifest.questionSets.count && manifest.questionSets[$0].enabled }
+                      })
                   }) else { throw BOTAIPackageError.invalidManifest }
         }
         for field in manifest.fields where field.type == "image" {

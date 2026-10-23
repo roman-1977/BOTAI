@@ -186,7 +186,11 @@ private struct AddMaterialSourceView: View {
                     if let plan=p.manifest.coursePlan {
                         let now=Date()
                         let goals=plan.goals.map { goal in LearningGoal(id:UUID(),title:goal.title,questionSets:goal.questionSetIndexes.map { refs[$0] },masteryTarget:goal.masteryTarget,deadline:goal.deadline,state:.active,guidance:goal.guidance) }
-                        let course=StudyCourse(id:UUID(),title:plan.title,description:p.manifest.description ?? "",subject:plan.subject,audience:"",estimatedMinutes:nil,author:p.manifest.author,language:"ru",coverSymbol:"graduationcap.fill",source:.importedPackage,sections:[],goals:goals,createdAt:now,updatedAt:now)
+                        let course=StudyCourse(id:UUID(),title:plan.title,description:p.manifest.description ?? "",subject:plan.subject,audience:"",estimatedMinutes:nil,author:p.manifest.author,language:"ru",coverSymbol:"graduationcap.fill",source:.importedPackage,sections:plan.sections.map { section in
+                            CourseSection(id:UUID(),title:section.title,description:"",estimatedMinutes:nil,topics:section.topics.map { topic in
+                                CourseTopic(id:UUID(),title:topic.title,questionSets:topic.questionSetIndexes.map { refs[$0] })
+                            })
+                        },goals:goals,createdAt:now,updatedAt:now)
                         courses.save(course)
                         if let error=courses.lastPersistenceError {
                             // The material was already committed: roll it back when course persistence fails.

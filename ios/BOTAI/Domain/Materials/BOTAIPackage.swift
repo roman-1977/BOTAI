@@ -31,6 +31,25 @@ struct PackageCoursePlan: Codable, Equatable, Sendable {
  let title:String
  let subject:String
  let goals:[PackageCourseGoal]
+ var sections:[PackageCourseSection] = []
+ enum CodingKeys:String,CodingKey { case title,subject,goals,sections }
+ init(title:String,subject:String,goals:[PackageCourseGoal],sections:[PackageCourseSection] = []) {
+  self.title=title;self.subject=subject;self.goals=goals;self.sections=sections
+ }
+ init(from decoder:Decoder)throws {
+  let c=try decoder.container(keyedBy:CodingKeys.self)
+  title=try c.decode(String.self,forKey:.title);subject=try c.decode(String.self,forKey:.subject)
+  goals=try c.decode([PackageCourseGoal].self,forKey:.goals)
+  sections=try c.decodeIfPresent([PackageCourseSection].self,forKey:.sections) ?? []
+ }
+}
+struct PackageCourseSection:Codable,Equatable,Sendable {
+ let title:String
+ let topics:[PackageCourseTopic]
+}
+struct PackageCourseTopic:Codable,Equatable,Sendable {
+ let title:String
+ let questionSetIndexes:[Int]
 }
 struct PackageCourseGoal: Codable, Equatable, Sendable {
  let title:String
