@@ -34,6 +34,16 @@ enum BOTAIPackageService {
               manifest.rows.allSatisfy({ Set($0.keys).isSubset(of: Set(keys)) }) else {
             throw BOTAIPackageError.invalidManifest
         }
+        if let course = manifest.coursePlan {
+            guard !course.title.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty,
+                  !course.goals.isEmpty,
+                  course.goals.allSatisfy({ goal in
+                      !goal.title.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty &&
+                      (1...100).contains(goal.masteryTarget) &&
+                      !goal.questionSetIndexes.isEmpty &&
+                      goal.questionSetIndexes.allSatisfy { $0 >= 0 && $0 < manifest.questionSets.count && manifest.questionSets[$0].enabled }
+                  }) else { throw BOTAIPackageError.invalidManifest }
+        }
         for field in manifest.fields where field.type == "image" {
             for row in manifest.rows {
                 guard let path = row[field.key], !path.isEmpty else { continue }

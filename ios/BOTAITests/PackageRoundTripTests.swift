@@ -3,6 +3,40 @@ import Testing
 @testable import BOTAI
 
 struct PackageRoundTripTests {
+    @Test @MainActor func bundledTeacherCourseImportsMaterialAndGuidanceWithMappedQuestionSets() throws {
+        let now=Date()
+        let advice=CourseLearningGuidance(priority:.critical,rationale:"Экзамен",difficulty:4,recommendedDailyMinutes:25)
+        let plan=PackageCoursePlan(title:"ЕГЭ химия",subject:"Химия",goals:[PackageCourseGoal(title:"Кислоты",questionSetIndexes:[0],masteryTarget:90,deadline:now,guidance:advice)])
+        let manifest=BOTAIPackageManifest(formatVersion:1,title:"Кислоты",description:"Тест",author:"Преподаватель",tags:"Химия",kind:.reference,
+            fields:[PackageField(key:"q",title:"Вопрос",position:0,type:"text"),PackageField(key:"a",title:"Ответ",position:1,type:"text")],
+            rows:[["q":"HCl?","a":"Соляная"]],questionSets:[PackageQuestionSet(kind:.card,promptTemplate:"{1}",promptFieldKeys:["q"],answers:[QuestionAnswerRule(template:"{1}",fieldKeys:["a"],correct:true)],showCorrectCount:false,enabled:true)],coursePlan:plan)
+        let decoded=try JSONDecoder().decode(BOTAIPackageManifest.self,from:JSONEncoder().encode(manifest))
+        #expect(decoded.coursePlan == plan)
+        try BOTAIPackageService.validateManifest(decoded)
+        let db=try AppDatabase(),repository=MaterialRepository(database:db)
+        let store=MaterialStore(repository:repository)
+        let root=FileManager.default.temporaryDirectory.appendingPathComponent("botai-guidance-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at:root,withIntermediateDirectories:true)
+        let refs=try store.importPackagePayload(BOTAIPackagePayload(manifest:decoded,root:root))
+        #expect(refs.count == 1)
+        let goal=LearningGoal(id:UUID(),title:plan.goals[0].title,questionSets:refs,masteryTarget:90,deadline:now,state:.active,guidance:advice)
+        let course=StudyCourse(id:UUID(),title:plan.title,description:"",subject:plan.subject,audience:"",estimatedMinutes:nil,author:nil,language:"ru",coverSymbol:"book",source:.importedPackage,sections:[],goals:[goal],createdAt:now,updatedAt:now)
+        let courseRepo=CourseRepository(database:db)
+        try courseRepo.save(course)
+        let restored=try #require(CourseRepository(database:db).courses().first)
+        #expect(restored.goals.first?.guidance == advice)
+        #expect(restored.goals.first?.questionSets == refs)
+        #expect(store.content(id:refs[0].materialID)?.rules.first?.id == refs[0].ruleID)
+    }
+
+    @Test func invalidTeacherGoalReferencesRejectPackage() throws {
+        let plan=PackageCoursePlan(title:"Chemistry",subject:"Химия",goals:[PackageCourseGoal(title:"Broken",questionSetIndexes:[99],masteryTarget:90,deadline:nil,guidance:nil)])
+        let manifest=BOTAIPackageManifest(formatVersion:1,title:"Material",description:nil,author:nil,tags:nil,kind:.reference,
+            fields:[PackageField(key:"q",title:"Question",position:0,type:"text")],rows:[["q":"HCl"]],
+            questionSets:[PackageQuestionSet(kind:.card,promptTemplate:"{1}",promptFieldKeys:["q"],answers:[],showCorrectCount:false,enabled:true)],coursePlan:plan)
+        #expect(throws:BOTAIPackageError.self) { try BOTAIPackageService.validateManifest(manifest) }
+    }
+
     @Test func exportsAndImportsPackageWithRealImageBytes() throws {
         let fm = FileManager.default
         let materialID = UUID()

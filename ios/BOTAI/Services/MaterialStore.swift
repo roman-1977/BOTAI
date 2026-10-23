@@ -45,7 +45,8 @@ final class MaterialStore {
         let p=try BOTAIPackageService.read(url);try importPackagePayload(p,title:overrideTitle)
     }
 
-    func importPackagePayload(_ p: BOTAIPackagePayload, title overrideTitle: String? = nil) throws {
+    @discardableResult
+    func importPackagePayload(_ p: BOTAIPackagePayload, title overrideTitle: String? = nil) throws -> [CourseRuleReference] {
         guard let repository else { throw CocoaError(.fileNoSuchFile) };let id=UUID(),now=Date();let mediaDir=MaterialMediaStore.directory(for:id);try BOTAIPackageService.validateManifest(p.manifest);try FileManager.default.createDirectory(at:mediaDir,withIntermediateDirectories:true)
         defer { try? FileManager.default.removeItem(at: p.root) }
         var imported = false
@@ -54,6 +55,7 @@ final class MaterialStore {
         let rows=try p.manifest.rows.enumerated().map{pos,row in var v=row;for key in imageKeys {if let rel=v[key]{let src=p.root.appendingPathComponent(rel);guard FileManager.default.fileExists(atPath:src.path) else { throw BOTAIPackageError.invalidManifest };let dst=mediaDir.appendingPathComponent(rel.replacingOccurrences(of:"/",with:"__"));if !FileManager.default.fileExists(atPath:dst.path){try FileManager.default.copyItem(at:src,to:dst)};v[key]=MaterialMediaStore.reference(materialID:id,fileName:dst.lastPathComponent)}};return KnowledgeRow(id:UUID(),materialID:id,position:pos,values:v)}
         let rules=p.manifest.questionSets.map{q in let kind=q.kind;return QuestionRule(id:UUID(),materialID:id,kind:kind,promptFieldKey:q.promptFieldKeys.first ?? "",answerFieldKey:q.answers.first?.fieldKeys.first ?? "",promptTemplate:q.promptTemplate,promptFieldKeys:q.promptFieldKeys,answers:q.answers,showCorrectCount:q.showCorrectCount,enabled:q.enabled)}
         let m=StudyMaterialRecord(id:id,title:overrideTitle ?? p.manifest.title,subject:nil,topic:p.manifest.tags,description:p.manifest.description,author:p.manifest.author,kind:p.manifest.kind,source:.importedPackage,createdAt:now,updatedAt:now);try repository.save(material:m,fields:fields,rows:rows,rules:rules);imported = true;refresh()
+        return rules.map { CourseRuleReference(materialID:id,ruleID:$0.id) }
     }
 
     func exportPackage(id: UUID) throws -> URL { guard let repository,let c=try repository.content(id:id) else { throw CocoaError(.fileNoSuchFile) };return try BOTAIPackageService.write(c) }
