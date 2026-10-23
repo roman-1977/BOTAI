@@ -44,7 +44,9 @@ enum DailyPlanner {
    guard !cs.isEmpty else{return .init(date:date,budgetMinutes:budget,goals:[])}
    let ranked = cs.sorted {
     if $0.urgency != $1.urgency { return $0.urgency > $1.urgency }
-    return guidanceRank($0.goal.guidance?.priority) > guidanceRank($1.goal.guidance?.priority)
+    let a = guidanceRank($0.goal.guidance?.priority), b = guidanceRank($1.goal.guidance?.priority)
+    if a != b { return a > b }
+    return guidanceDifficultyRank($0.goal.guidance?.difficulty) > guidanceDifficultyRank($1.goal.guidance?.difficulty)
    }
    // Prepare unique question pools before assigning time. An overlapping goal
    // with no remaining unique work must not consume the shared daily budget.
@@ -131,6 +133,10 @@ enum DailyPlanner {
 
  // Recommendations break ties between equally urgent goals. Deadline and actual
  // mastery still lead, so teacher guidance never overrides student evidence.
+ static func guidanceDifficultyRank(_ difficulty: Int?) -> Int {
+  guard let difficulty, (1...5).contains(difficulty) else { return 0 }
+  return difficulty
+ }
  static func guidanceRank(_ priority: CourseLearningGuidance.Priority?) -> Int {
   switch priority { case .critical: return 2; case .elevated: return 1; case .standard, nil: return 0 }
  }

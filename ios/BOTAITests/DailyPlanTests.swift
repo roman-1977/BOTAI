@@ -387,10 +387,41 @@ struct CourseGuidanceCompatibilityTests {
 }
 
 struct TeacherGuidanceOrderingTests {
+ @Test func difficultyIsOnlyAnOrdinalTieBreaker() {
+  #expect(DailyPlanner.guidanceDifficultyRank(nil) == 0)
+  #expect(DailyPlanner.guidanceDifficultyRank(9) == 0)
+  #expect(DailyPlanner.guidanceDifficultyRank(5) > DailyPlanner.guidanceDifficultyRank(2))
+ }
  @Test func prioritiesAreOrderedWithoutChangingLegacyDefault() {
   #expect(DailyPlanner.guidanceRank(nil) == DailyPlanner.guidanceRank(.standard))
   #expect(DailyPlanner.guidanceRank(.critical) > DailyPlanner.guidanceRank(.elevated))
   #expect(DailyPlanner.guidanceRank(.elevated) > DailyPlanner.guidanceRank(.standard))
+ }
+}
+
+@MainActor struct TeacherDifficultyPlanIntegrationTests {
+ @Test func difficultyBreaksEqualUrgencyWithoutOverridingTeacherPriorityOrBudget() throws {
+  let database = try AppDatabase()
+  let materialID = UUID(), ruleID = UUID()
+  let material = StudyMaterialRecord(id:materialID,title:"Chemistry",subject:"Химия",topic:nil,kind:.quiz,source:.created,createdAt:.now,updatedAt:.now)
+  let rows = (0..<3).map { KnowledgeRow(id:UUID(),materialID:materialID,position:$0,values:["q":"Q\($0)","a":"A\($0)"]) }
+  let rule = QuestionRule(id:ruleID,materialID:materialID,kind:.card,promptFieldKey:"q",answerFieldKey:"a",promptFieldKeys:["q"],answers:[.init(template:"{1}",fieldKeys:["a"],correct:true)],enabled:true)
+  try MaterialRepository(database:database).save(material:material,fields:[],rows:rows,rules:[rule])
+  let ref = CourseRuleReference(materialID:materialID,ruleID:ruleID)
+  let low = LearningGoal(id:UUID(),title:"Easy",questionSets:[ref],masteryTarget:90,deadline:nil,state:.active,guidance:.init(priority:.standard,difficulty:1))
+  let high = LearningGoal(id:UUID(),title:"Hard",questionSets:[ref],masteryTarget:90,deadline:nil,state:.active,guidance:.init(priority:.standard,difficulty:5))
+  let course = StudyCourse(id:UUID(),title:"Course",description:"",subject:"Химия",audience:"",estimatedMinutes:nil,author:nil,language:"ru",coverSymbol:"book",source:.created,sections:[],goals:[low,high],createdAt:.now,updatedAt:.now)
+  let materials = MaterialStore(repository:MaterialRepository(database:database))
+  let learning = LearningStore(questions:[],repository:LearningRepository(database:database))
+  let profile = StudyProfile(defaultDailyMinutes:10,customDays:[],updatedAt:.now)
+  let plan = DailyPlanner.make(courses:[course],materials:materials,learning:learning,profile:profile)
+  #expect(plan.goals.count == 1) // same questionnaire is scheduled once
+  #expect(plan.goals.first?.title == "Hard")
+  #expect(plan.plannedMinutes <= plan.budgetMinutes)
+  var promoted = course
+  promoted.goals[0].guidance = .init(priority:.critical,difficulty:1)
+  let priorityPlan = DailyPlanner.make(courses:[promoted],materials:materials,learning:learning,profile:profile)
+  #expect(priorityPlan.goals.first?.title == "Easy")
  }
 }
 
