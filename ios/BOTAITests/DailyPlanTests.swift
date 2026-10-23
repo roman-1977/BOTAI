@@ -441,3 +441,16 @@ struct TeacherPaceAssessmentTests {
   #expect(DailyPlanner.assessPace(guidance:nil,allocatedMinutes:20) == .notProvided)
  }
 }
+
+struct CrossGoalQuestionDedupTests {
+ @Test func repeatedQuestionsAreOnlyScheduledOnceAcrossGoals() {
+  let shared=StudyQuestion(id:UUID(),prompt:"Shared",answer:"A",kind:.reveal,choices:[],correctChoiceIndexes:[],knowledgeID:UUID())
+  let extra=StudyQuestion(id:UUID(),prompt:"Extra",answer:"B",kind:.reveal,choices:[],correctChoiceIndexes:[],knowledgeID:UUID())
+  var seen=Set<UUID>()
+  let first=DailyPlanner.takeUnique([shared],count:1,seen:&seen)
+  let second=DailyPlanner.takeUnique([shared,extra],count:1,seen:&seen)
+  #expect(first.map(\.id) == [shared.id])
+  #expect(second.map(\.id) == [extra.id])
+  #expect(seen.count == 2)
+ }
+}

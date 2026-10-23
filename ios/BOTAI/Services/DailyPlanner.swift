@@ -49,15 +49,29 @@ enum DailyPlanner {
    let allocations = allocateMinutes(
     budget: budget, urgencies: ranked.map(\.urgency))
    var plans:[DailyStudyPlan.GoalPlan]=[]
+   var scheduledQuestionIDs=Set<UUID>()
    for (i,x) in ranked.enumerated() {
     let allocated = allocations[i]
     // A rest day offers optional questions, but creates no required minutes.
     if allocated == 0 && budget > 0 { continue }
     let count=min(x.questions.count,max(1,allocated*2))
-    let selected=adaptiveQuestions(goal:x.goal,materials:materials,learning:learning,count:count,date:date)
+    let selected=adaptiveQuestions(goal:x.goal,materials:materials,learning:learning,count:count,date:date,excluding:&scheduledQuestionIDs)
+    guard !selected.isEmpty else { continue }
     plans.append(.init(id:x.goal.id,courseID:x.course.id,goalID:x.goal.id,title:x.goal.title,minutes:allocated,questions:selected,mastery:x.mastery,target:x.goal.masteryTarget,deadline:x.goal.deadline))
    }
    return .init(date:date,budgetMinutes:budget,goals:plans)
+ }
+
+ // A shared questionnaire may be referenced by multiple goals. Do not schedule
+ // the same question twice; fill the slot with the next eligible question.
+ static func takeUnique(_ questions: [StudyQuestion], count: Int, seen: inout Set<UUID>) -> [StudyQuestion] {
+  guard count > 0 else { return [] }
+  var selected:[StudyQuestion]=[]
+  for question in questions where seen.insert(question.id).inserted {
+   selected.append(question)
+   if selected.count == count { break }
+  }
+  return selected
  }
 
  // Guarantee each goal a share when the user has enough minutes. Remaining
@@ -107,14 +121,14 @@ enum DailyPlanner {
   switch priority { case .critical: return 2; case .elevated: return 1; case .standard, nil: return 0 }
  }
 
- @MainActor private static func adaptiveQuestions(goal:LearningGoal,materials:MaterialStore,learning:LearningStore,count:Int,date:Date)->[StudyQuestion] {
+ @MainActor private static func adaptiveQuestions(goal:LearningGoal,materials:MaterialStore,learning:LearningStore,count:Int,date:Date,excluding seen:inout Set<UUID>)->[StudyQuestion] {
    // Rank across all referenced sets: a due card in a later set must not
    // be displaced by a new/not-due card in an earlier set.
    let all=goal.questionSets.flatMap { ref -> [StudyQuestion] in
      guard let content=materials.content(id:ref.materialID) else{return []}
      return StudyQuestionBuilder.questions(for:ref,content:content)
    }
-   return Array(StudyQuestionSelection.select(all, knowledgeStates: learning.knowledgeStates, now: date).prefix(count))
+   return takeUnique(StudyQuestionSelection.select(all, knowledgeStates: learning.knowledgeStates, now: date),count:count,seen:&seen)
  }
 }
 
