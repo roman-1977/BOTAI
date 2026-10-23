@@ -53,3 +53,7 @@ Extended the optional `CourseLearningGuidance` payload with `difficulty` (1–5)
 ### Suggested pace comparison and chemistry direct seed — 2026-10-23
 
 The direct chemistry SQLite seed now supplies `difficulty=4` and `recommendedDailyMinutes=25` alongside teacher priority and rationale. Student Today compares each goal's **actual allocated minutes** against teacher-suggested pace and labels the difference as a BOTAI plan comparison, not an automatic budget change. This respects multi-goal allocations and zero-minute rest days. The pure `DailyPlanner.assessPace` function has below/equal/above/absent/rest-day regression assertions; simulator **168/168 unit PASS** (`/tmp/botai_rc04_pace_assessment_units_20261023.log`), Python seed syntax PASS. Still missing: real adaptive difficulty use, course-level import, full UI tests, cross-goal question dedup and process restart.
+
+### Cross-goal question deduplication — 2026-10-23
+
+Repeated StudyQuestion IDs are scheduled once across active goals. Later goals fill from next eligible unique question; goals with no remaining unique questions are omitted. Allocated minutes for such empty goals are not yet redistributed (open). Mastery still deduplicates knowledge IDs separately. Simulator 169/169 unit PASS (`/tmp/botai_rc04_dedup_units_20261023.log`). Full import/adaptive difficulty/UI acceptance open.

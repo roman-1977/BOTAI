@@ -169,3 +169,7 @@ RC-06 hosted acceptance now tests forbidden foreign-owner INSERT for both tables
 RC-06 consolidated verification: `tools/verify_rc06_disposable_postgres.sh` replays all three rollback-only SQL security fixtures on pre-existing disposable PostgreSQL cluster, PASS `/tmp/botai_rc06_sql_replay_20261023.log`. It refuses running clusters and stops its own server. Next required: hosted Supabase and real network/device acceptance; no production changes authorized.
 
 Consolidated signed simulator full unit/UI regression PASS: `/tmp/botai_rc06_consolidated_full_20261023.log`. Live Supabase test runs in safe disabled mode; do not call it hosted PASS.
+
+### Cross-goal question deduplication — 2026-10-23
+
+Repeated StudyQuestion IDs are scheduled once across active goals. Later goals fill from next eligible unique question; goals with no remaining unique questions are omitted. Allocated minutes for such empty goals are not yet redistributed (open). Mastery still deduplicates knowledge IDs separately. Simulator 169/169 unit PASS (`/tmp/botai_rc04_dedup_units_20261023.log`). Full import/adaptive difficulty/UI acceptance open.

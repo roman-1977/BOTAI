@@ -228,3 +228,7 @@ RC-04 2026-10-23: teacher priority now breaks equal-urgency goal ties in DailyPl
 2026-10-23 RC-04: optional difficulty (1–5) and teacher suggested daily minutes (1–240) in local course guidance; invalid values ignored, shown on Today without modifying learner budget. 167/167 simulator unit PASS. Planner integration/general import/UI acceptance open.
 
 2026-10-23 RC-04: chemistry direct seed includes difficulty 4 and suggested 25 min/day; Today compares teacher pace to BOTAI allocated goal minutes without changing profile budget. 168/168 simulator units PASS, Python seed syntax PASS. RC-04 P0 OPEN.
+
+### Cross-goal question deduplication — 2026-10-23
+
+Repeated StudyQuestion IDs are scheduled once across active goals. Later goals fill from next eligible unique question; goals with no remaining unique questions are omitted. Allocated minutes for such empty goals are not yet redistributed (open). Mastery still deduplicates knowledge IDs separately. Simulator 169/169 unit PASS (`/tmp/botai_rc04_dedup_units_20261023.log`). Full import/adaptive difficulty/UI acceptance open.
