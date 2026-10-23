@@ -29,6 +29,22 @@ struct PackageRoundTripTests {
         #expect(store.content(id:refs[0].materialID)?.rules.first?.id == refs[0].ruleID)
     }
 
+    @Test func teacherCourseSurvivesActualBotaiZipRead() throws {
+        let plan=PackageCoursePlan(title:"Chemistry",subject:"Химия",goals:[PackageCourseGoal(title:"Acids",questionSetIndexes:[0],masteryTarget:85,deadline:nil,guidance:CourseLearningGuidance(priority:.elevated,recommendedDailyMinutes:20))])
+        let manifest=BOTAIPackageManifest(formatVersion:1,title:"Acids",description:nil,author:nil,tags:nil,kind:.reference,
+            fields:[PackageField(key:"q",title:"Question",position:0,type:"text")],rows:[["q":"HCl"]],
+            questionSets:[PackageQuestionSet(kind:.card,promptTemplate:"{1}",promptFieldKeys:["q"],answers:[],showCorrectCount:false,enabled:true)],coursePlan:plan)
+        let root=FileManager.default.temporaryDirectory.appendingPathComponent("botai-course-zip-\(UUID().uuidString)")
+        let archive=FileManager.default.temporaryDirectory.appendingPathComponent("botai-course-zip-\(UUID().uuidString).botai")
+        try FileManager.default.createDirectory(at:root,withIntermediateDirectories:true)
+        defer { try? FileManager.default.removeItem(at:root);try? FileManager.default.removeItem(at:archive) }
+        try JSONEncoder().encode(manifest).write(to:root.appendingPathComponent("manifest.json"))
+        try FileManager.default.zipItem(at:root,to:archive,shouldKeepParent:false)
+        let imported=try BOTAIPackageService.read(archive)
+        defer { try? FileManager.default.removeItem(at:imported.root) }
+        #expect(imported.manifest.coursePlan == plan)
+    }
+
     @Test func invalidTeacherGoalReferencesRejectPackage() throws {
         let plan=PackageCoursePlan(title:"Chemistry",subject:"Химия",goals:[PackageCourseGoal(title:"Broken",questionSetIndexes:[99],masteryTarget:90,deadline:nil,guidance:nil)])
         let manifest=BOTAIPackageManifest(formatVersion:1,title:"Material",description:nil,author:nil,tags:nil,kind:.reference,
