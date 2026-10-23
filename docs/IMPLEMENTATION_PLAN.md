@@ -45,7 +45,7 @@ This section supersedes the historical “in progress” labels above. **Goal: l
 |---|---|---|---|
 | P0 | Session launch, ordering, resume | Topic/subject/all, mixed/cards/tests, automatic/all, durable cursor and reset verified; 36 card/choice and 18 mixed availability states. Distinct-subject exhaustive E2E not evidenced | **IMPLEMENTED / acceptance PARTIAL** |
 | P0 | Automated session matrix | Card-only 18, choice-only 18, mixed-catalog 18 availability states; actual launch/feedback and shared-set tests PASS. Exhaustive full-session multi-subject E2E remains | **SUBSTANTIALLY TESTED / edge matrix pending** |
-| P0 | Teacher-guided adaptive planning | Due-first, new/future fallback, stable tie and date handling implemented. Teacher inputs, difficulty/pace/weakness scoring remain unimplemented | **OPEN — functional gap** |
+| P0 | Teacher-guided adaptive planning | Due-first, new/future fallback, stable tie and date handling implemented. Teacher inputs, difficulty/pace/weakness scoring remain unimplemented | **BASELINE IMPLEMENTED / teacher policy decision pending** |
 | P0 | Completed-session aggregate sync | Disk-backed retry/ACK, offline Keychain, account isolation, PostgreSQL migrations 0025/0026 and 3 RLS fixtures PASS. Owner accepts deferring hosted/device gates; not a live-backend PASS | **LOCAL ACCEPTANCE COMPLETE / external deferred** |
 | P0 | Visual/accessibility audit | Small/standard/large iPhone, home no-scroll, chart, VoiceOver, Dynamic Type and Reduce Motion evidence still missing | **OPEN** |
 | P0 | Final regression | At `95cd330`: signed 159/159 unit + 25/25 UI PASS; separate seeded chemistry 2/2 PASS at earlier checkpoint. Rerun after final code changes | **CURRENT PASS / final rerun pending** |
@@ -120,3 +120,7 @@ RC-06 (2026-10-23): deterministic SQLite cold-relaunch → offline failure → r
 RC-06 hosted acceptance harness: `LiveSupabaseSyncTests.aggregateOnlyIdempotentUploadAndTwoAccountIsolation` verifies server ACK, duplicate retry and cross-user RLS read on disposable Supabase. Keep disabled until test project and migrations 0025/0026 are explicitly confirmed; extend with topic ACK and revoked token tests. Routine focused compile/tests do not exercise the hosted service.
 
 RC-06 repeatable SQL security gate: run `tools/verify_rc06_disposable_postgres.sh` only on the disposable Mac cluster; fail closed if absent/already running. Confirm all three fixtures PASS. This covers SQL RLS with shim only. Hosted Supabase ACK/RLS, genuine offline interruption and physical device remain separate acceptance gates.
+
+### RC-04 contract audit — 2026-10-23
+
+Existing daily planner already uses goal mastery, deadline deficit, profile budget, due/new/not-due priority and deterministic ordering. Teacher-guided assignment/priority/difficulty/pace is **not** implemented; separate teacher role and multi-goal time policy remain unresolved in `docs/OPEN_QUESTIONS.md`. No arbitrary scoring formula is authorized. Detailed gap audit: `docs/iterations/RC04_ADAPTIVE_CONTRACT_AUDIT_2026-10-23.md`.
