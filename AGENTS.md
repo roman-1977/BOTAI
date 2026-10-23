@@ -28,7 +28,7 @@ Core concept:
 
 ## Current phase
 
-Architecture approved; iOS implementation and UX prototyping are in progress.
+Architecture approved; v0.3.0 chemistry pilot is in RC hardening (overall NOT RC). Verified 2026-10-23 simulator baseline: 177/177 unit and 25/25 UI PASS at `6bce16f`. Current gates and next steps are in `docs/releases/RC_0.3.0_READINESS.md` and `docs/IMPLEMENTATION_PLAN.md`; do not treat older phase notes as current.
 
 Continue in roadmap order where practical; preserve accepted ADRs and keep accepted UX documentation synchronized with implementation.
 

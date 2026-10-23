@@ -1,5 +1,7 @@
 # BOTAI Client — implementation plan
 
+> **CURRENT AUTHORITATIVE SNAPSHOT (2026-10-23; baseline commit `6bce16f`).** Branch `feature/v0.3.0-chemistry-pilot`. Complete sequential iPhone 16e simulator run: **177/177 unit and 25/25 UI PASS**, exit 0, `/tmp/botai_rc04_full_final_20261023.log`. Separately seeded chemistry UI: **2/2 PASS** at an earlier checkpoint, not included in the full run. RC-08 PASS for this baseline, but **overall NOT RC**. RC-04 P0 OPEN: `.botai` one-material coursePlan imports goals/sections/topics/guidance, SQLite persistence and Today recommendation sheet work; teacher priority breaks observed-urgency ties and suggested pace is compared without overriding profile minutes. Difficulty is informational only; multi-material course transport and full teacher-guided acceptance remain OPEN. RC-05 multi-size/accessibility/device OPEN; RC-06 local aggregate-sync and disposable SQL gates PASS, hosted/device checks deferred by owner; RC-07 partial; RC-09 distribution deferred. User-owned `ios/BOTAI.xcodeproj/project.pbxproj` must never be staged, overwritten or reverted. Older dated checkpoints below are historical, not the current status.
+
 Goal: make the current iOS client independently usable offline, with optional account/sync features and a future Studio that shares the package format.
 
 ## Definition of done for Client v1
@@ -39,19 +41,17 @@ Accessibility, localization-ready strings, malformed package tests, migration te
 
 This section supersedes the historical “in progress” labels above. **Goal: local RC acceptance, not publication.** Do not start TestFlight or App Store submission without separate owner approval. Preserve the independently modified `ios/BOTAI.xcodeproj/project.pbxproj`.
 
-| Priority | Work package | Exit criteria / proof | State |
-|---|---|---|---|
 | Priority | Work package | Verified progress and real remainder | State |
 |---|---|---|---|
 | P0 | Session launch, ordering, resume | Topic/subject/all, mixed/cards/tests, automatic/all, durable cursor and reset verified; 36 card/choice and 18 mixed availability states. Distinct-subject exhaustive E2E not evidenced | **IMPLEMENTED / acceptance PARTIAL** |
 | P0 | Automated session matrix | Card-only 18, choice-only 18, mixed-catalog 18 availability states; actual launch/feedback and shared-set tests PASS. Exhaustive full-session multi-subject E2E remains | **SUBSTANTIALLY TESTED / edge matrix pending** |
-| P0 | Teacher-guided adaptive planning | Due-first, new/future fallback, stable tie and date handling implemented. Teacher inputs, difficulty/pace/weakness scoring remain unimplemented | **BASELINE IMPLEMENTED / teacher policy decision pending** |
+| P0 | Teacher-guided adaptive planning | Due-first, new/future fallback, stable tie and date handling implemented. Teacher guidance imported/persisted/displayed; priority breaks observed-urgency ties, pace compared without changing budget; difficulty weighting and multi-material transport OPEN | **PARTIAL / difficulty adaptation and teacher authority OPEN** |
 | P0 | Completed-session aggregate sync | Disk-backed retry/ACK, offline Keychain, account isolation, PostgreSQL migrations 0025/0026 and 3 RLS fixtures PASS. Owner accepts deferring hosted/device gates; not a live-backend PASS | **LOCAL ACCEPTANCE COMPLETE / external deferred** |
 | P0 | Visual/accessibility audit | Small/standard/large iPhone, home no-scroll, chart, VoiceOver, Dynamic Type and Reduce Motion evidence still missing | **OPEN** |
-| P0 | Final regression | At `95cd330`: signed 159/159 unit + 25/25 UI PASS; separate seeded chemistry 2/2 PASS at earlier checkpoint. Rerun after final code changes | **CURRENT PASS / final rerun pending** |
+| P0 | Final regression | At `6a2a5d7`: signed 177/177 unit + 25/25 UI PASS; separate seeded chemistry 2/2 PASS at earlier checkpoint. Rerun after final code changes | **PASS / 2026-10-23 clean serial full suite** |
 | P1 | Public content and Apple policy | Authoring, moderation, reports, block, deletion and privacy operational acceptance not fully verified | **PARTIAL** |
 | P1 | Distribution readiness | Local simulator Release build exists; signing, metadata, device and TestFlight not verified; publication explicitly deferred | **DEFERRED** |
-| P1 | Handoff and RC signoff | Per-commit evidence exists; current summary reconciled at `95cd330`; final signoff pending | **IN PROGRESS** |
+| P1 | Handoff and RC signoff | Per-commit evidence exists; current summary reconciled after `6bce16f`; final signoff pending | **IN PROGRESS** |
 
 **Execution order:** (1) close deterministic session-mode tests; (2) finish adaptive policy and tests; (3) disposable-backend/offline sync verification; (4) device visual/accessibility checks; (5) full isolated regressions; (6) privacy/moderation and release checklist. Re-evaluate remaining gaps after each gate; no RC tag until mandatory gates pass or owner explicitly scopes them out.
 
